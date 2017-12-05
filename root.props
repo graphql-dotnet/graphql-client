@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+	<PropertyGroup>
+		<RepositoryUrl>TODO</RepositoryUrl>
+		<PackageLicenseUrl>TODO</PackageLicenseUrl>
+		<PackageProjectUrl>TODO</PackageProjectUrl>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Deinok</Authors>
+		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<LangVersion>7.1</LangVersion>
+		<NeutralLanguage>en</NeutralLanguage>
+		<NoWarn>CS1591</NoWarn>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<RepositoryType>git</RepositoryType>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<VersionPrefix>1.0.0</VersionPrefix>
+		<VersionSufix>alpha1</VersionSufix>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+
+</Project>

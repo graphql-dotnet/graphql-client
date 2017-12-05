@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="../tests.props" />
+	
+	<PropertyGroup>
+		<TargetFramework>netcoreapp2.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
+	</ItemGroup>
+
+</Project>

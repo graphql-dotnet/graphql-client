@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F1-4428-863E-2C5C876DEEFE}"
+	ProjectSection(SolutionItems) = preProject
+		src\src.props = src\src.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Common", "src\GraphQL.Common\GraphQL.Common.csproj", "{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client", "src\GraphQL.Client\GraphQL.Client.csproj", "{42BEFACE-39F9-4FE4-B725-15CD2B16292E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63F75859-4698-4EDE-8B70-4ACBB8BC425A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+		root.props = root.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}"
+	ProjectSection(SolutionItems) = preProject
+		tests\tests.props = tests\tests.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Tests", "tests\GraphQL.Client.Tests\GraphQL.Client.Tests.csproj", "{FEDAE425-B505-4DD6-98ED-3F8593358FC8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEDAE425-B505-4DD6-98ED-3F8593358FC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEDAE425-B505-4DD6-98ED-3F8593358FC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEDAE425-B505-4DD6-98ED-3F8593358FC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEDAE425-B505-4DD6-98ED-3F8593358FC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{42BEFACE-39F9-4FE4-B725-15CD2B16292E} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{FEDAE425-B505-4DD6-98ED-3F8593358FC8} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}
+	EndGlobalSection
+EndGlobal

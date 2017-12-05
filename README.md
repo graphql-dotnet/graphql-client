@@ -1,1 +1,1 @@
-# GraphQL.Client
+# GraphQL.Client:
