@@ -2,20 +2,17 @@
 <Project>
 
 	<PropertyGroup>
-		<RepositoryUrl>TODO</RepositoryUrl>
-		<PackageLicenseUrl>TODO</PackageLicenseUrl>
-		<PackageProjectUrl>TODO</PackageProjectUrl>
-	</PropertyGroup>
-
-	<PropertyGroup>
 		<Authors>Deinok</Authors>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<LangVersion>7.1</LangVersion>
+		<LangVersion>latest</LangVersion>
 		<NeutralLanguage>en</NeutralLanguage>
 		<NoWarn>CS1591</NoWarn>
+		<PackageLicenseUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/LICENSE.txt</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/deinok/GraphQL.Client</PackageProjectUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/deinok/GraphQL.Client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 		<VersionPrefix>1.0.0</VersionPrefix>
 		<VersionSufix>alpha1</VersionSufix>
