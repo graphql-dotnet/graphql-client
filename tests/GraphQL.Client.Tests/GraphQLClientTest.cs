@@ -14,40 +14,7 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void PostSchemaTypesNameFact() {
-			var graphQLQuery = new GraphQLQuery {
-				Query =
-				@"{
-					pokemon(name: ""Pikachu"") {
-						id,
-						number,
-						name,
-						attacks {
-							special {
-								name,
-								type,
-								damage
-							}
-						},
-						evolutions {
-							id,
-							number,
-							name,
-							weight {
-								minimum,
-								maximum
-							},
-							attacks {
-								fast {
-									name,
-									type,
-									damage
-								}
-							}
-						}
-					}
-				}"
-			};
-			var graphQLResponse = await this.GraphQLClient.PostAsync(graphQLQuery).ConfigureAwait(false);
+			var graphQLResponse = await this.GraphQLClient.PostAsync(ConstQueries.PokemonPikatchuQuery).ConfigureAwait(false);
 			Assert.NotNull(graphQLResponse.Data);
 			Assert.Null(graphQLResponse.Errors);
 		}
