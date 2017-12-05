@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="../tests.props" />
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp2.0</TargetFramework>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
+		<ProjectReference Include="..\..\src\GraphQL.Common\GraphQL.Common.csproj" />
 	</ItemGroup>
 
 </Project>
