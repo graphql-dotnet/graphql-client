@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using GraphQL.Client.Response;
 using GraphQL.Common;
+using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
 

@@ -1,5 +1,5 @@
 using System;
-using GraphQL.Client.Response;
+using GraphQL.Common.Response;
 
 namespace GraphQL.Common {
 

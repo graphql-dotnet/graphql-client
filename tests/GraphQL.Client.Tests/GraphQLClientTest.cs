@@ -1,4 +1,5 @@
 using System;
+using GraphQL.Client;
 using Xunit;
 
 namespace GraphQL.Client.Tests {

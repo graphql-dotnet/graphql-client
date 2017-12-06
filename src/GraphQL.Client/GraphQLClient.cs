@@ -2,9 +2,9 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GraphQL.Common;
-using GraphQL.Client.Response;
 using Newtonsoft.Json;
 using System.Text;
+using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
 

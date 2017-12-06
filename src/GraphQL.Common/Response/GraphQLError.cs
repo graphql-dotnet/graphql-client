@@ -1,4 +1,4 @@
-namespace GraphQL.Client.Response {
+namespace GraphQL.Common.Response {
 
 	public class GraphQLError {
 

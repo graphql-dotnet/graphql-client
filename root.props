@@ -7,7 +7,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<LangVersion>latest</LangVersion>
 		<NeutralLanguage>en</NeutralLanguage>
-		<NoWarn>CS1591</NoWarn>
+		<NoWarn>CS1591;CS1701</NoWarn>
 		<PackageLicenseUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/LICENSE.txt</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/deinok/GraphQL.Client</PackageProjectUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
