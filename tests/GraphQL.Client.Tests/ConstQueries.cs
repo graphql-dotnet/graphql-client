@@ -1,13 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using GraphQL.Common;
 
 namespace GraphQL.Client.Tests {
 
 	public static class ConstQueries {
 
-		public static readonly GraphQLQuery PokemonPikatchuQuery = new GraphQLQuery {
+		public static readonly GraphQLQuery SchemaTypeNameQuery = new GraphQLQuery {
+			Query =
+				@"query Schema {
+					__schema {
+						types {
+							name
+						}
+					}
+				}",
+			OperationName = "Schema",
+			Variables = null
+		};
+
+		public static readonly GraphQLQuery PokemonPikachuQuery = new GraphQLQuery {
 			Query =
 				@"{
 					pokemon(name: ""Pikachu"") {
@@ -42,6 +52,7 @@ namespace GraphQL.Client.Tests {
 			OperationName = null,
 			Variables = null
 		};
+
 	}
 
 }
