@@ -15,12 +15,12 @@ namespace GraphQL.Common {
 		/// <summary>
 		/// The Name of the operation
 		/// </summary>
-		public string? OperationName { get; set; }
+		public string OperationName { get; set; }
 
 		/// <summary>
 		/// The Variables
 		/// </summary>
-		public JObject? Variables { get; set; }
+		public JObject Variables { get; set; }
 
 	}
 }

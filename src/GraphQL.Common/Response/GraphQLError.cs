@@ -13,7 +13,7 @@ namespace GraphQL.Common.Response {
 		/// <summary>
 		/// The Location of an error
 		/// </summary>
-		public GraphQLLocation[]? Locations { get; set; }
+		public GraphQLLocation[] Locations { get; set; }
 
 	}
 

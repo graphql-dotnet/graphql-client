@@ -8,9 +8,9 @@ namespace GraphQL.Common.Response {
 	/// </summary>
 	public class GraphQLResponse {
 
-		public JObject? Data { get; set; }
+		public JObject Data { get; set; }
 
-		public GraphQLError[]? Errors { get; set; }
+		public GraphQLError[] Errors { get; set; }
 
 		public dynamic GetData() => JsonConvert.DeserializeObject<dynamic>(this.Data.ToString());
 
