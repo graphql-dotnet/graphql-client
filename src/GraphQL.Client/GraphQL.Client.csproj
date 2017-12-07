@@ -4,7 +4,7 @@
 	<Import Project="../src.props" />
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard1.4;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netstandard1.1;netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>
