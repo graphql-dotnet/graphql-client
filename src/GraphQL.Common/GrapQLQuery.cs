@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace GraphQL.Common {
 
 	/// <summary>
@@ -14,15 +12,9 @@ namespace GraphQL.Common {
 		public string Query { get; set; }
 
 		/// <summary>
-		/// The Name of the operation.
-		/// Only required if multiple operations are present in the query.
-		/// </summary>
-		public string OperationName { get; set; }
-
-		/// <summary>
 		/// The Variables
 		/// </summary>
-		public JObject Variables { get; set; }
+		public dynamic Variables { get; set; }
 
 	}
 }

@@ -13,7 +13,6 @@ namespace GraphQL.Client.Tests {
 						}
 					}
 				}",
-			OperationName = "Schema",
 			Variables = null
 		};
 
@@ -49,7 +48,6 @@ namespace GraphQL.Client.Tests {
 						}
 					}
 				}",
-			OperationName = null,
 			Variables = null
 		};
 

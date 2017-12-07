@@ -93,7 +93,6 @@ namespace GraphQL.Client {
 						}
 					}
 				}".Replace("\t","").Replace("\n", "").Replace("\r", ""),
-			OperationName = "IntrospectionQuery",
 			Variables = null
 		};
 
