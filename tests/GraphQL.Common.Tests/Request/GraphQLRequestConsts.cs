@@ -4,7 +4,7 @@ namespace GraphQL.Common.Tests.Request {
 
 	public static class GraphQLRequestConsts {
 
-		public static readonly GraphQLRequest SchemaTypeNameQuery = new GraphQLRequest {
+		public static GraphQLRequest SchemaTypeNameQuery { get; } = new GraphQLRequest {
 			Query =
 				@"query Schema {
 					__schema {
@@ -16,7 +16,7 @@ namespace GraphQL.Common.Tests.Request {
 			Variables = null
 		};
 
-		public static readonly GraphQLRequest PokemonPikachuQuery = new GraphQLRequest {
+		public static GraphQLRequest PokemonPikachuQuery { get; } = new GraphQLRequest {
 			Query =
 				@"{
 					pokemon(name: ""Pikachu"") {
