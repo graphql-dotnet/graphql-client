@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
+		<ProjectReference Include="..\GraphQL.Common.Tests\GraphQL.Common.Tests.csproj" />
 	</ItemGroup>
 
 </Project>

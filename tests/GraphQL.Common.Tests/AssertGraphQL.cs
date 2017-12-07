@@ -1,7 +1,7 @@
 using GraphQL.Common.Response;
 using Xunit;
 
-namespace GraphQL.Client.Tests {
+namespace GraphQL.Common.Tests {
 
 	public static class AssertGraphQL {
 

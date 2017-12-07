@@ -1,5 +1,6 @@
 using System;
-using GraphQL.Client;
+using GraphQL.Common.Tests;
+using GraphQL.Common.Tests.Request;
 using Xunit;
 
 namespace GraphQL.Client.Tests {
@@ -16,13 +17,13 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void PostSchemaTypesNameFact() {
-			var graphQLResponse = await this.GraphQLClient.PostAsync(ConstQueries.SchemaTypeNameQuery).ConfigureAwait(false);
+			var graphQLResponse = await this.GraphQLClient.PostAsync(GraphQLRequestConsts.SchemaTypeNameQuery).ConfigureAwait(false);
 			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
 		}
 
 		[Fact]
 		public async void PostPokemonPicachuFact() {
-			var graphQLResponse = await this.GraphQLClient.PostAsync(ConstQueries.PokemonPikachuQuery).ConfigureAwait(false);
+			var graphQLResponse = await this.GraphQLClient.PostAsync(GraphQLRequestConsts.PokemonPikachuQuery).ConfigureAwait(false);
 			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
 		}
 
