@@ -6,9 +6,9 @@ namespace GraphQL.Common {
 
 		public string Query { get; set; }
 
-		public string OperationName { get; set; }
+		public string? OperationName { get; set; }
 
-		public JObject Variables { get; set; }
+		public JObject? Variables { get; set; }
 
 	}
 }

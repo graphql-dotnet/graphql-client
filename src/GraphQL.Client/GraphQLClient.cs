@@ -11,8 +11,8 @@ namespace GraphQL.Client {
 	public partial class GraphQLClient {
 
 		public Uri EndPoint {
-			get { return this.Options.EndPoint; }
-			set { this.Options.EndPoint = value; }
+			get => this.Options.EndPoint;
+			set => this.Options.EndPoint = value;
 		}
 
 		public GraphQLClientOptions Options { get; set; }
