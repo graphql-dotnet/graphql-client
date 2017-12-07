@@ -1,14 +1,14 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Common.Response {
 
 	/// <summary>
 	/// Represent the response of a <see cref="GraphQLQuery"/>
+	/// Form more information <see href="http://graphql.org/learn/serving-over-http/#response"/>
 	/// </summary>
 	public class GraphQLResponse {
 
-		public JObject Data { get; set; }
+		public dynamic Data { get; set; }
 
 		public GraphQLError[] Errors { get; set; }
 
