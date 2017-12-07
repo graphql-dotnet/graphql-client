@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F1-4428-863E-2C5C876DEEFE}"
 	ProjectSection(SolutionItems) = preProject
@@ -26,9 +26,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0B0EDB0F
 		tests\tests.props = tests\tests.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Tests", "tests\GraphQL.Client.Tests\GraphQL.Client.Tests.csproj", "{FEDAE425-B505-4DD6-98ED-3F8593358FC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Tests", "tests\GraphQL.Client.Tests\GraphQL.Client.Tests.csproj", "{FEDAE425-B505-4DD6-98ED-3F8593358FC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Common.Tests", "tests\GraphQL.Common.Tests\GraphQL.Common.Tests.csproj", "{EEF323E0-CA8E-49A2-B3D7-D4185D92492B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Common.Tests", "tests\GraphQL.Common.Tests\GraphQL.Common.Tests.csproj", "{EEF323E0-CA8E-49A2-B3D7-D4185D92492B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{6326E0E2-3F48-4BAF-80D3-47AED5EB647C}"
+	ProjectSection(SolutionItems) = preProject
+		assets\logo.svg = assets\logo.svg
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
