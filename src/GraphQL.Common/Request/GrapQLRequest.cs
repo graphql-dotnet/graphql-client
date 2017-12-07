@@ -1,10 +1,10 @@
-namespace GraphQL.Common {
+namespace GraphQL.Common.Request {
 
 	/// <summary>
 	/// Represents a Query that can be fetched to a GraphQL Server.
 	/// For more information <see href="http://graphql.org/learn/serving-over-http/#post-request"/>
 	/// </summary>
-	public class GraphQLQuery {
+	public class GraphQLRequest {
 
 		/// <summary>
 		/// The Query

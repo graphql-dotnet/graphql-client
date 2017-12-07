@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
-using GraphQL.Common;
+using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
 
 	public static class GraphQLClientExtensions {
 
-		private static readonly GraphQLQuery IntrospectionQuery = new GraphQLQuery {
+		private static readonly GraphQLRequest IntrospectionQuery = new GraphQLRequest {
 			Query = @"
 				query IntrospectionQuery {
 					__schema {

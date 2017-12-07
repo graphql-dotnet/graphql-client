@@ -1,10 +1,10 @@
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
-using GraphQL.Common;
-using Newtonsoft.Json;
 using System.Text;
+using System.Threading.Tasks;
+using GraphQL.Common.Request;
 using GraphQL.Common.Response;
+using Newtonsoft.Json;
 
 namespace GraphQL.Client {
 
@@ -57,12 +57,12 @@ namespace GraphQL.Client {
 			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString);
 		}
 
-		public async Task<GraphQLResponse> GetAsync(GraphQLQuery query) {
+		public async Task<GraphQLResponse> GetAsync(GraphQLRequest query) {
 			await Task.FromResult(0);
 			throw new NotImplementedException();
 		}
 
-		public async Task<GraphQLResponse> PostAsync(GraphQLQuery query) {
+		public async Task<GraphQLResponse> PostAsync(GraphQLRequest query) {
 			var graphQLString = JsonConvert.SerializeObject(query, this.Options.JsonSerializerSettings);
 			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType);
 			var httpResponse = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);

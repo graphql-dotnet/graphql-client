@@ -1,7 +1,7 @@
 using System;
 using GraphQL.Common.Response;
 
-namespace GraphQL.Common {
+namespace GraphQL.Common.Exceptions {
 
 	public class GraphQLException : Exception {
 

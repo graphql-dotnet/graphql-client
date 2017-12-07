@@ -1,9 +1,10 @@
+using GraphQL.Common.Request;
 using Newtonsoft.Json;
 
 namespace GraphQL.Common.Response {
 
 	/// <summary>
-	/// Represent the response of a <see cref="GraphQLQuery"/>
+	/// Represent the response of a <see cref="GraphQLRequest"/>
 	/// Form more information <see href="http://graphql.org/learn/serving-over-http/#response"/>
 	/// </summary>
 	public class GraphQLResponse {
