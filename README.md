@@ -1,4 +1,5 @@
 # GraphQL.Client:
+[![CircleCI](https://circleci.com/gh/deinok/GraphQL.Client.svg?style=svg)](https://circleci.com/gh/deinok/GraphQL.Client)
 
 ## Useful Links:
 [GraphQL Specification](http://facebook.github.io/graphql/October2016/)
