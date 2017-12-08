@@ -4,7 +4,7 @@ namespace GraphQL.Common.Tests.Request {
 
 	public static class GraphQLRequestConsts {
 
-		public static GraphQLRequest SchemaTypeNameQuery { get; } = new GraphQLRequest {
+		public static GraphQLRequest SchemaTypeNameRequest { get; } = new GraphQLRequest {
 			Query =
 				@"query Schema {
 					__schema {
@@ -16,7 +16,7 @@ namespace GraphQL.Common.Tests.Request {
 			Variables = null
 		};
 
-		public static GraphQLRequest PokemonPikachuQuery { get; } = new GraphQLRequest {
+		public static GraphQLRequest PokemonPikachuRequest { get; } = new GraphQLRequest {
 			Query =
 				@"{
 					pokemon(name: ""Pikachu"") {
@@ -49,6 +49,21 @@ namespace GraphQL.Common.Tests.Request {
 					}
 				}",
 			Variables = null
+		};
+
+		public static GraphQLRequest HeroNameAndFriendsRequest { get; } = new GraphQLRequest {
+			Query = @"
+				query HeroNameAndFriends($episode: Episode) {
+					hero(episode: $episode) {
+						name,
+						friends {
+							name
+						}
+					}
+				}",
+			Variables = new {
+				episode = "JEDI"
+			}
 		};
 
 	}

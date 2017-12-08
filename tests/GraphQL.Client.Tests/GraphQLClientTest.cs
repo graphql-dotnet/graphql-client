@@ -17,13 +17,13 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void PostSchemaTypesNameFact() {
-			var graphQLResponse = await this.GraphQLClient.PostAsync(GraphQLRequestConsts.SchemaTypeNameQuery).ConfigureAwait(false);
+			var graphQLResponse = await this.GraphQLClient.PostAsync(GraphQLRequestConsts.SchemaTypeNameRequest).ConfigureAwait(false);
 			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
 		}
 
 		[Fact]
 		public async void PostPokemonPicachuFact() {
-			var graphQLResponse = await this.GraphQLClient.PostAsync(GraphQLRequestConsts.PokemonPikachuQuery).ConfigureAwait(false);
+			var graphQLResponse = await this.GraphQLClient.PostAsync(GraphQLRequestConsts.PokemonPikachuRequest).ConfigureAwait(false);
 			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
 		}
 
