@@ -189,6 +189,55 @@ namespace GraphQL.Common.Tests.Response {
 				}
 			}");
 
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#mutations"/>
+		/// </summary>
+		public static GraphQLResponse MutationsResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""createReview"": {
+						""stars"": 5,
+						""commentary"": ""This is a great movie!""
+					}
+				}
+			}");
+
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#inline-fragments"/>
+		/// </summary>
+		public static GraphQLResponse InlineFragmentsResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""hero"": {
+						""name"": ""R2-D2"",
+						""primaryFunction"": ""Astromech""
+					}
+				}
+			}");
+
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#meta-fields"/>
+		/// </summary>
+		public static GraphQLResponse MetaFieldsResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""search"": [
+						{
+							""__typename"": ""Human"",
+							""name"": ""Han Solo""
+						},
+						{
+							""__typename"": ""Human"",
+							""name"": ""Leia Organa""
+						},
+						{
+							""__typename"": ""Starship"",
+							""name"": ""TIE Advanced x1""
+						}
+					]
+				}
+			}");
+
 	}
 
 }

@@ -103,6 +103,37 @@ namespace GraphQL.Common.Tests.Response {
 			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
 		}
 
+		[Fact]
+		public void MutationsResponseFact() {
+			var graphQLResponse = GraphQLResponseConsts.MutationsResponse;
+			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
+
+			Assert.Equal(5, graphQLResponse.Data.createReview.stars.Value);
+			Assert.Equal("This is a great movie!", graphQLResponse.Data.createReview.commentary.Value);
+		}
+
+		[Fact]
+		public void InlineFragmentsResponseFact() {
+			var graphQLResponse = GraphQLResponseConsts.InlineFragmentsResponse;
+			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
+
+			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
+			Assert.Equal("Astromech", graphQLResponse.Data.hero.primaryFunction.Value);
+		}
+
+		[Fact]
+		public void MetaFieldsResponseFact() {
+			var graphQLResponse = GraphQLResponseConsts.MetaFieldsResponse;
+			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
+
+			Assert.Equal("Human", graphQLResponse.Data.search[0].__typename.Value);
+			Assert.Equal("Han Solo", graphQLResponse.Data.search[0].name.Value);
+			Assert.Equal("Human", graphQLResponse.Data.search[1].__typename.Value);
+			Assert.Equal("Leia Organa", graphQLResponse.Data.search[1].name.Value);
+			Assert.Equal("Starship", graphQLResponse.Data.search[2].__typename.Value);
+			Assert.Equal("TIE Advanced x1", graphQLResponse.Data.search[2].name.Value);
+		}
+
 	}
 
 }
