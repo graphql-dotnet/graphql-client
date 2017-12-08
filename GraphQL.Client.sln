@@ -35,6 +35,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{6326E0
 		assets\logo.svg = assets\logo.svg
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".circleci", ".circleci", "{C1406F03-650F-4633-887D-312943251919}"
+	ProjectSection(SolutionItems) = preProject
+		.circleci\config.yml = .circleci\config.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +71,7 @@ Global
 		{42BEFACE-39F9-4FE4-B725-15CD2B16292E} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{FEDAE425-B505-4DD6-98ED-3F8593358FC8} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{EEF323E0-CA8E-49A2-B3D7-D4185D92492B} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{C1406F03-650F-4633-887D-312943251919} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}
