@@ -81,6 +81,56 @@ namespace GraphQL.Common.Tests.Response {
 				}
 			}");
 
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#fragments"/>
+		/// </summary>
+		public static GraphQLResponse FragmentsResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""leftComparison"": {
+						""name"": ""Luke Skywalker"",
+						""appearsIn"": [
+							""NEWHOPE"",
+							""EMPIRE"",
+							""JEDI""
+						],
+						""friends"": [
+							{
+								""name"": ""Han Solo""
+							},
+							{
+								""name"": ""Leia Organa""
+							},
+							{
+								""name"": ""C-3PO""
+							},
+							{
+								""name"": ""R2-D2""
+							}
+						]
+					},
+					""rightComparison"": {
+						""name"": ""R2-D2"",
+						""appearsIn"": [
+							""NEWHOPE"",
+							""EMPIRE"",
+							""JEDI""
+						],
+						""friends"": [
+							{
+								""name"": ""Luke Skywalker""
+							},
+							{
+								""name"": ""Han Solo""
+							},
+							{
+								""name"": ""Leia Organa""
+							}
+						]
+					}
+				}
+			}");
+
 	}
 
 }
