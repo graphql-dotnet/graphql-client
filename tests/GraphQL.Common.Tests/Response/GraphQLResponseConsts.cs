@@ -131,6 +131,64 @@ namespace GraphQL.Common.Tests.Response {
 				}
 			}");
 
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#operation-name"/>
+		/// </summary>
+		public static GraphQLResponse OperationNameResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""hero"": {
+						""name"": ""R2-D2"",
+						""friends"": [
+							{
+								""name"": ""Luke Skywalker""
+							},
+							{
+								""name"": ""Han Solo""
+							},
+							{
+								""name"": ""Leia Organa""
+							}
+						]
+					}
+				}
+			}");
+
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#variables"/>
+		/// </summary>
+		public static GraphQLResponse VariablesResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""hero"": {
+						""name"": ""R2-D2"",
+						""friends"": [
+							{
+								""name"": ""Luke Skywalker""
+							},
+							{
+								""name"": ""Han Solo""
+							},
+							{
+								""name"": ""Leia Organa""
+							}
+						]
+					}
+				}
+			}");
+
+		/// <summary>
+		/// <see href="http://graphql.org/learn/queries/#directives"/>
+		/// </summary>
+		public static GraphQLResponse DirectivesResponse { get; } = JsonConvert.DeserializeObject<GraphQLResponse>(@"
+			{
+				""data"": {
+					""hero"": {
+						""name"": ""R2-D2""
+					}
+				}
+			}");
+
 	}
 
 }

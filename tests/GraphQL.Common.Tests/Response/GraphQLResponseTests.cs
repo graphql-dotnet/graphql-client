@@ -73,6 +73,36 @@ namespace GraphQL.Common.Tests.Response {
 			Assert.Equal("Leia Organa", graphQLResponse.Data.rightComparison.friends[2].name.Value);
 		}
 
+		[Fact]
+		public void OperationNameResponseFact() {
+			var graphQLResponse = GraphQLResponseConsts.OperationNameResponse;
+			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
+
+			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
+			Assert.Equal("Luke Skywalker", graphQLResponse.Data.hero.friends[0].name.Value);
+			Assert.Equal("Han Solo", graphQLResponse.Data.hero.friends[1].name.Value);
+			Assert.Equal("Leia Organa", graphQLResponse.Data.hero.friends[2].name.Value);
+		}
+
+		[Fact]
+		public void VariablesResponseFact() {
+			var graphQLResponse = GraphQLResponseConsts.VariablesResponse;
+			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
+
+			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
+			Assert.Equal("Luke Skywalker", graphQLResponse.Data.hero.friends[0].name.Value);
+			Assert.Equal("Han Solo", graphQLResponse.Data.hero.friends[1].name.Value);
+			Assert.Equal("Leia Organa", graphQLResponse.Data.hero.friends[2].name.Value);
+		}
+
+		[Fact]
+		public void DirectivesResponseFact() {
+			var graphQLResponse = GraphQLResponseConsts.DirectivesResponse;
+			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
+
+			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
+		}
+
 	}
 
 }
