@@ -216,8 +216,8 @@ namespace GraphQL.Common.Tests.Request {
 			Variables = new {
 				ep = "JEDI",
 				review = new {
-					stars=5,
-					commentary="This is a great movie!"
+					stars = 5,
+					commentary = "This is a great movie!"
 				}
 			}
 		};
