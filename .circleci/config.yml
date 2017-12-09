@@ -16,3 +16,7 @@ jobs:
           key: NUGET
           paths:
             - ~/.nuget/
+
+      # Pack
+      - run: dotnet pack --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
+      - run: dotnet pack --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
