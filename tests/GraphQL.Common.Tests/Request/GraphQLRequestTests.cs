@@ -5,18 +5,6 @@ namespace GraphQL.Common.Tests.Request {
 	public class GraphQLRequestTests {
 
 		[Fact]
-		public void SchemaTypeNameQueryFact() {
-			var graphQLRequest = GraphQLRequestConsts.SchemaTypeNameRequest;
-			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
-		}
-
-		[Fact]
-		public void PokemonPikachuQueryFact() {
-			var graphQLRequest = GraphQLRequestConsts.PokemonPikachuRequest;
-			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
-		}
-
-		[Fact]
 		public void FieldsRequest1Fact() {
 			var graphQLRequest = GraphQLRequestConsts.FieldsRequest1;
 			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
