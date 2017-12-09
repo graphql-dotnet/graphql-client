@@ -4,7 +4,8 @@
 ## Useful Links:
 [GraphQL Specification](http://facebook.github.io/graphql/October2016/)
 
-[StarWars Example Server](http://graphql.org/swapi-graphql/)
+[StarWars Example Server (GitHub)](https://github.com/graphql/swapi-graphql)
+[StarWars Example Server (EndPoint)](https://swapi.apis.guru/)
 
 [GitHub GraphQL API Docs](https://developer.github.com/v4/guides/forming-calls/)
 [GitHub GraphQL Explorer](https://developer.github.com/v4/explorer/)
