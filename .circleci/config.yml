@@ -18,5 +18,7 @@ jobs:
             - ~/.nuget/
 
       # Pack
+      - run: dotnet build --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
       - run: dotnet pack --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
+      - run: dotnet build --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
       - run: dotnet pack --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
