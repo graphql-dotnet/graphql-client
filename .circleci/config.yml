@@ -22,3 +22,9 @@ jobs:
       - run: dotnet pack --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
       - run: dotnet build --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
       - run: dotnet pack --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
+
+      # Store Artifacts
+      - store_artifacts:
+          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0.nupkg
+      - store_artifacts:
+          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0.nupkg
