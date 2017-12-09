@@ -6,16 +6,17 @@
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<LangVersion>latest</LangVersion>
-		<NeutralLanguage>en</NeutralLanguage>
+		<NeutralLanguage>en-US</NeutralLanguage>
 		<NoWarn>CS1591;CS1701;CS1705;CS8600;CS8602;CS8604;CS8618</NoWarn>
 		<PackageLicenseUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/LICENSE.txt</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/deinok/GraphQL.Client</PackageProjectUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageIconUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/assets/logo.svg</PackageIconUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/deinok/GraphQL.Client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 		<VersionPrefix>1.0.0</VersionPrefix>
-		<VersionSufix>alpha1</VersionSufix>
+		<VersionSufix>alpha.1</VersionSufix>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 
