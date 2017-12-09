@@ -12,6 +12,11 @@ namespace GraphQL.Common.Request {
 		public string Query { get; set; }
 
 		/// <summary>
+		/// If the provided <see cref="Query"/> contains multiple named operations, this specifies which operation should be executed.
+		/// </summary>
+		public string OperationName { get; set; }
+
+		/// <summary>
 		/// The Variables
 		/// </summary>
 		public dynamic Variables { get; set; }
