@@ -25,6 +25,6 @@ jobs:
 
       # Store Artifacts
       - store_artifacts:
-          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0.nupkg
+          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0-beta.1.nupkg
       - store_artifacts:
-          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0.nupkg
+          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0-beta.1.nupkg
