@@ -1,3 +1,4 @@
+using GraphQL.Common.Tests.Model;
 using Xunit;
 
 namespace GraphQL.Common.Tests.Response {
@@ -10,6 +11,9 @@ namespace GraphQL.Common.Tests.Response {
 			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
 
 			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
+
+			var hero = graphQLResponse.GetDataFieldAs<Person>("hero");
+			Assert.Equal("R2-D2", hero.Name);
 		}
 
 		[Fact]
@@ -21,6 +25,12 @@ namespace GraphQL.Common.Tests.Response {
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.hero.friends[0].name.Value);
 			Assert.Equal("Han Solo", graphQLResponse.Data.hero.friends[1].name.Value);
 			Assert.Equal("Leia Organa", graphQLResponse.Data.hero.friends[2].name.Value);
+
+			var hero = graphQLResponse.GetDataFieldAs<Person>("hero");
+			Assert.Equal("R2-D2", hero.Name);
+			Assert.Equal("Luke Skywalker", hero.Friends[0].Name);
+			Assert.Equal("Han Solo", hero.Friends[1].Name);
+			Assert.Equal("Leia Organa", hero.Friends[2].Name);
 		}
 
 		[Fact]
@@ -30,6 +40,10 @@ namespace GraphQL.Common.Tests.Response {
 
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.human.name.Value);
 			Assert.Equal(1.72, graphQLResponse.Data.human.height.Value);
+
+			var human = graphQLResponse.GetDataFieldAs<Person>("human");
+			Assert.Equal("Luke Skywalker", human.Name);
+			Assert.Equal(1.72, human.Height);
 		}
 
 		[Fact]
@@ -39,6 +53,10 @@ namespace GraphQL.Common.Tests.Response {
 
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.human.name.Value);
 			Assert.Equal(5.6430448, graphQLResponse.Data.human.height.Value);
+
+			var human = graphQLResponse.GetDataFieldAs<Person>("human");
+			Assert.Equal("Luke Skywalker", human.Name);
+			Assert.Equal(5.6430448, human.Height);
 		}
 
 		[Fact]
@@ -48,6 +66,12 @@ namespace GraphQL.Common.Tests.Response {
 
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.empireHero.name.Value);
 			Assert.Equal("R2-D2", graphQLResponse.Data.jediHero.name.Value);
+
+			var empireHero = graphQLResponse.GetDataFieldAs<Person>("empireHero");
+			Assert.Equal("Luke Skywalker", empireHero.Name);
+
+			var jediHero = graphQLResponse.GetDataFieldAs<Person>("jediHero");
+			Assert.Equal("R2-D2", jediHero.Name);
 		}
 
 		[Fact]
@@ -71,6 +95,25 @@ namespace GraphQL.Common.Tests.Response {
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.rightComparison.friends[0].name.Value);
 			Assert.Equal("Han Solo", graphQLResponse.Data.rightComparison.friends[1].name.Value);
 			Assert.Equal("Leia Organa", graphQLResponse.Data.rightComparison.friends[2].name.Value);
+
+			var leftComparison = graphQLResponse.GetDataFieldAs<Person>("leftComparison");
+			Assert.Equal("Luke Skywalker", leftComparison.Name);
+			Assert.Equal("NEWHOPE", leftComparison.AppearsIn[0]);
+			Assert.Equal("EMPIRE", leftComparison.AppearsIn[1]);
+			Assert.Equal("JEDI", leftComparison.AppearsIn[2]);
+			Assert.Equal("Han Solo", leftComparison.Friends[0].Name);
+			Assert.Equal("Leia Organa", leftComparison.Friends[1].Name);
+			Assert.Equal("C-3PO", leftComparison.Friends[2].Name);
+			Assert.Equal("R2-D2", leftComparison.Friends[3].Name);
+
+			var rightComparison = graphQLResponse.GetDataFieldAs<Person>("rightComparison");
+			Assert.Equal("R2-D2", rightComparison.Name);
+			Assert.Equal("NEWHOPE", rightComparison.AppearsIn[0]);
+			Assert.Equal("EMPIRE", rightComparison.AppearsIn[1]);
+			Assert.Equal("JEDI", rightComparison.AppearsIn[2]);
+			Assert.Equal("Luke Skywalker", rightComparison.Friends[0].Name);
+			Assert.Equal("Han Solo", rightComparison.Friends[1].Name);
+			Assert.Equal("Leia Organa", rightComparison.Friends[2].Name);
 		}
 
 		[Fact]
@@ -82,6 +125,12 @@ namespace GraphQL.Common.Tests.Response {
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.hero.friends[0].name.Value);
 			Assert.Equal("Han Solo", graphQLResponse.Data.hero.friends[1].name.Value);
 			Assert.Equal("Leia Organa", graphQLResponse.Data.hero.friends[2].name.Value);
+
+			var hero = graphQLResponse.GetDataFieldAs<Person>("hero");
+			Assert.Equal("R2-D2", hero.Name);
+			Assert.Equal("Luke Skywalker", hero.Friends[0].Name);
+			Assert.Equal("Han Solo", hero.Friends[1].Name);
+			Assert.Equal("Leia Organa", hero.Friends[2].Name);
 		}
 
 		[Fact]
@@ -93,6 +142,12 @@ namespace GraphQL.Common.Tests.Response {
 			Assert.Equal("Luke Skywalker", graphQLResponse.Data.hero.friends[0].name.Value);
 			Assert.Equal("Han Solo", graphQLResponse.Data.hero.friends[1].name.Value);
 			Assert.Equal("Leia Organa", graphQLResponse.Data.hero.friends[2].name.Value);
+
+			var hero = graphQLResponse.GetDataFieldAs<Person>("hero");
+			Assert.Equal("R2-D2", hero.Name);
+			Assert.Equal("Luke Skywalker", hero.Friends[0].Name);
+			Assert.Equal("Han Solo", hero.Friends[1].Name);
+			Assert.Equal("Leia Organa", hero.Friends[2].Name);
 		}
 
 		[Fact]
@@ -101,6 +156,9 @@ namespace GraphQL.Common.Tests.Response {
 			AssertGraphQL.CorrectGraphQLResponse(graphQLResponse);
 
 			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
+
+			var hero = graphQLResponse.GetDataFieldAs<Person>("hero");
+			Assert.Equal("R2-D2", hero.Name);
 		}
 
 		[Fact]
@@ -119,6 +177,10 @@ namespace GraphQL.Common.Tests.Response {
 
 			Assert.Equal("R2-D2", graphQLResponse.Data.hero.name.Value);
 			Assert.Equal("Astromech", graphQLResponse.Data.hero.primaryFunction.Value);
+
+			var hero = graphQLResponse.GetDataFieldAs<Person>("hero");
+			Assert.Equal("R2-D2", hero.Name);
+			Assert.Equal("Astromech", hero.PrimaryFunction);
 		}
 
 		[Fact]
