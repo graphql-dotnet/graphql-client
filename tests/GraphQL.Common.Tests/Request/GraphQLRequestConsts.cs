@@ -1,9 +1,11 @@
+using System;
 using GraphQL.Common.Request;
 
 namespace GraphQL.Common.Tests.Request {
 
 	public static class GraphQLRequestConsts {
 
+		[Obsolete]
 		public static GraphQLRequest SchemaTypeNameRequest { get; } = new GraphQLRequest {
 			Query =
 				@"query Schema {
@@ -16,6 +18,7 @@ namespace GraphQL.Common.Tests.Request {
 			Variables = null
 		};
 
+		[Obsolete]
 		public static GraphQLRequest PokemonPikachuRequest { get; } = new GraphQLRequest {
 			Query =
 				@"{
