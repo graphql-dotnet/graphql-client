@@ -5,7 +5,6 @@
 
 	<PropertyGroup>
 		<Description>A GraphQL Client</Description>
-		<Summary>A GraphQL Client</Summary>
 	</PropertyGroup>
 
 	<PropertyGroup>

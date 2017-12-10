@@ -5,7 +5,6 @@
 
 	<PropertyGroup>
 		<Description>Common GraphQL classes</Description>
-		<Summary>Common GraphQL classes</Summary>
 	</PropertyGroup>
 
 	<PropertyGroup>
