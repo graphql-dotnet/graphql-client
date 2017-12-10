@@ -4,6 +4,9 @@ using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
 
+	/// <summary>
+	/// Extension Methods for <see cref="GraphQLClient"/>
+	/// </summary>
 	public static class GraphQLClientExtensions {
 
 		private static readonly GraphQLRequest IntrospectionQuery = new GraphQLRequest {
@@ -96,9 +99,19 @@ namespace GraphQL.Client {
 			Variables = null
 		};
 
+		/// <summary>
+		/// Send an IntrospectionQuery via GET
+		/// </summary>
+		/// <param name="graphQLClient">The GraphQLClient</param>
+		/// <returns>The GraphQLResponse</returns>
 		public static async Task<GraphQLResponse> GetIntrospectionQueryAsync(this GraphQLClient graphQLClient) =>
 			await graphQLClient.GetAsync(IntrospectionQuery).ConfigureAwait(false);
 
+		/// <summary>
+		/// Send an IntrospectionQuery via POST
+		/// </summary>
+		/// <param name="graphQLClient">The GraphQLClient</param>
+		/// <returns>The GraphQLResponse</returns>
 		public static async Task<GraphQLResponse> PostIntrospectionQueryAsync(this GraphQLClient graphQLClient) =>
 			await graphQLClient.PostAsync(IntrospectionQuery).ConfigureAwait(false);
 

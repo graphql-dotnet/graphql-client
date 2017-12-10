@@ -8,25 +8,52 @@ using Newtonsoft.Json;
 
 namespace GraphQL.Client {
 
-	public partial class GraphQLClient:IDisposable {
+	/// <summary>
+	/// A Client to access GraphQL EndPoints
+	/// </summary>
+	public partial class GraphQLClient : IDisposable {
 
+		/// <summary>
+		/// The GraphQL EndPoint to be used
+		/// </summary>
 		public Uri EndPoint {
 			get => this.Options.EndPoint;
 			set => this.Options.EndPoint = value;
 		}
 
+		/// <summary>
+		/// The Options	to be used
+		/// </summary>
 		public GraphQLClientOptions Options { get; set; }
 
 		private readonly HttpClient httpClient;
 
 		#region Constructors
 
+		/// <summary>
+		/// Initializes a new instance
+		/// </summary>
+		/// <param name="endPoint">The EndPoint to be used</param>
 		public GraphQLClient(string endPoint) : this(new Uri(endPoint)) { }
 
+		/// <summary>
+		/// Initializes a new instance
+		/// </summary>
+		/// <param name="endPoint">The EndPoint to be used</param>
 		public GraphQLClient(Uri endPoint) : this(new GraphQLClientOptions { EndPoint = endPoint }) { }
 
+		/// <summary>
+		/// Initializes a new instance
+		/// </summary>
+		/// <param name="endPoint">The EndPoint to be used</param>
+		/// <param name="options">The Options to be used</param>
 		public GraphQLClient(string endPoint, GraphQLClientOptions options) : this(new Uri(endPoint), options) { }
 
+		/// <summary>
+		/// Initializes a new instance
+		/// </summary>
+		/// <param name="endPoint">The EndPoint to be used</param>
+		/// <param name="options">The Options to be used</param>
 		public GraphQLClient(Uri endPoint, GraphQLClientOptions options) {
 			this.Options = options ?? throw new ArgumentNullException(nameof(options));
 			this.Options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
@@ -38,6 +65,10 @@ namespace GraphQL.Client {
 			this.httpClient = new HttpClient(this.Options.HttpClientHandler);
 		}
 
+		/// <summary>
+		/// Initializes a new instance
+		/// </summary>
+		/// <param name="options">The Options to be used</param>
 		public GraphQLClient(GraphQLClientOptions options) {
 			this.Options = options ?? throw new ArgumentNullException(nameof(options));
 
@@ -51,22 +82,42 @@ namespace GraphQL.Client {
 
 		#endregion
 
+		/// <summary>
+		/// Send a query via GET
+		/// </summary>
+		/// <param name="query">The Request</param>
+		/// <returns>The Response</returns>
 		public async Task<GraphQLResponse> GetQueryAsync(string query) =>
 			await this.GetAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
 
-		public async Task<GraphQLResponse> GetAsync(GraphQLRequest query) {
-			var queryParamsBuilder = new StringBuilder($"query={query.Query}", 3);
-			if (query.OperationName != null) { queryParamsBuilder.Append($"&operationName={query.OperationName}"); }
-			if (query.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(query.Variables)}"); }
+		/// <summary>
+		/// Send a <see cref="GraphQLRequest"/> via GET
+		/// </summary>
+		/// <param name="request">The Request</param>
+		/// <returns>The Response</returns>
+		public async Task<GraphQLResponse> GetAsync(GraphQLRequest request) {
+			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
+			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
+			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
 			var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}").ConfigureAwait(false);
 			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Send a query via POST
+		/// </summary>
+		/// <param name="query">The Request</param>
+		/// <returns>The Response</returns>
 		public async Task<GraphQLResponse> PostQueryAsync(string query) =>
 			await this.PostAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
 
-		public async Task<GraphQLResponse> PostAsync(GraphQLRequest query) {
-			var graphQLString = JsonConvert.SerializeObject(query, this.Options.JsonSerializerSettings);
+		/// <summary>
+		/// Send a <see cref="GraphQLRequest"/> via POST
+		/// </summary>
+		/// <param name="request">The Request</param>
+		/// <returns>The Response</returns>
+		public async Task<GraphQLResponse> PostAsync(GraphQLRequest request) {
+			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
 			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType);
 			var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);
 			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
@@ -82,6 +133,9 @@ namespace GraphQL.Client {
 			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString, this.Options.JsonSerializerSettings);
 		}
 
+		/// <summary>
+		/// Releases unmanaged resources
+		/// </summary>
 		public void Dispose() =>
 			this.httpClient.Dispose();
 

@@ -6,6 +6,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client {
 
+	/// <summary>
+	/// The Options that the <see cref="GraphQLClient"/> will use
+	/// </summary>
 	public class GraphQLClientOptions {
 
 		// TODO Cache
