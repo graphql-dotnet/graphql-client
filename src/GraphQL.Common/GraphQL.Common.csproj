@@ -4,11 +4,16 @@
 	<Import Project="../src.props" />
 
 	<PropertyGroup>
+		<Description>Common GraphQL classes</Description>
+		<Summary>Common GraphQL classes</Summary>
+	</PropertyGroup>
+
+	<PropertyGroup>
 		<TargetFrameworks>netstandard1.0;netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
 	</ItemGroup>
 
 </Project>
