@@ -43,7 +43,7 @@ namespace GraphQL.Client {
 
 			if (this.Options.EndPoint == null) { throw new ArgumentNullException(nameof(this.Options.EndPoint)); }
 			if (this.Options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(this.Options.JsonSerializerSettings)); }
-			if(this.Options.HttpClientHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpClientHandler)); }
+			if (this.Options.HttpClientHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpClientHandler)); }
 			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
 
 			this.httpClient = new HttpClient(this.Options.HttpClientHandler);
@@ -51,22 +51,34 @@ namespace GraphQL.Client {
 
 		#endregion
 
-		public async Task<GraphQLResponse> GetQueryAsync(string query) {
-			var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?query={query}").ConfigureAwait(false);
-			var resultString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString);
-		}
+		public async Task<GraphQLResponse> GetQueryAsync(string query) =>
+			await this.GetAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
 
 		public async Task<GraphQLResponse> GetAsync(GraphQLRequest query) {
-			await Task.FromResult(0);
-			throw new NotImplementedException();
+			var queryParamsBuilder = new StringBuilder($"query={query.Query}", 3);
+			if (query.OperationName != null) { queryParamsBuilder.Append($"&operationName={query.OperationName}"); }
+			if (query.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(query.Variables)}"); }
+			var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}").ConfigureAwait(false);
+			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 		}
+
+		public async Task<GraphQLResponse> PostQueryAsync(string query) =>
+			await this.PostAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
 
 		public async Task<GraphQLResponse> PostAsync(GraphQLRequest query) {
 			var graphQLString = JsonConvert.SerializeObject(query, this.Options.JsonSerializerSettings);
 			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType);
-			var httpResponse = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);
-			var resultString = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+			var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);
+			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Reads the <see cref="HttpResponseMessage"/>
+		/// </summary>
+		/// <param name="httpResponseMessage">The Response</param>
+		/// <returns>The GrahQLResponse</returns>
+		private async Task<GraphQLResponse> ReadHttpResponseMessageAsync(HttpResponseMessage httpResponseMessage) {
+			var resultString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString, this.Options.JsonSerializerSettings);
 		}
 
