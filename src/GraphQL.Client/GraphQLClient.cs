@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace GraphQL.Client {
 
-	public partial class GraphQLClient {
+	public partial class GraphQLClient:IDisposable {
 
 		public Uri EndPoint {
 			get => this.Options.EndPoint;
@@ -81,6 +81,9 @@ namespace GraphQL.Client {
 			var resultString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString, this.Options.JsonSerializerSettings);
 		}
+
+		public void Dispose() =>
+			this.httpClient.Dispose();
 
 	}
 
