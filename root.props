@@ -11,7 +11,7 @@
 		<PackageLicenseUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/LICENSE.txt</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/deinok/GraphQL.Client</PackageProjectUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageIconUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/assets/logo.svg</PackageIconUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/deinok/GraphQL.Client/master/assets/logo.64x64.png</PackageIconUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/deinok/GraphQL.Client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
