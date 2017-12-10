@@ -1,4 +1,5 @@
 using GraphQL.Common.Request;
+using GraphQL.Common.Tests.Model;
 using Xunit;
 
 namespace GraphQL.Client.Tests {
@@ -6,7 +7,7 @@ namespace GraphQL.Client.Tests {
 	public class GraphQLClientGetTests : BaseGraphQLClientTest {
 
 		[Fact]
-		public async void GetAsyncFact() {
+		public async void QueryGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest { Query = @"
 				{
 					person(personID: ""1"") {
@@ -17,6 +18,7 @@ namespace GraphQL.Client.Tests {
 			var response=await this.GraphQLClient.GetAsync(graphQLRequest).ConfigureAwait(false);
 
 			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
+			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
 		}
 
 	}
