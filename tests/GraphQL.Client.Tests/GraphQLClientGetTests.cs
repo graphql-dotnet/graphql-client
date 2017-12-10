@@ -3,7 +3,7 @@ using Xunit;
 
 namespace GraphQL.Client.Tests {
 
-	public class GraphQLClientTests : BaseGraphQLClientTest {
+	public class GraphQLClientGetTests : BaseGraphQLClientTest {
 
 		[Fact]
 		public async void GetAsyncFact() {
