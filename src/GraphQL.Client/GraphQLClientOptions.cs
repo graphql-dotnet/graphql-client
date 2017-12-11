@@ -11,8 +11,6 @@ namespace GraphQL.Client {
 	/// </summary>
 	public class GraphQLClientOptions {
 
-		// TODO Cache
-
 		/// <summary>
 		/// The GraphQL EndPoint to be used
 		/// </summary>
