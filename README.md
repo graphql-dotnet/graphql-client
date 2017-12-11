@@ -37,6 +37,12 @@ var heroAndFriendsRequest = new GraphQLRequest {
 };
 ```
 
+### Send Request:
+```csharp
+var graphQLClient = new GraphQLClient("https://swapi.apis.guru/");
+var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+```
+
 ## Useful Links:
 [GraphQL Specification](http://facebook.github.io/graphql/October2016/)
 
