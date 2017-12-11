@@ -10,5 +10,3 @@
 [GitHub GraphQL API Docs](https://developer.github.com/v4/guides/forming-calls/)
 [GitHub GraphQL Explorer](https://developer.github.com/v4/explorer/)
 [GitHub GraphQL Endpoint](https://api.github.com/graphql)
-
-[Pokemon GraphQL EndPoin (POST)](https://graphql-pokemon.now.sh/)
