@@ -32,6 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Common.Tests", "tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{6326E0E2-3F48-4BAF-80D3-47AED5EB647C}"
 	ProjectSection(SolutionItems) = preProject
+		assets\logo.64x64.png = assets\logo.64x64.png
 		assets\logo.svg = assets\logo.svg
 	EndProjectSection
 EndProject
