@@ -43,6 +43,21 @@ var graphQLClient = new GraphQLClient("https://swapi.apis.guru/");
 var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
 ```
 
+### Read GraphQLResponse:
+
+#### Dynamic:
+```csharp
+var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+var dynamicHeroName = graphQLResponse.Data.hero.name.Value; //Value of data->hero->name
+```
+
+#### Typed:
+```csharp
+var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+var personType = graphQLResponse.GetDataFieldAs<Person>("hero"); //data->hero is casted as Person
+var name = personType.Name;
+```
+
 ## Useful Links:
 [GraphQL Specification](http://facebook.github.io/graphql/October2016/)
 
