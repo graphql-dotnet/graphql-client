@@ -87,8 +87,11 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="query">The Request</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> GetQueryAsync(string query) =>
-			await this.GetAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
+		public async Task<GraphQLResponse> GetQueryAsync(string query) {
+			if (query == null) { throw new ArgumentNullException(nameof(query)); }
+
+			return await this.GetAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
+		}
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via GET
@@ -96,6 +99,9 @@ namespace GraphQL.Client {
 		/// <param name="request">The Request</param>
 		/// <returns>The Response</returns>
 		public async Task<GraphQLResponse> GetAsync(GraphQLRequest request) {
+			if (request == null) { throw new ArgumentNullException(nameof(request)); }
+			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+
 			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
 			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
 			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
@@ -108,8 +114,11 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="query">The Request</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> PostQueryAsync(string query) =>
-			await this.PostAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
+		public async Task<GraphQLResponse> PostQueryAsync(string query) {
+			if (query == null) { throw new ArgumentNullException(nameof(query)); }
+
+			return await this.PostAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
+		}
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via POST
@@ -117,6 +126,9 @@ namespace GraphQL.Client {
 		/// <param name="request">The Request</param>
 		/// <returns>The Response</returns>
 		public async Task<GraphQLResponse> PostAsync(GraphQLRequest request) {
+			if (request == null) { throw new ArgumentNullException(nameof(request)); }
+			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+
 			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
 			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType);
 			var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);
