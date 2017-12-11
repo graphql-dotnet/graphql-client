@@ -15,7 +15,7 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/deinok/GraphQL.Client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-		<Version>1.0.0-beta1</Version>
+		<Version>1.0.0-beta2</Version>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 
