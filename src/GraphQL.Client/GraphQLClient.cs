@@ -130,7 +130,7 @@ namespace GraphQL.Client {
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
 			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
-			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType);
+			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType.MediaType);
 			var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);
 			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 		}
