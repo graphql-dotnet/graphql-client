@@ -2,7 +2,7 @@
 <Project>
 
 	<PropertyGroup>
-		<Authors>Deinok</Authors>
+		<Authors>Deinok,graphql-dotnet</Authors>
 		<Description>A GraphQL Client for .NET Standard</Description>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
