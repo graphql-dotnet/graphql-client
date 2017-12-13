@@ -4,6 +4,8 @@ jobs:
     working_directory: ~/GraphQL.Client/
     docker:
       - image: microsoft/dotnet:2.0-sdk
+    environment:
+      MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
       - checkout
       
@@ -28,3 +30,12 @@ jobs:
           path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0-beta2.nupkg
       - store_artifacts:
           path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0-beta2.nupkg
+
+      # Deploy
+      - deploy:
+          name: MyGet
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              dotnet nuget push ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0-beta2.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
+              dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0-beta2.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
+            fi
