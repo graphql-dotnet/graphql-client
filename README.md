@@ -1,5 +1,5 @@
 # GraphQL.Client:
-[![CircleCI](https://circleci.com/gh/graphql-dotnet/graphql-client.svg?style=svg)](https://circleci.com/gh/graphql-dotnet/graphql-client)
+[![CircleCI](https://img.shields.io/circleci/project/github/graphql-dotnet/graphql-client.svg)](https://circleci.com/gh/graphql-dotnet/graphql-client)
 [![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 
 A GraphQL Client for .NET Standard.
