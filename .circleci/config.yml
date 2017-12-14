@@ -6,17 +6,11 @@ jobs:
       - image: microsoft/dotnet:1-sdk
     steps:
       - checkout
-      
+
       # Test
-      - restore_cache:
-          key: NUGET
       - run: dotnet restore
       - run: dotnet test --framework netcoreapp1.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --framework netcoreapp1.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-      - save_cache:
-          key: NUGET
-          paths:
-            - ~/.nuget/
 
   netcore2.0:
     working_directory: ~/GraphQL.Client/
@@ -24,16 +18,10 @@ jobs:
       - image: microsoft/dotnet:2-sdk
     steps:
       - checkout
-      
+
       # Test
-      - restore_cache:
-          key: NUGET
       - run: dotnet test --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-      - save_cache:
-          key: NUGET
-          paths:
-            - ~/.nuget/
 
   deploy:
     working_directory: ~/GraphQL.Client/
@@ -41,6 +29,7 @@ jobs:
       - image: microsoft/dotnet:2-sdk
     environment:
       MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
+      VERSION: 1.0.0-beta2
     steps:
       - checkout
 
@@ -52,17 +41,17 @@ jobs:
 
       # Store Artifacts
       - store_artifacts:
-          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0-beta2.nupkg
+          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.$VERSION.nupkg
       - store_artifacts:
-          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0-beta2.nupkg
+          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.$VERSION.nupkg
 
       # Deploy
       - deploy:
           name: MyGet
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              dotnet nuget push ./src/GraphQL.Common/bin/Release/GraphQL.Common.1.0.0-beta2.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
-              dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.1.0.0-beta2.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
+              dotnet nuget push ./src/GraphQL.Common/bin/Release/GraphQL.Common.$VERSION.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
+              dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.$VERSION.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
             fi
 
 workflows:
