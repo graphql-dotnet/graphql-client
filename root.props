@@ -9,10 +9,11 @@
 		<LangVersion>latest</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<NoWarn></NoWarn>
+		<PackageIconUrl>https://raw.githubusercontent.com/graphql-dotnet/graphql-client/master/assets/logo.64x64.png</PackageIconUrl>
 		<PackageLicenseUrl>https://raw.githubusercontent.com/graphql-dotnet/graphql-client/master/LICENSE.txt</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/graphql-client</PackageProjectUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageIconUrl>https://raw.githubusercontent.com/graphql-dotnet/graphql-client/master/assets/logo.64x64.png</PackageIconUrl>
+		<PackageTags>GraphQL</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/graphql-dotnet/graphql-client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
