@@ -4,7 +4,7 @@
 	<Import Project="../tests.props" />
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>

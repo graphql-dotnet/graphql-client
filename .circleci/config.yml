@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  netcore1.1:
+  netcore1.0:
     working_directory: ~/GraphQL.Client/
     docker:
       - image: microsoft/dotnet:1-sdk
@@ -10,8 +10,8 @@ jobs:
       # Test
       - restore_cache:
           key: NUGET
-      - run: dotnet test --framework netcoreapp1.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --framework netcoreapp1.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+      - run: dotnet test --framework netcoreapp1.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - run: dotnet test --framework netcoreapp1.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
       - save_cache:
           key: NUGET
           paths:
@@ -68,9 +68,9 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - netcore1.1
+      - netcore1.0
       - netcore2.0
       - deploy:
           requires:
-            - netcore1.1
+            - netcore1.0
             - netcore2.0
