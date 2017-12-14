@@ -10,8 +10,8 @@ jobs:
       # Test
       - restore_cache:
           key: NUGET
-      - run: dotnet test ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+      - run: dotnet test --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - run: dotnet test --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
       - save_cache:
           key: NUGET
           paths:
