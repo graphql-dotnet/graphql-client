@@ -1,11 +1,9 @@
 version: 2
 jobs:
-  build:
+  netcore2.0:
     working_directory: ~/GraphQL.Client/
     docker:
       - image: microsoft/dotnet:2.0-sdk
-    environment:
-      MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
       - checkout
       
@@ -18,6 +16,15 @@ jobs:
           key: NUGET
           paths:
             - ~/.nuget/
+
+  deploy:
+    working_directory: ~/GraphQL.Client/
+    docker:
+      - image: microsoft/dotnet:2.0-sdk
+    environment:
+      MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
+    steps:
+      - checkout
 
       # Pack
       - run: dotnet build --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
@@ -44,4 +51,7 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - build
+      - netcore2.0
+      - deploy:
+          requires:
+            - netcore2.0
