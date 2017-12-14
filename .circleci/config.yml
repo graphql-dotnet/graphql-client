@@ -3,7 +3,7 @@ jobs:
   netcore1.0:
     working_directory: ~/GraphQL.Client/
     docker:
-      - image: microsoft/dotnet:1.0-sdk
+      - image: microsoft/dotnet:1-sdk
     steps:
       - checkout
       
@@ -20,7 +20,7 @@ jobs:
   netcore2.0:
     working_directory: ~/GraphQL.Client/
     docker:
-      - image: microsoft/dotnet:2.0-sdk
+      - image: microsoft/dotnet:2-sdk
     steps:
       - checkout
       
@@ -37,7 +37,7 @@ jobs:
   deploy:
     working_directory: ~/GraphQL.Client/
     docker:
-      - image: microsoft/dotnet:2.0-sdk
+      - image: microsoft/dotnet:2-sdk
     environment:
       MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
