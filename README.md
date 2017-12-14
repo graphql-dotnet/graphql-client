@@ -1,5 +1,5 @@
 # GraphQL.Client:
-[![CircleCI](https://img.shields.io/circleci/project/github/graphql-dotnet/graphql-client.svg)](https://circleci.com/gh/graphql-dotnet/graphql-client)
+[![CircleCI](https://img.shields.io/circleci/project/github/graphql-dotnet/graphql-client/master.svg)](https://circleci.com/gh/graphql-dotnet/graphql-client/tree/master)
 [![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 [![MyGet](https://img.shields.io/myget/graphql-dotnet/v/GraphQL.Client.svg)](https://www.myget.org/feed/graphql-dotnet/package/nuget/GraphQL.Client)
 
