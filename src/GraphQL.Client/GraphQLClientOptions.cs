@@ -24,9 +24,9 @@ namespace GraphQL.Client {
 		};
 
 		/// <summary>
-		/// The <see cref="System.Net.Http.HttpClientHandler"/> that is going to be used
+		/// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used
 		/// </summary>
-		public HttpClientHandler HttpClientHandler { get; set; } = new HttpClientHandler();
+		public HttpMessageHandler HttpMessageHandler { get; set; } = new HttpClientHandler();
 
 		/// <summary>
 		/// The <see cref="MediaTypeHeaderValue"/> that will be send on POST

@@ -59,10 +59,10 @@ namespace GraphQL.Client {
 			this.Options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
 
 			if (this.Options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(this.Options.JsonSerializerSettings)); }
-			if (this.Options.HttpClientHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpClientHandler)); }
+			if (this.Options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpMessageHandler)); }
 			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
 
-			this.httpClient = new HttpClient(this.Options.HttpClientHandler);
+			this.httpClient = new HttpClient(this.Options.HttpMessageHandler);
 		}
 
 		/// <summary>
@@ -74,10 +74,10 @@ namespace GraphQL.Client {
 
 			if (this.Options.EndPoint == null) { throw new ArgumentNullException(nameof(this.Options.EndPoint)); }
 			if (this.Options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(this.Options.JsonSerializerSettings)); }
-			if (this.Options.HttpClientHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpClientHandler)); }
+			if (this.Options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpMessageHandler)); }
 			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
 
-			this.httpClient = new HttpClient(this.Options.HttpClientHandler);
+			this.httpClient = new HttpClient(this.Options.HttpMessageHandler);
 		}
 
 		#endregion
