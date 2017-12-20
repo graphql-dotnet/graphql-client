@@ -5,6 +5,7 @@
 
 	<PropertyGroup>
 		<Description>A GraphQL Client</Description>
+		<Version>1.0.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>

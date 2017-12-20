@@ -17,7 +17,6 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/graphql-dotnet/graphql-client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-		<Version>1.0.0-beta3</Version>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 

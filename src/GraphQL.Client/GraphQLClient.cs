@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Common.Request;
@@ -13,6 +14,14 @@ namespace GraphQL.Client {
 	/// </summary>
 	public partial class GraphQLClient : IDisposable {
 
+		#region Properties
+
+		/// <summary>
+		/// Gets the headers which should be sent with each request.
+		/// </summary>
+		public HttpRequestHeaders DefaultRequestHeaders =>
+			this.httpClient.DefaultRequestHeaders;
+
 		/// <summary>
 		/// The GraphQL EndPoint to be used
 		/// </summary>
@@ -25,6 +34,8 @@ namespace GraphQL.Client {
 		/// The Options	to be used
 		/// </summary>
 		public GraphQLClientOptions Options { get; set; }
+
+		#endregion
 
 		private readonly HttpClient httpClient;
 
@@ -136,6 +147,12 @@ namespace GraphQL.Client {
 		}
 
 		/// <summary>
+		/// Releases unmanaged resources
+		/// </summary>
+		public void Dispose() =>
+			this.httpClient.Dispose();
+
+		/// <summary>
 		/// Reads the <see cref="HttpResponseMessage"/>
 		/// </summary>
 		/// <param name="httpResponseMessage">The Response</param>
@@ -144,12 +161,6 @@ namespace GraphQL.Client {
 			var resultString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString, this.Options.JsonSerializerSettings);
 		}
-
-		/// <summary>
-		/// Releases unmanaged resources
-		/// </summary>
-		public void Dispose() =>
-			this.httpClient.Dispose();
 
 	}
 
