@@ -116,28 +116,6 @@ namespace GraphQL.Client {
 		public static async Task<GraphQLResponse> PostIntrospectionQueryAsync(this GraphQLClient graphQLClient) =>
 			await graphQLClient.PostAsync(IntrospectionQuery).ConfigureAwait(false);
 
-		#if !NETSTANDARD1_1
-
-		/// <summary>
-		/// Send the Query defined in a file via GET
-		/// </summary>
-		/// <param name="graphQLClient">The GraphQLClient</param>
-		/// <param name="filePath">The Path of the File</param>
-		/// <returns>The GraphQLResponse</returns>
-		public static async Task<GraphQLResponse> GetFromFile(this GraphQLClient graphQLClient, string filePath) =>
-			await graphQLClient.GetQueryAsync(File.ReadAllText(filePath)).ConfigureAwait(false);
-
-		/// <summary>
-		/// Send the Query defined in a file via POST
-		/// </summary>
-		/// <param name="graphQLClient">The GraphQLClient</param>
-		/// <param name="filePath">The Path of the File</param>
-		/// <returns>The GraphQLResponse</returns>
-		public static async Task<GraphQLResponse> PostFromFile(this GraphQLClient graphQLClient, string filePath) =>
-			await graphQLClient.PostQueryAsync(File.ReadAllText(filePath)).ConfigureAwait(false);
-
-		#endif
-
 	}
 
 }
