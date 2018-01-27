@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using GraphQL.Client.Exceptions;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
@@ -165,7 +166,15 @@ namespace GraphQL.Client {
 				var jsonSerializer = new JsonSerializer {
 					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
 				};
-				return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+				try {
+					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+				}
+				catch (JsonReaderException exception) {
+					if (httpResponseMessage.IsSuccessStatusCode) {
+						throw exception;
+					}
+					throw new GraphQLHttpException(httpResponseMessage);
+				}
 			}
 		}
 
