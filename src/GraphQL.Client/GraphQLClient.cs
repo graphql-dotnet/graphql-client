@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using GraphQL.Client.Exceptions;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
@@ -116,8 +118,9 @@ namespace GraphQL.Client {
 			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
 			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
 			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
-			var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}").ConfigureAwait(false);
-			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+			using (var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}").ConfigureAwait(false)) {
+				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+			}
 		}
 
 		/// <summary>
@@ -141,9 +144,10 @@ namespace GraphQL.Client {
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
 			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
-			var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType.MediaType);
-			var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false);
-			return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+			using (var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType.MediaType))
+			using (var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent).ConfigureAwait(false)) {
+				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+			}
 		}
 
 		/// <summary>
@@ -158,8 +162,22 @@ namespace GraphQL.Client {
 		/// <param name="httpResponseMessage">The Response</param>
 		/// <returns>The GrahQLResponse</returns>
 		private async Task<GraphQLResponse> ReadHttpResponseMessageAsync(HttpResponseMessage httpResponseMessage) {
-			var resultString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString, this.Options.JsonSerializerSettings);
+			using (var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
+			using (var streamReader = new StreamReader(stream))
+			using (var jsonTextReader = new JsonTextReader(streamReader)) {
+				var jsonSerializer = new JsonSerializer {
+					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
+				};
+				try {
+					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+				}
+				catch (JsonReaderException exception) {
+					if (httpResponseMessage.IsSuccessStatusCode) {
+						throw exception;
+					}
+					throw new GraphQLHttpException(httpResponseMessage);
+				}
+			}
 		}
 
 	}
