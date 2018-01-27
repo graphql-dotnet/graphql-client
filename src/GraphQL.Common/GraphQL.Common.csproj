@@ -5,7 +5,6 @@
 
 	<PropertyGroup>
 		<Description>Common GraphQL classes</Description>
-		<Version>1.0.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
