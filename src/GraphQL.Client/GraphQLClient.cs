@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -158,8 +159,14 @@ namespace GraphQL.Client {
 		/// <param name="httpResponseMessage">The Response</param>
 		/// <returns>The GrahQLResponse</returns>
 		private async Task<GraphQLResponse> ReadHttpResponseMessageAsync(HttpResponseMessage httpResponseMessage) {
-			var resultString = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-			return JsonConvert.DeserializeObject<GraphQLResponse>(resultString, this.Options.JsonSerializerSettings);
+			using (var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
+			using (var streamReader = new StreamReader(stream))
+			using (var jsonTextReader = new JsonTextReader(streamReader)) {
+				var jsonSerializer = new JsonSerializer {
+					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
+				};
+				return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+			}
 		}
 
 	}

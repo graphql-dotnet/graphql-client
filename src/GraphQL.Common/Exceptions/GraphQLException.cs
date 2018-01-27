@@ -17,7 +17,7 @@ namespace GraphQL.Common.Exceptions {
 		/// Constructor for a GraphQLException
 		/// </summary>
 		/// <param name="graphQLError">The GraphQL Error</param>
-		public GraphQLException(GraphQLError graphQLError):base(graphQLError.Message) {
+		public GraphQLException(GraphQLError graphQLError) : base(graphQLError.Message) {
 			this.GraphQLError = graphQLError;
 		}
 
