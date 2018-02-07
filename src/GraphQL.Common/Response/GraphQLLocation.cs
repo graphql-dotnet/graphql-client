@@ -7,6 +7,8 @@ namespace GraphQL.Common.Response {
 	/// </summary>
 	public class GraphQLLocation : IEquatable<GraphQLLocation> {
 
+		#region Properties
+
 		/// <summary>
 		/// The Column
 		/// </summary>
@@ -16,6 +18,10 @@ namespace GraphQL.Common.Response {
 		/// The Line
 		/// </summary>
 		public uint Line { get; set; }
+
+		#endregion
+
+		#region IEquatable
 
 		/// <summary>
 		/// Returns the hash code for this instance.
@@ -61,6 +67,8 @@ namespace GraphQL.Common.Response {
 		/// <returns>true if left and right are unequal; otherwise, false</returns>
 		public static bool operator !=(GraphQLLocation left, GraphQLLocation right) =>
 			!left.Equals(right);
+
+		#endregion
 
 	}
 
