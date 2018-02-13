@@ -3,7 +3,12 @@
 [![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 [![MyGet](https://img.shields.io/myget/graphql-dotnet/v/GraphQL.Client.svg)](https://www.myget.org/feed/graphql-dotnet/package/nuget/GraphQL.Client)
 
-A GraphQL Client for .NET Standard.
+A GraphQL Client for .NET Standard over HTTP.
+
+## Specification:
+The Library will try to follow the following standards and documents:
+[GraphQL Specification](http://facebook.github.io/graphql/October2016/)
+[GraphQL HomePage](http://graphql.org/learn/)
 
 ## Usage:
 
@@ -61,8 +66,6 @@ var name = personType.Name;
 ```
 
 ## Useful Links:
-[GraphQL Specification](http://facebook.github.io/graphql/October2016/)
-
 [StarWars Example Server (GitHub)](https://github.com/graphql/swapi-graphql)
 [StarWars Example Server (EndPoint)](https://swapi.apis.guru/)
 
