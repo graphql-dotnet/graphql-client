@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 namespace GraphQL.Common.Response {
 
 	/// <summary>
@@ -14,6 +18,12 @@ namespace GraphQL.Common.Response {
 		/// The Location of an error
 		/// </summary>
 		public GraphQLLocation[] Locations { get; set; }
+
+		/// <summary>
+		/// Additional error entries
+		/// </summary>
+		[JsonExtensionData]
+		public IDictionary<string, JToken> AdditonalEntries { get; set; }
 
 	}
 
