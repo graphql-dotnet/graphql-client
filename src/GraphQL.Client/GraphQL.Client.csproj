@@ -5,9 +5,6 @@
 
 	<PropertyGroup>
 		<Description>A GraphQL Client</Description>
-	</PropertyGroup>
-
-	<PropertyGroup>
 		<TargetFrameworks>netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 
