@@ -101,9 +101,7 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="query">The Request</param>
 		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> GetQueryAsync(string query) {
-			return this.GetQueryAsync(query, CancellationToken.None);
-		}
+		public Task<GraphQLResponse> GetQueryAsync(string query) => this.GetQueryAsync(query, CancellationToken.None);
 
 		/// <summary>
 		/// Send a query via GET
@@ -122,9 +120,7 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="request">The Request</param>
 		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> GetAsync(GraphQLRequest request) {
-			return this.GetAsync(request, CancellationToken.None);
-		}
+		public Task<GraphQLResponse> GetAsync(GraphQLRequest request) => this.GetAsync(request, CancellationToken.None);
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via GET
@@ -149,9 +145,7 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="query">The Request</param>
 		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> PostQueryAsync(string query) {
-			return PostQueryAsync(query, CancellationToken.None);
-		}
+		public Task<GraphQLResponse> PostQueryAsync(string query) => PostQueryAsync(query, CancellationToken.None);
 
 		/// <summary>
 		/// Send a query via POST
@@ -170,9 +164,7 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="request">The Request</param>
 		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> PostAsync(GraphQLRequest request) {
-			return this.PostAsync(request, CancellationToken.None);
-		}
+		public Task<GraphQLResponse> PostAsync(GraphQLRequest request) => this.PostAsync(request, CancellationToken.None);
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via POST
