@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Exceptions;
+using GraphQL.Client.Experimental;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
@@ -96,12 +97,7 @@ namespace GraphQL.Client {
 
 		#endregion
 
-		/// <summary>
-		/// Send a query via GET
-		/// </summary>
-		/// <param name="query">The Request</param>
-		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> GetQueryAsync(string query) => this.GetQueryAsync(query, CancellationToken.None);
+		#region GetQuery
 
 		/// <summary>
 		/// Send a query via GET
@@ -109,43 +105,33 @@ namespace GraphQL.Client {
 		/// <param name="query">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> GetQueryAsync(string query, CancellationToken cancellationToken) {
+		public async Task<GraphQLResponse> GetQueryAsync(string query, CancellationToken cancellationToken=default) {
 			if (query == null) { throw new ArgumentNullException(nameof(query)); }
 
-			return this.GetAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			return await this.GetAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via GET
 		/// </summary>
-		/// <param name="request">The Request</param>
-		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> GetAsync(GraphQLRequest request) => this.GetAsync(request, CancellationToken.None);
-
-		/// <summary>
-		/// Send a <see cref="GraphQLRequest"/> via GET
-		/// </summary>
-		/// <param name="request">The Request</param>
+		/// <param name="graphQLRequest">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> GetAsync(GraphQLRequest request, CancellationToken cancellationToken) {
-			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+		public async Task<GraphQLResponse> GetAsync(GraphQLRequest graphQLRequest, CancellationToken cancellationToken=default) {
+			if (graphQLRequest == null) { throw new ArgumentNullException(nameof(graphQLRequest)); }
+			if (graphQLRequest.Query == null) { throw new ArgumentNullException(nameof(graphQLRequest.Query)); }
 
-			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
-			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
-			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
+			var queryParamsBuilder = new StringBuilder($"query={graphQLRequest.Query}", 3);
+			if (graphQLRequest.OperationName != null) { queryParamsBuilder.Append($"&operationName={graphQLRequest.OperationName}"); }
+			if (graphQLRequest.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(graphQLRequest.Variables)}"); }
 			using (var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}", cancellationToken).ConfigureAwait(false)) {
 				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 			}
 		}
 
-		/// <summary>
-		/// Send a query via POST
-		/// </summary>
-		/// <param name="query">The Request</param>
-		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> PostQueryAsync(string query) => PostQueryAsync(query, CancellationToken.None);
+		#endregion
+
+		#region PostQuery
 
 		/// <summary>
 		/// Send a query via POST
@@ -153,35 +139,64 @@ namespace GraphQL.Client {
 		/// <param name="query">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> PostQueryAsync(string query, CancellationToken cancellationToken) {
+		public async Task<GraphQLResponse> PostQueryAsync(string query, CancellationToken cancellationToken=default) {
 			if (query == null) { throw new ArgumentNullException(nameof(query)); }
 
-			return this.PostAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			return await this.PostAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via POST
 		/// </summary>
-		/// <param name="request">The Request</param>
-		/// <returns>The Response</returns>
-		public Task<GraphQLResponse> PostAsync(GraphQLRequest request) => this.PostAsync(request, CancellationToken.None);
-
-		/// <summary>
-		/// Send a <see cref="GraphQLRequest"/> via POST
-		/// </summary>
-		/// <param name="request">The Request</param>
+		/// <param name="graphQLRequest">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> PostAsync(GraphQLRequest request, CancellationToken cancellationToken) {
-			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+		public async Task<GraphQLResponse> PostAsync(GraphQLRequest graphQLRequest, CancellationToken cancellationToken=default) {
+			if (graphQLRequest == null) { throw new ArgumentNullException(nameof(graphQLRequest)); }
+			if (graphQLRequest.Query == null) { throw new ArgumentNullException(nameof(graphQLRequest.Query)); }
 
-			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
+			var graphQLString = JsonConvert.SerializeObject(graphQLRequest, this.Options.JsonSerializerSettings);
 			using (var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType.MediaType))
 			using (var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent, cancellationToken).ConfigureAwait(false)) {
 				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 			}
 		}
+
+		#endregion
+
+		#region SubscribeQuery
+
+		/// <summary>
+		/// Subscribes to a GraphQLQuery
+		/// </summary>
+		/// <param name="query"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		[Obsolete("EXPERIMENTAL")]
+		public async Task<GraphQLSubscriptionResult> SubscribeAsync(string query, CancellationToken cancellationToken = default) {
+			if (query == null) { throw new ArgumentNullException(nameof(query)); }
+
+			return await this.SubscribeAsync(new GraphQLRequest { Query = query }).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Subscribes to a GraphQLQuery
+		/// </summary>
+		/// <param name="graphQLRequest"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		[Obsolete("EXPERIMENTAL")]
+		public async Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default) {
+			if (graphQLRequest == null) { throw new ArgumentNullException(nameof(graphQLRequest)); }
+			if (graphQLRequest.Query == null) { throw new ArgumentNullException(nameof(graphQLRequest.Query)); }
+
+			var wsEndPoint = new Uri($"{this.Options.EndPoint}");
+			var graphQLSubscriptionResult = new GraphQLSubscriptionResult(wsEndPoint, cancellationToken);
+			await graphQLSubscriptionResult.StartAsync().ConfigureAwait(false);
+			return graphQLSubscriptionResult;
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Releases unmanaged resources

@@ -11,7 +11,6 @@ namespace GraphQL.Client.Experimental {
 	/// <summary>
 	/// Represents the result of a Subscription Query
 	/// </summary>
-	[Obsolete("EXPERIMENTAL")]
 	public class GraphQLSubscriptionResult : IDisposable {
 
 		/// <summary>
@@ -43,8 +42,11 @@ namespace GraphQL.Client.Experimental {
 		/// <summary>
 		/// Start Lisenting
 		/// </summary>
-		public async void StartAsync() {
-			await this.ReceiveAsync();
+		public async Task StartAsync() {
+			await this.ConnectAsync().ConfigureAwait(false);
+			while (!this.cancellationToken.IsCancellationRequested) {
+				await this.ReceiveAsync().ConfigureAwait(false);
+			}
 		}
 
 		/// <summary>
