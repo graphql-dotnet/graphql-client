@@ -157,6 +157,19 @@ namespace GraphQL.Client {
 			}
 		}
 
+		[Obsolete("EXPERIMENTAL API")]
+		public async Task<GraphQLSubscriptionResult> SubscribeAsync(string query, CancellationToken cancellationToken = default) {
+			if (query == null) { throw new ArgumentNullException(nameof(query)); }
+
+			return await this.SubscribeAsync(new GraphQLRequest { Query=query},cancellationToken).ConfigureAwait(false);
+		}
+
+		[Obsolete("EXPERIMENTAL API")]
+		public async Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest request,CancellationToken cancellationToken = default) {
+			var a= new GraphQLSubscriptionResult();
+			return a;
+		}
+
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
