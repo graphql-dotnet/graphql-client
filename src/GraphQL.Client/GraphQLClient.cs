@@ -177,9 +177,13 @@ namespace GraphQL.Client {
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
 			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
-			using (var httpContent = new StringContent(graphQLString, Encoding.UTF8, this.Options.MediaType.MediaType))
-			using (var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent, cancellationToken).ConfigureAwait(false)) {
-				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+			using (var httpContent = new StringContent(graphQLString))
+			{
+				httpContent.Headers.ContentType = this.Options.MediaType;
+				using (var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent, cancellationToken).ConfigureAwait(false))
+				{
+					return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
+				} 
 			}
 		}
 

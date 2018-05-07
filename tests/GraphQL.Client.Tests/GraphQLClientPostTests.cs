@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using GraphQL.Common.Request;
 using GraphQL.Common.Tests.Model;
 using Xunit;
@@ -16,6 +17,25 @@ namespace GraphQL.Client.Tests {
 					}
 				}"
 			};
+			var response = await this.GraphQLClient.PostAsync(graphQLRequest).ConfigureAwait(false);
+
+			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
+			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
+		}
+
+		[Fact]
+		public async void QueryPostAsyncWithoutUtf8EncodingFact()
+		{
+			var graphQLRequest = new GraphQLRequest
+			{
+				Query = @"
+				{
+					person(personID: ""1"") {
+						name
+					}
+				}"
+			};
+			this.GraphQLClient.Options.MediaType = MediaTypeHeaderValue.Parse("application/json");
 			var response = await this.GraphQLClient.PostAsync(graphQLRequest).ConfigureAwait(false);
 
 			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
