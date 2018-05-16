@@ -167,7 +167,7 @@ namespace GraphQL.Client {
 		[Obsolete("EXPERIMENTAL API")]
 		public async Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest request,CancellationToken cancellationToken = default) {
 			var a= new GraphQLSubscriptionResult();
-			return a;
+			return await Task.FromResult(a);
 		}
 
 		/// <summary>
