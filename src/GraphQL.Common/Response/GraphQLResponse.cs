@@ -1,3 +1,4 @@
+using System.Net;
 using GraphQL.Common.Request;
 
 namespace GraphQL.Common.Response {
@@ -17,6 +18,11 @@ namespace GraphQL.Common.Response {
 		/// The Errors if ocurred
 		/// </summary>
 		public GraphQLError[] Errors { get; set; }
+
+		/// <summary>
+		/// The HTTP Status Code
+		/// </summary>
+		public HttpStatusCode HttpStatus { get; set; }
 
 		/// <summary>
 		/// Get a field of <see cref="Data"/> as Type
