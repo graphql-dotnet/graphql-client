@@ -176,7 +176,9 @@ namespace GraphQL.Client {
 					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
 				};
 				try {
-					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+					var response = jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+					response.HttpStatus = httpResponseMessage.StatusCode;
+					return response;
 				} catch (JsonReaderException exception) {
 					if (httpResponseMessage.IsSuccessStatusCode) {
 						throw exception;
