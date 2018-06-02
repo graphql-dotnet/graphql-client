@@ -2,10 +2,10 @@ using System;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client {
 
@@ -17,42 +17,50 @@ namespace GraphQL.Client {
 
 		public event Action<GraphQLResponse> OnReceive;
 
-		public GraphQLResponse LastResponse { get; }
+		public GraphQLResponse LastResponse { get; private set; }
 
 		private readonly ClientWebSocket clientWebSocket = new ClientWebSocket();
 		private readonly Uri webSocketUri;
 		private readonly GraphQLRequest graphQLRequest;
+		private readonly byte[] buffer = new byte[1024*1024];
 
 		internal GraphQLSubscriptionResult(Uri webSocketUri, GraphQLRequest graphQLRequest) {
 			this.webSocketUri = webSocketUri;
 			this.graphQLRequest = graphQLRequest;
+			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
 		}
 
 		public async void StartAsync(CancellationToken cancellationToken = default) {
-			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
 			await this.clientWebSocket.ConnectAsync(this.webSocketUri, cancellationToken).ConfigureAwait(false);
-			var arraySegment = new ArraySegment<byte>(new byte[1024]);
 			if (this.clientWebSocket.State == WebSocketState.Open) {
-				var webSocketRequest = new WebSocketRequest {
-					Id = "1",
-					Type = GQLWebSocketMessageType.GQL_START,
-					Payload = this.graphQLRequest
-				};
-				var webSocketRequestString = JsonConvert.SerializeObject(webSocketRequest);
-				var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-				await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+				var arraySegment = new ArraySegment<byte>(this.buffer);
+				await this.SendInitialMessageAsync(cancellationToken).ConfigureAwait(false);
 				while (this.clientWebSocket.State == WebSocketState.Open) {
 					var webSocketReceiveResult = await this.clientWebSocket.ReceiveAsync(arraySegment, cancellationToken);
 					var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
 					var webSocketResponse = JsonConvert.DeserializeObject<WebSocketResponse>(stringResult);
-					if (webSocketResponse != null) { this.OnReceive?.Invoke(webSocketResponse.Payload); }
+					if (webSocketResponse != null) {
+						this.LastResponse = webSocketResponse.Payload;
+						this.OnReceive?.Invoke(webSocketResponse.Payload);
+					}
 				}
 			}
 		}
 
 		public void Dispose() => this.clientWebSocket.Dispose();
 
-		private class WebSocketRequest {
+		private async Task SendInitialMessageAsync(CancellationToken cancellationToken=default) {
+			var webSocketRequest = new WebSocketRequest {
+				Id = "1",
+				Type = GQLWebSocketMessageType.GQL_START,
+				Payload = this.graphQLRequest
+			};
+			var webSocketRequestString = JsonConvert.SerializeObject(webSocketRequest);
+			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
+			await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+		}
+
+		private abstract class BaseWebSocketMessage<TPayload> {
 
 			/// <summary>
 			///     Nullable Id
@@ -67,28 +75,13 @@ namespace GraphQL.Client {
 			/// <summary>
 			///     Nullable payload
 			/// </summary>
-			public GraphQLRequest Payload { get; set; }
+			public TPayload Payload { get; set; }
 
 		}
 
-		private class WebSocketResponse {
+		private class WebSocketRequest :BaseWebSocketMessage<GraphQLRequest> {}
 
-			/// <summary>
-			///     Nullable Id
-			/// </summary>
-			public string Id { get; set; }
-
-			/// <summary>
-			///     Type <see cref="GQLWebSocketMessageType" />
-			/// </summary>
-			public string Type { get; set; }
-
-			/// <summary>
-			///     Nullable payload
-			/// </summary>
-			public GraphQLResponse Payload { get; set; }
-
-		}
+		private class WebSocketResponse : BaseWebSocketMessage<GraphQLResponse> {}
 
 		private static class GQLWebSocketMessageType {
 			/// <summary>
