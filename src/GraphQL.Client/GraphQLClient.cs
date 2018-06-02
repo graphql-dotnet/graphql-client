@@ -161,12 +161,16 @@ namespace GraphQL.Client {
 		public async Task<GraphQLSubscriptionResult> SubscribeAsync(string query, CancellationToken cancellationToken = default) {
 			if (query == null) { throw new ArgumentNullException(nameof(query)); }
 
-			return await this.SubscribeAsync(new GraphQLRequest { Query=query},cancellationToken).ConfigureAwait(false);
+			return await this.SubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 		}
 
 		[Obsolete("EXPERIMENTAL API")]
-		public async Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest request,CancellationToken cancellationToken = default) {
-			var graphQLSubscriptionResult = new GraphQLSubscriptionResult();
+		public async Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			if (request == null) { throw new ArgumentNullException(nameof(request)); }
+			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+
+			var webSocketUri = new Uri($"ws://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
+			var graphQLSubscriptionResult = new GraphQLSubscriptionResult(webSocketUri,request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
 			return await Task.FromResult(graphQLSubscriptionResult).ConfigureAwait(false);
 		}
