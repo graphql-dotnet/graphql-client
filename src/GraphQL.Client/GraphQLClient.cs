@@ -15,7 +15,7 @@ namespace GraphQL.Client {
 	/// <summary>
 	/// A Client to access GraphQL EndPoints
 	/// </summary>
-	public partial class GraphQLClient : IGraphQLClient, IDisposable {
+	public partial class GraphQLClient : IGraphQLClient {
 
 		#region Properties
 
