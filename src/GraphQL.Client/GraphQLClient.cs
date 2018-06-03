@@ -15,7 +15,7 @@ namespace GraphQL.Client {
 	/// <summary>
 	/// A Client to access GraphQL EndPoints
 	/// </summary>
-	public partial class GraphQLClient : IDisposable {
+	public partial class GraphQLClient : IGraphQLClient, IDisposable {
 
 		#region Properties
 
@@ -174,6 +174,8 @@ namespace GraphQL.Client {
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
 			return await Task.FromResult(graphQLSubscriptionResult).ConfigureAwait(false);
 		}
+
+		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) => await this.PostAsync(request,cancellationToken).ConfigureAwait(false);
 
 		/// <summary>
 		/// Releases unmanaged resources
