@@ -177,6 +177,8 @@ namespace GraphQL.Client {
 
 		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) => await this.PostAsync(request,cancellationToken).ConfigureAwait(false);
 
+		public async Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) => await this.PostAsync(request,cancellationToken).ConfigureAwait(false);
+
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
