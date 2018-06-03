@@ -13,7 +13,7 @@ namespace GraphQL.Client {
 	/// Represents the result of a subscription query
 	/// </summary>
 	[Obsolete("EXPERIMENTAL API")]
-	public class GraphQLSubscriptionResult : IDisposable {
+	public class GraphQLSubscriptionResult : IGraphQLSubscriptionResult, IDisposable {
 
 		public event Action<GraphQLResponse> OnReceive;
 
