@@ -22,7 +22,7 @@ namespace GraphQL.Client {
 		private readonly ClientWebSocket clientWebSocket = new ClientWebSocket();
 		private readonly Uri webSocketUri;
 		private readonly GraphQLRequest graphQLRequest;
-		private readonly byte[] buffer = new byte[1024*1024];
+		private readonly byte[] buffer = new byte[1024 * 1024];
 
 		internal GraphQLSubscriptionResult(Uri webSocketUri, GraphQLRequest graphQLRequest) {
 			this.webSocketUri = webSocketUri;
@@ -38,7 +38,7 @@ namespace GraphQL.Client {
 				while (this.clientWebSocket.State == WebSocketState.Open) {
 					var webSocketReceiveResult = await this.clientWebSocket.ReceiveAsync(arraySegment, cancellationToken);
 					var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
-					var webSocketResponse = JsonConvert.DeserializeObject<WebSocketResponse>(stringResult);
+					var webSocketResponse = JsonConvert.DeserializeObject<GraphQLSubscriptionResponse>(stringResult);
 					if (webSocketResponse != null) {
 						this.LastResponse = webSocketResponse.Payload;
 						this.OnReceive?.Invoke(webSocketResponse.Payload);
@@ -49,8 +49,8 @@ namespace GraphQL.Client {
 
 		public void Dispose() => this.clientWebSocket.Dispose();
 
-		private async Task SendInitialMessageAsync(CancellationToken cancellationToken=default) {
-			var webSocketRequest = new WebSocketRequest {
+		private async Task SendInitialMessageAsync(CancellationToken cancellationToken = default) {
+			var webSocketRequest = new GraphQLSubscriptionRequest {
 				Id = "1",
 				Type = GQLWebSocketMessageType.GQL_START,
 				Payload = this.graphQLRequest
@@ -59,29 +59,6 @@ namespace GraphQL.Client {
 			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
 			await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
 		}
-
-		private abstract class BaseWebSocketMessage<TPayload> {
-
-			/// <summary>
-			///     Nullable Id
-			/// </summary>
-			public string Id { get; set; }
-
-			/// <summary>
-			///     Type <see cref="GQLWebSocketMessageType" />
-			/// </summary>
-			public string Type { get; set; }
-
-			/// <summary>
-			///     Nullable payload
-			/// </summary>
-			public TPayload Payload { get; set; }
-
-		}
-
-		private class WebSocketRequest :BaseWebSocketMessage<GraphQLRequest> {}
-
-		private class WebSocketResponse : BaseWebSocketMessage<GraphQLResponse> {}
 
 		private static class GQLWebSocketMessageType {
 			/// <summary>
