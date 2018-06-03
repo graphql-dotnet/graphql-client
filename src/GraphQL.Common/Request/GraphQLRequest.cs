@@ -41,7 +41,7 @@ namespace GraphQL.Common.Request {
 			if (!Equals(this.OperationName, other.OperationName)) {
 				return false;
 			}
-			if (!object.Equals(this.Variables, other.Variables)) {
+			if (!Equals(this.Variables, other.Variables)) {
 				return false;
 			}
 			return true;
@@ -57,13 +57,7 @@ namespace GraphQL.Common.Request {
 		}
 
 		/// <inheritdoc />
-		public static bool operator ==(GraphQLRequest request1, GraphQLRequest request2) {
-			if (request1 is null) {
-				return request2 is null;
-			}
-
-			return request1.Equals(request2);
-		}
+		public static bool operator ==(GraphQLRequest request1, GraphQLRequest request2) => EqualityComparer<GraphQLRequest>.Default.Equals(request1, request2);
 
 		/// <inheritdoc />
 		public static bool operator !=(GraphQLRequest request1, GraphQLRequest request2) => !(request1 == request2);
