@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Exceptions;
+using GraphQL.Client.Internal;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
@@ -22,8 +23,7 @@ namespace GraphQL.Client {
 		/// <summary>
 		/// Gets the headers which should be sent with each request.
 		/// </summary>
-		public HttpRequestHeaders DefaultRequestHeaders =>
-			this.httpClient.DefaultRequestHeaders;
+		public HttpRequestHeaders DefaultRequestHeaders =>this.graphQLHttpHandler.HttpClient.DefaultRequestHeaders;
 
 		/// <summary>
 		/// The GraphQL EndPoint to be used
@@ -40,7 +40,7 @@ namespace GraphQL.Client {
 
 		#endregion
 
-		private readonly HttpClient httpClient;
+		private readonly GraphQLHttpHandler graphQLHttpHandler;
 
 		#region Constructors
 
@@ -76,7 +76,7 @@ namespace GraphQL.Client {
 			if (this.Options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpMessageHandler)); }
 			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
 
-			this.httpClient = new HttpClient(this.Options.HttpMessageHandler);
+			this.graphQLHttpHandler = new GraphQLHttpHandler(this.Options);
 		}
 
 		/// <summary>
@@ -91,7 +91,7 @@ namespace GraphQL.Client {
 			if (this.Options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpMessageHandler)); }
 			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
 
-			this.httpClient = new HttpClient(this.Options.HttpMessageHandler);
+			this.graphQLHttpHandler = new GraphQLHttpHandler(this.Options);
 		}
 
 		#endregion
@@ -121,7 +121,7 @@ namespace GraphQL.Client {
 			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
 			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
 			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
-			using (var httpResponseMessage = await this.httpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}", cancellationToken).ConfigureAwait(false)) {
+			using (var httpResponseMessage = await this.graphQLHttpHandler.HttpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}", cancellationToken).ConfigureAwait(false)) {
 				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 			}
 		}
@@ -151,7 +151,7 @@ namespace GraphQL.Client {
 			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
 			using (var httpContent = new StringContent(graphQLString)) {
 				httpContent.Headers.ContentType = this.Options.MediaType;
-				using (var httpResponseMessage = await this.httpClient.PostAsync(this.EndPoint, httpContent, cancellationToken).ConfigureAwait(false)) {
+				using (var httpResponseMessage = await this.graphQLHttpHandler.HttpClient.PostAsync(this.EndPoint, httpContent, cancellationToken).ConfigureAwait(false)) {
 					return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 				}
 			}
@@ -183,7 +183,7 @@ namespace GraphQL.Client {
 		/// Releases unmanaged resources
 		/// </summary>
 		public void Dispose() =>
-			this.httpClient.Dispose();
+			this.graphQLHttpHandler.Dispose();
 
 		/// <summary>
 		/// Reads the <see cref="HttpResponseMessage"/>
