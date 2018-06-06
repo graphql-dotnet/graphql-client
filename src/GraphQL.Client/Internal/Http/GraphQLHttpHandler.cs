@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 
-namespace GraphQL.Client.Internal {
+namespace GraphQL.Client.Internal.Http {
 
 	internal class GraphQLHttpHandler :IDisposable {
 
