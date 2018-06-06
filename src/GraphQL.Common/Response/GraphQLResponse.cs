@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GraphQL.Common.Request;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Common.Response {
 
@@ -27,7 +28,7 @@ namespace GraphQL.Common.Response {
 		/// <param name="fieldName">The name of the field</param>
 		/// <returns>The field of data as an object</returns>
 		public Type GetDataFieldAs<Type>(string fieldName) {
-			var value = this.Data.GetValue(fieldName);
+			var value = (this.Data as JObject).GetValue(fieldName);
 			return value.ToObject<Type>();
 		}
 
