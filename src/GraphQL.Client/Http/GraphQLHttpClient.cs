@@ -38,7 +38,7 @@ namespace GraphQL.Client.Http {
 
 		#endregion
 
-		private protected readonly GraphQLHttpHandler graphQLHttpHandler;
+		internal readonly GraphQLHttpHandler graphQLHttpHandler;
 
 		/// <summary>
 		/// Initializes a new instance
