@@ -37,13 +37,13 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLClient(Uri endPoint, GraphQLClientOptions options) : base(endPoint,options) { }
+		public GraphQLClient(Uri endPoint, GraphQLClientOptions options) : base(endPoint, options) { }
 
 		/// <summary>
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLClient(GraphQLClientOptions options):base(options) {}
+		public GraphQLClient(GraphQLClientOptions options) : base(options) { }
 
 
 		/// <summary>

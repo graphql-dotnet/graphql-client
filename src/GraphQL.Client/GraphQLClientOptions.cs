@@ -7,6 +7,6 @@ namespace GraphQL.Client {
 	/// The Options that the <see cref="GraphQLClient"/> will use
 	/// </summary>
 	[Obsolete("Use GraphQLHttpClientOptions")]
-	public class GraphQLClientOptions : GraphQLHttpClientOptions {}
+	public class GraphQLClientOptions : GraphQLHttpClientOptions { }
 
 }
