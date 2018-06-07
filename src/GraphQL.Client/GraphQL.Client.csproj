@@ -9,14 +9,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="GraphQLClient.Obsolete.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="GraphQLClient.Obsolete.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\GraphQL.Common\GraphQL.Common.csproj" />
 	</ItemGroup>
 
