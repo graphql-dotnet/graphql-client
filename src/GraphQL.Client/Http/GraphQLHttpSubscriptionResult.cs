@@ -7,13 +7,13 @@ using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
 
-namespace GraphQL.Client {
+namespace GraphQL.Client.Http {
 
 	/// <summary>
 	/// Represents the result of a subscription query
 	/// </summary>
 	[Obsolete("EXPERIMENTAL API")]
-	public class GraphQLSubscriptionResult : IGraphQLSubscriptionResult, IDisposable {
+	public class GraphQLHttpSubscriptionResult : IGraphQLSubscriptionResult, IDisposable {
 
 		public event Action<GraphQLResponse> OnReceive;
 
@@ -24,7 +24,7 @@ namespace GraphQL.Client {
 		private readonly GraphQLRequest graphQLRequest;
 		private readonly byte[] buffer = new byte[1024 * 1024];
 
-		internal GraphQLSubscriptionResult(Uri webSocketUri, GraphQLRequest graphQLRequest) {
+		internal GraphQLHttpSubscriptionResult(Uri webSocketUri, GraphQLRequest graphQLRequest) {
 			this.webSocketUri = webSocketUri;
 			this.graphQLRequest = graphQLRequest;
 			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");

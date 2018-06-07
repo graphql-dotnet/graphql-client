@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 

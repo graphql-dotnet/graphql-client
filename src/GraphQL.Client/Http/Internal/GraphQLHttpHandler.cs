@@ -5,19 +5,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Exceptions;
+using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
 
-namespace GraphQL.Client.Internal.Http {
+namespace GraphQL.Client.Http.Internal {
 
 	internal class GraphQLHttpHandler : IDisposable {
 
-		public GraphQLClientOptions Options { get; set; }
+		public GraphQLHttpClientOptions Options { get; set; }
 
 		public HttpClient HttpClient { get; set; }
 
-		public GraphQLHttpHandler(GraphQLClientOptions options) {
+		public GraphQLHttpHandler(GraphQLHttpClientOptions options) {
 			this.Options = options ?? throw new ArgumentNullException(nameof(options));
 			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
 			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }

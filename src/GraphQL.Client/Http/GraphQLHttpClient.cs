@@ -2,11 +2,11 @@ using System;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Client.Internal.Http;
+using GraphQL.Client.Http.Internal;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 
-namespace GraphQL.Client {
+namespace GraphQL.Client.Http {
 
 	/// <summary>
 	/// A Client to access GraphQL EndPoints
@@ -31,7 +31,7 @@ namespace GraphQL.Client {
 		/// <summary>
 		/// The Options	to be used
 		/// </summary>
-		public GraphQLClientOptions Options {
+		public GraphQLHttpClientOptions Options {
 			get => this.graphQLHttpHandler.Options;
 			set => this.graphQLHttpHandler.Options = value;
 		}
@@ -50,21 +50,21 @@ namespace GraphQL.Client {
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
-		public GraphQLHttpClient(Uri endPoint) : this(new GraphQLClientOptions { EndPoint = endPoint }) { }
+		public GraphQLHttpClient(Uri endPoint) : this(new GraphQLHttpClientOptions { EndPoint = endPoint }) { }
 
 		/// <summary>
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLHttpClient(string endPoint, GraphQLClientOptions options) : this(new Uri(endPoint), options) { }
+		public GraphQLHttpClient(string endPoint, GraphQLHttpClientOptions options) : this(new Uri(endPoint), options) { }
 
 		/// <summary>
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLHttpClient(Uri endPoint, GraphQLClientOptions options) {
+		public GraphQLHttpClient(Uri endPoint, GraphQLHttpClientOptions options) {
 			if (options == null) { throw new ArgumentNullException(nameof(options)); }
 			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
 			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
@@ -79,7 +79,7 @@ namespace GraphQL.Client {
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLHttpClient(GraphQLClientOptions options) {
+		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
 			if (options == null) { throw new ArgumentNullException(nameof(options)); }
 			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
 			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
@@ -102,16 +102,16 @@ namespace GraphQL.Client {
 			await this.graphQLHttpHandler.PostAsync(request, cancellationToken).ConfigureAwait(false);
 
 		[Obsolete("EXPERIMENTAL API")]
-		public async Task<GraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
+		public async Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
 			await this.SendSubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 
 		[Obsolete("EXPERIMENTAL API")]
-		public async Task<GraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		public async Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
 			var webSocketUri = new Uri($"ws://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
-			var graphQLSubscriptionResult = new GraphQLSubscriptionResult(webSocketUri, request);
+			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(webSocketUri, request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
 			return await Task.FromResult(graphQLSubscriptionResult).ConfigureAwait(false);
 		}
