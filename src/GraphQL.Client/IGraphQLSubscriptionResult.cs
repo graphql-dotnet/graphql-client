@@ -3,7 +3,7 @@ using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
 
-	public interface IGraphQLSubscriptionResult {
+	public interface IGraphQLSubscriptionResult : IDisposable {
 
 		event Action<GraphQLResponse> OnReceive;
 
