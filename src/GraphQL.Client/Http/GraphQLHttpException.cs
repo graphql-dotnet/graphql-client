@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 
-namespace GraphQL.Client.Exceptions {
+namespace GraphQL.Client.Http {
 
 	/// <summary>
 	/// An exception thrown on unexpected <see cref="System.Net.Http.HttpResponseMessage"/>
