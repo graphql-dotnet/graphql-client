@@ -12,7 +12,7 @@ namespace GraphQL.Client {
 
 		Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
 
-		Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
+		Task<GraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
 
 	}
 

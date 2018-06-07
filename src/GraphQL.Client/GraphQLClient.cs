@@ -1,15 +1,10 @@
 using System;
-using System.IO;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Client.Exceptions;
 using GraphQL.Client.Internal.Http;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
-using Newtonsoft.Json;
 
 namespace GraphQL.Client {
 
@@ -23,7 +18,7 @@ namespace GraphQL.Client {
 		/// <summary>
 		/// Gets the headers which should be sent with each request.
 		/// </summary>
-		public HttpRequestHeaders DefaultRequestHeaders =>this.graphQLHttpHandler.HttpClient.DefaultRequestHeaders;
+		public HttpRequestHeaders DefaultRequestHeaders => this.graphQLHttpHandler.HttpClient.DefaultRequestHeaders;
 
 		/// <summary>
 		/// The GraphQL EndPoint to be used
@@ -36,13 +31,14 @@ namespace GraphQL.Client {
 		/// <summary>
 		/// The Options	to be used
 		/// </summary>
-		public GraphQLClientOptions Options { get; set; }
+		public GraphQLClientOptions Options {
+			get => this.graphQLHttpHandler.Options;
+			set => this.graphQLHttpHandler.Options = value;
+		}
 
 		#endregion
 
 		private readonly GraphQLHttpHandler graphQLHttpHandler;
-
-		#region Constructors
 
 		/// <summary>
 		/// Initializes a new instance
@@ -69,14 +65,14 @@ namespace GraphQL.Client {
 		/// <param name="endPoint">The EndPoint to be used</param>
 		/// <param name="options">The Options to be used</param>
 		public GraphQLClient(Uri endPoint, GraphQLClientOptions options) {
-			this.Options = options ?? throw new ArgumentNullException(nameof(options));
-			this.Options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
+			if (options == null) { throw new ArgumentNullException(nameof(options)); }
+			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
+			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
+			if (options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(options.HttpMessageHandler)); }
+			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
-			if (this.Options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(this.Options.JsonSerializerSettings)); }
-			if (this.Options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpMessageHandler)); }
-			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
-
-			this.graphQLHttpHandler = new GraphQLHttpHandler(this.Options);
+			options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
+			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
 		}
 
 		/// <summary>
@@ -84,129 +80,47 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="options">The Options to be used</param>
 		public GraphQLClient(GraphQLClientOptions options) {
-			this.Options = options ?? throw new ArgumentNullException(nameof(options));
+			if (options == null) { throw new ArgumentNullException(nameof(options)); }
+			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
+			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
+			if (options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(options.HttpMessageHandler)); }
+			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
-			if (this.Options.EndPoint == null) { throw new ArgumentNullException(nameof(this.Options.EndPoint)); }
-			if (this.Options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(this.Options.JsonSerializerSettings)); }
-			if (this.Options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(this.Options.HttpMessageHandler)); }
-			if (this.Options.MediaType == null) { throw new ArgumentNullException(nameof(this.Options.MediaType)); }
-
-			this.graphQLHttpHandler = new GraphQLHttpHandler(this.Options);
+			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
 		}
 
-		#endregion
+		public async Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
+			await this.SendQueryAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 
-		/// <summary>
-		/// Send a query via GET
-		/// </summary>
-		/// <param name="query">The Request</param>
-		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> GetQueryAsync(string query, CancellationToken cancellationToken = default) {
-			if (query == null) { throw new ArgumentNullException(nameof(query)); }
+		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			await this.graphQLHttpHandler.PostAsync(request, cancellationToken).ConfigureAwait(false);
 
-			return await this.GetAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
-		}
+		public async Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
+			await this.SendMutationAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 
-		/// <summary>
-		/// Send a <see cref="GraphQLRequest"/> via GET
-		/// </summary>
-		/// <param name="request">The Request</param>
-		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> GetAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
-
-			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
-			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
-			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
-			using (var httpResponseMessage = await this.graphQLHttpHandler.HttpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}", cancellationToken).ConfigureAwait(false)) {
-				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
-			}
-		}
-
-		/// <summary>
-		/// Send a query via POST
-		/// </summary>
-		/// <param name="query">The Request</param>
-		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> PostQueryAsync(string query, CancellationToken cancellationToken = default) {
-			if (query == null) { throw new ArgumentNullException(nameof(query)); }
-
-			return await this.PostAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Send a <see cref="GraphQLRequest"/> via POST
-		/// </summary>
-		/// <param name="request">The Request</param>
-		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> PostAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
-
-			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
-			using (var httpContent = new StringContent(graphQLString)) {
-				httpContent.Headers.ContentType = this.Options.MediaType;
-				using (var httpResponseMessage = await this.graphQLHttpHandler.HttpClient.PostAsync(this.EndPoint, httpContent, cancellationToken).ConfigureAwait(false)) {
-					return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
-				}
-			}
-		}
+		public async Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			await this.graphQLHttpHandler.PostAsync(request, cancellationToken).ConfigureAwait(false);
 
 		[Obsolete("EXPERIMENTAL API")]
-		public async Task<GraphQLSubscriptionResult> SubscribeAsync(string query, CancellationToken cancellationToken = default) {
-			if (query == null) { throw new ArgumentNullException(nameof(query)); }
-
-			return await this.SubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
-		}
+		public async Task<GraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
+			await this.SendSubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
 
 		[Obsolete("EXPERIMENTAL API")]
-		public async Task<GraphQLSubscriptionResult> SubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		public async Task<GraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
 			var webSocketUri = new Uri($"ws://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
-			var graphQLSubscriptionResult = new GraphQLSubscriptionResult(webSocketUri,request);
+			var graphQLSubscriptionResult = new GraphQLSubscriptionResult(webSocketUri, request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
 			return await Task.FromResult(graphQLSubscriptionResult).ConfigureAwait(false);
 		}
-
-		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) => await this.PostAsync(request,cancellationToken).ConfigureAwait(false);
-
-		public async Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) => await this.PostAsync(request,cancellationToken).ConfigureAwait(false);
 
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
 		public void Dispose() =>
 			this.graphQLHttpHandler.Dispose();
-
-		/// <summary>
-		/// Reads the <see cref="HttpResponseMessage"/>
-		/// </summary>
-		/// <param name="httpResponseMessage">The Response</param>
-		/// <returns>The GrahQLResponse</returns>
-		private async Task<GraphQLResponse> ReadHttpResponseMessageAsync(HttpResponseMessage httpResponseMessage) {
-			using (var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
-			using (var streamReader = new StreamReader(stream))
-			using (var jsonTextReader = new JsonTextReader(streamReader)) {
-				var jsonSerializer = new JsonSerializer {
-					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
-				};
-				try {
-					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
-				} catch (JsonReaderException exception) {
-					if (httpResponseMessage.IsSuccessStatusCode) {
-						throw exception;
-					}
-					throw new GraphQLHttpException(httpResponseMessage);
-				}
-			}
-		}
 
 	}
 
