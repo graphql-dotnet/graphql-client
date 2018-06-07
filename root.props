@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<LangVersion>latest</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<NoWarn></NoWarn>
+		<NoWarn>CS0618;CS1591;CS1701</NoWarn>
 		<PackageIconUrl>https://raw.githubusercontent.com/graphql-dotnet/graphql-client/master/assets/logo.64x64.png</PackageIconUrl>
 		<PackageLicenseUrl>https://raw.githubusercontent.com/graphql-dotnet/graphql-client/master/LICENSE.txt</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/graphql-client</PackageProjectUrl>
@@ -17,7 +17,7 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/graphql-dotnet/graphql-client.git</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-		<Version>1.0.3</Version>
+		<Version>2.0.0</Version>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 

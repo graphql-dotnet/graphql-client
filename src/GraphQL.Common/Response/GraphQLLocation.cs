@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GraphQL.Common.Response {
 
@@ -6,8 +7,6 @@ namespace GraphQL.Common.Response {
 	/// Represents the location where the <see cref="GraphQLError"/> has been found
 	/// </summary>
 	public class GraphQLLocation : IEquatable<GraphQLLocation> {
-
-		#region Properties
 
 		/// <summary>
 		/// The Column
@@ -19,56 +18,39 @@ namespace GraphQL.Common.Response {
 		/// </summary>
 		public uint Line { get; set; }
 
-		#endregion
+		/// <inheritdoc />
+		public override bool Equals(object obj) => this.Equals(obj as GraphQLLocation);
 
-		#region IEquatable
-
-		/// <summary>
-		/// Returns the hash code for this instance.
-		/// </summary>
-		/// <returns>The hash code</returns>
-		public override int GetHashCode() =>
-			this.Column.GetHashCode() ^ this.Line.GetHashCode();
-
-		/// <summary>
-		/// Returns a value that indicates whether this instance is equal to a specified object
-		/// </summary>
-		/// <param name="obj">The object to compare with this instance</param>
-		/// <returns>true if obj is an instance of <see cref="GraphQLLocation"/> and equals the value of the instance; otherwise, false</returns>
-		public override bool Equals(object obj) {
-			if (obj is GraphQLLocation) {
-				return Equals(obj as GraphQLLocation);
+		/// <inheritdoc />
+		public bool Equals(GraphQLLocation other) {
+			if (other == null) {
+				return false;
 			}
-			return false;
+			if (ReferenceEquals(this, other)) {
+				return true;
+			}
+			if (!Equals(this.Column, other.Column)) {
+				return false;
+			}
+			if (!Equals(this.Line, other.Line)) {
+				return false;
+			}
+			return true;
 		}
 
-		/// <summary>
-		/// Returns a value that indicates whether this instance is equal to a specified object
-		/// </summary>
-		/// <param name="other">The object to compare with this instance</param>
-		/// <returns>true if other is an instance of <see cref="GraphQLLocation"/> and equals the value of the instance; otherwise, false</returns>
-		public bool Equals(GraphQLLocation other) =>
-			Equals(this.Column, other.Column) && Equals(this.Line, other.Line);
+		/// <inheritdoc />
+		public override int GetHashCode() {
+			var hashCode = 412437926;
+			hashCode = hashCode * -1521134295 + this.Column.GetHashCode();
+			hashCode = hashCode * -1521134295 + this.Line.GetHashCode();
+			return hashCode;
+		}
 
-		/// <summary>
-		/// Tests whether two specified <see cref="GraphQLLocation"/> instances are equivalent
-		/// </summary>
-		/// <param name="left">The <see cref="GraphQLLocation"/> instance that is to the left of the equality operator</param>
-		/// <param name="right">The <see cref="GraphQLLocation"/> instance that is to the right of the equality operator</param>
-		/// <returns>true if left and right are equal; otherwise, false</returns>
-		public static bool operator ==(GraphQLLocation left, GraphQLLocation right) =>
-			left.Equals(right);
+		/// <inheritdoc />
+		public static bool operator ==(GraphQLLocation location1, GraphQLLocation location2) => EqualityComparer<GraphQLLocation>.Default.Equals(location1, location2);
 
-		/// <summary>
-		/// Tests whether two specified <see cref="GraphQLLocation"/> instances are not equal
-		/// </summary>
-		/// <param name="left">The <see cref="GraphQLLocation"/> instance that is to the left of the not equal operator</param>
-		/// <param name="right">The <see cref="GraphQLLocation"/> instance that is to the right of the not equal operator</param>
-		/// <returns>true if left and right are unequal; otherwise, false</returns>
-		public static bool operator !=(GraphQLLocation left, GraphQLLocation right) =>
-			!left.Equals(right);
-
-		#endregion
+		/// <inheritdoc />
+		public static bool operator !=(GraphQLLocation location1, GraphQLLocation location2) => !(location1 == location2);
 
 	}
 
