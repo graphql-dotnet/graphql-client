@@ -3,12 +3,25 @@ using System.Collections.Generic;
 
 namespace GraphQL.Common.Request {
 
+	/// <summary>
+	/// A Subscription Request
+	/// </summary>
+	[Obsolete("EXPERIMENTAL")]
 	public class GraphQLSubscriptionRequest : IEquatable<GraphQLSubscriptionRequest> {
 
+		/// <summary>
+		/// The Identifier of the Response
+		/// </summary>
 		public string Id { get; set; }
 
+		/// <summary>
+		/// The Type of the Request
+		/// </summary>
 		public string Type { get; set; }
 
+		/// <summary>
+		/// The Payload of the Request
+		/// </summary>
 		public GraphQLRequest Payload { get; set; }
 
 		/// <inheritdoc />
