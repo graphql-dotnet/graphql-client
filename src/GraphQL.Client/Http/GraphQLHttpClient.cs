@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,6 +88,16 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
+		}
+
+		internal GraphQLHttpClient(GraphQLHttpClientOptions options,HttpClient httpClient) {
+			if (options == null) { throw new ArgumentNullException(nameof(options)); }
+			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
+			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
+			if (options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(options.HttpMessageHandler)); }
+			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
+
+			this.graphQLHttpHandler = new GraphQLHttpHandler(options,httpClient);
 		}
 
 		public async Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>

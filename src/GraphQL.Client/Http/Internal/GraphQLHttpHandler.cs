@@ -26,6 +26,16 @@ namespace GraphQL.Client.Http.Internal {
 			this.HttpClient = new HttpClient(this.Options.HttpMessageHandler);
 		}
 
+		public GraphQLHttpHandler(GraphQLHttpClientOptions options, HttpClient httpClient) {
+			this.Options = options ?? throw new ArgumentNullException(nameof(options));
+			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
+			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
+			if (options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(options.HttpMessageHandler)); }
+			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
+
+			this.HttpClient = httpClient;
+		}
+
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via GET
 		/// </summary>
