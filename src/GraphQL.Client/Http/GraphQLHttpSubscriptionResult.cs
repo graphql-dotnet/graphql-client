@@ -49,7 +49,7 @@ namespace GraphQL.Client.Http {
 
 		public void Dispose() => this.clientWebSocket.Dispose();
 
-		private async Task SendInitialMessageAsync(CancellationToken cancellationToken = default) {
+		private Task SendInitialMessageAsync(CancellationToken cancellationToken = default) {
 			var webSocketRequest = new GraphQLSubscriptionRequest {
 				Id = "1",
 				Type = GQLWebSocketMessageType.GQL_START,
@@ -57,7 +57,7 @@ namespace GraphQL.Client.Http {
 			};
 			var webSocketRequestString = JsonConvert.SerializeObject(webSocketRequest);
 			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-			await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+			this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken);
 		}
 
 		private static class GQLWebSocketMessageType {

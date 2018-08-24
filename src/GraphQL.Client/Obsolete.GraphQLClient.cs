@@ -52,8 +52,8 @@ namespace GraphQL.Client {
 		/// <param name="query">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> GetQueryAsync(string query, CancellationToken cancellationToken = default) =>
-			await this.GetAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> GetQueryAsync(string query, CancellationToken cancellationToken = default) =>
+			this.GetAsync(new GraphQLRequest { Query = query }, cancellationToken);
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via GET
@@ -61,8 +61,8 @@ namespace GraphQL.Client {
 		/// <param name="request">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> GetAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
-			await this.graphQLHttpHandler.GetAsync(request, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> GetAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			this.graphQLHttpHandler.GetAsync(request, cancellationToken);
 
 		/// <summary>
 		/// Send a query via POST
@@ -70,8 +70,8 @@ namespace GraphQL.Client {
 		/// <param name="query">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> PostQueryAsync(string query, CancellationToken cancellationToken = default) =>
-			await this.PostAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> PostQueryAsync(string query, CancellationToken cancellationToken = default) =>
+			this.PostAsync(new GraphQLRequest { Query = query }, cancellationToken);
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via POST
@@ -79,8 +79,8 @@ namespace GraphQL.Client {
 		/// <param name="request">The Request</param>
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
-		public async Task<GraphQLResponse> PostAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
-			await this.graphQLHttpHandler.PostAsync(request, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> PostAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 
 	}
 

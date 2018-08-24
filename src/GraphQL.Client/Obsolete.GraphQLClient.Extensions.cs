@@ -110,8 +110,8 @@ namespace GraphQL.Client {
 		/// <param name="graphQLClient">The GraphQLClient</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>The GraphQLResponse</returns>
-		public static async Task<GraphQLResponse> GetIntrospectionQueryAsync(this GraphQLClient graphQLClient, CancellationToken cancellationToken = default) =>
-			await graphQLClient.GetAsync(IntrospectionGraphQLRequest, cancellationToken).ConfigureAwait(false);
+		public static Task<GraphQLResponse> GetIntrospectionQueryAsync(this GraphQLClient graphQLClient, CancellationToken cancellationToken = default) =>
+			graphQLClient.GetAsync(IntrospectionGraphQLRequest, cancellationToken);
 
 		/// <summary>
 		/// Send an IntrospectionQuery via POST
@@ -119,8 +119,8 @@ namespace GraphQL.Client {
 		/// <param name="graphQLClient">The GraphQLClient</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>The GraphQLResponse</returns>
-		public static async Task<GraphQLResponse> PostIntrospectionQueryAsync(this GraphQLClient graphQLClient, CancellationToken cancellationToken = default) =>
-			await graphQLClient.PostAsync(IntrospectionGraphQLRequest, cancellationToken).ConfigureAwait(false);
+		public static Task<GraphQLResponse> PostIntrospectionQueryAsync(this GraphQLClient graphQLClient, CancellationToken cancellationToken = default) =>
+			graphQLClient.PostAsync(IntrospectionGraphQLRequest, cancellationToken);
 
 	}
 
