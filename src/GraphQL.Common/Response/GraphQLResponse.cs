@@ -17,7 +17,7 @@ namespace GraphQL.Common.Response {
 		public dynamic Data { get; set; }
 
 		/// <summary>
-		/// The Errors if ocurred
+		/// The Errors if occurred
 		/// </summary>
 		public GraphQLError[] Errors { get; set; }
 
