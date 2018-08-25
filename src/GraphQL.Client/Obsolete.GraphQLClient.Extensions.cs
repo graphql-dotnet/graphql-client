@@ -100,8 +100,8 @@ namespace GraphQL.Client {
 				}";
 
 		private static readonly GraphQLRequest IntrospectionGraphQLRequest = new GraphQLRequest {
-			Query = IntrospectionQuery.Replace("\t", "").Replace("\n", "").Replace("\r", ""),
-			Variables = null
+			query = IntrospectionQuery.Replace("\t", "").Replace("\n", "").Replace("\r", ""),
+			variables = null
 		};
 
 		/// <summary>

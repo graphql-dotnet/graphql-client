@@ -8,20 +8,20 @@ namespace GraphQL.Common.Tests.Request {
 		/// <see href="http://graphql.org/learn/queries/#fields"/>
 		/// </summary>
 		public static GraphQLRequest FieldsRequest1 { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					hero {
 						name
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#fields"/>
 		/// </summary>
 		public static GraphQLRequest FieldsRequest2 { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					hero {
 						name
@@ -31,42 +31,42 @@ namespace GraphQL.Common.Tests.Request {
 						}
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#arguments"/>
 		/// </summary>
 		public static GraphQLRequest ArgumentsRequest1 { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					human(id: ""1000"") {
 						name
 						height
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#arguments"/>
 		/// </summary>
 		public static GraphQLRequest ArgumentsRequest2 { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					human(id: ""1000"") {
 						name
 						height(unit: FOOT)
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#aliases"/>
 		/// </summary>
 		public static GraphQLRequest AliasesRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					empireHero: hero(episode: EMPIRE) {
 						name
@@ -75,14 +75,14 @@ namespace GraphQL.Common.Tests.Request {
 						name
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#fragments"/>
 		/// </summary>
 		public static GraphQLRequest FragmentsRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					leftComparison: hero(episode: EMPIRE) {
 						...comparisonFields
@@ -99,14 +99,14 @@ namespace GraphQL.Common.Tests.Request {
 						name
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#operation-name"/>
 		/// </summary>
 		public static GraphQLRequest OperationNameRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				query HeroNameAndFriends {
 					hero {
 						name
@@ -115,14 +115,14 @@ namespace GraphQL.Common.Tests.Request {
 						}
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 		/// <summary>
 		/// <see href="http://graphql.org/learn/queries/#variables"/>
 		/// </summary>
 		public static GraphQLRequest VariablesRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				query HeroNameAndFriends($episode: Episode) {
 					hero(episode: $episode) {
 						name
@@ -131,7 +131,7 @@ namespace GraphQL.Common.Tests.Request {
 						}
 					}
 				}",
-			Variables = new {
+			variables = new {
 				episode = "JEDI"
 			}
 		};
@@ -140,7 +140,7 @@ namespace GraphQL.Common.Tests.Request {
 		/// <see href="http://graphql.org/learn/queries/#directives"/>
 		/// </summary>
 		public static GraphQLRequest DirectivesRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				query Hero($episode: Episode, $withFriends: Boolean!) {
 					hero(episode: $episode) {
 						name
@@ -149,7 +149,7 @@ namespace GraphQL.Common.Tests.Request {
 						}
 					}
 				}",
-			Variables = new {
+			variables = new {
 				episode = "JEDI",
 				withFriends = false
 			}
@@ -159,14 +159,14 @@ namespace GraphQL.Common.Tests.Request {
 		/// <see href="http://graphql.org/learn/queries/#mutations"/>
 		/// </summary>
 		public static GraphQLRequest MutationsRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
 					createReview(episode: $ep, review: $review) {
 						stars
 						commentary
 					}
 				}",
-			Variables = new {
+			variables = new {
 				ep = "JEDI",
 				review = new {
 					stars = 5,
@@ -179,7 +179,7 @@ namespace GraphQL.Common.Tests.Request {
 		/// <see href="http://graphql.org/learn/queries/#inline-fragments"/>
 		/// </summary>
 		public static GraphQLRequest InlineFragmentsRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				query HeroForEpisode($ep: Episode!) {
 					hero(episode: $ep) {
 						name
@@ -191,7 +191,7 @@ namespace GraphQL.Common.Tests.Request {
 						}
 					}
 				}",
-			Variables = new {
+			variables = new {
 				ep = "JEDI"
 			}
 		};
@@ -200,7 +200,7 @@ namespace GraphQL.Common.Tests.Request {
 		/// <see href="http://graphql.org/learn/queries/#meta-fields"/>
 		/// </summary>
 		public static GraphQLRequest MetaFieldsRequest { get; } = new GraphQLRequest {
-			Query = @"
+			query = @"
 				{
 					search(text: ""an"") {
 						__typename
@@ -215,7 +215,7 @@ namespace GraphQL.Common.Tests.Request {
 						}
 					}
 				}",
-			Variables = null
+			variables = null
 		};
 
 	}

@@ -9,7 +9,7 @@ namespace GraphQL.Client.Tests {
 		[Fact]
 		public async void QueryGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+				query = @"
 				{
 					person(personID: ""1"") {
 						name
@@ -25,7 +25,7 @@ namespace GraphQL.Client.Tests {
 		[Fact]
 		public async void OperationNameGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+				query = @"
 				query Person{
 					person(personID: ""1"") {
 						name
@@ -37,7 +37,7 @@ namespace GraphQL.Client.Tests {
 						name
 					}
 				}",
-				OperationName = "Person"
+				operationName = "Person"
 			};
 			var response = await this.GraphQLClient.GetAsync(graphQLRequest).ConfigureAwait(false);
 
@@ -48,13 +48,13 @@ namespace GraphQL.Client.Tests {
 		[Fact]
 		public async void VariablesGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+				query = @"
 				query Person($personId: ID!){
 					person(personID: $personId) {
 						name
 					}
 				}",
-				Variables = new {
+				variables = new {
 					personId = "1"
 				}
 			};
@@ -67,7 +67,7 @@ namespace GraphQL.Client.Tests {
 		[Fact]
 		public async void OperationNameVariableGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+				query = @"
 				query Person($personId: ID!){
 					person(personID: $personId) {
 						name
@@ -79,8 +79,8 @@ namespace GraphQL.Client.Tests {
 						name
 					}
 				}",
-				OperationName = "Person",
-				Variables = new {
+				operationName = "Person",
+				variables = new {
 					personId = "1"
 				}
 			};

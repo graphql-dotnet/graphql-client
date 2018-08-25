@@ -12,17 +12,17 @@ namespace GraphQL.Common.Request {
 		/// <summary>
 		/// The Query
 		/// </summary>
-		public string Query { get; set; }
+		public string query { get; set; }
 
 		/// <summary>
-		/// If the provided <see cref="Query"/> contains multiple named operations, this specifies which operation should be executed.
+		/// If the provided <see cref="query"/> contains multiple named operations, this specifies which operation should be executed.
 		/// </summary>
-		public string OperationName { get; set; }
+		public string operationName { get; set; }
 
 		/// <summary>
 		/// The Variables
 		/// </summary>
-		public dynamic Variables { get; set; }
+		public dynamic variables { get; set; }
 
 		/// <inheritdoc />
 		public override bool Equals(object obj) => this.Equals(obj as GraphQLRequest);
@@ -35,13 +35,13 @@ namespace GraphQL.Common.Request {
 			if (ReferenceEquals(this, other)) {
 				return true;
 			}
-			if (!Equals(this.Query, other.Query)) {
+			if (!Equals(this.query, other.query)) {
 				return false;
 			}
-			if (!Equals(this.OperationName, other.OperationName)) {
+			if (!Equals(this.operationName, other.operationName)) {
 				return false;
 			}
-			if (!Equals(this.Variables, other.Variables)) {
+			if (!Equals(this.variables, other.variables)) {
 				return false;
 			}
 			return true;
@@ -50,9 +50,9 @@ namespace GraphQL.Common.Request {
 		/// <inheritdoc />
 		public override int GetHashCode() {
 			var hashCode = -689803966;
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Query);
-			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.OperationName);
-			hashCode = hashCode * -1521134295 + EqualityComparer<dynamic>.Default.GetHashCode(this.Variables);
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.query);
+			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.operationName);
+			hashCode = hashCode * -1521134295 + EqualityComparer<dynamic>.Default.GetHashCode(this.variables);
 			return hashCode;
 		}
 
