@@ -44,11 +44,11 @@ namespace GraphQL.Client.Http.Internal {
 		/// <returns>The Response</returns>
 		public async Task<GraphQLResponse> GetAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+			if (request.query == null) { throw new ArgumentNullException(nameof(request.query)); }
 
-			var queryParamsBuilder = new StringBuilder($"query={request.Query}", 3);
-			if (request.OperationName != null) { queryParamsBuilder.Append($"&operationName={request.OperationName}"); }
-			if (request.Variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.Variables)}"); }
+			var queryParamsBuilder = new StringBuilder($"query={request.query}", 3);
+			if (request.operationName != null) { queryParamsBuilder.Append($"&operationName={request.operationName}"); }
+			if (request.variables != null) { queryParamsBuilder.Append($"&variables={JsonConvert.SerializeObject(request.variables)}"); }
 			using (var httpResponseMessage = await this.HttpClient.GetAsync($"{this.Options.EndPoint}?{queryParamsBuilder.ToString()}", cancellationToken).ConfigureAwait(false)) {
 				return await this.ReadHttpResponseMessageAsync(httpResponseMessage).ConfigureAwait(false);
 			}
@@ -62,7 +62,7 @@ namespace GraphQL.Client.Http.Internal {
 		/// <returns>The Response</returns>
 		public async Task<GraphQLResponse> PostAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+			if (request.query == null) { throw new ArgumentNullException(nameof(request.query)); }
 
 			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
 			using (var httpContent = new StringContent(graphQLString)) {

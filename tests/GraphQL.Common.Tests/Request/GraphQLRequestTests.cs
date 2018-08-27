@@ -50,35 +50,35 @@ namespace GraphQL.Common.Tests.Request {
 		public void VariablesRequestFact() {
 			var graphQLRequest = GraphQLRequestConsts.VariablesRequest;
 			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
-			Assert.NotNull(graphQLRequest.Variables);
-			Assert.Equal("JEDI", graphQLRequest.Variables.episode);
+			Assert.NotNull(graphQLRequest.variables);
+			Assert.Equal("JEDI", graphQLRequest.variables.episode);
 		}
 
 		[Fact]
 		public void DirectivesRequestFact() {
 			var graphQLRequest = GraphQLRequestConsts.DirectivesRequest;
 			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
-			Assert.NotNull(graphQLRequest.Variables);
-			Assert.Equal("JEDI", graphQLRequest.Variables.episode);
-			Assert.Equal(false, graphQLRequest.Variables.withFriends);
+			Assert.NotNull(graphQLRequest.variables);
+			Assert.Equal("JEDI", graphQLRequest.variables.episode);
+			Assert.Equal(false, graphQLRequest.variables.withFriends);
 		}
 
 		[Fact]
 		public void MutationsRequestFact() {
 			var graphQLRequest = GraphQLRequestConsts.MutationsRequest;
 			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
-			Assert.NotNull(graphQLRequest.Variables);
-			Assert.Equal("JEDI", graphQLRequest.Variables.ep);
-			Assert.Equal(5, graphQLRequest.Variables.review.stars);
-			Assert.Equal("This is a great movie!", graphQLRequest.Variables.review.commentary);
+			Assert.NotNull(graphQLRequest.variables);
+			Assert.Equal("JEDI", graphQLRequest.variables.ep);
+			Assert.Equal(5, graphQLRequest.variables.review.stars);
+			Assert.Equal("This is a great movie!", graphQLRequest.variables.review.commentary);
 		}
 
 		[Fact]
 		public void InlineFragmentsRequestFact() {
 			var graphQLRequest = GraphQLRequestConsts.InlineFragmentsRequest;
 			AssertGraphQL.CorrectGraphQLRequest(graphQLRequest);
-			Assert.NotNull(graphQLRequest.Variables);
-			Assert.Equal("JEDI", graphQLRequest.Variables.ep);
+			Assert.NotNull(graphQLRequest.variables);
+			Assert.Equal("JEDI", graphQLRequest.variables.ep);
 		}
 
 		[Fact]

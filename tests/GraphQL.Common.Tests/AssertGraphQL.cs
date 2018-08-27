@@ -6,7 +6,7 @@ namespace GraphQL.Common.Tests {
 
 	public static class AssertGraphQL {
 
-		public static void CorrectGraphQLRequest(GraphQLRequest graphQLRequest) => Assert.NotNull(graphQLRequest.Query);
+		public static void CorrectGraphQLRequest(GraphQLRequest graphQLRequest) => Assert.NotNull(graphQLRequest.query);
 
 		public static void CorrectGraphQLResponse(GraphQLResponse graphQLResponse) {
 			Assert.NotNull(graphQLResponse.Data);

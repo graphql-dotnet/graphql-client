@@ -20,7 +20,6 @@ namespace GraphQL.Client.Http {
 		/// The <see cref="Newtonsoft.Json.JsonSerializerSettings"/> that is going to be used
 		/// </summary>
 		public JsonSerializerSettings JsonSerializerSettings { get; set; } = new JsonSerializerSettings {
-			ContractResolver = new CamelCasePropertyNamesContractResolver()
 		};
 
 		/// <summary>
