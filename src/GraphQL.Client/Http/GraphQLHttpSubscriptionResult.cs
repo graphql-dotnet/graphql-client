@@ -57,7 +57,7 @@ namespace GraphQL.Client.Http {
 			};
 			var webSocketRequestString = JsonConvert.SerializeObject(webSocketRequest);
 			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-			this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken);
+			return this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken);
 		}
 
 		private static class GQLWebSocketMessageType {

@@ -124,7 +124,7 @@ namespace GraphQL.Client.Http {
 			var webSocketUri = new Uri($"ws://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
 			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(webSocketUri, request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
-			return Task.FromResult(graphQLSubscriptionResult);
+			return Task.FromResult((IGraphQLSubscriptionResult)graphQLSubscriptionResult);
 		}
 
 		/// <summary>
