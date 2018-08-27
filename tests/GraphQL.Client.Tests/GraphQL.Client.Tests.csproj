@@ -8,6 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="1.1.2" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
 		<ProjectReference Include="..\GraphQL.Common.Tests\GraphQL.Common.Tests.csproj" />
 	</ItemGroup>
