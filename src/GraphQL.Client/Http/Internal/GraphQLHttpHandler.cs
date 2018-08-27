@@ -77,7 +77,7 @@ namespace GraphQL.Client.Http.Internal {
 		/// Reads the <see cref="HttpResponseMessage"/>
 		/// </summary>
 		/// <param name="httpResponseMessage">The Response</param>
-		/// <returns>The GrahQLResponse</returns>
+		/// <returns>The GraphQLResponse</returns>
 		public async Task<GraphQLResponse> ReadHttpResponseMessageAsync(HttpResponseMessage httpResponseMessage) {
 			using (var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
 			using (var streamReader = new StreamReader(stream))

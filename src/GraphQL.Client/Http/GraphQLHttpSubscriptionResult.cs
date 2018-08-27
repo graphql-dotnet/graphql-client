@@ -49,7 +49,7 @@ namespace GraphQL.Client.Http {
 
 		public void Dispose() => this.clientWebSocket.Dispose();
 
-		private async Task SendInitialMessageAsync(CancellationToken cancellationToken = default) {
+		private Task SendInitialMessageAsync(CancellationToken cancellationToken = default) {
 			var webSocketRequest = new GraphQLSubscriptionRequest {
 				Id = "1",
 				Type = GQLWebSocketMessageType.GQL_START,
@@ -57,7 +57,7 @@ namespace GraphQL.Client.Http {
 			};
 			var webSocketRequestString = JsonConvert.SerializeObject(webSocketRequest);
 			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-			await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken).ConfigureAwait(false);
+			this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken);
 		}
 
 		private static class GQLWebSocketMessageType {
@@ -112,7 +112,7 @@ namespace GraphQL.Client.Http {
 			public const string GQL_START = "start";
 
 			/// <summary>
-			///     The server sends this message to transfter the GraphQL execution result from the server to the client, this message
+			///     The server sends this message to transfer the GraphQL execution result from the server to the client, this message
 			///     is a response for GQL_START message.
 			///     For each GraphQL operation send with GQL_START, the server will respond with at least one GQL_DATA message.
 			///     id: string : ID of the operation that was successfully set up

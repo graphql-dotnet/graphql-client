@@ -24,7 +24,7 @@ namespace GraphQL.Common.Response {
 		/// Additional error entries
 		/// </summary>
 		[JsonExtensionData]
-		public IDictionary<string, JToken> AdditonalEntries { get; set; }
+		public IDictionary<string, JToken> AdditionalEntries { get; set; }
 
 		/// <inheritdoc />
 		public override bool Equals(object obj) => this.Equals(obj as GraphQLError);
@@ -43,7 +43,7 @@ namespace GraphQL.Common.Response {
 			if (!Equals(this.Locations, other.Locations)) {
 				return false;
 			}
-			if (!Equals(this.AdditonalEntries, other.AdditonalEntries)) {
+			if (!Equals(this.AdditionalEntries, other.AdditionalEntries)) {
 				return false;
 			}
 			return true;
@@ -54,7 +54,7 @@ namespace GraphQL.Common.Response {
 			var hashCode = 1587536218;
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Message);
 			hashCode = hashCode * -1521134295 + EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(this.Locations);
-			hashCode = hashCode * -1521134295 + EqualityComparer<IDictionary<string, JToken>>.Default.GetHashCode(this.AdditonalEntries);
+			hashCode = hashCode * -1521134295 + EqualityComparer<IDictionary<string, JToken>>.Default.GetHashCode(this.AdditionalEntries);
 			return hashCode;
 		}
 

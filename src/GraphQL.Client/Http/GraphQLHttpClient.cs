@@ -100,31 +100,31 @@ namespace GraphQL.Client.Http {
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options,httpClient);
 		}
 
-		public async Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
-			await this.SendQueryAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
+			this.SendQueryAsync(new GraphQLRequest { Query = query }, cancellationToken);
 
-		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
-			await this.graphQLHttpHandler.PostAsync(request, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 
-		public async Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
-			await this.SendMutationAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
+			this.SendMutationAsync(new GraphQLRequest { Query = query }, cancellationToken);
 
-		public async Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
-			await this.graphQLHttpHandler.PostAsync(request, cancellationToken).ConfigureAwait(false);
-
-		[Obsolete("EXPERIMENTAL API")]
-		public async Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
-			await this.SendSubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken).ConfigureAwait(false);
+		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 
 		[Obsolete("EXPERIMENTAL API")]
-		public async Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
+			this.SendSubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken);
+
+		[Obsolete("EXPERIMENTAL API")]
+		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
 			var webSocketUri = new Uri($"ws://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
 			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(webSocketUri, request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
-			return await Task.FromResult(graphQLSubscriptionResult).ConfigureAwait(false);
+			return Task.FromResult(graphQLSubscriptionResult);
 		}
 
 		/// <summary>
