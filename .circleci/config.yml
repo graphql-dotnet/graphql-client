@@ -1,7 +1,6 @@
 version: 2
 jobs:
   test-debug-netcoreapp2.0:
-    working_directory: ~/GraphQL.Client/
     docker:
       - image: microsoft/dotnet:2-sdk
     steps:
