@@ -38,15 +38,15 @@ jobs:
       - run: dotnet build --configuration Release
       - run: dotnet pack --configuration Release
       - store_artifacts:
-          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.1.nupkg
+          path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.2.nupkg
       - store_artifacts:
-          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.1.nupkg
+          path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.2.nupkg
       - deploy:
           name: MyGet
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              dotnet nuget push ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.1.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
-              dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.1.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
+              dotnet nuget push ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.2.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
+              dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.2.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
             fi
 workflows:
   version: 2
