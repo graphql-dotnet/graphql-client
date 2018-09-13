@@ -42,6 +42,7 @@ jobs:
       MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
       - checkout
+      - run: dotnet build --configuration Release
       - run: dotnet pack --configuration Release
       - store_artifacts:
           path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.1.nupkg
