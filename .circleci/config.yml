@@ -7,34 +7,26 @@ jobs:
       - checkout
       - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-debug:
-    working_directory: ~/GraphQL.Client/
+  test-debug-netcoreapp2.1:
     docker:
       - image: microsoft/dotnet:2-sdk
     steps:
       - checkout
-
-      # Common
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-
-      # Client
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-
-  test-release:
-    working_directory: ~/GraphQL.Client/
+  test-release-netcoreapp2.0:
     docker:
       - image: microsoft/dotnet:2-sdk
     steps:
       - checkout
-
-      # Common
       - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-
-      # Client
       - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+  test-release-netcoreapp2.1:
+    docker:
+      - image: microsoft/dotnet:2-sdk
+    steps:
+      - checkout
+      - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   deploy:
     working_directory: ~/GraphQL.Client/
@@ -72,10 +64,12 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test-debug-netcoreapp2.0
-      - test-debug
-      - test-release
+      - test-debug-netcoreapp2.1
+      - test-release-netcoreapp2.0
+      - test-release-netcoreapp2.1
       - deploy:
           requires:
             - test-debug-netcoreapp2.0
-            - test-debug
-            - test-release
+            - test-debug-netcoreapp2.1
+            - test-release-netcoreapp2.0
+            - test-release-netcoreapp2.1
