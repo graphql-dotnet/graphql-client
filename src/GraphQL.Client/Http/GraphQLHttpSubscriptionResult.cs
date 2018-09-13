@@ -61,6 +61,7 @@ namespace GraphQL.Client.Http {
 		}
 
 		private static class GQLWebSocketMessageType {
+
 			/// <summary>
 			///     Client sends this message after plain websocket connection to start the communication with the server
 			///     The server will response only with GQL_CONNECTION_ACK + GQL_CONNECTION_KEEP_ALIVE(if used) or GQL_CONNECTION_ERROR
@@ -142,6 +143,7 @@ namespace GraphQL.Client.Http {
 			///     id: string : operation id
 			/// </summary>
 			public const string GQL_STOP = "stop"; // Client -> Server
+
 		}
 
 	}

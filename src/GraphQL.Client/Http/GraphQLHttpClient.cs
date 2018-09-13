@@ -90,14 +90,14 @@ namespace GraphQL.Client.Http {
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
 		}
 
-		internal GraphQLHttpClient(GraphQLHttpClientOptions options,HttpClient httpClient) {
+		internal GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			if (options == null) { throw new ArgumentNullException(nameof(options)); }
 			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
 			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
 			if (options.HttpMessageHandler == null) { throw new ArgumentNullException(nameof(options.HttpMessageHandler)); }
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
-			this.graphQLHttpHandler = new GraphQLHttpHandler(options,httpClient);
+			this.graphQLHttpHandler = new GraphQLHttpHandler(options, httpClient);
 		}
 
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
@@ -121,7 +121,8 @@ namespace GraphQL.Client.Http {
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
-			var webSocketUri = new Uri($"ws://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
+			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";
+			var webSocketUri = new Uri($"{webSocketSchema}://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
 			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(webSocketUri, request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
 			return Task.FromResult((IGraphQLSubscriptionResult)graphQLSubscriptionResult);
