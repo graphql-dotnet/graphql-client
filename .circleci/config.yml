@@ -1,65 +1,46 @@
 version: 2
 jobs:
   test-debug-netcoreapp2.0:
-    working_directory: ~/GraphQL.Client/
     docker:
-      - image: microsoft/dotnet:2-sdk
+      - image: microsoft/dotnet:2.1-sdk
     steps:
       - checkout
       - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-debug:
-    working_directory: ~/GraphQL.Client/
+  test-debug-netcoreapp2.1:
     docker:
-      - image: microsoft/dotnet:2-sdk
+      - image: microsoft/dotnet:2.1-sdk
     steps:
       - checkout
-
-      # Common
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-
-      # Client
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-
-  test-release:
-    working_directory: ~/GraphQL.Client/
+  test-release-netcoreapp2.0:
     docker:
-      - image: microsoft/dotnet:2-sdk
+      - image: microsoft/dotnet:2.1-sdk
     steps:
       - checkout
-
-      # Common
       - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-
-      # Client
       - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+  test-release-netcoreapp2.1:
+    docker:
+      - image: microsoft/dotnet:2.1-sdk
+    steps:
+      - checkout
+      - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   deploy:
-    working_directory: ~/GraphQL.Client/
     docker:
-      - image: microsoft/dotnet:2-sdk
+      - image: microsoft/dotnet:2.1-sdk
     environment:
       MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
       - checkout
-      - run: dotnet restore
-      - run: dotnet build
-      - run: dotnet pack
-      - run: dotnet build --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
-      - run: dotnet pack --configuration Release ./src/GraphQL.Common/GraphQL.Common.csproj
-      - run: dotnet build --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
-      - run: dotnet pack --configuration Release ./src/GraphQL.Client/GraphQL.Client.csproj
-
-      # Store Artifacts
+      - run: dotnet build --configuration Release
+      - run: dotnet pack --configuration Release
       - store_artifacts:
           path: ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.1.nupkg
       - store_artifacts:
           path: ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.1.nupkg
-
-      # Deploy
       - deploy:
           name: MyGet
           command: |
@@ -67,16 +48,17 @@ jobs:
               dotnet nuget push ./src/GraphQL.Common/bin/Release/GraphQL.Common.2.0.0-alpha.1.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
               dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.1.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
             fi
-
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
       - test-debug-netcoreapp2.0
-      - test-debug
-      - test-release
+      - test-debug-netcoreapp2.1
+      - test-release-netcoreapp2.0
+      - test-release-netcoreapp2.1
       - deploy:
           requires:
             - test-debug-netcoreapp2.0
-            - test-debug
-            - test-release
+            - test-debug-netcoreapp2.1
+            - test-release-netcoreapp2.0
+            - test-release-netcoreapp2.1
