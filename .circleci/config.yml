@@ -1,5 +1,12 @@
 version: 2
 jobs:
+  test-debug-netcoreapp1.0:
+    docker:
+      - image: microsoft/dotnet:1.1-sdk
+    steps:
+      - checkout
+      - run: dotnet test --configuration Debug --framework netcoreapp1.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - run: dotnet test --configuration Debug --framework netcoreapp1.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   test-debug-netcoreapp2.0:
     docker:
       - image: microsoft/dotnet:2.1-sdk
@@ -51,12 +58,14 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
+      - test-debug-netcoreapp1.0
       - test-debug-netcoreapp2.0
       - test-debug-netcoreapp2.1
       - test-release-netcoreapp2.0
       - test-release-netcoreapp2.1
       - deploy:
           requires:
+            - test-debug-netcoreapp1.0
             - test-debug-netcoreapp2.0
             - test-debug-netcoreapp2.1
             - test-release-netcoreapp2.0
