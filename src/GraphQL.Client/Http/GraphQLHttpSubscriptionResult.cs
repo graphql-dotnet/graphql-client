@@ -30,7 +30,7 @@ namespace GraphQL.Client.Http {
 			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
 		}
 
-		public async Task StartAsync(CancellationToken cancellationToken = default) {
+		public async void StartAsync(CancellationToken cancellationToken = default) {
 			await this.clientWebSocket.ConnectAsync(this.webSocketUri, cancellationToken).ConfigureAwait(false);
 			if (this.clientWebSocket.State == WebSocketState.Open) {
 				var arraySegment = new ArraySegment<byte>(this.buffer);
