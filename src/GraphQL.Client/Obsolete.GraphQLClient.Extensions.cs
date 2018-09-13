@@ -9,7 +9,7 @@ namespace GraphQL.Client {
 	/// <summary>
 	/// Extension Methods for <see cref="GraphQLClient"/>
 	/// </summary>
-	[Obsolete()]
+	[Obsolete]
 	public static class GraphQLClientExtensions {
 
 		private const string IntrospectionQuery = @"

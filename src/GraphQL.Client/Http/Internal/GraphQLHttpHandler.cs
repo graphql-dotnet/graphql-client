@@ -87,7 +87,8 @@ namespace GraphQL.Client.Http.Internal {
 				};
 				try {
 					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
-				} catch (JsonReaderException exception) {
+				}
+				catch (JsonReaderException exception) {
 					if (httpResponseMessage.IsSuccessStatusCode) {
 						throw exception;
 					}
