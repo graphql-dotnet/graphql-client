@@ -1,5 +1,13 @@
 version: 2
 jobs:
+  test-debug-netcoreapp2.0:
+    working_directory: ~/GraphQL.Client/
+    docker:
+      - image: microsoft/dotnet:2-sdk
+    steps:
+      - checkout
+      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   test-debug:
     working_directory: ~/GraphQL.Client/
     docker:
@@ -64,9 +72,11 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
+      - test-debug-netcoreapp2.0
       - test-debug
       - test-release
       - deploy:
           requires:
+            - test-debug-netcoreapp2.0
             - test-debug
             - test-release
