@@ -30,7 +30,7 @@ namespace GraphQL.Client.Http {
 			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
 		}
 
-		public async void StartAsync(CancellationToken cancellationToken = default) {
+		public async Task StartAsync(CancellationToken cancellationToken = default) {
 			await this.clientWebSocket.ConnectAsync(this.webSocketUri, cancellationToken).ConfigureAwait(false);
 			if (this.clientWebSocket.State == WebSocketState.Open) {
 				var arraySegment = new ArraySegment<byte>(this.buffer);
@@ -47,7 +47,17 @@ namespace GraphQL.Client.Http {
 			}
 		}
 
-		public void Dispose() => this.clientWebSocket.Dispose();
+		public async Task StopAsync(CancellationToken cancellationToken = default) {
+			if (this.clientWebSocket.State == WebSocketState.Open) {
+				await this.SendCloseMessageAsync();
+			}
+			await this.clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", cancellationToken);
+		}
+
+		public void Dispose() {
+			this.StopAsync().Wait();
+			this.clientWebSocket.Dispose();
+		}
 
 		private Task SendInitialMessageAsync(CancellationToken cancellationToken = default) {
 			var webSocketRequest = new GraphQLSubscriptionRequest {
@@ -55,7 +65,20 @@ namespace GraphQL.Client.Http {
 				Type = GQLWebSocketMessageType.GQL_START,
 				Payload = this.graphQLRequest
 			};
-			var webSocketRequestString = JsonConvert.SerializeObject(webSocketRequest);
+			return this.SendGraphQLSubscriptionRequest(webSocketRequest);
+		}
+
+		private Task SendCloseMessageAsync(CancellationToken cancellationToken = default) {
+			var webSocketRequest = new GraphQLSubscriptionRequest {
+				Id = "1",
+				Type = GQLWebSocketMessageType.GQL_STOP,
+				Payload = this.graphQLRequest
+			};
+			return this.SendGraphQLSubscriptionRequest(webSocketRequest);
+		}
+
+		private Task SendGraphQLSubscriptionRequest(GraphQLSubscriptionRequest graphQLSubscriptionRequest,CancellationToken cancellationToken = default) {
+			var webSocketRequestString = JsonConvert.SerializeObject(graphQLSubscriptionRequest);
 			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
 			return this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken);
 		}
