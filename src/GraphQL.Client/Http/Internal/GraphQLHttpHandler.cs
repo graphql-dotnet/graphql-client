@@ -105,7 +105,7 @@ namespace GraphQL.Client.Http.Internal {
 					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
 				}
 				catch (JsonReaderException)	{
-					throw new GraphQLHttpException(httpResponseMessage);
+					throw;
 				}
 			}
 		}
