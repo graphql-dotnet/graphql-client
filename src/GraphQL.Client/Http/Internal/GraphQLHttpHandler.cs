@@ -82,16 +82,29 @@ namespace GraphQL.Client.Http.Internal {
 			using (var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
 			using (var streamReader = new StreamReader(stream))
 			using (var jsonTextReader = new JsonTextReader(streamReader)) {
-				var jsonSerializer = new JsonSerializer {
+				var jsonSerializer = new JsonSerializer	{
 					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
 				};
+				if (!httpResponseMessage.IsSuccessStatusCode) {
+					GraphQLResponse response;
+					try {
+						response = jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+					}
+					catch (JsonReaderException) {
+						throw new GraphQLHttpException(httpResponseMessage);
+					}
+
+					if (response == null || response.Data == null) {
+						throw new GraphQLHttpException(httpResponseMessage);
+					}
+
+					return response;
+				}
+
 				try {
 					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
 				}
-				catch (JsonReaderException exception) {
-					if (httpResponseMessage.IsSuccessStatusCode) {
-						throw exception;
-					}
+				catch (JsonReaderException)	{
 					throw new GraphQLHttpException(httpResponseMessage);
 				}
 			}
