@@ -34,8 +34,9 @@ namespace GraphQL.Client.Http {
 		
 		public async Task ConnectAsync(CancellationToken token)
 		{
-			Debug.Print($"opening websocket on subscription {this.GetHashCode()}");
+			Debug.WriteLine($"opening websocket on subscription {this.GetHashCode()}");
 			await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
+			Debug.WriteLine($"connection established on subscription {this.GetHashCode()}");
 		}
 
 		public async Task<GraphQLResponse> ReceiveResultAsync(CancellationToken token)
@@ -46,14 +47,14 @@ namespace GraphQL.Client.Http {
 			switch (webSocketResponse.Type)
 			{
 				case GQLWebSocketMessageType.GQL_COMPLETE:
-					Debug.Print($"received 'complete' message on subscription {this.GetHashCode()}");
+					Debug.WriteLine($"received 'complete' message on subscription {this.GetHashCode()}");
 					Dispose();
 					break;
 				case GQLWebSocketMessageType.GQL_ERROR:
-					Debug.Print($"received 'error' message on subscription {this.GetHashCode()}");
+					Debug.WriteLine($"received 'error' message on subscription {this.GetHashCode()}");
 					throw new GQLSubscriptionException(webSocketResponse.Payload);
 				default:
-					Debug.Print($"received payload on subscription {this.GetHashCode()}");
+					Debug.WriteLine($"received payload on subscription {this.GetHashCode()}");
 					break;
 			}
 
@@ -62,7 +63,7 @@ namespace GraphQL.Client.Http {
 
 		public async Task CloseAsync(CancellationToken cancellationToken = default)
 		{
-			Debug.Print($"closing websocket on subscription {this.GetHashCode()}");
+			Debug.WriteLine($"closing websocket on subscription {this.GetHashCode()}");
 			if (this.clientWebSocket.State == WebSocketState.Open) {
 				await SendCloseMessageAsync(cancellationToken).ConfigureAwait(false);
 			}
@@ -71,7 +72,7 @@ namespace GraphQL.Client.Http {
 
 		private Task SendInitialMessageAsync(CancellationToken cancellationToken = default)
 		{
-			Debug.Print($"sending initial message on subscription {this.GetHashCode()}");
+			Debug.WriteLine($"sending initial message on subscription {this.GetHashCode()}");
 			var webSocketRequest = new GraphQLSubscriptionRequest
 			{
 				Id = "1",
@@ -83,7 +84,7 @@ namespace GraphQL.Client.Http {
 
 		private Task SendCloseMessageAsync(CancellationToken cancellationToken = default)
 		{
-			Debug.Print($"sending close message on subscription {this.GetHashCode()}");
+			Debug.WriteLine($"sending close message on subscription {this.GetHashCode()}");
 			var webSocketRequest = new GraphQLSubscriptionRequest
 			{
 				Id = "1",
@@ -112,10 +113,10 @@ namespace GraphQL.Client.Http {
 
 		private async Task DisposeAsync()
 		{
-			Debug.Print($"disposing subscription {this.GetHashCode()}...");
+			Debug.WriteLine($"disposing subscription {this.GetHashCode()}...");
 			await CloseAsync().ConfigureAwait(false);
 			clientWebSocket?.Dispose();
-			Debug.Print($"subscription {this.GetHashCode()} disposed");
+			Debug.WriteLine($"subscription {this.GetHashCode()} disposed");
 		}
 
 		#endregion

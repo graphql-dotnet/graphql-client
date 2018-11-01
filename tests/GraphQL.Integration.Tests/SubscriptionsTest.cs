@@ -50,16 +50,16 @@ namespace GraphQL.Integration.Tests
 				}"
 			};
 
-			Debug.Write("creating subscription stream");
+			Debug.WriteLine("creating subscription stream");
 			IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(graphQLRequest);
 			string message = null;
 
 			await Task.Delay(1000).ConfigureAwait(false);
 
-			Debug.Write("subscribing...");
+			Debug.WriteLine("subscribing...");
 			using (observable.Subscribe(response => message = (string) response.Data.messageAdded.content, ex => throw ex))
 			{
-				await Task.Delay(1000).ConfigureAwait(false);
+				await Task.Delay(10000).ConfigureAwait(false);
 				Assert.Null(message);
 				var response = await client.AddMessageAsync("Lorem ipsum dolor si amet").ConfigureAwait(false);
 				Assert.Equal("Lorem ipsum dolor si amet", message);
