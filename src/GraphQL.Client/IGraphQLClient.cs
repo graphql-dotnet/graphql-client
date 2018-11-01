@@ -36,6 +36,8 @@ namespace GraphQL.Client {
 		[Obsolete("EXPERIMENTAL")]
 		Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
 
+		[Obsolete("EXPERIMENTAL")]
+		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request);
 	}
 
 }
