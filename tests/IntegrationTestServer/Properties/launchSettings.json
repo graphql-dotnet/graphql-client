@@ -1,0 +1,27 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false, 
+    "anonymousAuthentication": true,
+		"iisExpress": {
+			"applicationUrl": "http://localhost:55069/ui/graphiql/",
+			"sslPort": 0
+		}
+  },
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+	"ImplementationTestServer": {
+		"commandName": "ImplementationTestServer",
+		"launchBrowser": true,
+		"applicationUrl": "http://localhost:5000/ui/graphiql/",
+		"environmentVariables": {
+			"ASPNETCORE_ENVIRONMENT": "Development"
+		}
+	}
+  }
+}
