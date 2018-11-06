@@ -49,7 +49,7 @@ namespace GraphQL.Client.Http {
 
 		public async Task StopAsync(CancellationToken cancellationToken = default) {
 			if (this.clientWebSocket.State == WebSocketState.Open) {
-				await this.SendCloseMessageAsync();
+				await this.SendCloseMessageAsync(cancellationToken);
 			}
 			await this.clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", cancellationToken);
 		}
@@ -65,7 +65,7 @@ namespace GraphQL.Client.Http {
 				Type = GQLWebSocketMessageType.GQL_START,
 				Payload = this.graphQLRequest
 			};
-			return this.SendGraphQLSubscriptionRequest(webSocketRequest);
+			return this.SendGraphQLSubscriptionRequest(webSocketRequest, cancellationToken);
 		}
 
 		private Task SendCloseMessageAsync(CancellationToken cancellationToken = default) {
@@ -77,7 +77,7 @@ namespace GraphQL.Client.Http {
 			return this.SendGraphQLSubscriptionRequest(webSocketRequest);
 		}
 
-		private Task SendGraphQLSubscriptionRequest(GraphQLSubscriptionRequest graphQLSubscriptionRequest,CancellationToken cancellationToken = default) {
+		private Task SendGraphQLSubscriptionRequest(GraphQLSubscriptionRequest graphQLSubscriptionRequest, CancellationToken cancellationToken = default) {
 			var webSocketRequestString = JsonConvert.SerializeObject(graphQLSubscriptionRequest);
 			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
 			return this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, cancellationToken);
