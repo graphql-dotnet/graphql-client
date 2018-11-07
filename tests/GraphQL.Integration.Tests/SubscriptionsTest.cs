@@ -97,7 +97,7 @@ namespace GraphQL.Integration.Tests
 
 					tester.Reset();
 
-					const string message2 = "What the ****?";
+					const string message2 = "lorem ipsum dolor si amet";
 					response = await client.AddMessageAsync(message2).ConfigureAwait(false);
 					Assert.Equal(message2, (string)response.Data.addMessage.content);
 					tester.ShouldHaveReceivedUpdate(gqlResponse =>
