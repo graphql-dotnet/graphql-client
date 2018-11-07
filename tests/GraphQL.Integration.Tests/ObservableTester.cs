@@ -11,6 +11,8 @@ namespace GraphQL.Integration.Tests
 	{
 		private readonly IDisposable _subscription;
 		private ManualResetEventSlim _updateReceived { get; } = new ManualResetEventSlim();
+		private ManualResetEventSlim _completed { get; } = new ManualResetEventSlim();
+		private ManualResetEventSlim _error { get; } = new ManualResetEventSlim();
 
 		/// <summary>
 		/// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
@@ -26,17 +28,26 @@ namespace GraphQL.Integration.Tests
 		/// </summary>
 		public T LastPayload { get; private set; }
 
+		public Exception Error { get; private set; }
+
 		/// <summary>
 		/// Creates a new <see cref="ObservableTester{T}"/> which subscribes to the supplied <see cref="IObservable{T}"/>
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
 		public ObservableTester(IObservable<T> observable)
 		{
-			_subscription = observable.Subscribe(obj =>
-			{
-				LastPayload = obj;
-				_updateReceived.Set();
-			});
+			_subscription = observable.Subscribe(
+				obj => {
+					LastPayload = obj;
+					_updateReceived.Set();
+				},
+				ex =>
+				{
+					Error = ex;
+					_error.Set();
+				},
+				() => _completed.Set()
+			);
 		}
 
 		/// <summary>
@@ -77,10 +88,48 @@ namespace GraphQL.Integration.Tests
 		}
 
 		/// <summary>
+		/// Asserts that the subscription has completed within the configured <see cref="Timeout"/> since the last <see cref="Reset"/>
+		/// </summary>
+		public void ShouldHaveCompleted()
+		{
+			try
+			{
+				if (!_completed.Wait(Timeout))
+					Assert.True(false, "subscription did not complete!");
+			}
+			finally
+			{
+				Reset();
+			}
+		}
+
+		/// <summary>
+		/// Asserts that the subscription has completed within the configured <see cref="Timeout"/> since the last <see cref="Reset"/>
+		/// </summary>
+		public void ShouldHaveThrownError(Action<Exception> assertError = null)
+		{
+			try
+			{
+				if (!_error.Wait(Timeout))
+					Assert.True(false, "subscription did not throw an error!");
+
+				assertError?.Invoke(Error);
+			}
+			finally
+			{
+				Reset();
+			}
+		}
+
+		/// <summary>
 		/// Resets the tester class. Should be called before triggering the potential update
 		/// </summary>
 		public void Reset()
 		{
+			if (_completed.IsSet)
+				throw new InvalidOperationException(
+					"the subscription sequence has completed. this tester instance cannot be reused");
+
 			LastPayload = default(T);
 			_updateReceived.Reset();
 		}

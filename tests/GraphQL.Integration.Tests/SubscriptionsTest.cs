@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
-using IntegrationTestServer;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -16,8 +14,6 @@ namespace GraphQL.Integration.Tests
 {
 	public class SubscriptionsTest
 	{
-		private readonly WebApplicationFactory<Startup> _factory;
-
 		public static IWebHost CreateServer(int port)
 		{
 			var configBuilder = new ConfigurationBuilder();
@@ -53,7 +49,6 @@ namespace GraphQL.Integration.Tests
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
-				var datetime = DateTime.Now;
 
 				const string message = "some random testing message";
 				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
@@ -83,28 +78,36 @@ namespace GraphQL.Integration.Tests
 				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(graphQLRequest);
 
 				Debug.WriteLine("subscribing...");
-				using (var tester = observable.SubscribeTester())
+				var tester = observable.SubscribeTester();
+				const string message1 = "Hello World";
+
+				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
+				Assert.Equal(message1, (string) response.Data.addMessage.content);
+
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					const string message1 = "Hello World";
+					Assert.Equal(message1, (string) gqlResponse.Data.messageAdded.content.Value);
+				});
 
-					var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
-					Assert.Equal(message1, (string) response.Data.addMessage.content);
+				tester.Reset();
 
-					tester.ShouldHaveReceivedUpdate(gqlResponse =>
-					{
-						Assert.Equal(message1, (string) gqlResponse.Data.messageAdded.content.Value);
-					});
+				const string message2 = "lorem ipsum dolor si amet";
+				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
+				Assert.Equal(message2, (string)response.Data.addMessage.content);
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
+				{
+					Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
+				});
 
-					tester.Reset();
+				tester.Reset();
 
-					const string message2 = "lorem ipsum dolor si amet";
-					response = await client.AddMessageAsync(message2).ConfigureAwait(false);
-					Assert.Equal(message2, (string)response.Data.addMessage.content);
-					tester.ShouldHaveReceivedUpdate(gqlResponse =>
-					{
-						Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
-					});
-				}
+				// disposing the client should thro the sequence
+				client.Dispose();
+				tester.ShouldHaveThrownError(exception =>
+				{
+					Assert.True(exception is TaskCanceledException,
+							$"exception is of unexpected type {exception.GetType().Name}");
+				});
 			}
 		}
 	}

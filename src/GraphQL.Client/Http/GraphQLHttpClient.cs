@@ -41,6 +41,7 @@ namespace GraphQL.Client.Http {
 		#endregion
 
 		internal readonly GraphQLHttpHandler graphQLHttpHandler;
+		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		/// <summary>
 		/// Initializes a new instance
@@ -143,14 +144,19 @@ namespace GraphQL.Client.Http {
 		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request)
 		{
-			return GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request);
+			var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request, _cancellationTokenSource.Token);
+			return observable;
 		}
 
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
-		public void Dispose() =>
+		public void Dispose()
+		{
 			this.graphQLHttpHandler.Dispose();
+			_cancellationTokenSource.Cancel();
+			_cancellationTokenSource.Dispose();
+		}
 	}
 
 }

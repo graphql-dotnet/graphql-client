@@ -25,9 +25,11 @@ namespace GraphQL.Client.Http {
 		private readonly GraphQLRequest graphQLRequest;
 		private readonly byte[] buffer = new byte[1024 * 1024];
 		private readonly ArraySegment<byte> arraySegment;
-		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private readonly CancellationTokenSource _cancellationTokenSource;
 
-		private GraphQLHttpObservableSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest) {
+		private GraphQLHttpObservableSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default) {
+			_cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+			_cancellationTokenSource.Token.Register(Dispose);
 			this.webSocketUri = webSocketUri;
 			this.graphQLRequest = graphQLRequest;
 			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
@@ -60,15 +62,7 @@ namespace GraphQL.Client.Http {
 					break;
 			}
 
-			try
-			{
-				return ((JObject)webSocketResponse?.Payload).ToObject<GraphQLResponse>();
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-				throw;
-			}
+			return ((JObject)webSocketResponse?.Payload).ToObject<GraphQLResponse>();
 		}
 
 		public async Task CloseAsync(CancellationToken cancellationToken = default)
@@ -124,9 +118,11 @@ namespace GraphQL.Client.Http {
 		private async Task DisposeAsync()
 		{
 			Debug.WriteLine($"disposing subscription {this.GetHashCode()}...");
-			_cancellationTokenSource.Cancel();
+			if(!_cancellationTokenSource.IsCancellationRequested)
+				_cancellationTokenSource.Cancel();
 			await CloseAsync().ConfigureAwait(false);
 			clientWebSocket?.Dispose();
+			_cancellationTokenSource.Dispose();
 			Debug.WriteLine($"subscription {this.GetHashCode()} disposed");
 		}
 
@@ -134,18 +130,18 @@ namespace GraphQL.Client.Http {
 
 		#region Static Factories
 
-		public static IObservable<GraphQLResponse> GetSubscriptionStream(Uri webSocketUri, GraphQLRequest graphQLRequest)
+		public static IObservable<GraphQLResponse> GetSubscriptionStream(Uri webSocketUri, GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default)
 		{
 			return Observable.Using(
-				token => CreateSubscription(webSocketUri, graphQLRequest),
+				token => CreateSubscription(webSocketUri, graphQLRequest, cancellationToken),
 				InitializeSubscription
 				).Publish().RefCount();
 		}
 
 
-		private static Task<GraphQLHttpObservableSubscription> CreateSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest)
+		private static Task<GraphQLHttpObservableSubscription> CreateSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default)
 		{
-			var subscription = new GraphQLHttpObservableSubscription(webSocketUri, graphQLRequest);
+			var subscription = new GraphQLHttpObservableSubscription(webSocketUri, graphQLRequest, cancellationToken);
 			return Task.FromResult(subscription);
 		}
 
