@@ -101,7 +101,7 @@ namespace GraphQL.Integration.Tests
 
 				tester.Reset();
 
-				// disposing the client should thro the sequence
+				// disposing the client should throw a TaskCanceledException on the subscription
 				client.Dispose();
 				tester.ShouldHaveThrownError(exception =>
 				{
