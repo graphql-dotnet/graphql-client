@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client.Http {
 
@@ -18,12 +19,13 @@ namespace GraphQL.Client.Http {
 	/// </summary>
 	[Obsolete("EXPERIMENTAL API")]
 	public class GraphQLHttpObservableSubscription : IDisposable {
-		
+
 		private readonly ClientWebSocket clientWebSocket = new ClientWebSocket();
 		private readonly Uri webSocketUri;
 		private readonly GraphQLRequest graphQLRequest;
 		private readonly byte[] buffer = new byte[1024 * 1024];
 		private readonly ArraySegment<byte> arraySegment;
+		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private GraphQLHttpObservableSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest) {
 			this.webSocketUri = webSocketUri;
@@ -31,7 +33,7 @@ namespace GraphQL.Client.Http {
 			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
 			arraySegment = new ArraySegment<byte>(buffer);
 		}
-		
+
 		public async Task ConnectAsync(CancellationToken token)
 		{
 			Debug.WriteLine($"opening websocket on subscription {this.GetHashCode()}");
@@ -39,9 +41,9 @@ namespace GraphQL.Client.Http {
 			Debug.WriteLine($"connection established on subscription {this.GetHashCode()}");
 		}
 
-		public async Task<GraphQLResponse> ReceiveResultAsync(CancellationToken token)
+		public async Task<GraphQLResponse> ReceiveResultAsync()
 		{
-			var webSocketReceiveResult = await clientWebSocket.ReceiveAsync(arraySegment, token).ConfigureAwait(false);
+			var webSocketReceiveResult = await clientWebSocket.ReceiveAsync(arraySegment, _cancellationTokenSource.Token).ConfigureAwait(false);
 			var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
 			var webSocketResponse = JsonConvert.DeserializeObject<GraphQLSubscriptionResponse>(stringResult);
 			switch (webSocketResponse.Type)
@@ -58,7 +60,15 @@ namespace GraphQL.Client.Http {
 					break;
 			}
 
-			return (GraphQLResponse) webSocketResponse?.Payload;
+			try
+			{
+				return ((JObject)webSocketResponse?.Payload).ToObject<GraphQLResponse>();
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+				throw;
+			}
 		}
 
 		public async Task CloseAsync(CancellationToken cancellationToken = default)
@@ -114,6 +124,7 @@ namespace GraphQL.Client.Http {
 		private async Task DisposeAsync()
 		{
 			Debug.WriteLine($"disposing subscription {this.GetHashCode()}...");
+			_cancellationTokenSource.Cancel();
 			await CloseAsync().ConfigureAwait(false);
 			clientWebSocket?.Dispose();
 			Debug.WriteLine($"subscription {this.GetHashCode()} disposed");
@@ -142,7 +153,7 @@ namespace GraphQL.Client.Http {
 		{
 			await observableSubscription.ConnectAsync(cancelToken).ConfigureAwait(false);
 			await observableSubscription.SendInitialMessageAsync(cancelToken).ConfigureAwait(false);
-			return Observable.Defer(() => observableSubscription.ReceiveResultAsync(cancelToken).ToObservable()).Repeat();
+			return Observable.Defer(() => observableSubscription.ReceiveResultAsync().ToObservable()).Repeat();
 		}
 
 		#endregion

@@ -37,8 +37,7 @@ namespace IntegrationTestServer
 					options.EnableMetrics = true;
 					options.ExposeExceptions = Environment.IsDevelopment();
 				})
-				.AddWebSockets()
-				.AddDataLoader();
+				.AddWebSockets();
 
 			services.AddMvc();
 		}

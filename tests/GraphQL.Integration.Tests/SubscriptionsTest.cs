@@ -4,65 +4,107 @@ using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
+using IntegrationTestServer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 
 namespace GraphQL.Integration.Tests
 {
-	public class SubscriptionsTest: IClassFixture<WebApplicationFactory<IntegrationTestServer.Startup>>
+	public class SubscriptionsTest
 	{
+		private readonly WebApplicationFactory<Startup> _factory;
 
-		private readonly WebApplicationFactory<IntegrationTestServer.Startup> _factory;
-
-		public SubscriptionsTest(WebApplicationFactory<IntegrationTestServer.Startup> factory)
+		public static IWebHost CreateServer(int port)
 		{
-			_factory = factory;
+			var configBuilder = new ConfigurationBuilder();
+			configBuilder.AddInMemoryCollection();
+			var config = configBuilder.Build();
+			config["server.urls"] = $"http://localhost:{port}";
+
+			var host = new WebHostBuilder()
+				.ConfigureLogging((ctx, logging) => logging.AddDebug())
+				.UseConfiguration(config)
+				.UseKestrel()
+				.UseStartup<IntegrationTestServer.Startup>()
+				.Build();
+
+			host.Start();
+
+			return host;
 		}
 
-		private GraphQLHttpClient GetGraphQLClient()
-			=> _factory.CreateGraphQlHttpClient("graphql");
+		private readonly IWebHost _server;
+
+		public SubscriptionsTest()
+		{}
+
+		private GraphQLHttpClient GetGraphQLClient(int port)
+			=> new GraphQLHttpClient($"http://localhost:{port}/graphql");
 
 
 		[Fact]
 		public async void AssertTestingHarness()
 		{
-			var client = GetGraphQLClient();
-			var datetime = DateTime.Now;
+			var port = 5001;
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port);
+				var datetime = DateTime.Now;
 
-			var response = await client.AddMessageAsync("Lorem ipsum dolor si amet").ConfigureAwait(false);
+				const string message = "some random testing message";
+				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
 
-			Assert.Equal("Lorem ipsum dolor si amet", (string) response.Data.addMessage.content);
+				Assert.Equal(message, (string)response.Data.addMessage.content);
+			}
 		}
 
 		[Fact]
 		public async void CanCreateObservableSubscription()
 		{
-			var client = GetGraphQLClient();
-
-			var graphQLRequest = new GraphQLRequest
+			var port = 5002;
+			using (CreateServer(port))
 			{
-				Query = @"
-				subscription {
-				  messageAdded{
-				    content
-				  }
-				}"
-			};
+				var client = GetGraphQLClient(port);
+				var graphQLRequest = new GraphQLRequest
+				{
+					Query = @"
+					subscription {
+					  messageAdded{
+					    content
+					  }
+					}"
+				};
 
-			Debug.WriteLine("creating subscription stream");
-			IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(graphQLRequest);
-			string message = null;
+				Debug.WriteLine("creating subscription stream");
+				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(graphQLRequest);
 
-			await Task.Delay(1000).ConfigureAwait(false);
+				Debug.WriteLine("subscribing...");
+				using (var tester = observable.SubscribeTester())
+				{
+					const string message1 = "Hello World";
 
-			Debug.WriteLine("subscribing...");
-			using (observable.Subscribe(response => message = (string) response.Data.messageAdded.content, ex => throw ex))
-			{
-				await Task.Delay(10000).ConfigureAwait(false);
-				Assert.Null(message);
-				var response = await client.AddMessageAsync("Lorem ipsum dolor si amet").ConfigureAwait(false);
-				Assert.Equal("Lorem ipsum dolor si amet", message);
+					var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
+					Assert.Equal(message1, (string) response.Data.addMessage.content);
+
+					tester.ShouldHaveReceivedUpdate(gqlResponse =>
+					{
+						Assert.Equal(message1, (string) gqlResponse.Data.messageAdded.content.Value);
+					});
+
+					tester.Reset();
+
+					const string message2 = "What the ****?";
+					response = await client.AddMessageAsync(message2).ConfigureAwait(false);
+					Assert.Equal(message2, (string)response.Data.addMessage.content);
+					tester.ShouldHaveReceivedUpdate(gqlResponse =>
+					{
+						Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
+					});
+				}
 			}
 		}
 	}

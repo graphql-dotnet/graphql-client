@@ -23,7 +23,7 @@ namespace GraphQL.Integration.Tests
 					input = new
 					{
 						fromId = "me",
-						content = "Lorem ipsum dolor si amet",
+						content = message,
 						sentAt = DateTime.Now
 					}
 				}

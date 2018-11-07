@@ -146,7 +146,6 @@ namespace GraphQL.Client.Http {
 			return GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request);
 		}
 
-
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
