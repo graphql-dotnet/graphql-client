@@ -22,7 +22,7 @@ namespace GraphQL.Common.Response {
 		/// <summary>
 		/// The Payload of the Response
 		/// </summary>
-		public GraphQLResponse Payload { get; set; }
+		public dynamic Payload { get; set; }
 
 		/// <inheritdoc />
 		public override bool Equals(object obj) => this.Equals(obj as GraphQLSubscriptionResponse);

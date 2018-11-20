@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http.Internal;
@@ -40,6 +41,7 @@ namespace GraphQL.Client.Http {
 		#endregion
 
 		internal readonly GraphQLHttpHandler graphQLHttpHandler;
+		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		/// <summary>
 		/// Initializes a new instance
@@ -117,23 +119,44 @@ namespace GraphQL.Client.Http {
 			this.SendSubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken);
 
 		[Obsolete("EXPERIMENTAL API")]
-		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
+		{
+			GraphQLHttpSubscriptionResult graphQLSubscriptionResult = _createSubscription(request, cancellationToken);
+			return Task.FromResult<IGraphQLSubscriptionResult>(graphQLSubscriptionResult);
+		}
+
+		private GraphQLHttpSubscriptionResult _createSubscription(GraphQLRequest request, CancellationToken cancellationToken)
+		{
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
 
-			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";
-			var webSocketUri = new Uri($"{webSocketSchema}://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
-			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(webSocketUri, request);
+			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), request);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
-			return Task.FromResult<IGraphQLSubscriptionResult>(graphQLSubscriptionResult);
+			return graphQLSubscriptionResult;
+		}
+
+		private Uri _getWebSocketUri()
+		{
+			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";
+			return new Uri($"{webSocketSchema}://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
+		}
+
+		[Obsolete("EXPERIMENTAL API")]
+		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request)
+		{
+			var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request, _cancellationTokenSource.Token);
+			return observable;
 		}
 
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
-		public void Dispose() =>
+		public void Dispose()
+		{
 			this.graphQLHttpHandler.Dispose();
-
+			_cancellationTokenSource.Cancel();
+			_cancellationTokenSource.Dispose();
+		}
 	}
 
 }

@@ -39,9 +39,11 @@ namespace GraphQL.Client.Http {
 					var webSocketReceiveResult = await this.clientWebSocket.ReceiveAsync(arraySegment, cancellationToken);
 					var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
 					var webSocketResponse = JsonConvert.DeserializeObject<GraphQLSubscriptionResponse>(stringResult);
-					if (webSocketResponse != null) {
-						this.LastResponse = webSocketResponse.Payload;
-						this.OnReceive?.Invoke(webSocketResponse.Payload);
+					if (webSocketResponse != null)
+					{
+						var response = (GraphQLResponse) webSocketResponse.Payload;
+						this.LastResponse = response;
+						this.OnReceive?.Invoke(response);
 					}
 				}
 			}

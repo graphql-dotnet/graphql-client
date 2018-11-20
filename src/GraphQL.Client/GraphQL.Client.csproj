@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="../src.props" />
 
 	<PropertyGroup>
 		<Description>A GraphQL Client</Description>
-		<TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -14,6 +14,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+		<PackageReference Include="System.Reactive" Version="4.1.2" />
 	</ItemGroup>
 
 	<!-- Allow method ReadAsAsync<T>
