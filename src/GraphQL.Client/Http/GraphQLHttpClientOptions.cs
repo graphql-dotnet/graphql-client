@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.Http {
@@ -20,7 +22,11 @@ namespace GraphQL.Client.Http {
 		/// The <see cref="Newtonsoft.Json.JsonSerializerSettings"/> that is going to be used
 		/// </summary>
 		public JsonSerializerSettings JsonSerializerSettings { get; set; } = new JsonSerializerSettings {
-			ContractResolver = new CamelCasePropertyNamesContractResolver()
+			ContractResolver = new CamelCasePropertyNamesContractResolver(),
+			Converters = new List<JsonConverter>
+			{
+				new StringEnumConverter()
+			}
 		};
 
 		/// <summary>
