@@ -112,14 +112,16 @@ namespace GraphQL.Client.Http {
 		}
 
 		#region IDisposable
-
+		public Task Disposed { get; private set; }
+		private object _disposedLocker = new object();
 		public void Dispose()
 		{
 			// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
-			if(Disposed == null) Disposed = DisposeAsync();
+			lock (_disposedLocker)
+			{
+				if (Disposed == null) Disposed = DisposeAsync();
+			}
 		}
-
-		public Task Disposed { get; private set; }
 
 		private async Task DisposeAsync()
 		{
