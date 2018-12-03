@@ -57,6 +57,17 @@ namespace GraphQL.Integration.Tests
 			}
 		}
 
+		private const string SubscriptionQuery = @"
+			subscription {
+			  messageAdded{
+			    content
+			  }
+			}";
+		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest
+		{
+			Query = SubscriptionQuery
+		};
+
 		[Fact]
 		public async void CanCreateObservableSubscription()
 		{
@@ -64,18 +75,8 @@ namespace GraphQL.Integration.Tests
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
-				var graphQLRequest = new GraphQLRequest
-				{
-					Query = @"
-					subscription {
-					  messageAdded{
-					    content
-					  }
-					}"
-				};
-
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(graphQLRequest);
+				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable.SubscribeTester();
@@ -89,8 +90,6 @@ namespace GraphQL.Integration.Tests
 					Assert.Equal(message1, (string) gqlResponse.Data.messageAdded.content.Value);
 				});
 
-				tester.Reset();
-
 				const string message2 = "lorem ipsum dolor si amet";
 				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
 				Assert.Equal(message2, (string)response.Data.addMessage.content);
@@ -99,15 +98,49 @@ namespace GraphQL.Integration.Tests
 					Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
 				});
 
-				tester.Reset();
-
 				// disposing the client should throw a TaskCanceledException on the subscription
 				client.Dispose();
-				tester.ShouldHaveThrownError(exception =>
+				tester.ShouldHaveCompleted();
+			}
+		}
+
+		[Fact]
+		public async void CanReconnectWithSameObservable()
+		{
+			var port = 5003;
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port);
+
+				Debug.WriteLine("creating subscription stream");
+				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest);
+
+				Debug.WriteLine("subscribing...");
+				var tester = observable.SubscribeTester();
+				const string message1 = "Hello World";
+
+				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
+				Assert.Equal(message1, (string)response.Data.addMessage.content);
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.True(exception is TaskCanceledException,
-							$"exception is of unexpected type {exception.GetType().Name}");
+					Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
 				});
+				Debug.WriteLine("disposing subscription...");
+				tester.Dispose();
+
+				Debug.WriteLine("creating new subscription...");
+				tester = observable.SubscribeTester();
+				const string message2 = "lorem ipsum dolor si amet";
+				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
+				Assert.Equal(message2, (string)response.Data.addMessage.content);
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
+				{
+					Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
+				});
+
+				// disposing the client should complete the subscription
+				client.Dispose();
+				tester.ShouldHaveCompleted();
 			}
 		}
 	}

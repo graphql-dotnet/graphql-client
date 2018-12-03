@@ -67,6 +67,12 @@ namespace GraphQL.Client.Http {
 
 		public async Task CloseAsync(CancellationToken cancellationToken = default)
 		{
+			// don't attempt to close the websocket if it is in a failed state
+			if (this.clientWebSocket.State != WebSocketState.Open &&
+			    this.clientWebSocket.State != WebSocketState.CloseReceived &&
+			    this.clientWebSocket.State != WebSocketState.CloseSent)
+				return;
+
 			Debug.WriteLine($"closing websocket on subscription {this.GetHashCode()}");
 			if (this.clientWebSocket.State == WebSocketState.Open) {
 				await SendCloseMessageAsync(cancellationToken).ConfigureAwait(false);
@@ -135,7 +141,9 @@ namespace GraphQL.Client.Http {
 			return Observable.Using(
 				token => CreateSubscription(webSocketUri, graphQLRequest, cancellationToken),
 				InitializeSubscription
-				).Publish().RefCount();
+				)
+				.Catch<GraphQLResponse, OperationCanceledException>(exception => Observable.Empty<GraphQLResponse>())
+				.Publish().RefCount();
 		}
 
 
