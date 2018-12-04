@@ -45,7 +45,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void AssertTestingHarness()
 		{
-			var port = 5001;
+			var port = 5002;
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
@@ -71,7 +71,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void CanCreateObservableSubscription()
 		{
-			var port = 5002;
+			var port = 5003;
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
@@ -107,7 +107,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void CanReconnectWithSameObservable()
 		{
-			var port = 5003;
+			var port = 5004;
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
@@ -127,6 +127,7 @@ namespace GraphQL.Integration.Tests
 				});
 				Debug.WriteLine("disposing subscription...");
 				tester.Dispose();
+				await Task.Delay(TimeSpan.FromSeconds(10));
 
 				Debug.WriteLine("creating new subscription...");
 				tester = observable.SubscribeTester();
@@ -136,7 +137,7 @@ namespace GraphQL.Integration.Tests
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
 					Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
-				});
+				}, TimeSpan.FromSeconds(10));
 
 				// disposing the client should complete the subscription
 				client.Dispose();

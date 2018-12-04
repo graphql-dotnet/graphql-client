@@ -149,30 +149,30 @@ namespace GraphQL.Client.Http {
 		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request)
 		{
-			var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request, _cancellationTokenSource.Token);
+			var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(graphQlHttpWebSocket, request);
 			return observable;
 		}
 
-		/// <inheritdoc />
-		[Obsolete("EXPERIMENTAL API")]
-		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler)
-		{
-			return CreateSubscriptionStream(request, e =>
-			{
-				if (e is WebSocketException webSocketException)
-					webSocketExceptionHandler(webSocketException);
-				else
-					throw e;
-			});
-		}
+		///// <inheritdoc />
+		//[Obsolete("EXPERIMENTAL API")]
+		//public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler)
+		//{
+		//	return CreateSubscriptionStream(request, e =>
+		//	{
+		//		if (e is WebSocketException webSocketException)
+		//			webSocketExceptionHandler(webSocketException);
+		//		else
+		//			throw e;
+		//	});
+		//}
 
-		/// <inheritdoc />
-		[Obsolete("EXPERIMENTAL API")]
-		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler)
-		{
-			var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request, _cancellationTokenSource.Token, exceptionHandler);
-			return observable;
-		}
+		///// <inheritdoc />
+		//[Obsolete("EXPERIMENTAL API")]
+		//public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler)
+		//{
+		//	var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(graphQlHttpWebSocket, request, _cancellationTokenSource.Token, exceptionHandler);
+		//	return observable;
+		//}
 
 		/// <summary>
 		/// Releases unmanaged resources
@@ -180,6 +180,7 @@ namespace GraphQL.Client.Http {
 		public void Dispose()
 		{
 			this.graphQLHttpHandler.Dispose();
+			this.graphQlHttpWebSocket.Dispose();
 			_cancellationTokenSource.Cancel();
 			_cancellationTokenSource.Dispose();
 		}

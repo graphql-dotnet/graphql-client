@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Net.WebSockets;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
@@ -140,69 +141,64 @@ namespace GraphQL.Client.Http {
 
 		#region Static Factories
 
-		public static IObservable<GraphQLResponse> GetSubscriptionStream(
-			Uri webSocketUri,
-			GraphQLRequest graphQLRequest,
-			CancellationToken cancellationToken = default,
-			Action<Exception> onException = null)
+		internal static IObservable<GraphQLResponse> GetSubscriptionStream(
+			GraphQLHttpWebSocket webSocket,
+			GraphQLRequest graphQLRequest)
 		{
-			int reconnectionAttempt = 0;
-
-			return Observable
-				// create deferred observable using a GraphQLHttpObservableSubscription instance
-				.Defer(
-					() =>
-					{
-						var observable = Observable.Using(
-							token => CreateSubscription(webSocketUri, graphQLRequest, cancellationToken),
-							InitializeSubscription);
-
-						// when reconnecting, apply the delay computed by the BackOffStrategy
-						return (++reconnectionAttempt == 1) ? observable : observable.DelaySubscription(BackOffStrategy(reconnectionAttempt - 1)) ;
-					}
-				)
-				// complete sequence on OperationCanceledException, this is triggered by the cancellation token
-				.Catch<GraphQLResponse, OperationCanceledException>(exception => Observable.Empty<GraphQLResponse>())
-				// wrap results
-				.Select(response => new Tuple<GraphQLResponse, Exception>(response, null))
-				// do exception handling
-				.Catch<Tuple<GraphQLResponse, Exception>, Exception>(e =>
+			return Observable.Defer(() =>
+				Observable.Create<GraphQLResponse>(async observer =>
 				{
-					try
+					var startRequest = new GraphQLWebSocketRequest
 					{
-						// if the external handler is not set, propagate all exceptions (default subscription behaviour without Retry())
-						if (onException == null) throw e;
-
-						// invoke external handler
-						// exceptions thrown by the handler will propagate to OnError()
-						onException(e);
-
-						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
-						return cancellationToken.IsCancellationRequested
-							? Observable.Empty<Tuple<GraphQLResponse, Exception>>()
-							: Observable.Throw<Tuple<GraphQLResponse, Exception>>(e);
-					}
-					catch (Exception exception)
+						Id = Guid.NewGuid().ToString("N"),
+						Type = GQLWebSocketMessageType.GQL_START,
+						Payload = graphQLRequest
+					};
+					var closeRequest = new GraphQLWebSocketRequest
 					{
-						// wrap all other exceptions to be propagated behind retry
-						return Observable.Return(new Tuple<GraphQLResponse, Exception>(null, exception));
-					}
-				})
-				// attempt to recreate the subscription stream for rethrown exceptions
-				.Retry()
-				// unwrap and push results or throw wrapped exceptions
-				.SelectMany(t =>
-				{
-					// if the result contains an exception, throw it on the observable
-					if (t.Item2 != null)
-						return Observable.Throw<GraphQLResponse>(t.Item2);
+						Id = startRequest.Id,
+						Type = GQLWebSocketMessageType.GQL_STOP
+					};
 
-					// else a value from OnNext() has arrived, so reset the reconnectionAttempt counter and pass the value on
-					reconnectionAttempt = 1;
-					return Observable.Return(t.Item1);
+					var disposable = new CompositeDisposable(
+						Disposable.Create(async () =>
+						{
+							Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
+							await webSocket.SendWebSocketRequest(closeRequest).ConfigureAwait(false);
+						}),
+						// subscribe to result stream
+						webSocket.ResponseStream
+							.Where(response => response.Id == startRequest.Id)
+							.SelectMany(response =>
+							{
+								switch (response.Type)
+								{
+									case GQLWebSocketMessageType.GQL_COMPLETE:
+										Debug.WriteLine(
+											$"received 'complete' message on subscription {startRequest.Id}");
+										return Observable.Empty<GraphQLResponse>();
+									case GQLWebSocketMessageType.GQL_ERROR:
+										Debug.WriteLine($"received 'error' message on subscription {startRequest.Id}");
+										return Observable.Throw<GraphQLResponse>(
+											new GQLSubscriptionException(response.Payload));
+									default:
+										Debug.WriteLine($"received payload on subscription {startRequest.Id}");
+										return Observable.Return(((JObject) response?.Payload)
+											?.ToObject<GraphQLResponse>());
+								}
+							})
+							.Subscribe(observer)
+					);
+
+					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
+					// send subscription request
+					await webSocket.SendWebSocketRequest(startRequest).ConfigureAwait(false);
+
+					return disposable;
 				})
-				// transform to hot observable and auto-connect
-				.Publish().RefCount();
+			)
+			// transform to hot observable and auto-connect
+			.Publish().RefCount();
 		}
 
 		/// <summary>
