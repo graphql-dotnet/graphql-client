@@ -138,16 +138,57 @@ namespace GraphQL.Client.Http {
 
 		#region Static Factories
 
-		public static IObservable<GraphQLResponse> GetSubscriptionStream(Uri webSocketUri, GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default)
+		public static IObservable<GraphQLResponse> GetSubscriptionStream(
+			Uri webSocketUri,
+			GraphQLRequest graphQLRequest,
+			CancellationToken cancellationToken = default,
+			Action<Exception> onException = null)
 		{
-			return Observable.Using(
-				token => CreateSubscription(webSocketUri, graphQLRequest, cancellationToken),
-				InitializeSubscription
-				)
+			return Observable
+				// create deferred observable using a GraphQLHttpObservableSubscription instance
+				.Defer(
+					() =>
+						Observable.Using(
+							token => CreateSubscription(webSocketUri, graphQLRequest, cancellationToken),
+							InitializeSubscription
+				))
+				// complete sequence on OperationCanceledException, this is triggered by the cancellation token
 				.Catch<GraphQLResponse, OperationCanceledException>(exception => Observable.Empty<GraphQLResponse>())
+				// wrap results
+				.Select(response => new Tuple<GraphQLResponse, Exception>(response, null))
+				// do exception handling
+				.Catch<Tuple<GraphQLResponse, Exception>, Exception>(e =>
+				{
+					try
+					{
+						// if the external handler is not set, propagate all exceptions (default behaviour without Retry())
+						if (onException == null) throw e;
+
+						// invoke external handler
+						// exceptions thrown by the handler will propagate to OnError()
+						onException(e);
+
+						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
+						return cancellationToken.IsCancellationRequested
+							? Observable.Empty<Tuple<GraphQLResponse, Exception>>()
+							: Observable.Throw<Tuple<GraphQLResponse, Exception>>(e);
+					}
+					catch (Exception exception)
+					{
+						// wrap all other exceptions to be propagated behind retry
+						return Observable.Return(new Tuple<GraphQLResponse, Exception>(null, exception));
+					}
+				})
+				// attempt to recreate the subscription stream for rethrown exceptions
+				.Retry()
+				// unwrap and push results or throw wrapped exceptions
+				.SelectMany(t =>
+					t.Item2 == null
+						? Observable.Return(t.Item1)
+						: Observable.Throw<GraphQLResponse>(t.Item2))
+				// transform to hot observable and auto-connect
 				.Publish().RefCount();
 		}
-
 
 		private static Task<GraphQLHttpObservableSubscription> CreateSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default)
 		{
