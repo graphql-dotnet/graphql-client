@@ -144,14 +144,21 @@ namespace GraphQL.Client.Http {
 			CancellationToken cancellationToken = default,
 			Action<Exception> onException = null)
 		{
+			int reconnectionAttempt = 0;
+
 			return Observable
 				// create deferred observable using a GraphQLHttpObservableSubscription instance
 				.Defer(
 					() =>
-						Observable.Using(
+					{
+						var observable = Observable.Using(
 							token => CreateSubscription(webSocketUri, graphQLRequest, cancellationToken),
-							InitializeSubscription
-				))
+							InitializeSubscription);
+
+						// when reconnecting, apply the delay computed by the BackOffStrategy
+						return (++reconnectionAttempt == 1) ? observable : observable.DelaySubscription(BackOffStrategy(reconnectionAttempt - 1)) ;
+					}
+				)
 				// complete sequence on OperationCanceledException, this is triggered by the cancellation token
 				.Catch<GraphQLResponse, OperationCanceledException>(exception => Observable.Empty<GraphQLResponse>())
 				// wrap results
@@ -183,12 +190,28 @@ namespace GraphQL.Client.Http {
 				.Retry()
 				// unwrap and push results or throw wrapped exceptions
 				.SelectMany(t =>
-					t.Item2 == null
-						? Observable.Return(t.Item1)
-						: Observable.Throw<GraphQLResponse>(t.Item2))
+				{
+					// if the result contains an exception, throw it on the observable
+					if (t.Item2 != null)
+						return Observable.Throw<GraphQLResponse>(t.Item2);
+
+					// else a value from OnNext() has arrived, so reset the reconnectionAttempt counter and pass the value on
+					reconnectionAttempt = 1;
+					return Observable.Return(t.Item1);
+				})
 				// transform to hot observable and auto-connect
 				.Publish().RefCount();
 		}
+
+		/// <summary>
+		/// The back-off strategy for automatic reconnects. Calculates the delay before the next connection attempt is made.<br/>
+		/// default formula: min(n, 5) * 1,5 * random(0.0, 1.0)
+		/// </summary>
+		public static Func<int, TimeSpan> BackOffStrategy = n =>
+		{
+			var rnd = new Random();
+			return TimeSpan.FromSeconds(Math.Min(n, 5) * 1.5 + rnd.NextDouble());
+		};
 
 		private static Task<GraphQLHttpObservableSubscription> CreateSubscription(Uri webSocketUri, GraphQLRequest graphQLRequest, CancellationToken cancellationToken = default)
 		{
