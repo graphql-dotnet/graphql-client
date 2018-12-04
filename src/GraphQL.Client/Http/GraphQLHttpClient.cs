@@ -41,6 +41,7 @@ namespace GraphQL.Client.Http {
 		#endregion
 
 		internal readonly GraphQLHttpHandler graphQLHttpHandler;
+		internal readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		/// <summary>
@@ -76,6 +77,7 @@ namespace GraphQL.Client.Http {
 
 			options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri());
 		}
 
 		/// <summary>
@@ -90,6 +92,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri());
 		}
 
 		internal GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
@@ -100,6 +103,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options, httpClient);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri());
 		}
 
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
