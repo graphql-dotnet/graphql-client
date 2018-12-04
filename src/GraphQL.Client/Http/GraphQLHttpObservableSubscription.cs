@@ -161,7 +161,7 @@ namespace GraphQL.Client.Http {
 				{
 					try
 					{
-						// if the external handler is not set, propagate all exceptions (default behaviour without Retry())
+						// if the external handler is not set, propagate all exceptions (default subscription behaviour without Retry())
 						if (onException == null) throw e;
 
 						// invoke external handler
