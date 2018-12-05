@@ -46,7 +46,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void AssertTestingHarness()
 		{
-			var port = 5002;
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
@@ -73,7 +73,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void CanCreateObservableSubscription()
 		{
-			var port = 5003;
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
@@ -109,7 +109,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void CanReconnectWithSameObservable()
 		{
-			var port = 5004;
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
@@ -176,7 +176,7 @@ namespace GraphQL.Integration.Tests
 		[Fact]
 		public async void CanConnectMultipleSubscriptionsSimultaneously()
 		{
-			var port = 5005;
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
