@@ -16,6 +16,7 @@ namespace GraphQL.Client.Http
 	internal class GraphQLHttpWebSocket: IDisposable
 	{
 		private readonly Uri webSocketUri;
+		private readonly Action<Exception> _webSocketExceptionHandler;
 		private readonly byte[] buffer = new byte[1024 * 1024];
 		private readonly ArraySegment<byte> arraySegment;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -23,9 +24,10 @@ namespace GraphQL.Client.Http
 
 		private ClientWebSocket clientWebSocket = null;
 
-		public GraphQLHttpWebSocket(Uri webSocketUri)
+		public GraphQLHttpWebSocket(Uri webSocketUri, Action<Exception> webSocketExceptionHandler)
 		{
 			this.webSocketUri = webSocketUri;
+			_webSocketExceptionHandler = webSocketExceptionHandler;
 			arraySegment = new ArraySegment<byte>(buffer);
 			ResponseStream = _createResponseStream();
 		}
@@ -74,7 +76,7 @@ namespace GraphQL.Client.Http
 					try
 					{
 						// exceptions thrown by the handler will propagate to OnError()
-						_handleExceptions(e);
+						_webSocketExceptionHandler?.Invoke(e);
 
 						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
 						return _cancellationTokenSource.Token.IsCancellationRequested
@@ -105,11 +107,6 @@ namespace GraphQL.Client.Http
 				})
 				// transform to hot observable and auto-connect
 				.Publish().RefCount();
-		}
-
-		private void _handleExceptions(Exception e)
-		{
-
 		}
 
 		private Task _initializeWebSocketTask;

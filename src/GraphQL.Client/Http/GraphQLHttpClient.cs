@@ -82,7 +82,7 @@ namespace GraphQL.Client.Http {
 
 			options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri());
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options.WebSocketExceptionHandler);
 		}
 
 		/// <summary>
@@ -97,7 +97,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri());
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options.WebSocketExceptionHandler);
 		}
 
 		internal GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
@@ -108,7 +108,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options, httpClient);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri());
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options.WebSocketExceptionHandler);
 		}
 
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
