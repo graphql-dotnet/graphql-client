@@ -16,7 +16,7 @@ namespace GraphQL.Client.Http
 	internal class GraphQLHttpWebSocket: IDisposable
 	{
 		private readonly Uri webSocketUri;
-		private readonly Action<Exception> _webSocketExceptionHandler;
+		private readonly GraphQLHttpClientOptions _options;
 		private readonly byte[] buffer = new byte[1024 * 1024];
 		private readonly ArraySegment<byte> arraySegment;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -24,10 +24,10 @@ namespace GraphQL.Client.Http
 
 		private ClientWebSocket clientWebSocket = null;
 
-		public GraphQLHttpWebSocket(Uri webSocketUri, Action<Exception> webSocketExceptionHandler)
+		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options)
 		{
 			this.webSocketUri = webSocketUri;
-			_webSocketExceptionHandler = webSocketExceptionHandler;
+			_options = options;
 			arraySegment = new ArraySegment<byte>(buffer);
 			ResponseStream = _createResponseStream();
 		}
@@ -62,49 +62,12 @@ namespace GraphQL.Client.Http
 					// when reconnecting, apply the delay computed by the BackOffStrategy
 					observable = (++reconnectionAttempt == 1)
 						? observable
-						: observable.DelaySubscription(BackOffStrategy(reconnectionAttempt - 1));
+						: observable.DelaySubscription(_options.BackOffStrategy(reconnectionAttempt - 1));
 					return observable.Subscribe(observer);
 				})
 				// complete sequence on OperationCanceledException, this is triggered by the cancellation token
 				.Catch<GraphQLWebSocketResponse, OperationCanceledException>(exception =>
 					Observable.Empty<GraphQLWebSocketResponse>())
-				// wrap results
-				.Select(response => new Tuple<GraphQLWebSocketResponse, Exception>(response, null))
-				// do exception handling
-				.Catch<Tuple<GraphQLWebSocketResponse, Exception>, Exception>(e =>
-				{
-					try
-					{
-						// exceptions thrown by the handler will propagate to OnError()
-						_webSocketExceptionHandler?.Invoke(e);
-
-						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
-						return _cancellationTokenSource.Token.IsCancellationRequested
-							? Observable.Empty<Tuple<GraphQLWebSocketResponse, Exception>>()
-							: Observable.Throw<Tuple<GraphQLWebSocketResponse, Exception>>(e);
-					}
-					catch (Exception exception)
-					{
-						// wrap all other exceptions to be propagated behind retry
-						return Observable.Return(new Tuple<GraphQLWebSocketResponse, Exception>(null, exception));
-					}
-				})
-				// attempt to recreate the subscription stream for rethrown exceptions
-				.Retry()
-				// unwrap and push results or throw wrapped exceptions
-				.SelectMany(t =>
-				{
-					// if the result contains an exception, throw it on the observable
-					if (t.Item2 != null)
-						return Observable.Throw<GraphQLWebSocketResponse>(t.Item2);
-
-					// else a value from OnNext() has arrived, so reset the reconnectionAttempt counter and pass the value on
-					reconnectionAttempt = 1;
-
-					return t.Item1 == null
-						? Observable.Empty<GraphQLWebSocketResponse>()
-						: Observable.Return(t.Item1);
-				})
 				// transform to hot observable and auto-connect
 				.Publish().RefCount();
 		}

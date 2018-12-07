@@ -1,17 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.WebSockets;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http.Internal;
-using GraphQL.Common;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client.Http {
 
@@ -82,7 +76,7 @@ namespace GraphQL.Client.Http {
 
 			options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options.WebSocketExceptionHandler);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
 		/// <summary>
@@ -97,7 +91,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options.WebSocketExceptionHandler);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
 		internal GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
@@ -108,7 +102,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options, httpClient);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options.WebSocketExceptionHandler);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
@@ -154,64 +148,11 @@ namespace GraphQL.Client.Http {
 		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request)
 		{
-			return Observable.Defer(() =>
-				Observable.Create<GraphQLResponse>(async observer =>
-				{
-					var startRequest = new GraphQLWebSocketRequest
-					{
-						Id = Guid.NewGuid().ToString("N"),
-						Type = GQLWebSocketMessageType.GQL_START,
-						Payload = request
-					};
-					var closeRequest = new GraphQLWebSocketRequest
-					{
-						Id = startRequest.Id,
-						Type = GQLWebSocketMessageType.GQL_STOP
-					};
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-					var disposable = new CompositeDisposable(
-						Disposable.Create(async () =>
-						{
-							try
-							{
-								Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
-								await graphQlHttpWebSocket.SendWebSocketRequest(closeRequest).ConfigureAwait(false);
-							}
-							catch (OperationCanceledException) { }
-						}),
-						// subscribe to result stream
-						graphQlHttpWebSocket.ResponseStream
-							.Where(response => response.Id == startRequest.Id)
-							.SelectMany(response =>
-							{
-								switch (response.Type)
-								{
-									case GQLWebSocketMessageType.GQL_COMPLETE:
-										Debug.WriteLine(
-											$"received 'complete' message on subscription {startRequest.Id}");
-										return Observable.Empty<GraphQLResponse>();
-									case GQLWebSocketMessageType.GQL_ERROR:
-										Debug.WriteLine($"received 'error' message on subscription {startRequest.Id}");
-										return Observable.Throw<GraphQLResponse>(
-											new GraphQLSubscriptionException(response.Payload));
-									default:
-										Debug.WriteLine($"received payload on subscription {startRequest.Id}");
-										return Observable.Return(((JObject)response?.Payload)
-											?.ToObject<GraphQLResponse>());
-								}
-							})
-							.Subscribe(observer)
-					);
-
-					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
-					// send subscription request
-					await graphQlHttpWebSocket.SendWebSocketRequest(startRequest).ConfigureAwait(false);
-
-					return disposable;
-				})
-			)
-			// transform to hot observable and auto-connect
-			.Publish().RefCount();
+			return GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket,
+				Options, _cancellationTokenSource.Token);
 		}
 
 		/// <summary>
@@ -219,6 +160,21 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public void Dispose()
 		{
+			lock (_disposeLocker)
+			{
+				if (!_disposed)
+				{
+					_dispose();
+				}
+			}
+		}
+
+		private bool _disposed = false;
+		private object _disposeLocker = new object();
+
+		private void _dispose()
+		{
+			_disposed = true;
 			this.graphQLHttpHandler.Dispose();
 			this.graphQlHttpWebSocket.Dispose();
 			_cancellationTokenSource.Cancel();

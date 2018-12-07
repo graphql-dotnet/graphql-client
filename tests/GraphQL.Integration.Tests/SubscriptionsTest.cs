@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
@@ -39,8 +41,12 @@ namespace GraphQL.Integration.Tests
 		{
 		}
 
-		private GraphQLHttpClient GetGraphQLClient(int port)
-			=> new GraphQLHttpClient($"http://localhost:{port}/graphql");
+		private GraphQLHttpClient GetGraphQLClient(int port, Action<Exception> webSocketErrorHandler = null)
+			=> new GraphQLHttpClient(new GraphQLHttpClientOptions
+			{
+				EndPoint = new Uri($"http://localhost:{port}/graphql"),
+				WebSocketExceptionHandler = webSocketErrorHandler
+			} );
 
 
 		[Fact]
@@ -232,6 +238,44 @@ namespace GraphQL.Integration.Tests
 				client.Dispose();
 				tester2.ShouldHaveCompleted();
 			}
+		}
+
+		[Fact]
+		public async void CanHandleConnectionTimeout()
+		{
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			var server = CreateServer(port);
+			var callbackTester = new CallbackTester<Exception>();
+
+			var client = GetGraphQLClient(port, callbackTester.Callback);
+			Debug.WriteLine("creating subscription stream");
+			IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest);
+
+			Debug.WriteLine("subscribing...");
+			var tester = observable.SubscribeTester();
+			const string message1 = "Hello World";
+
+			var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
+			Assert.Equal(message1, (string)response.Data.addMessage.content);
+
+			tester.ShouldHaveReceivedUpdate(gqlResponse =>
+			{
+				Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
+			});
+
+			Debug.WriteLine("stopping web host...");
+			await server.StopAsync(CancellationToken.None).ConfigureAwait(false);
+			Debug.WriteLine("web host stopped...");
+
+			callbackTester.CallbackShouldHaveBeenInvoked(exception =>
+			{
+				Assert.IsType<WebSocketException>(exception);
+			}, TimeSpan.FromSeconds(10));
+
+			// disposing the client should complete the subscription
+			client.Dispose();
+			tester.ShouldHaveCompleted();
+			server.Dispose();
 		}
 	}
 }
