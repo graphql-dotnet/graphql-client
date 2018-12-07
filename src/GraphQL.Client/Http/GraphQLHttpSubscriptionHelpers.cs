@@ -16,6 +16,7 @@ namespace GraphQL.Client.Http
 			GraphQLRequest request,
 			GraphQLHttpWebSocket graphQlHttpWebSocket,
 			GraphQLHttpClientOptions options,
+			Action<Exception> exceptionHandler = null,
 			CancellationToken cancellationToken = default)
 		{
 			int connectionAttempt = 0;
@@ -93,8 +94,11 @@ namespace GraphQL.Client.Http
 				{
 					try
 					{
+						// if the external handler is not set, propagate all exceptions (default subscription behaviour without Retry())
+						if (exceptionHandler == null) throw e;
+
 						// exceptions thrown by the handler will propagate to OnError()
-						options.WebSocketExceptionHandler?.Invoke(e);
+						exceptionHandler?.Invoke(e);
 
 						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
 						return cancellationToken.IsCancellationRequested

@@ -41,11 +41,10 @@ namespace GraphQL.Integration.Tests
 		{
 		}
 
-		private GraphQLHttpClient GetGraphQLClient(int port, Action<Exception> webSocketErrorHandler = null)
+		private GraphQLHttpClient GetGraphQLClient(int port)
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions
 			{
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
-				WebSocketExceptionHandler = webSocketErrorHandler
 			} );
 
 
@@ -247,9 +246,9 @@ namespace GraphQL.Integration.Tests
 			var server = CreateServer(port);
 			var callbackTester = new CallbackTester<Exception>();
 
-			var client = GetGraphQLClient(port, callbackTester.Callback);
+			var client = GetGraphQLClient(port);
 			Debug.WriteLine("creating subscription stream");
-			IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest);
+			IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest, callbackTester.Callback);
 
 			Debug.WriteLine("subscribing...");
 			var tester = observable.SubscribeTester();
