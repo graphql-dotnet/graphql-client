@@ -271,6 +271,15 @@ namespace GraphQL.Integration.Tests
 				Assert.IsType<WebSocketException>(exception);
 			}, TimeSpan.FromSeconds(10));
 
+			try
+			{
+				server.Start();
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
+
 			// disposing the client should complete the subscription
 			client.Dispose();
 			tester.ShouldHaveCompleted();

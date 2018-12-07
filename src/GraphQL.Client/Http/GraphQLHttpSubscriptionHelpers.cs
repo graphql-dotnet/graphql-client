@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
@@ -72,7 +73,10 @@ namespace GraphQL.Client.Http
 								Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
 								await graphQlHttpWebSocket.SendWebSocketRequest(closeRequest).ConfigureAwait(false);
 							}
+							// do not break on disposing
 							catch (OperationCanceledException) { }
+							// do not break with missing connection on Retry()
+							catch (WebSocketException) { }
 						}),
 						// subscribe to result stream
 						observable.Subscribe(observer)
