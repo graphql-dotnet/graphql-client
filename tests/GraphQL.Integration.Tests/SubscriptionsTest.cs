@@ -148,7 +148,7 @@ namespace GraphQL.Integration.Tests
 				tester = observable.SubscribeTester();
 				tester.ShouldHaveReceivedUpdate(
 					gqlResponse => { Assert.Equal(message2, (string) gqlResponse.Data.messageAdded.content.Value); },
-					TimeSpan.FromSeconds(3));
+					TimeSpan.FromSeconds(10));
 				const string message3 = "lorem ipsum dolor si amet";
 				response = await client.AddMessageAsync(message3).ConfigureAwait(false);
 				Assert.Equal(message3, (string) response.Data.addMessage.content);
@@ -182,12 +182,14 @@ namespace GraphQL.Integration.Tests
 		public async void CanConnectMultipleSubscriptionsSimultaneously()
 		{
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			var callbackTester = new CallbackTester<Exception>();
+			var callbackTester2 = new CallbackTester<Exception>();
 			using (CreateServer(port))
 			{
 				var client = GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> subscription1 = client.CreateSubscriptionStream(SubscriptionRequest);
+				IObservable<GraphQLResponse> subscription1 = client.CreateSubscriptionStream(SubscriptionRequest, callbackTester.Callback);
 
 				Debug.WriteLine("subscribing...");
 				var tester = subscription1.SubscribeTester();
@@ -200,13 +202,13 @@ namespace GraphQL.Integration.Tests
 					Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
 				});
 
-				IObservable<GraphQLResponse> subscription2 = client.CreateSubscriptionStream(SubscriptionRequest2);
+				IObservable<GraphQLResponse> subscription2 = client.CreateSubscriptionStream(SubscriptionRequest2, callbackTester2.Callback);
 				var tester2 = subscription2.SubscribeTester();
 				tester2.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
 					Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
 					Assert.Equal("tester", (string)gqlResponse.Data.messageAdded.from.displayName.Value);
-				}, TimeSpan.FromSeconds(3));
+				}, TimeSpan.FromSeconds(10));
 
 				const string message2 = "How are you?";
 				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
@@ -282,7 +284,7 @@ namespace GraphQL.Integration.Tests
 
 			// disposing the client should complete the subscription
 			client.Dispose();
-			tester.ShouldHaveCompleted();
+			tester.ShouldHaveCompleted(TimeSpan.FromSeconds(5));
 			server.Dispose();
 		}
 	}

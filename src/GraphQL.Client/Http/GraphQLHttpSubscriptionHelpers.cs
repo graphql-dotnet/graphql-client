@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using GraphQL.Common;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
@@ -20,8 +21,6 @@ namespace GraphQL.Client.Http
 			Action<Exception> exceptionHandler = null,
 			CancellationToken cancellationToken = default)
 		{
-			int connectionAttempt = 0;
-
 			return Observable.Defer(() =>
 				Observable.Create<GraphQLResponse>(async observer =>
 				{
@@ -36,8 +35,6 @@ namespace GraphQL.Client.Http
 						Id = startRequest.Id,
 						Type = GQLWebSocketMessageType.GQL_STOP
 					};
-
-
 					var observable = graphQlHttpWebSocket.ResponseStream
 						.Where(response => response.Id == startRequest.Id)
 						.SelectMany(response =>
@@ -45,8 +42,7 @@ namespace GraphQL.Client.Http
 							switch (response.Type)
 							{
 								case GQLWebSocketMessageType.GQL_COMPLETE:
-									Debug.WriteLine(
-										$"received 'complete' message on subscription {startRequest.Id}");
+									Debug.WriteLine($"received 'complete' message on subscription {startRequest.Id}");
 									return Observable.Empty<GraphQLResponse>();
 								case GQLWebSocketMessageType.GQL_ERROR:
 									Debug.WriteLine($"received 'error' message on subscription {startRequest.Id}");
@@ -59,15 +55,24 @@ namespace GraphQL.Client.Http
 							}
 						});
 
-					Debug.WriteLine($"subscription connection attempt #{connectionAttempt}");
-					observable = (++connectionAttempt == 1)
-						? observable
-						: observable.DelaySubscription(options.BackOffStrategy(connectionAttempt - 1));
+					try
+					{
+						// intialize websocket (completes immediately if socket is already open)
+						await graphQlHttpWebSocket.InitializeWebSocket().ConfigureAwait(false);
+					}
+					catch (Exception e)
+					{
+						// subscribe observer to failed observable
+						return Observable.Throw<GraphQLResponse>(e).Subscribe(observer);
+					}
 
 					var disposable = new CompositeDisposable(
+						observable.Subscribe(observer),
 						Disposable.Create(async () =>
 						{
-							connectionAttempt = 0;
+							// only try to send close request on open websocket
+							if (graphQlHttpWebSocket.WebSocketState != WebSocketState.Open) return;
+
 							try
 							{
 								Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
@@ -75,16 +80,20 @@ namespace GraphQL.Client.Http
 							}
 							// do not break on disposing
 							catch (OperationCanceledException) { }
-							// do not break with missing connection on Retry()
-							catch (WebSocketException) { }
-						}),
-						// subscribe to result stream
-						observable.Subscribe(observer)
+						})
 					);
 
 					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
 					// send subscription request
-					await graphQlHttpWebSocket.SendWebSocketRequest(startRequest).ConfigureAwait(false);
+					try
+					{
+						await graphQlHttpWebSocket.SendWebSocketRequest(startRequest).ConfigureAwait(false);
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine(e);
+						throw;
+					}
 
 					return disposable;
 				}))
@@ -124,7 +133,6 @@ namespace GraphQL.Client.Http
 					if (t.Item2 != null)
 						return Observable.Throw<GraphQLResponse>(t.Item2);
 
-					connectionAttempt = 1;
 					return t.Item1 == null
 						? Observable.Empty<GraphQLResponse>()
 						: Observable.Return(t.Item1);
