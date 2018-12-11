@@ -16,8 +16,14 @@ jobs:
       - image: microsoft/dotnet:3.0-sdk
     steps:
       - checkout
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+      - dotnet-test:
+          configuration: Debug
+          framework: netcoreapp2.0
+          project: ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - dotnet-test:
+          configuration: Debug
+          framework: netcoreapp2.0
+          project: ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   test-debug-netcoreapp2.1:
     docker:
       - image: microsoft/dotnet:3.0-sdk
