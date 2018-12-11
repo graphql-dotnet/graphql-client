@@ -1,4 +1,15 @@
 version: 2.1
+commands:
+  dotnet-test:
+    parameters:
+      configuration:
+        type: string
+      framework:
+        type: string
+      project:
+        type: string
+    steps:
+      - run: dotnet test --configuration << parameters.configuration >> --framework << parameters.framework >> << parameters.project >>
 jobs:
   test-debug-netcoreapp2.0:
     docker:
@@ -49,7 +60,6 @@ jobs:
               dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.3.nupkg --api-key $MY_GET_API_KEY --source $MY_GET_SOURCE
             fi
 workflows:
-  version: 2
   build-test-and-deploy:
     jobs:
       - test-debug-netcoreapp2.0
