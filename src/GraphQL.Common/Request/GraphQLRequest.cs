@@ -25,7 +25,10 @@ namespace GraphQL.Common.Request {
 		/// </summary>
 		public dynamic? Variables { get; set; }
 
-		/// <inheritdoc />
+		/// <summary>
+		/// Initialize a new GraphQLRequest
+		/// </summary>
+		/// <param name="query">The Query</param>
 		public GraphQLRequest(string query){
 			this.Query = query;
 		}
