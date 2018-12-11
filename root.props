@@ -6,7 +6,7 @@
 		<Description>A GraphQL Client for .NET Standard</Description>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<LangVersion>latest</LangVersion>
+		<LangVersion>8.0</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<NoWarn>CS0618;CS1591;CS1701</NoWarn>
 		<PackageIconUrl>https://raw.githubusercontent.com/graphql-dotnet/graphql-client/master/assets/logo.64x64.png</PackageIconUrl>

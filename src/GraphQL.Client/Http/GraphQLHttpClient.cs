@@ -101,20 +101,20 @@ namespace GraphQL.Client.Http {
 		}
 
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
-			this.SendQueryAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			this.SendQueryAsync(new GraphQLRequest(query), cancellationToken);
 
 		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
 			this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 
 		public Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
-			this.SendMutationAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			this.SendMutationAsync(new GraphQLRequest(query), cancellationToken);
 
 		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
 			this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 
 		[Obsolete("EXPERIMENTAL API")]
 		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
-			this.SendSubscribeAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			this.SendSubscribeAsync(new GraphQLRequest(query), cancellationToken);
 
 		[Obsolete("EXPERIMENTAL API")]
 		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
