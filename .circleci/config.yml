@@ -11,7 +11,7 @@ commands:
     steps:
       - run: dotnet test --configuration << parameters.configuration >> --framework << parameters.framework >> << parameters.project >>
 jobs:
-  test-debug-netcoreapp2.0:
+  test-debug-netcoreapp-2-0:
     docker:
       - image: microsoft/dotnet:3.0-sdk
     steps:
@@ -24,21 +24,21 @@ jobs:
           configuration: Debug
           framework: netcoreapp2.0
           project: ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-debug-netcoreapp2.1:
+  test-debug-netcoreapp-2-1:
     docker:
       - image: microsoft/dotnet:3.0-sdk
     steps:
       - checkout
       - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-release-netcoreapp2.0:
+  test-release-netcoreapp-2-0:
     docker:
       - image: microsoft/dotnet:3.0-sdk
     steps:
       - checkout
       - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
       - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-release-netcoreapp2.1:
+  test-release-netcoreapp-2-1:
     docker:
       - image: microsoft/dotnet:3.0-sdk
     steps:
@@ -69,13 +69,13 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - test-debug-netcoreapp2.0
-      - test-debug-netcoreapp2.1
-      - test-release-netcoreapp2.0
-      - test-release-netcoreapp2.1
+      - test-debug-netcoreapp-2-0
+      - test-debug-netcoreapp-2-1
+      - test-release-netcoreapp-2-0
+      - test-release-netcoreapp-2-1
       - deploy:
           requires:
-            - test-debug-netcoreapp2.0
-            - test-debug-netcoreapp2.1
-            - test-release-netcoreapp2.0
-            - test-release-netcoreapp2.1
+            - test-debug-netcoreapp-2-0
+            - test-debug-netcoreapp-2-1
+            - test-release-netcoreapp-2-0
+            - test-release-netcoreapp-2-1
