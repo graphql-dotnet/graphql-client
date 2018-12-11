@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reactive.Linq;
+using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http.Internal;
@@ -41,6 +41,7 @@ namespace GraphQL.Client.Http {
 		#endregion
 
 		internal readonly GraphQLHttpHandler graphQLHttpHandler;
+		internal readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		/// <summary>
@@ -76,6 +77,7 @@ namespace GraphQL.Client.Http {
 
 			options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
 		/// <summary>
@@ -90,6 +92,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
 		internal GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
@@ -100,6 +103,7 @@ namespace GraphQL.Client.Http {
 			if (options.MediaType == null) { throw new ArgumentNullException(nameof(options.MediaType)); }
 
 			this.graphQLHttpHandler = new GraphQLHttpHandler(options, httpClient);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
@@ -141,10 +145,35 @@ namespace GraphQL.Client.Http {
 			return new Uri($"{webSocketSchema}://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
 		}
 
+		/// <inheritdoc />
 		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request)
 		{
-			var observable = GraphQLHttpObservableSubscription.GetSubscriptionStream(_getWebSocketUri(), request, _cancellationTokenSource.Token);
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+
+			return GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket,
+				Options, cancellationToken: _cancellationTokenSource.Token);
+		}
+
+		/// <inheritdoc />
+		[Obsolete("EXPERIMENTAL API")]
+		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler)
+		{
+			return CreateSubscriptionStream(request, e =>
+			{
+				if (e is WebSocketException webSocketException)
+					webSocketExceptionHandler(webSocketException);
+				else
+					throw e;
+			});
+		}
+
+		/// <inheritdoc />
+		[Obsolete("EXPERIMENTAL API")]
+		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler)
+		{
+			var observable = GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket, Options, exceptionHandler, _cancellationTokenSource.Token);
 			return observable;
 		}
 
@@ -153,7 +182,23 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public void Dispose()
 		{
+			lock (_disposeLocker)
+			{
+				if (!_disposed)
+				{
+					_dispose();
+				}
+			}
+		}
+
+		private bool _disposed = false;
+		private object _disposeLocker = new object();
+
+		private void _dispose()
+		{
+			_disposed = true;
 			this.graphQLHttpHandler.Dispose();
+			this.graphQlHttpWebSocket.Dispose();
 			_cancellationTokenSource.Cancel();
 			_cancellationTokenSource.Dispose();
 		}

@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace GraphQL.Common.Request {
+namespace GraphQL.Common.Response {
 
 	/// <summary>
-	/// A Subscription Request
+	/// A Subscription Response
 	/// </summary>
 	[Obsolete("EXPERIMENTAL")]
-	public class GraphQLSubscriptionRequest : IEquatable<GraphQLSubscriptionRequest> {
+	public class GraphQLWebSocketResponse : IEquatable<GraphQLWebSocketResponse> {
 
 		/// <summary>
 		/// The Identifier of the Response
@@ -15,20 +15,20 @@ namespace GraphQL.Common.Request {
 		public string Id { get; set; }
 
 		/// <summary>
-		/// The Type of the Request
+		/// The Type of the Response
 		/// </summary>
 		public string Type { get; set; }
 
 		/// <summary>
-		/// The Payload of the Request
+		/// The Payload of the Response
 		/// </summary>
-		public GraphQLRequest Payload { get; set; }
+		public dynamic Payload { get; set; }
 
 		/// <inheritdoc />
-		public override bool Equals(object obj) => this.Equals(obj as GraphQLSubscriptionRequest);
+		public override bool Equals(object obj) => this.Equals(obj as GraphQLWebSocketResponse);
 
 		/// <inheritdoc />
-		public bool Equals(GraphQLSubscriptionRequest other) {
+		public bool Equals(GraphQLWebSocketResponse other) {
 			if (other == null) {
 				return false;
 			}
@@ -52,15 +52,15 @@ namespace GraphQL.Common.Request {
 			var hashCode = 9958074;
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Id);
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Type);
-			hashCode = hashCode * -1521134295 + EqualityComparer<GraphQLRequest>.Default.GetHashCode(this.Payload);
+			hashCode = hashCode * -1521134295 + EqualityComparer<GraphQLResponse>.Default.GetHashCode(this.Payload);
 			return hashCode;
 		}
 
 		/// <inheritdoc />
-		public static bool operator ==(GraphQLSubscriptionRequest request1, GraphQLSubscriptionRequest request2) => EqualityComparer<GraphQLSubscriptionRequest>.Default.Equals(request1, request2);
+		public static bool operator ==(GraphQLWebSocketResponse response1, GraphQLWebSocketResponse response2) => EqualityComparer<GraphQLWebSocketResponse>.Default.Equals(response1, response2);
 
 		/// <inheritdoc />
-		public static bool operator !=(GraphQLSubscriptionRequest request1, GraphQLSubscriptionRequest request2) => !(request1 == request2);
+		public static bool operator !=(GraphQLWebSocketResponse response1, GraphQLWebSocketResponse response2) => !(response1 == response2);
 
 	}
 

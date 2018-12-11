@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.WebSockets;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.Http {
@@ -20,7 +23,11 @@ namespace GraphQL.Client.Http {
 		/// The <see cref="Newtonsoft.Json.JsonSerializerSettings"/> that is going to be used
 		/// </summary>
 		public JsonSerializerSettings JsonSerializerSettings { get; set; } = new JsonSerializerSettings {
-			ContractResolver = new CamelCasePropertyNamesContractResolver()
+			ContractResolver = new CamelCasePropertyNamesContractResolver(),
+			Converters = new List<JsonConverter>
+			{
+				new StringEnumConverter()
+			}
 		};
 
 		/// <summary>
@@ -33,6 +40,15 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public MediaTypeHeaderValue MediaType { get; set; } = MediaTypeHeaderValue.Parse("application/json; charset=utf-8"); // This should be "application/graphql" also "application/x-www-form-urlencoded" is Accepted
 
+		/// <summary>
+		/// The back-off strategy for automatic websocket/subscription reconnects. Calculates the delay before the next connection attempt is made.<br/>
+		/// default formula: min(n, 5) * 1,5 * random(0.0, 1.0)
+		/// </summary>
+		public Func<int, TimeSpan> BackOffStrategy = n =>
+		{
+			var rnd = new Random();
+			return TimeSpan.FromSeconds(Math.Min(n, 5) * 1.5 + rnd.NextDouble());
+		};
 	}
 
 }
