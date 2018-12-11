@@ -1,36 +1,45 @@
-version: 2
+version: 2.1
+commands:
+  dotnet-test:
+    parameters:
+      configuration:
+        type: string
+      framework:
+        type: string
+      project:
+        type: string
+    steps:
+      - run: dotnet test --configuration << parameters.configuration >> --framework << parameters.framework >> << parameters.project >>
 jobs:
-  test-debug-netcoreapp2.0:
+  test-debug:
     docker:
-      - image: microsoft/dotnet:2.1-sdk
+      - image: microsoft/dotnet:3.0-sdk
     steps:
       - checkout
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Debug --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-debug-netcoreapp2.1:
+      - dotnet-test:
+          configuration: Debug
+          framework: netcoreapp3.0
+          project: ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - dotnet-test:
+          configuration: Debug
+          framework: netcoreapp3.0
+          project: ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+  test-release:
     docker:
-      - image: microsoft/dotnet:2.1-sdk
+      - image: microsoft/dotnet:3.0-sdk
     steps:
       - checkout
-      - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Debug --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-release-netcoreapp2.0:
-    docker:
-      - image: microsoft/dotnet:2.1-sdk
-    steps:
-      - checkout
-      - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Release --framework netcoreapp2.0 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
-  test-release-netcoreapp2.1:
-    docker:
-      - image: microsoft/dotnet:2.1-sdk
-    steps:
-      - checkout
-      - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
-      - run: dotnet test --configuration Release --framework netcoreapp2.1 ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
+      - dotnet-test:
+          configuration: Release
+          framework: netcoreapp3.0
+          project: ./tests/GraphQL.Common.Tests/GraphQL.Common.Tests.csproj
+      - dotnet-test:
+          configuration: Release
+          framework: netcoreapp3.0
+          project: ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   deploy:
     docker:
-      - image: microsoft/dotnet:2.1-sdk
+      - image: microsoft/dotnet:3.0-sdk
     environment:
       MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
@@ -52,13 +61,9 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - test-debug-netcoreapp2.0
-      - test-debug-netcoreapp2.1
-      - test-release-netcoreapp2.0
-      - test-release-netcoreapp2.1
+      - test-debug
+      - test-release
       - deploy:
           requires:
-            - test-debug-netcoreapp2.0
-            - test-debug-netcoreapp2.1
-            - test-release-netcoreapp2.0
-            - test-release-netcoreapp2.1
+            - test-debug
+            - test-release
