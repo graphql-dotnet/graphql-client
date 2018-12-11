@@ -28,15 +28,13 @@ namespace GraphQL.Client.Tests.Http
 			};
 			GraphQLHttpClient systemUnderTest = new GraphQLHttpClient(options);
 
-			var response = await systemUnderTest.SendQueryAsync(new GraphQLRequest
-			{
-				Query = @"
+			var response = await systemUnderTest.SendQueryAsync(new GraphQLRequest(@"
 				{
 					person(personID: ""1"") {
 						name
 					}
 				}"
-			});
+			));
 
 			var actualRequestUri = handlerStub.LastRequest.RequestUri;
 			var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(actualRequestUri.Query);

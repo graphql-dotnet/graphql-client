@@ -53,7 +53,7 @@ namespace GraphQL.Client {
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
 		public Task<GraphQLResponse> GetQueryAsync(string query, CancellationToken cancellationToken = default) =>
-			this.GetAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			this.GetAsync(new GraphQLRequest(query), cancellationToken);
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via GET
@@ -71,7 +71,7 @@ namespace GraphQL.Client {
 		/// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
 		/// <returns>The Response</returns>
 		public Task<GraphQLResponse> PostQueryAsync(string query, CancellationToken cancellationToken = default) =>
-			this.PostAsync(new GraphQLRequest { Query = query }, cancellationToken);
+			this.PostAsync(new GraphQLRequest(query), cancellationToken);
 
 		/// <summary>
 		/// Send a <see cref="GraphQLRequest"/> via POST
