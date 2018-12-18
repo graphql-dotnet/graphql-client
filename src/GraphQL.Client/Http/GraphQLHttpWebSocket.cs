@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Net.WebSockets;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -23,6 +24,8 @@ namespace GraphQL.Client.Http
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private Subject<GraphQLWebSocketResponse> _responseSubject = new Subject<GraphQLWebSocketResponse>();
+		private Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
+		private IDisposable _requestSubscription;
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
 
@@ -35,17 +38,38 @@ namespace GraphQL.Client.Http
 			_options = options;
 			arraySegment = new ArraySegment<byte>(buffer);
 			ResponseStream = _createResponseStream();
+
+			_requestSubscription = _requestSubject.Select(request => Observable.FromAsync(() => _sendWebSocketRequest(request))).Concat().Subscribe();
 		}
 
 		public IObservable<GraphQLWebSocketResponse> ResponseStream { get; }
 
-
-		public async Task SendWebSocketRequest(GraphQLWebSocketRequest request)
+		public Task SendWebSocketRequest(GraphQLWebSocketRequest request)
 		{
-			await InitializeWebSocket().ConfigureAwait(false);
-			var webSocketRequestString = JsonConvert.SerializeObject(request);
-			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-			await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, _cancellationTokenSource.Token).ConfigureAwait(false);
+			_requestSubject.OnNext(request);
+			return request.SendTask();
+		}
+
+		private async Task _sendWebSocketRequest(GraphQLWebSocketRequest request)
+		{
+			try
+			{
+				if (_cancellationTokenSource.Token.IsCancellationRequested)
+				{
+					request.SendCanceled();
+					return;
+				}
+
+				await InitializeWebSocket().ConfigureAwait(false);
+				var webSocketRequestString = JsonConvert.SerializeObject(request);
+				var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
+				await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, _cancellationTokenSource.Token).ConfigureAwait(false);
+				request.SendCompleted();
+			}
+			catch (Exception e)
+			{
+				request.SendFailed(e);
+			}
 		}
 
 		public Task InitializeWebSocketTask { get; private set; } = Task.CompletedTask;
