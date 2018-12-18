@@ -29,7 +29,7 @@ namespace GraphQL.Client.Http
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
 
-		private ClientWebSocket clientWebSocket = null;
+		private WebSocket clientWebSocket = null;
 		private int _connectionAttempt = 0;
 
 		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options)
@@ -105,8 +105,22 @@ namespace GraphQL.Client.Http
 
 			// else (re-)create websocket and connect
 			clientWebSocket?.Dispose();
-			clientWebSocket = new ClientWebSocket();
-			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
+
+			// fix websocket not supported on win 7 using
+			// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
+			clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
+			switch (clientWebSocket)
+			{
+				case ClientWebSocket nativeWebSocket:
+					nativeWebSocket.Options.AddSubProtocol("graphql-ws");
+					break;
+				case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
+					managedWebSocket.Options.AddSubProtocol("graphql-ws");
+					break;
+				default:
+					throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
+			}
+
 			return InitializeWebSocketTask = _connectAsync(_cancellationTokenSource.Token);
 		}
 
