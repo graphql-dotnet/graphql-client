@@ -16,7 +16,6 @@
 		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
 		<PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
 		<PackageReference Include="System.Reactive" Version="4.1.2" />
-		<PackageReference Include="WebSocket4Net" Version="0.15.2" />
 	</ItemGroup>
 
 	<ItemGroup>
