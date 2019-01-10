@@ -38,10 +38,12 @@ namespace GraphQL.Common.Request {
 
 		/// <inheritdoc />
 		public bool Equals(GraphQLRequest? other) {
-			if (other == null) {
-				return false;
-			}
-			return EqualityComparer<GraphQLRequest>.Default.Equals(this, other);
+			if (other == null) {return false;}
+			if (ReferenceEquals(this, other)) { return true; }
+			if (!EqualityComparer<string>.Default.Equals(this.Query, other.Query)) { return false; }
+			if (!EqualityComparer<string?>.Default.Equals(this.OperationName, other.OperationName)) { return false; }
+			if (!EqualityComparer<dynamic?>.Default.Equals(this.Variables, other.Variables)) { return false; }
+			return true;
 		}
 
 		/// <inheritdoc />
