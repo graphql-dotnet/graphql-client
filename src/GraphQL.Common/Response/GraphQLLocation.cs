@@ -32,7 +32,7 @@ namespace GraphQL.Common.Response {
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode() => EqualityComparer<GraphQLLocation?>.Default.GetHashCode(this);
+		public override int GetHashCode() => EqualityComparer<GraphQLLocation>.Default.GetHashCode(this);
 
 		/// <inheritdoc />
 		public static bool operator ==(GraphQLLocation? location1, GraphQLLocation? location2) => EqualityComparer<GraphQLLocation?>.Default.Equals(location1, location2);
