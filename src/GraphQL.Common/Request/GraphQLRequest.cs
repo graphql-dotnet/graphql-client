@@ -34,7 +34,7 @@ namespace GraphQL.Common.Request {
 		}
 
 		/// <inheritdoc />
-		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest);
+		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest?);
 
 		/// <inheritdoc />
 		public bool Equals(GraphQLRequest? other) {

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using GraphQL.Common.Request;
@@ -9,17 +10,17 @@ namespace GraphQL.Common.Response {
 	/// Represent the response of a <see cref="GraphQLRequest"/>
 	/// For more information <see href="http://graphql.org/learn/serving-over-http/#response"/>
 	/// </summary>
-	public class GraphQLResponse : IEquatable<GraphQLResponse> {
+	public class GraphQLResponse : IEquatable<GraphQLResponse?> {
 
 		/// <summary>
 		/// The data of the response
 		/// </summary>
-		public dynamic Data { get; set; }
+		public dynamic? Data { get; set; }
 
 		/// <summary>
 		/// The Errors if occurred
 		/// </summary>
-		public GraphQLError[] Errors { get; set; }
+		public GraphQLError[]? Errors { get; set; }
 
 		/// <summary>
 		/// Get a field of <see cref="Data"/> as Type
@@ -33,10 +34,10 @@ namespace GraphQL.Common.Response {
 		}
 
 		/// <inheritdoc />
-		public override bool Equals(object obj) => this.Equals(obj as GraphQLResponse);
+		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse);
 
 		/// <inheritdoc />
-		public bool Equals(GraphQLResponse other) {
+		public bool Equals(GraphQLResponse? other) {
 			if (other == null) {
 				return false;
 			}
@@ -53,18 +54,14 @@ namespace GraphQL.Common.Response {
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode() {
-			var hashCode = -671462861;
-			hashCode = hashCode * -1521134295 + EqualityComparer<dynamic>.Default.GetHashCode(this.Data);
-			hashCode = hashCode * -1521134295 + EqualityComparer<GraphQLError[]>.Default.GetHashCode(this.Errors);
-			return hashCode;
-		}
+		public override int GetHashCode() => EqualityComparer<GraphQLResponse>.Default.GetHashCode(this);
+
 
 		/// <inheritdoc />
-		public static bool operator ==(GraphQLResponse response1, GraphQLResponse response2) => EqualityComparer<GraphQLResponse>.Default.Equals(response1, response2);
+		public static bool operator ==(GraphQLResponse? response1, GraphQLResponse? response2) => EqualityComparer<GraphQLResponse?>.Default.Equals(response1, response2);
 
 		/// <inheritdoc />
-		public static bool operator !=(GraphQLResponse response1, GraphQLResponse response2) => !(response1 == response2);
+		public static bool operator !=(GraphQLResponse? response1, GraphQLResponse? response2) => !(response1 == response2);
 
 	}
 

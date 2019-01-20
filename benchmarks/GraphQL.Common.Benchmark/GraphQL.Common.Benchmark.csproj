@@ -8,5 +8,9 @@
 	<ItemGroup>
 		<PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\GraphQL.Common\GraphQL.Common.csproj" />
+	</ItemGroup>
 	
 </Project>
