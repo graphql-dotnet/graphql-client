@@ -38,18 +38,10 @@ namespace GraphQL.Common.Response {
 
 		/// <inheritdoc />
 		public bool Equals(GraphQLResponse? other) {
-			if (other == null) {
-				return false;
-			}
-			if (ReferenceEquals(this, other)) {
-				return true;
-			}
-			if (!Equals(this.Data, other.Data)) {
-				return false;
-			}
-			if (!Equals(this.Errors, other.Errors)) {
-				return false;
-			}
+			if (other == null) { return false; }
+			if (ReferenceEquals(this, other)) { return true; }
+			if (!EqualityComparer<dynamic?>.Default.Equals(this.Data, other.Data)) { return false; }
+			if (!EqualityComparer<GraphQLError[]?>.Default.Equals(this.Errors, other.Errors)) { return false; }
 			return true;
 		}
 
