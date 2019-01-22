@@ -190,16 +190,13 @@ namespace GraphQL.Client.Http
 					await clientWebSocket.ReceiveAsync(arraySegment, CancellationToken.None).ConfigureAwait(false);
 				_cancellationTokenSource.Token.ThrowIfCancellationRequested();
 				var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
+				Debug.WriteLine($"websocket data received: {stringResult}");
 				return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
 			}
 			catch (Exception e)
 			{
-				Debug.WriteLine(e);
+				Debug.WriteLine($"exception thrown while receiving websocket data: {e}");
 				throw;
-			}
-			finally
-			{
-				Debug.WriteLine("websocket data received");
 			}
 		}
 
