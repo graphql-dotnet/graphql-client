@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
@@ -152,8 +153,13 @@ namespace GraphQL.Client.Http {
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			return GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket,
+			if (subscriptionStreams.ContainsKey(request))
+				return subscriptionStreams[request];
+
+			var observable = GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket,
 				Options, cancellationToken: _cancellationTokenSource.Token);
+			subscriptionStreams.Add(request, observable);
+			return observable;
 		}
 
 		/// <inheritdoc />
@@ -162,7 +168,7 @@ namespace GraphQL.Client.Http {
 		{
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-
+					   
 			return CreateSubscriptionStream(request, e =>
 			{
 				if (e is WebSocketException webSocketException)
@@ -179,9 +185,15 @@ namespace GraphQL.Client.Http {
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
+			if(subscriptionStreams.ContainsKey(request))
+				return subscriptionStreams[request];
+
 			var observable = GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket, Options, exceptionHandler, _cancellationTokenSource.Token);
+			subscriptionStreams.Add(request, observable);
 			return observable;
 		}
+
+		private Dictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new Dictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
 
 		/// <summary>
 		/// Releases unmanaged resources
