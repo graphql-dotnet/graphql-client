@@ -4,7 +4,6 @@ using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Common;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;

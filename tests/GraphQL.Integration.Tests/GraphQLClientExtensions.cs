@@ -10,14 +10,13 @@ namespace GraphQL.Integration.Tests
 	{
 		public static async Task<GraphQLResponse> AddMessageAsync(this GraphQLHttpClient client, string message)
 		{
-			var graphQLRequest = new GraphQLRequest
-			{
-				Query = @"
+			var graphQLRequest = new GraphQLRequest(@"
 				mutation($input: MessageInputType){
 				  addMessage(message: $input){
 				    content
 				  }
-				}",
+				}")
+			{
 				Variables = new
 				{
 					input = new

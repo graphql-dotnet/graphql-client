@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit;
-
 
 namespace GraphQL.Integration.Tests
 {
@@ -70,10 +68,7 @@ namespace GraphQL.Integration.Tests
 			  }
 			}";
 
-		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest
-		{
-			Query = SubscriptionQuery
-		};
+		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest(SubscriptionQuery);
 
 		[Fact]
 		public async void CanCreateObservableSubscription()
@@ -173,10 +168,7 @@ namespace GraphQL.Integration.Tests
 			  }
 			}";
 
-		private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest
-		{
-			Query = SubscriptionQuery2
-		};
+		private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest(SubscriptionQuery2);
 
 		[Fact]
 		public async void CanConnectMultipleSubscriptionsSimultaneously()
