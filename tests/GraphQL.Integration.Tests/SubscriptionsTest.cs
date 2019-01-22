@@ -43,7 +43,7 @@ namespace GraphQL.Integration.Tests
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions
 			{
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
-			} );
+			});
 
 
 		[Fact]

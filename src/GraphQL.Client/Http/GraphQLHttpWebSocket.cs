@@ -194,7 +194,7 @@ namespace GraphQL.Client.Http
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				Debug.WriteLine(e);
 				throw;
 			}
 			finally

@@ -160,6 +160,9 @@ namespace GraphQL.Client.Http {
 		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler)
 		{
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+
 			return CreateSubscriptionStream(request, e =>
 			{
 				if (e is WebSocketException webSocketException)
@@ -173,6 +176,9 @@ namespace GraphQL.Client.Http {
 		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler)
 		{
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+
 			var observable = GraphQLHttpSubscriptionHelpers.CreateSubscriptionStream(request, graphQlHttpWebSocket, Options, exceptionHandler, _cancellationTokenSource.Token);
 			return observable;
 		}
