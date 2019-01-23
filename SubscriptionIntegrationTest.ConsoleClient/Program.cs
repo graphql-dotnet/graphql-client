@@ -1,5 +1,6 @@
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
@@ -19,19 +20,19 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				var subscriptions = new CompositeDisposable();
 
 				subscriptions.Add(CreateSubscription("1", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 				subscriptions.Add(CreateSubscription("2", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 				subscriptions.Add(CreateSubscription("3", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 				subscriptions.Add(CreateSubscription("4", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 				subscriptions.Add(CreateSubscription("5", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 				subscriptions.Add(CreateSubscription("6", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 				subscriptions.Add(CreateSubscription("7", client));
-				//await Task.Delay(1000);
+				await Task.Delay(1000);
 
 				using (subscriptions)
 				{
@@ -55,7 +56,9 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 							}
 							}
 						}"
-				),
+				)
+			//{ Variables = new { id } }
+			,
 				e => Console.WriteLine($"WebSocketException: {e.Message} (WebSocketError {e.WebSocketErrorCode}, ErrorCode {e.ErrorCode}, NativeErrorCode {e.NativeErrorCode}"));
 #pragma warning restore 618
 
