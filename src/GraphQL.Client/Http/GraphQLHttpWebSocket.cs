@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net.WebSockets;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -19,8 +21,7 @@ namespace GraphQL.Client.Http
 	{
 		private readonly Uri webSocketUri;
 		private readonly GraphQLHttpClientOptions _options;
-		private readonly byte[] buffer = new byte[1024 * 1024];
-		private readonly ArraySegment<byte> arraySegment;
+		private readonly ArraySegment<byte> buffer;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private Subject<GraphQLWebSocketResponse> _responseSubject = new Subject<GraphQLWebSocketResponse>();
@@ -36,7 +37,7 @@ namespace GraphQL.Client.Http
 		{
 			this.webSocketUri = webSocketUri;
 			_options = options;
-			arraySegment = new ArraySegment<byte>(buffer);
+			buffer = new ArraySegment<byte>(new byte[8192]);
 			ResponseStream = _createResponseStream();
 
 			_requestSubscription = _requestSubject.Select(request => Observable.FromAsync(() => _sendWebSocketRequest(request))).Concat().Subscribe();
@@ -185,13 +186,35 @@ namespace GraphQL.Client.Http
 			try
 			{
 				Debug.WriteLine("receiving websocket data ...");
-				_cancellationTokenSource.Token.ThrowIfCancellationRequested();
-				var webSocketReceiveResult =
-					await clientWebSocket.ReceiveAsync(arraySegment, CancellationToken.None).ConfigureAwait(false);
-				_cancellationTokenSource.Token.ThrowIfCancellationRequested();
-				var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
-				Debug.WriteLine($"websocket data received: {stringResult}");
-				return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
+				WebSocketReceiveResult webSocketReceiveResult = null;
+
+				using (var ms = new MemoryStream())
+				{
+					do
+					{
+						_cancellationTokenSource.Token.ThrowIfCancellationRequested();
+						webSocketReceiveResult = await clientWebSocket.ReceiveAsync(buffer, CancellationToken.None);
+						ms.Write(buffer.Array, buffer.Offset, webSocketReceiveResult.Count);
+					}
+					while (!webSocketReceiveResult.EndOfMessage);
+
+					_cancellationTokenSource.Token.ThrowIfCancellationRequested();
+					ms.Seek(0, SeekOrigin.Begin);
+
+					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
+					{
+						using (var reader = new StreamReader(ms, Encoding.UTF8))
+						{
+							var stringResult = await reader.ReadToEndAsync();
+							Debug.WriteLine($"websocket data received: {stringResult}");
+							return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
+						}
+					}
+					else
+					{
+						throw new NotSupportedException("binary websocket messages are not supported");
+					}
+				}				
 			}
 			catch (Exception e)
 			{

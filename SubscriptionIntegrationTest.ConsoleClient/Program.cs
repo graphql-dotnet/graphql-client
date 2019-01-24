@@ -48,16 +48,16 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 		{
 #pragma warning disable 618
 			var stream = client.CreateSubscriptionStream(new GraphQLRequest(@"
-						subscription {
-							messageAdded{
-							content
+					subscription {
+						messageAdded{
+						content
 							from {
 								displayName
 							}
-							}
-						}"
+						}
+					}"
 				)
-			//{ Variables = new { id } }
+			{ Variables = new { id } }
 			,
 				e => Console.WriteLine($"WebSocketException: {e.Message} (WebSocketError {e.WebSocketErrorCode}, ErrorCode {e.ErrorCode}, NativeErrorCode {e.NativeErrorCode}"));
 #pragma warning restore 618
