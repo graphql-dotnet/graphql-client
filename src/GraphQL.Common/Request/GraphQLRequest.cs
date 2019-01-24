@@ -33,6 +33,15 @@ namespace GraphQL.Common.Request {
 			this.Query = query;
 		}
 
+		/// <summary>
+		/// Initialize a new GraphQLRequest
+		/// </summary>
+		[Obsolete("Pass query as parameter! This constructor will be removed in a future version!")]
+		public GraphQLRequest()
+		{
+			this.Query = string.Empty;
+		}
+
 		/// <inheritdoc />
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest);
 
