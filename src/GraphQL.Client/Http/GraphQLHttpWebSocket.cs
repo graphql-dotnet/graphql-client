@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.WebSockets;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -63,8 +61,11 @@ namespace GraphQL.Client.Http
 
 				await InitializeWebSocket().ConfigureAwait(false);
 				var webSocketRequestString = JsonConvert.SerializeObject(request);
-				var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-				await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, _cancellationTokenSource.Token).ConfigureAwait(false);
+				await this.clientWebSocket.SendAsync(
+					new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString)),
+					WebSocketMessageType.Text,
+					true,
+					_cancellationTokenSource.Token).ConfigureAwait(false);
 				request.SendCompleted();
 			}
 			catch (Exception e)
@@ -149,7 +150,7 @@ namespace GraphQL.Client.Http
 		private async Task<IObservable<GraphQLWebSocketResponse>> _getReceiveResultStream()
 		{
 			await InitializeWebSocket().ConfigureAwait(false);
-			return Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat();
+			return Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat().Publish().RefCount();
 		}
 
 		private async Task _connectAsync(CancellationToken token)
@@ -185,7 +186,7 @@ namespace GraphQL.Client.Http
 		{
 			try
 			{
-				Debug.WriteLine("receiving websocket data ...");
+				Debug.WriteLine($"receiving data on websocket {clientWebSocket.GetHashCode()} ...");
 				WebSocketReceiveResult webSocketReceiveResult = null;
 
 				using (var ms = new MemoryStream())
@@ -206,7 +207,7 @@ namespace GraphQL.Client.Http
 						using (var reader = new StreamReader(ms, Encoding.UTF8))
 						{
 							var stringResult = await reader.ReadToEndAsync();
-							Debug.WriteLine($"websocket data received: {stringResult}");
+							Debug.WriteLine($"data received on websocket {clientWebSocket.GetHashCode()}: {stringResult}");
 							return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
 						}
 					}

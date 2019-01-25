@@ -25,7 +25,15 @@ namespace IntegrationTestServer.ChatSchema
                 Subscriber = new EventStreamResolver<Message>(Subscribe)
             });
 
-            AddField(new EventStreamFieldType
+			AddField(new EventStreamFieldType
+			{
+				Name = "contentAdded",
+				Type = typeof(MessageType),
+				Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+				Subscriber = new EventStreamResolver<Message>(Subscribe)
+			});
+
+			AddField(new EventStreamFieldType
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(

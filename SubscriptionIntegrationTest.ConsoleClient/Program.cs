@@ -20,19 +20,12 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				var subscriptions = new CompositeDisposable();
 
 				subscriptions.Add(CreateSubscription("1", client));
-				await Task.Delay(1000);
-				subscriptions.Add(CreateSubscription("2", client));
-				await Task.Delay(1000);
-				subscriptions.Add(CreateSubscription("3", client));
-				await Task.Delay(1000);
-				subscriptions.Add(CreateSubscription("4", client));
-				await Task.Delay(1000);
-				subscriptions.Add(CreateSubscription("5", client));
-				await Task.Delay(1000);
-				subscriptions.Add(CreateSubscription("6", client));
-				await Task.Delay(1000);
-				subscriptions.Add(CreateSubscription("7", client));
-				await Task.Delay(1000);
+				//subscriptions.Add(CreateSubscription2("2", client));
+				//subscriptions.Add(CreateSubscription("3", client));
+				//subscriptions.Add(CreateSubscription("4", client));
+				//subscriptions.Add(CreateSubscription("5", client));
+				//subscriptions.Add(CreateSubscription("6", client));
+				//subscriptions.Add(CreateSubscription("7", client));
 
 				using (subscriptions)
 				{
@@ -41,7 +34,9 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 					Console.Read();
 					Console.WriteLine("shutting down ...");
 				}
+				Console.WriteLine("subscriptions disposed ...");
 			}
+			Console.WriteLine("client disposed ...");
 		}
 
 		private static IDisposable CreateSubscription(string id, GraphQLHttpClient client)
@@ -67,6 +62,32 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				exception => Console.WriteLine($"{id}: message subscription stream failed: {exception}"),
 				() => Console.WriteLine($"{id}: message subscription stream completed"));
 			
+		}
+
+
+		private static IDisposable CreateSubscription2(string id, GraphQLHttpClient client)
+		{
+#pragma warning disable 618
+			var stream = client.CreateSubscriptionStream(new GraphQLRequest(@"
+					subscription {
+						contentAdded{
+						content
+							from {
+								displayName
+							}
+						}
+					}"
+				)
+			{ Variables = new { id } }
+			,
+				e => Console.WriteLine($"WebSocketException: {e.Message} (WebSocketError {e.WebSocketErrorCode}, ErrorCode {e.ErrorCode}, NativeErrorCode {e.NativeErrorCode}"));
+#pragma warning restore 618
+
+			return stream.Subscribe(
+				response => Console.WriteLine($"{id}: new content from \"{response.Data.contentAdded.from.displayName.Value}\": {response.Data.contentAdded.content.Value}"),
+				exception => Console.WriteLine($"{id}: content subscription stream failed: {exception}"),
+				() => Console.WriteLine($"{id}: content subscription stream completed"));
+
 		}
 	}
 }

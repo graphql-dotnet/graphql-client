@@ -35,7 +35,9 @@ namespace GraphQL.Client.Http
 						Type = GQLWebSocketMessageType.GQL_STOP
 					};
 					var observable = graphQlHttpWebSocket.ResponseStream
-						.Where(response => response != null && response.Id == startRequest.Id)
+						.Where(response => {
+							return response != null && response.Id == startRequest.Id;
+						})
 						.SelectMany(response =>
 						{
 							switch (response.Type)
