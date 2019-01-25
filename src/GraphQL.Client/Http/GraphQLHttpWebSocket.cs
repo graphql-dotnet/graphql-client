@@ -144,14 +144,21 @@ namespace GraphQL.Client.Http
 				_responseSubject = new Subject<GraphQLWebSocketResponse>();
 				var observable = await _getReceiveResultStream().ConfigureAwait(false);
 				observable.Subscribe(_responseSubject);
+
+				_responseSubject.Subscribe(_ => { }, ex =>
+				{
+					_responseSubject?.Dispose();
+					_responseSubject = null;
+				},
+				() => {
+					_responseSubject?.Dispose();
+					_responseSubject = null;
+				});
 			}
 					   
 			return new CompositeDisposable
 			(
-				_responseSubject.Finally(() => {
-					_responseSubject?.Dispose();
-					_responseSubject = null;
-				}).Subscribe(observer),
+				_responseSubject.Subscribe(observer),
 				Disposable.Create(() =>
 				{
 					Debug.WriteLine("response stream disposed");
