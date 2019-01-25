@@ -22,7 +22,7 @@ namespace GraphQL.Client.Http
 		private readonly ArraySegment<byte> buffer;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-		private Subject<GraphQLWebSocketResponse> _responseSubject = new Subject<GraphQLWebSocketResponse>();
+		private Subject<GraphQLWebSocketResponse> _responseSubject;
 		private Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
 		private IDisposable _requestSubscription;
 
@@ -36,12 +36,14 @@ namespace GraphQL.Client.Http
 			this.webSocketUri = webSocketUri;
 			_options = options;
 			buffer = new ArraySegment<byte>(new byte[8192]);
-			ResponseStream = _createResponseStream();
+			_responseStream = _createResponseStream();
 
 			_requestSubscription = _requestSubject.Select(request => Observable.FromAsync(() => _sendWebSocketRequest(request))).Concat().Subscribe();
 		}
 
-		public IObservable<GraphQLWebSocketResponse> ResponseStream { get; }
+		public IObservable<GraphQLWebSocketResponse> ResponseStream => _responseStream;
+		public IObservable<GraphQLWebSocketResponse> _responseStream;
+		//private IDisposable _responseStreamConnection;
 
 		public Task SendWebSocketRequest(GraphQLWebSocketRequest request)
 		{
@@ -106,6 +108,7 @@ namespace GraphQL.Client.Http
 				return Task.CompletedTask;
 
 			// else (re-)create websocket and connect
+			//_responseStreamConnection?.Dispose();
 			clientWebSocket?.Dispose();
 
 			// fix websocket not supported on win 7 using
@@ -125,7 +128,7 @@ namespace GraphQL.Client.Http
 
 			return InitializeWebSocketTask = _connectAsync(_cancellationTokenSource.Token);
 		}
-
+		
 		private IObservable<GraphQLWebSocketResponse> _createResponseStream()
 		{
 			return Observable.Create<GraphQLWebSocketResponse>(_createResultStream)
@@ -136,10 +139,19 @@ namespace GraphQL.Client.Http
 
 		private async Task<IDisposable> _createResultStream(IObserver<GraphQLWebSocketResponse> observer, CancellationToken token)
 		{
-			var observable = await _getReceiveResultStream().ConfigureAwait(false);
+			if (_responseSubject == null || _responseSubject.IsDisposed)
+			{
+				_responseSubject = new Subject<GraphQLWebSocketResponse>();
+				var observable = await _getReceiveResultStream().ConfigureAwait(false);
+				observable.Subscribe(_responseSubject);
+			}
+					   
 			return new CompositeDisposable
 			(
-				observable.Subscribe(observer),
+				_responseSubject.Finally(() => {
+					_responseSubject?.Dispose();
+					_responseSubject = null;
+				}).Subscribe(observer),
 				Disposable.Create(() =>
 				{
 					Debug.WriteLine("response stream disposed");
@@ -150,7 +162,7 @@ namespace GraphQL.Client.Http
 		private async Task<IObservable<GraphQLWebSocketResponse>> _getReceiveResultStream()
 		{
 			await InitializeWebSocket().ConfigureAwait(false);
-			return Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat().Publish().RefCount();
+			return Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat();
 		}
 
 		private async Task _connectAsync(CancellationToken token)
@@ -159,6 +171,7 @@ namespace GraphQL.Client.Http
 			Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
 			await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
 			Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
+			//_responseStreamConnection = _responseStream.Connect();
 			_connectionAttempt = 1;
 		}
 

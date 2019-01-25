@@ -20,12 +20,12 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				var subscriptions = new CompositeDisposable();
 
 				subscriptions.Add(CreateSubscription("1", client));
-				//subscriptions.Add(CreateSubscription2("2", client));
-				//subscriptions.Add(CreateSubscription("3", client));
-				//subscriptions.Add(CreateSubscription("4", client));
-				//subscriptions.Add(CreateSubscription("5", client));
-				//subscriptions.Add(CreateSubscription("6", client));
-				//subscriptions.Add(CreateSubscription("7", client));
+				subscriptions.Add(CreateSubscription2("2", client));
+				subscriptions.Add(CreateSubscription("3", client));
+				subscriptions.Add(CreateSubscription("4", client));
+				subscriptions.Add(CreateSubscription("5", client));
+				subscriptions.Add(CreateSubscription("6", client));
+				subscriptions.Add(CreateSubscription("7", client));
 
 				using (subscriptions)
 				{
