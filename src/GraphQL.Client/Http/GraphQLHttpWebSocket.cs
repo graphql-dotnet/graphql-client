@@ -24,6 +24,7 @@ namespace GraphQL.Client.Http
 
 		private Subject<GraphQLWebSocketResponse> _responseSubject;
 		private Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
+		private Subject<Exception> _exceptionSubject = new Subject<Exception>();
 		private IDisposable _requestSubscription;
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
@@ -40,6 +41,8 @@ namespace GraphQL.Client.Http
 
 			_requestSubscription = _requestSubject.Select(request => Observable.FromAsync(() => _sendWebSocketRequest(request))).Concat().Subscribe();
 		}
+
+		public IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
 
 		public IObservable<GraphQLWebSocketResponse> ResponseStream => _responseStream;
 		public IObservable<GraphQLWebSocketResponse> _responseStream;
@@ -134,7 +137,13 @@ namespace GraphQL.Client.Http
 			return Observable.Create<GraphQLWebSocketResponse>(_createResultStream)
 				// complete sequence on OperationCanceledException, this is triggered by the cancellation token on disposal
 				.Catch<GraphQLWebSocketResponse, OperationCanceledException>(exception =>
-					Observable.Empty<GraphQLWebSocketResponse>());
+					Observable.Empty<GraphQLWebSocketResponse>())
+				.Catch<GraphQLWebSocketResponse, Exception>(e =>
+					{
+						// post all exceptions in this stream to the exception subject, so they can be received on the outside
+						_exceptionSubject.OnNext(e);
+						return Observable.Throw<GraphQLWebSocketResponse>(e);
+					});
 		}
 
 		private async Task<IDisposable> _createResultStream(IObserver<GraphQLWebSocketResponse> observer, CancellationToken token)

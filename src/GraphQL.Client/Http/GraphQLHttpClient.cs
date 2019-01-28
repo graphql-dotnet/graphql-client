@@ -39,6 +39,10 @@ namespace GraphQL.Client.Http {
 			set => this.graphQLHttpHandler.Options = value;
 		}
 
+		/// <inheritdoc />
+		[Obsolete("EXPERIMENTAL")]
+		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
+
 		#endregion
 
 		internal readonly GraphQLHttpHandler graphQLHttpHandler;
