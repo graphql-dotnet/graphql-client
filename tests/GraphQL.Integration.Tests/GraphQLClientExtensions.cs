@@ -29,5 +29,23 @@ namespace GraphQL.Integration.Tests
 			};
 			return await client.SendMutationAsync(graphQLRequest).ConfigureAwait(false);
 		}
+
+		public static async Task<GraphQLResponse> JoinDeveloperUser(this GraphQLHttpClient client)
+		{
+			var graphQLRequest = new GraphQLRequest(@"
+				mutation($userId: String){
+				  join(userId: $userId){
+				    displayName
+				    id
+				  }
+				}")
+			{
+				Variables = new
+				{
+					userId = "1"
+				}
+			};
+			return await client.SendMutationAsync(graphQLRequest).ConfigureAwait(false);
+		}
 	}
 }
