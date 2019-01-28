@@ -28,11 +28,17 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				}));
 
 				subscriptions.Add(CreateSubscription("1", client));
+				await Task.Delay(200);
 				subscriptions.Add(CreateSubscription2("2", client));
+				await Task.Delay(200);
 				subscriptions.Add(CreateSubscription("3", client));
+				await Task.Delay(200);
 				subscriptions.Add(CreateSubscription("4", client));
+				await Task.Delay(200);
 				subscriptions.Add(CreateSubscription("5", client));
+				await Task.Delay(200);
 				subscriptions.Add(CreateSubscription("6", client));
+				await Task.Delay(200);
 				subscriptions.Add(CreateSubscription("7", client));
 
 				using (subscriptions)
