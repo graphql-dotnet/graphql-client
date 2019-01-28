@@ -170,14 +170,14 @@ namespace GraphQL.Client.Http
 						switch (response.Type)
 						{
 							case GQLWebSocketMessageType.GQL_COMPLETE:
-								Debug.WriteLine($"received 'complete' message on subscription {websocketRequest.Id}");
+								Debug.WriteLine($"received 'complete' message on request {websocketRequest.Id}");
 								return Observable.Empty<GraphQLResponse>();
 							case GQLWebSocketMessageType.GQL_ERROR:
-								Debug.WriteLine($"received 'error' message on subscription {websocketRequest.Id}");
+								Debug.WriteLine($"received 'error' message on request {websocketRequest.Id}");
 								return Observable.Throw<GraphQLResponse>(
 									new GraphQLSubscriptionException(response.Payload));
 							default:
-								Debug.WriteLine($"received payload on subscription {websocketRequest.Id}");
+								Debug.WriteLine($"received response for request {websocketRequest.Id}");
 								return Observable.Return(((JObject)response?.Payload)
 									?.ToObject<GraphQLResponse>());
 						}
@@ -198,8 +198,8 @@ namespace GraphQL.Client.Http
 					observable.Subscribe(observer)
 				);
 
-				Debug.WriteLine($"sending initial message on subscription {websocketRequest.Id}");
-				// send subscription request
+				Debug.WriteLine($"submitting request {websocketRequest.Id}");
+				// send request
 				try
 				{
 					await graphQlHttpWebSocket.SendWebSocketRequest(websocketRequest).ConfigureAwait(false);

@@ -13,7 +13,7 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 		static async Task Main(string[] args)
 		{
 			Console.WriteLine("configuring client ...");
-			using (var client = new GraphQLHttpClient("http://localhost:5000/graphql/"))
+			using (var client = new GraphQLHttpClient("http://localhost:5000/graphql/", new GraphQLHttpClientOptions{ UseWebSocketForQueriesAndMutations = true }))
 			{
 
 				Console.WriteLine("subscribing to message stream ...");
@@ -44,8 +44,40 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				using (subscriptions)
 				{
 					Console.WriteLine("client setup complete");
-					Console.WriteLine("press any key to exit");
-					Console.Read();
+					var quit = false;
+					do
+					{
+						Console.WriteLine("write message and press enter...");
+						var message = Console.ReadLine();
+						var graphQLRequest = new GraphQLRequest(@"
+							mutation($input: MessageInputType){
+							  addMessage(message: $input){
+								content
+							  }
+							}")
+						{
+							Variables = new
+							{
+								input = new
+								{
+									fromId = "2",
+									content = message,
+									sentAt = DateTime.Now
+								}
+							}
+						};
+						var result = await client.SendMutationAsync(graphQLRequest).ConfigureAwait(false);
+
+						if(result.Errors != null && result.Errors.Length > 0)
+						{
+							Console.WriteLine($"request returned {result.Errors.Length} errors:");
+							foreach (var item in result.Errors)
+							{
+								Console.WriteLine($"{item.Message}");
+							}
+						}
+					}
+					while(!quit);
 					Console.WriteLine("shutting down ...");
 				}
 				Console.WriteLine("subscriptions disposed ...");
