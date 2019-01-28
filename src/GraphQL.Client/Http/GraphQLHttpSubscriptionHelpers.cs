@@ -108,11 +108,16 @@ namespace GraphQL.Client.Http
 				{
 					try
 					{
-						// if the external handler is not set, propagate all exceptions (default subscription behaviour without Retry())
-						if (exceptionHandler == null) throw e;
-
-						// exceptions thrown by the handler will propagate to OnError()
-						exceptionHandler?.Invoke(e);
+						if (exceptionHandler == null) {
+							// if the external handler is not set, propagate all exceptions except WebSocketExceptions
+							// this will ensure that the client tries to re-establish subscriptions on connection loss
+							if (!(e is WebSocketException)) throw e;
+						}
+						else
+						{
+							// exceptions thrown by the handler will propagate to OnError()
+							exceptionHandler?.Invoke(e);
+						}
 
 						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
 						return cancellationToken.IsCancellationRequested

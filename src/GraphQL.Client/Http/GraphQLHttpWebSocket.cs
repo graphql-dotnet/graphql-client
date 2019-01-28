@@ -137,13 +137,7 @@ namespace GraphQL.Client.Http
 			return Observable.Create<GraphQLWebSocketResponse>(_createResultStream)
 				// complete sequence on OperationCanceledException, this is triggered by the cancellation token on disposal
 				.Catch<GraphQLWebSocketResponse, OperationCanceledException>(exception =>
-					Observable.Empty<GraphQLWebSocketResponse>())
-				.Catch<GraphQLWebSocketResponse, Exception>(e =>
-					{
-						// post all exceptions in this stream to the exception subject, so they can be received on the outside
-						_exceptionSubject.OnNext(e);
-						return Observable.Throw<GraphQLWebSocketResponse>(e);
-					});
+					Observable.Empty<GraphQLWebSocketResponse>());
 		}
 
 		private async Task<IDisposable> _createResultStream(IObserver<GraphQLWebSocketResponse> observer, CancellationToken token)
@@ -156,6 +150,7 @@ namespace GraphQL.Client.Http
 
 				_responseSubject.Subscribe(_ => { }, ex =>
 				{
+					_exceptionSubject.OnNext(ex);
 					_responseSubject?.Dispose();
 					_responseSubject = null;
 				},
@@ -183,12 +178,20 @@ namespace GraphQL.Client.Http
 
 		private async Task _connectAsync(CancellationToken token)
 		{
-			await _backOff().ConfigureAwait(false);
-			Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
-			await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
-			Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
-			//_responseStreamConnection = _responseStream.Connect();
-			_connectionAttempt = 1;
+			try
+			{
+				await _backOff().ConfigureAwait(false);
+				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
+				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
+				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
+				//_responseStreamConnection = _responseStream.Connect();
+				_connectionAttempt = 1;
+			}
+			catch (Exception e)
+			{
+				_exceptionSubject.OnNext(e);
+				throw;
+			}
 		}
 
 

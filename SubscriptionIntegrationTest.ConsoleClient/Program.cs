@@ -1,4 +1,5 @@
 using System;
+using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,13 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 				Console.WriteLine("subscribing to message stream ...");
 
 				var subscriptions = new CompositeDisposable();
+
+				subscriptions.Add(client.WebSocketReceiveErrors.Subscribe(e => {
+					if(e is WebSocketException we)
+						Console.WriteLine($"WebSocketException: {we.Message} (WebSocketError {we.WebSocketErrorCode}, ErrorCode {we.ErrorCode}, NativeErrorCode {we.NativeErrorCode}");
+					else
+						Console.WriteLine($"Exception in websocket receive stream: {e.ToString()}");
+				}));
 
 				subscriptions.Add(CreateSubscription("1", client));
 				subscriptions.Add(CreateSubscription2("2", client));
@@ -52,9 +60,7 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 						}
 					}"
 				)
-			{ Variables = new { id } }
-			,
-				e => Console.WriteLine($"WebSocketException: {e.Message} (WebSocketError {e.WebSocketErrorCode}, ErrorCode {e.ErrorCode}, NativeErrorCode {e.NativeErrorCode}"));
+			{ Variables = new { id } });
 #pragma warning restore 618
 
 			return stream.Subscribe(
@@ -78,9 +84,7 @@ namespace SubsccriptionIntegrationTest.ConsoleClient
 						}
 					}"
 				)
-			{ Variables = new { id } }
-			,
-				e => Console.WriteLine($"WebSocketException: {e.Message} (WebSocketError {e.WebSocketErrorCode}, ErrorCode {e.ErrorCode}, NativeErrorCode {e.NativeErrorCode}"));
+			{ Variables = new { id } });
 #pragma warning restore 618
 
 			return stream.Subscribe(
