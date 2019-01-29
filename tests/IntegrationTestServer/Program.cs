@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace IntegrationTestServer
 {
@@ -12,6 +13,7 @@ namespace IntegrationTestServer
 
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
-				.UseStartup<Startup>();
+				.UseStartup<Startup>()
+			    .ConfigureLogging((ctx, logging) => logging.SetMinimumLevel(LogLevel.Debug));
 	}
 }

@@ -16,7 +16,18 @@ namespace IntegrationTestServer.ChatSchema
                     var message = chat.AddMessage(receivedMessage);
                     return message;
                 });
-        }
+
+			Field<MessageFromType>("join",
+				arguments: new QueryArguments(
+					new QueryArgument<StringGraphType> { Name = "userId" }
+				),
+				resolve: context =>
+				{
+					var userId = context.GetArgument<string>("userId");
+					var userJoined = chat.Join(userId);
+					return userJoined;
+				});
+		}
     }
 
     public class MessageInputType : InputObjectGraphType

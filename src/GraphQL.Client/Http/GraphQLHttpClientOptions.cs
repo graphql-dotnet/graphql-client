@@ -49,6 +49,11 @@ namespace GraphQL.Client.Http {
 			var rnd = new Random();
 			return TimeSpan.FromSeconds(Math.Min(n, 5) * 1.5 + rnd.NextDouble());
 		};
+
+		/// <summary>
+		/// If <see langword="true"/>, the websocket connection is also used for regular queries and mutations
+		/// </summary>
+		public bool UseWebSocketForQueriesAndMutations { get; set; } = false;
 	}
 
 }

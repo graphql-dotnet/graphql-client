@@ -72,6 +72,12 @@ namespace GraphQL.Client {
 		/// <returns>an observable stream for the specified subscription</returns>
 		[Obsolete("EXPERIMENTAL")]
 		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler);
+
+		/// <summary>
+		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
+		/// </summary>
+		[Obsolete("EXPERIMENTAL")]
+		IObservable<Exception> WebSocketReceiveErrors { get; }
 	}
 
 }

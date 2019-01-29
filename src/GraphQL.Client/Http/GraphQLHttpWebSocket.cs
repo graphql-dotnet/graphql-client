@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -18,34 +19,64 @@ namespace GraphQL.Client.Http
 	{
 		private readonly Uri webSocketUri;
 		private readonly GraphQLHttpClientOptions _options;
-		private readonly byte[] buffer = new byte[1024 * 1024];
-		private readonly ArraySegment<byte> arraySegment;
+		private readonly ArraySegment<byte> buffer;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-		private Subject<GraphQLWebSocketResponse> _responseSubject = new Subject<GraphQLWebSocketResponse>();
+		private Subject<GraphQLWebSocketResponse> _responseSubject;
+		private Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
+		private Subject<Exception> _exceptionSubject = new Subject<Exception>();
+		private IDisposable _requestSubscription;
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
 
-		private ClientWebSocket clientWebSocket = null;
+		private WebSocket clientWebSocket = null;
 		private int _connectionAttempt = 0;
 
 		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options)
 		{
 			this.webSocketUri = webSocketUri;
 			_options = options;
-			arraySegment = new ArraySegment<byte>(buffer);
-			ResponseStream = _createResponseStream();
+			buffer = new ArraySegment<byte>(new byte[8192]);
+			_responseStream = _createResponseStream();
+
+			_requestSubscription = _requestSubject.Select(request => Observable.FromAsync(() => _sendWebSocketRequest(request))).Concat().Subscribe();
 		}
 
-		public IObservable<GraphQLWebSocketResponse> ResponseStream { get; }
+		public IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
 
+		public IObservable<GraphQLWebSocketResponse> ResponseStream => _responseStream;
+		public IObservable<GraphQLWebSocketResponse> _responseStream;
+		//private IDisposable _responseStreamConnection;
 
-		public async Task SendWebSocketRequest(GraphQLWebSocketRequest request)
+		public Task SendWebSocketRequest(GraphQLWebSocketRequest request)
 		{
-			await InitializeWebSocket().ConfigureAwait(false);
-			var webSocketRequestString = JsonConvert.SerializeObject(request);
-			var arraySegmentWebSocketRequest = new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString));
-			await this.clientWebSocket.SendAsync(arraySegmentWebSocketRequest, WebSocketMessageType.Text, true, _cancellationTokenSource.Token).ConfigureAwait(false);
+			_requestSubject.OnNext(request);
+			return request.SendTask();
+		}
+
+		private async Task _sendWebSocketRequest(GraphQLWebSocketRequest request)
+		{
+			try
+			{
+				if (_cancellationTokenSource.Token.IsCancellationRequested)
+				{
+					request.SendCanceled();
+					return;
+				}
+
+				await InitializeWebSocket().ConfigureAwait(false);
+				var webSocketRequestString = JsonConvert.SerializeObject(request);
+				await this.clientWebSocket.SendAsync(
+					new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString)),
+					WebSocketMessageType.Text,
+					true,
+					_cancellationTokenSource.Token).ConfigureAwait(false);
+				request.SendCompleted();
+			}
+			catch (Exception e)
+			{
+				request.SendFailed(e);
+			}
 		}
 
 		public Task InitializeWebSocketTask { get; private set; } = Task.CompletedTask;
@@ -80,12 +111,27 @@ namespace GraphQL.Client.Http
 				return Task.CompletedTask;
 
 			// else (re-)create websocket and connect
+			//_responseStreamConnection?.Dispose();
 			clientWebSocket?.Dispose();
-			clientWebSocket = new ClientWebSocket();
-			this.clientWebSocket.Options.AddSubProtocol("graphql-ws");
+
+			// fix websocket not supported on win 7 using
+			// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
+			clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
+			switch (clientWebSocket)
+			{
+				case ClientWebSocket nativeWebSocket:
+					nativeWebSocket.Options.AddSubProtocol("graphql-ws");
+					break;
+				case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
+					managedWebSocket.Options.AddSubProtocol("graphql-ws");
+					break;
+				default:
+					throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
+			}
+
 			return InitializeWebSocketTask = _connectAsync(_cancellationTokenSource.Token);
 		}
-
+		
 		private IObservable<GraphQLWebSocketResponse> _createResponseStream()
 		{
 			return Observable.Create<GraphQLWebSocketResponse>(_createResultStream)
@@ -96,10 +142,27 @@ namespace GraphQL.Client.Http
 
 		private async Task<IDisposable> _createResultStream(IObserver<GraphQLWebSocketResponse> observer, CancellationToken token)
 		{
-			var observable = await _getReceiveResultStream().ConfigureAwait(false);
+			if (_responseSubject == null || _responseSubject.IsDisposed)
+			{
+				_responseSubject = new Subject<GraphQLWebSocketResponse>();
+				var observable = await _getReceiveResultStream().ConfigureAwait(false);
+				observable.Subscribe(_responseSubject);
+
+				_responseSubject.Subscribe(_ => { }, ex =>
+				{
+					_exceptionSubject.OnNext(ex);
+					_responseSubject?.Dispose();
+					_responseSubject = null;
+				},
+				() => {
+					_responseSubject?.Dispose();
+					_responseSubject = null;
+				});
+			}
+					   
 			return new CompositeDisposable
 			(
-				observable.Subscribe(observer),
+				_responseSubject.Subscribe(observer),
 				Disposable.Create(() =>
 				{
 					Debug.WriteLine("response stream disposed");
@@ -115,11 +178,20 @@ namespace GraphQL.Client.Http
 
 		private async Task _connectAsync(CancellationToken token)
 		{
-			await _backOff().ConfigureAwait(false);
-			Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
-			await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
-			Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
-			_connectionAttempt = 1;
+			try
+			{
+				await _backOff().ConfigureAwait(false);
+				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
+				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
+				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
+				//_responseStreamConnection = _responseStream.Connect();
+				_connectionAttempt = 1;
+			}
+			catch (Exception e)
+			{
+				_exceptionSubject.OnNext(e);
+				throw;
+			}
 		}
 
 
@@ -146,22 +218,41 @@ namespace GraphQL.Client.Http
 		{
 			try
 			{
-				Debug.WriteLine("receiving websocket data ...");
-				_cancellationTokenSource.Token.ThrowIfCancellationRequested();
-				var webSocketReceiveResult =
-					await clientWebSocket.ReceiveAsync(arraySegment, CancellationToken.None).ConfigureAwait(false);
-				_cancellationTokenSource.Token.ThrowIfCancellationRequested();
-				var stringResult = Encoding.UTF8.GetString(arraySegment.Array, 0, webSocketReceiveResult.Count);
-				return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
+				Debug.WriteLine($"receiving data on websocket {clientWebSocket.GetHashCode()} ...");
+				WebSocketReceiveResult webSocketReceiveResult = null;
+
+				using (var ms = new MemoryStream())
+				{
+					do
+					{
+						_cancellationTokenSource.Token.ThrowIfCancellationRequested();
+						webSocketReceiveResult = await clientWebSocket.ReceiveAsync(buffer, CancellationToken.None);
+						ms.Write(buffer.Array, buffer.Offset, webSocketReceiveResult.Count);
+					}
+					while (!webSocketReceiveResult.EndOfMessage);
+
+					_cancellationTokenSource.Token.ThrowIfCancellationRequested();
+					ms.Seek(0, SeekOrigin.Begin);
+
+					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
+					{
+						using (var reader = new StreamReader(ms, Encoding.UTF8))
+						{
+							var stringResult = await reader.ReadToEndAsync();
+							Debug.WriteLine($"data received on websocket {clientWebSocket.GetHashCode()}: {stringResult}");
+							return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
+						}
+					}
+					else
+					{
+						throw new NotSupportedException("binary websocket messages are not supported");
+					}
+				}				
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				Debug.WriteLine($"exception thrown while receiving websocket data: {e}");
 				throw;
-			}
-			finally
-			{
-				Debug.WriteLine("websocket data received");
 			}
 		}
 
