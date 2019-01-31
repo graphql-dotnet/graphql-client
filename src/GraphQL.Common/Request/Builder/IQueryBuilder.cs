@@ -12,14 +12,10 @@ namespace GraphQL.Common.Request.Builder
 		IQueryBuilderInternal CurrentField { get; set; }
 		IQueryBuilderInternal TryAddField(IQueryBuilder field);
 		void AddParameter(QueryParameter parameter);
+		void AddParameter(QueryParameterUsage parameter);
 	}
 
-	public interface IQueryBuilder<out TEntity> : IQueryBuilder
-	{
-
-	}
-
-	public interface IQueryBuilder<out TEntity, out TProp> : IQueryBuilder<TEntity>
+	public interface IQueryBuilder<TEntity, out TProp, TParams> : IQueryBuilder
 	{
 
 	}

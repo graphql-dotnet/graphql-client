@@ -5,9 +5,10 @@ using Humanizer;
 
 namespace GraphQL.Common.Request.Builder
 {
-	public abstract class QueryBuilder : IQueryBuilderInternal
+	public class QueryBuilder : IQueryBuilderInternal
 	{
-		protected readonly List<IQueryBuilder> _fields = new List<IQueryBuilder>();
+		private readonly List<IQueryBuilder> _fields = new List<IQueryBuilder>();
+		private readonly List<QueryParameterUsage> _parameterUsages = new List<QueryParameterUsage>();
 		private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
 		private IQueryBuilderInternal _currentField;
 		private IQueryBuilderInternal _parent;
@@ -26,15 +27,25 @@ namespace GraphQL.Common.Request.Builder
 			set => _currentField = value;
 		}
 
-		protected QueryBuilder()
+		public QueryBuilder()
 		{
+			_currentField = this;
+		}
+
+		public static IQueryBuilder<TEntity, object, object> New<TEntity>()
+		{
+			return new QueryBuilder<TEntity, object, object>();
 		}
 
 		protected QueryBuilder(QueryBuilder source)
 		{
+			var asInternal = (IQueryBuilderInternal)source;
 			_fields = new List<IQueryBuilder>(source._fields);
 			_parameters.AddRange(source._parameters);
-			_currentField = ((IQueryBuilderInternal) source).CurrentField;
+			_parameterUsages.AddRange(source._parameterUsages);
+			_currentField = ReferenceEquals(asInternal.CurrentField, asInternal)
+				? this
+				: asInternal.CurrentField;
 		}
 
 		public string Build()
@@ -64,7 +75,30 @@ namespace GraphQL.Common.Request.Builder
 			return stringBuilder.ToString();
 		}
 
-		internal abstract void Build(StringBuilder stringBuilder, int nestLevel);
+		private void Build(StringBuilder stringBuilder, int nestLevel)
+		{
+			const string space = "  ";
+
+			var tab = string.Join(string.Empty, Enumerable.Repeat(space, nestLevel));
+			nestLevel++;
+
+			stringBuilder.Append($"{tab}{Name.Camelize()}");
+
+			if (_parameterUsages.Any())
+				stringBuilder.Append($"({string.Join(", ", _parameterUsages)})");
+
+			if (_fields.Any())
+			{
+				stringBuilder.AppendLine(" {");
+				foreach (QueryBuilder field in _fields)
+				{
+					field.Build(stringBuilder, nestLevel);
+				}
+				stringBuilder.Append($"{tab}}}");
+			}
+
+			stringBuilder.AppendLine();
+		}
 
 		IQueryBuilderInternal IQueryBuilderInternal.TryAddField(IQueryBuilder field)
 		{
@@ -83,52 +117,24 @@ namespace GraphQL.Common.Request.Builder
 		{
 			_parameters.Add(parameter);
 		}
+
+		void IQueryBuilderInternal.AddParameter(QueryParameterUsage parameter)
+		{
+			_parameterUsages.Add(parameter);
+		}
 	}
 
-	public class QueryBuilder<TEntity> : QueryBuilder, IQueryBuilder<TEntity>
+	internal class QueryBuilder<TEntity, TProp, TParams> : QueryBuilder, IQueryBuilder<TEntity, TProp, TParams>
 	{
 		public QueryBuilder()
 		{
 			Name = typeof(TEntity).Name;
 		}
 
-		protected QueryBuilder(QueryBuilder<TEntity> source)
+		public QueryBuilder(QueryBuilder source)
 			: base(source)
 		{
 			Name = typeof(TEntity).Name;
-		}
-
-		internal override void Build(StringBuilder stringBuilder, int nestLevel)
-		{
-			const string space = "  ";
-
-			var tab = string.Join(string.Empty, Enumerable.Repeat(space, nestLevel));
-			nestLevel++;
-
-			stringBuilder.Append($"{tab}{Name.Camelize()}");
-			if (_fields.Any())
-			{
-				stringBuilder.AppendLine(" {");
-				foreach (QueryBuilder field in _fields)
-				{
-					field.Build(stringBuilder, nestLevel);
-				}
-				stringBuilder.Append($"{tab}}}");
-			}
-
-			stringBuilder.AppendLine();
-		}
-	}
-
-	public class QueryBuilder<TEntity, TProp> : QueryBuilder<TEntity>, IQueryBuilder<TEntity, TProp>
-	{
-		public QueryBuilder()
-		{
-		}
-
-		internal QueryBuilder(QueryBuilder<TEntity> source)
-			: base(source)
-		{
 		}
 	}
 }

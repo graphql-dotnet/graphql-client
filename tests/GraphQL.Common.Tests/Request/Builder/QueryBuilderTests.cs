@@ -2,16 +2,24 @@ using System;
 using System.Collections.Generic;
 using GraphQL.Common.Request.Builder;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace GraphQL.Common.Tests.Request.Builder
 {
 	public class QueryBuilderTests
 	{
+		private readonly ITestOutputHelper _output;
+
 		private class Human
 		{
 			public string Name { get; set; }
 			public int Age { get; set; }
 			public List<Human> Friends { get; set; }
+		}
+
+		public QueryBuilderTests(ITestOutputHelper output)
+		{
+			_output = output;
 		}
 
 		[Fact]
@@ -24,10 +32,12 @@ namespace GraphQL.Common.Tests.Request.Builder
 }
 ";
 
-			var actual = new QueryBuilder<Human>()
+			var actual = QueryBuilder.New<Human>()
 				.Include(h => h.Name)
 				.Build();
 
+			_output.WriteLine($"Expected:\n{expected}");
+			_output.WriteLine($"Actual:\n{actual}");
 			Assert.Equal(expected, actual);
 		}
 
@@ -36,7 +46,7 @@ namespace GraphQL.Common.Tests.Request.Builder
 		{
 			var ex = Assert.Throws<ArgumentException>(() =>
 			{
-				new QueryBuilder<Human>()
+				QueryBuilder.New<Human>()
 					.Include(h => h.ToString())
 					.Build();
 			});
@@ -58,7 +68,7 @@ namespace GraphQL.Common.Tests.Request.Builder
 }
 ";
 
-			var actual = new QueryBuilder<Human>()
+			var actual = QueryBuilder.New<Human>()
 				.Include(h => h.Friends)
 				.ThenInclude(f => f.Name)
 				.Include(h => h.Friends)
@@ -66,6 +76,8 @@ namespace GraphQL.Common.Tests.Request.Builder
 				.Include(h => h.Name)
 				.Build();
 
+			_output.WriteLine($"Expected:\n{expected}");
+			_output.WriteLine($"Actual:\n{actual}");
 			Assert.Equal(expected, actual);
 		}
 
@@ -87,7 +99,7 @@ namespace GraphQL.Common.Tests.Request.Builder
 }
 ";
 
-			var actual = new QueryBuilder<Human>()
+			var actual = QueryBuilder.New<Human>()
 				.Include(h => h.Friends)
 				.ThenInclude(f => f.Name)
 				.Include(h => h.Friends)
@@ -101,6 +113,8 @@ namespace GraphQL.Common.Tests.Request.Builder
 				.Include(h => h.Name)
 				.Build();
 
+			_output.WriteLine($"Expected:\n{expected}");
+			_output.WriteLine($"Actual:\n{actual}");
 			Assert.Equal(expected, actual);
 		}
 
@@ -114,11 +128,69 @@ namespace GraphQL.Common.Tests.Request.Builder
 }
 ";
 
-			var actual = new QueryBuilder<Human>()
-				.WithParameter(typeof(int), "id")
+			var actual = QueryBuilder.New<Human>()
+				.WithParameters(new {Id = 1})
+				.UseParameter("id", p => p.Id)
 				.Include(h => h.Name)
 				.Build();
 
+			_output.WriteLine($"Expected:\n{expected}");
+			_output.WriteLine($"Actual:\n{actual}");
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public void BuildSimpleHumanWithFriendId()
+		{
+			var expected = @"query Human($id: Int!) {
+  human {
+    name
+    friends(id: $id) {
+      name
+    }
+  }
+}
+";
+
+			var actual = QueryBuilder.New<Human>()
+				.WithParameters(new {Id = 1})
+				.Include(h => h.Name)
+				.Include(h => h.Friends)
+				.UseParameter("id", p => p.Id)
+				.ThenInclude(f => f.Name)
+				.Build();
+
+			_output.WriteLine($"Expected:\n{expected}");
+			_output.WriteLine($"Actual:\n{actual}");
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public void BuildSimpleHumanWithFriendIdGetNameAndAge()
+		{
+			var expected = @"query Human($id: Int!) {
+  human {
+    name
+    friends(id: $id) {
+      name
+      age
+    }
+  }
+}
+";
+
+			var actual = QueryBuilder.New<Human>()
+				.WithParameters(new {Id = 1})
+				.Include(h => h.Name)
+				.Include(h => h.Friends)
+				.UseParameter("id", p => p.Id)
+				.ThenInclude(f => f.Name)
+				.Include(h => h.Friends)
+				.ThenInclude(f => f.Age)
+				.Build();
+
+			_output.WriteLine($"Expected:\n{expected}");
+			_output.WriteLine($"Actual:\n{actual}");
 			Assert.Equal(expected, actual);
 		}
 	}

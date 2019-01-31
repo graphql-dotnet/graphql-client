@@ -7,7 +7,7 @@ namespace GraphQL.Common.Request.Builder
 {
 	public static class QueryBuilderExtensions
 	{
-		public static IQueryBuilder<TEntity, TProp> Include<TEntity, TProp>(this IQueryBuilder<TEntity> builder, Expression<Func<TEntity, TProp>> propertyExpression)
+		public static IQueryBuilder<TEntity, TProp, TParams> Include<TEntity, TOldProp, TProp, TParams>(this IQueryBuilder<TEntity, TOldProp, TParams> builder, Expression<Func<TEntity, TProp>> propertyExpression)
 		{
 			var body = propertyExpression.Body as MemberExpression;
 			var property = body?.Member as PropertyInfo;
@@ -15,9 +15,9 @@ namespace GraphQL.Common.Request.Builder
 				throw new ArgumentException("Expression must indicate a property.", nameof(propertyExpression));
 			var propertyName = body.Member.Name;
 
-			var newBuilder = new QueryBuilder<TEntity, TProp>((QueryBuilder<TEntity>) builder);
+			var newBuilder = new QueryBuilder<TEntity, TProp, TParams>((QueryBuilder) builder);
 			var newInternal = (IQueryBuilderInternal) newBuilder;
-			IQueryBuilderInternal field = new QueryBuilder<TEntity, TProp>
+			IQueryBuilderInternal field = new QueryBuilder
 			{
 				Name = propertyName
 			};
@@ -29,17 +29,17 @@ namespace GraphQL.Common.Request.Builder
 			return newBuilder;
 		}
 
-		public static IQueryBuilder<TEntity, TProp> ThenInclude<TEntity, TProp, TChild>(this IQueryBuilder<TEntity, TProp> builder, Expression<Func<TProp, TChild>> propertyExpression)
+		public static IQueryBuilder<TEntity, TProp, TParams> ThenInclude<TEntity, TProp, TParams, TChild>(this IQueryBuilder<TEntity, TProp, TParams> builder, Expression<Func<TProp, TChild>> propertyExpression)
 		{
 			var body = propertyExpression.Body as MemberExpression;
 			var property = body?.Member as PropertyInfo;
 			if (property == null)
 				throw new ArgumentException("Expression must indicate a property.", nameof(propertyExpression));
-			var propertyName = body.Member.Name;
+			var propertyName = property.Name;
 
-			var newBuilder = new QueryBuilder<TEntity, TProp>((QueryBuilder<TEntity>) builder);
-			var newInternal = (IQueryBuilderInternal) newBuilder;
-			IQueryBuilderInternal field = new QueryBuilder<TEntity, TProp>
+			var newBuilder = new QueryBuilder<TEntity, TProp, TParams>((QueryBuilder)builder);
+			var newInternal = (IQueryBuilderInternal)newBuilder;
+			IQueryBuilderInternal field = new QueryBuilder
 			{
 				Name = propertyName
 			};
@@ -51,17 +51,17 @@ namespace GraphQL.Common.Request.Builder
 			return newBuilder;
 		}
 
-		public static IQueryBuilder<TEntity, TChild> ThenInclude<TEntity, TProp, TChild>(this IQueryBuilder<TEntity, IEnumerable<TProp>> builder, Expression<Func<TProp, TChild>> propertyExpression)
+		public static IQueryBuilder<TEntity, TChild, TParams> ThenInclude<TEntity, TProp, TParams, TChild>(this IQueryBuilder<TEntity, IEnumerable<TProp>, TParams> builder, Expression<Func<TProp, TChild>> propertyExpression)
 		{
 			var body = propertyExpression.Body as MemberExpression;
 			var property = body?.Member as PropertyInfo;
 			if (property == null)
 				throw new ArgumentException("Expression must indicate a property.", nameof(propertyExpression));
-			var propertyName = body.Member.Name;
+			var propertyName = property.Name;
 
-			var newBuilder = new QueryBuilder<TEntity, TChild>((QueryBuilder<TEntity>) builder);
+			var newBuilder = new QueryBuilder<TEntity, TChild, TParams>((QueryBuilder) builder);
 			var newInternal = (IQueryBuilderInternal) newBuilder;
-			IQueryBuilderInternal field = new QueryBuilder<TEntity, TChild>
+			IQueryBuilderInternal field = new QueryBuilder
 			{
 				Name = propertyName
 			};
@@ -73,17 +73,42 @@ namespace GraphQL.Common.Request.Builder
 			return newBuilder;
 		}
 
-		public static IQueryBuilder<TEntity> WithParameter<TEntity>(this IQueryBuilder<TEntity> builder, Type parameterType, string parameterName, bool isRequired = true)
+		public static IQueryBuilder<TEntity, TProp, TParams> UseParameter<TEntity, TProp, TParams, TParam>(this IQueryBuilder<TEntity, TProp, TParams> builder, string inputName, Expression<Func<TParams, TParam>> parameterExpression)
 		{
+			var body = parameterExpression.Body as MemberExpression;
+			var property = body?.Member as PropertyInfo;
+			if (property == null)
+				throw new ArgumentException("Expression must indicate a property.", nameof(parameterExpression));
+			var parameterName = property.Name;
+
 			var builderInternal = (IQueryBuilderInternal) builder;
-			builderInternal.AddParameter(new QueryParameter
+			builderInternal.CurrentField.AddParameter(new QueryParameterUsage
 			{
-				Type = parameterType,
 				Name = parameterName,
-				IsRequired = isRequired
+				InputName = inputName
 			});
 
 			return builder;
+		}
+
+		public static IQueryBuilder<TEntity, TProp, TParams> WithParameters<TEntity, TProp, TParams>(this IQueryBuilder<TEntity, TProp, object> builder, TParams parameters)
+		{
+			var newBuilder = new QueryBuilder<TEntity, TProp, TParams>((QueryBuilder)builder);
+			var newInternal = (IQueryBuilderInternal)newBuilder;
+
+			var properties = typeof(TParams).GetProperties();
+			foreach (var property in properties)
+			{
+				newInternal.AddParameter(new QueryParameter
+				{
+					Type = property.PropertyType,
+					Name = property.Name,
+					IsRequired = true
+				});
+			}
+
+
+			return newBuilder;
 		}
 	}
 }
