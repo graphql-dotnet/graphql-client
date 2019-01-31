@@ -17,11 +17,8 @@ namespace GraphQL.Common.Request.Builder
 
 			var newBuilder = new QueryBuilder<TEntity, TProp, TParams>((QueryBuilder) builder);
 			var newInternal = (IQueryBuilderInternal) newBuilder;
-			IQueryBuilderInternal field = new QueryBuilder
-			{
-				Name = propertyName
-			};
-			field.Parent = newBuilder;
+			IQueryBuilderInternal field = new QueryBuilder();
+			field.Name = propertyName;
 
 			field = newInternal.TryAddField(field);
 			newInternal.CurrentField = field;
@@ -39,11 +36,8 @@ namespace GraphQL.Common.Request.Builder
 
 			var newBuilder = new QueryBuilder<TEntity, TProp, TParams>((QueryBuilder)builder);
 			var newInternal = (IQueryBuilderInternal)newBuilder;
-			IQueryBuilderInternal field = new QueryBuilder
-			{
-				Name = propertyName
-			};
-			field.Parent = newBuilder;
+			IQueryBuilderInternal field = new QueryBuilder();
+			field.Name = propertyName;
 
 			field = newInternal.CurrentField.TryAddField(field);
 			newInternal.CurrentField = field;
@@ -61,11 +55,8 @@ namespace GraphQL.Common.Request.Builder
 
 			var newBuilder = new QueryBuilder<TEntity, TChild, TParams>((QueryBuilder) builder);
 			var newInternal = (IQueryBuilderInternal) newBuilder;
-			IQueryBuilderInternal field = new QueryBuilder
-			{
-				Name = propertyName
-			};
-			field.Parent = (IQueryBuilderInternal) builder;
+			IQueryBuilderInternal field = new QueryBuilder();
+			field.Name = propertyName;
 
 			field = newInternal.CurrentField.TryAddField(field);
 			newInternal.CurrentField = field;

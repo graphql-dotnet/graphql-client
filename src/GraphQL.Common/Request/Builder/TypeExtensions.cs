@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace GraphQL.Common.Request.Builder
 {
@@ -12,7 +13,22 @@ namespace GraphQL.Common.Request.Builder
 			if (type == typeof(bool)) return "Boolean";
 			if (type == typeof(Guid)) return "ID";
 
-			throw new NotImplementedException($"Type {type} cannot be translated.");
+			var graphQLTypeAttribute = (GraphQLTypeAttribute) type.GetCustomAttribute(typeof(GraphQLTypeAttribute));
+			if (graphQLTypeAttribute != null)
+				return graphQLTypeAttribute.TypeName;
+
+			return type.Name;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+	public class GraphQLTypeAttribute : Attribute
+	{
+		public string TypeName { get; }
+
+		public GraphQLTypeAttribute(string typeName)
+		{
+			TypeName = typeName;
 		}
 	}
 }

@@ -2,15 +2,15 @@ namespace GraphQL.Common.Request.Builder
 {
 	public interface IQueryBuilder
 	{
-		string Name { get; set; }
 		string Build();
 	}
 
 	internal interface IQueryBuilderInternal : IQueryBuilder
 	{
-		IQueryBuilderInternal Parent { get; set; }
+		string OperationName { get; set; }
+		string Name { get; set; }
 		IQueryBuilderInternal CurrentField { get; set; }
-		IQueryBuilderInternal TryAddField(IQueryBuilder field);
+		IQueryBuilderInternal TryAddField(IQueryBuilderInternal field);
 		void AddParameter(QueryParameter parameter);
 		void AddParameter(QueryParameterUsage parameter);
 	}

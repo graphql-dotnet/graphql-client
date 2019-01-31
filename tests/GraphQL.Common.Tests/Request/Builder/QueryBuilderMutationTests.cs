@@ -6,18 +6,20 @@ using Xunit.Abstractions;
 
 namespace GraphQL.Common.Tests.Request.Builder
 {
-	public class QueryBuilderTests
+	public class QueryBuilderMutationTests
 	{
 		private readonly ITestOutputHelper _output;
 
+		[GraphQLType("HumanType")]
 		private class Human
 		{
+			public Guid Id { get; set; }
 			public string Name { get; set; }
 			public int Age { get; set; }
 			public List<Human> Friends { get; set; }
 		}
 
-		public QueryBuilderTests(ITestOutputHelper output)
+		public QueryBuilderMutationTests(ITestOutputHelper output)
 		{
 			_output = output;
 		}
@@ -25,14 +27,16 @@ namespace GraphQL.Common.Tests.Request.Builder
 		[Fact]
 		public void BuildSimpleHumanWithNoFriends()
 		{
-			var expected = @"query Human {
-  human {
+			var expected = @"mutation Human($human: HumanType!) {
+  human(input: $human) {
     name
   }
 }
 ";
 
-			var actual = QueryBuilder.New<Human>()
+			var actual = QueryBuilder.Mutation<Human>()
+				.WithParameters(new {Human = new Human()})
+				.UseParameter("input", h => h.Human)
 				.Include(h => h.Name)
 				.Build();
 
@@ -46,7 +50,7 @@ namespace GraphQL.Common.Tests.Request.Builder
 		{
 			var ex = Assert.Throws<ArgumentException>(() =>
 			{
-				QueryBuilder.New<Human>()
+				QueryBuilder.Mutation<Human>()
 					.Include(h => h.ToString())
 					.Build();
 			});
@@ -55,10 +59,23 @@ namespace GraphQL.Common.Tests.Request.Builder
 		}
 
 		[Fact]
+		public void BuildSimpleHumanNoParameters()
+		{
+			var ex = Assert.Throws<ArgumentException>(() =>
+			{
+				QueryBuilder.Mutation<Human>()
+					.Include(h => h.Name)
+					.Build();
+			});
+
+			Assert.StartsWith("Parameters have not been set for mutation.", ex.Message);
+		}
+
+		[Fact]
 		public void BuildSimpleHumanWithFriends()
 		{
-			var expected = @"query Human {
-  human {
+			var expected = @"mutation Human($human: HumanType!) {
+  human(input: $human) {
     friends {
       name
       age
@@ -68,7 +85,9 @@ namespace GraphQL.Common.Tests.Request.Builder
 }
 ";
 
-			var actual = QueryBuilder.New<Human>()
+			var actual = QueryBuilder.Mutation<Human>()
+				.WithParameters(new { Human = new Human() })
+				.UseParameter("input", h => h.Human)
 				.Include(h => h.Friends)
 				.ThenInclude(f => f.Name)
 				.Include(h => h.Friends)
@@ -84,8 +103,8 @@ namespace GraphQL.Common.Tests.Request.Builder
 		[Fact]
 		public void BuildSimpleHumanWithFriendsOfFriends()
 		{
-			var expected = @"query Human {
-  human {
+			var expected = @"mutation Human($human: HumanType!) {
+  human(input: $human) {
     friends {
       name
       age
@@ -99,7 +118,9 @@ namespace GraphQL.Common.Tests.Request.Builder
 }
 ";
 
-			var actual = QueryBuilder.New<Human>()
+			var actual = QueryBuilder.Mutation<Human>()
+				.WithParameters(new { Human = new Human() })
+				.UseParameter("input", h => h.Human)
 				.Include(h => h.Friends)
 				.ThenInclude(f => f.Name)
 				.Include(h => h.Friends)
@@ -121,72 +142,17 @@ namespace GraphQL.Common.Tests.Request.Builder
 		[Fact]
 		public void BuildSimpleHumanWithId()
 		{
-			var expected = @"query Human($id: Int!) {
-  human(id: $id) {
+			var expected = @"mutation Human($human: HumanType!) {
+  human(input: $human) {
     name
   }
 }
 ";
 
-			var actual = QueryBuilder.New<Human>()
-				.WithParameters(new {Id = 1})
-				.UseParameter("id", p => p.Id)
+			var actual = QueryBuilder.Mutation<Human>()
+				.WithParameters(new { Human = new Human() })
+				.UseParameter("input", h => h.Human)
 				.Include(h => h.Name)
-				.Build();
-
-			_output.WriteLine($"Expected:\n{expected}");
-			_output.WriteLine($"Actual:\n{actual}");
-			Assert.Equal(expected, actual);
-		}
-
-		[Fact]
-		public void BuildSimpleHumanWithFriendId()
-		{
-			var expected = @"query Human($id: Int!) {
-  human {
-    name
-    friends(id: $id) {
-      name
-    }
-  }
-}
-";
-
-			var actual = QueryBuilder.New<Human>()
-				.WithParameters(new {Id = 1})
-				.Include(h => h.Name)
-				.Include(h => h.Friends)
-				.UseParameter("id", p => p.Id)
-				.ThenInclude(f => f.Name)
-				.Build();
-
-			_output.WriteLine($"Expected:\n{expected}");
-			_output.WriteLine($"Actual:\n{actual}");
-			Assert.Equal(expected, actual);
-		}
-
-		[Fact]
-		public void BuildSimpleHumanWithFriendIdGetNameAndAge()
-		{
-			var expected = @"query Human($id: Int!) {
-  human {
-    name
-    friends(id: $id) {
-      name
-      age
-    }
-  }
-}
-";
-
-			var actual = QueryBuilder.New<Human>()
-				.WithParameters(new {Id = 1})
-				.Include(h => h.Name)
-				.Include(h => h.Friends)
-				.UseParameter("id", p => p.Id)
-				.ThenInclude(f => f.Name)
-				.Include(h => h.Friends)
-				.ThenInclude(f => f.Age)
 				.Build();
 
 			_output.WriteLine($"Expected:\n{expected}");

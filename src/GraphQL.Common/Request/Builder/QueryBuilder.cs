@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,18 +8,24 @@ namespace GraphQL.Common.Request.Builder
 {
 	public class QueryBuilder : IQueryBuilderInternal
 	{
-		private readonly List<IQueryBuilder> _fields = new List<IQueryBuilder>();
+		private readonly string _queryType;
+		private readonly List<IQueryBuilderInternal> _fields = new List<IQueryBuilderInternal>();
 		private readonly List<QueryParameterUsage> _parameterUsages = new List<QueryParameterUsage>();
 		private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
 		private IQueryBuilderInternal _currentField;
-		private IQueryBuilderInternal _parent;
+		private string _operationName;
+		private string _name;
 
-		public string Name { get; set; }
-
-		IQueryBuilderInternal IQueryBuilderInternal.Parent
+		string IQueryBuilderInternal.OperationName
 		{
-			get => _parent;
-			set => _parent = value;
+			get => _operationName;
+			set => _operationName = value;
+		}
+
+		string IQueryBuilderInternal.Name
+		{
+			get => _name;
+			set => _name = value;
 		}
 
 		IQueryBuilderInternal IQueryBuilderInternal.CurrentField
@@ -27,42 +34,61 @@ namespace GraphQL.Common.Request.Builder
 			set => _currentField = value;
 		}
 
-		public QueryBuilder()
+		internal QueryBuilder()
 		{
 			_currentField = this;
 		}
-
-		public static IQueryBuilder<TEntity, object, object> New<TEntity>()
+		internal QueryBuilder(string queryType)
+			: this()
 		{
-			return new QueryBuilder<TEntity, object, object>();
+			_queryType = queryType;
+		}
+
+		public static IQueryBuilder<TEntity, object, object> Query<TEntity>(string operationName = null)
+		{
+			var queryBuilder = new QueryBuilder<TEntity, object, object>("query");
+			var asInternal = (IQueryBuilderInternal) queryBuilder;
+			asInternal.OperationName = operationName ?? typeof(TEntity).Name;
+			asInternal.Name = typeof(TEntity).Name;
+			return queryBuilder;
+		}
+
+		public static IQueryBuilder<TEntity, object, object> Mutation<TEntity>(string operationName = null)
+		{
+			var queryBuilder = new QueryBuilder<TEntity, object, object>("mutation");
+			var asInternal = (IQueryBuilderInternal)queryBuilder;
+			asInternal.OperationName = operationName ?? typeof(TEntity).Name;
+			asInternal.Name = typeof(TEntity).Name;
+			return queryBuilder;
 		}
 
 		protected QueryBuilder(QueryBuilder source)
 		{
-			var asInternal = (IQueryBuilderInternal)source;
-			_fields = new List<IQueryBuilder>(source._fields);
+			_queryType = source._queryType;
+			_operationName = source._operationName;
+			_name = source._name;
+			_fields = new List<IQueryBuilderInternal>(source._fields);
 			_parameters.AddRange(source._parameters);
 			_parameterUsages.AddRange(source._parameterUsages);
-			_currentField = ReferenceEquals(asInternal.CurrentField, asInternal)
+			_currentField = ReferenceEquals(source._currentField, source)
 				? this
-				: asInternal.CurrentField;
+				: source._currentField;
+			
 		}
 
 		public string Build()
 		{
-			var root = _parent;
-			while (root?.Parent != null)
-			{
-				root = root.Parent;
-			}
+			if (_queryType == "mutation" && !_parameters.Any())
+				throw new ArgumentException("Parameters have not been set for mutation.");
 
-			return root?.ToString() ?? ToString();
+			return ToString();
 		}
 
 		public override string ToString()
 		{
+			var asInternal = (IQueryBuilderInternal) this;
 			var stringBuilder = new StringBuilder();
-			stringBuilder.Append($"query {Name}");
+			stringBuilder.Append($"{_queryType} {asInternal.OperationName}");
 			if (_parameters.Any())
 				stringBuilder.Append($"({string.Join(", ", _parameters)})");
 
@@ -79,10 +105,11 @@ namespace GraphQL.Common.Request.Builder
 		{
 			const string space = "  ";
 
+			var asInternal = (IQueryBuilderInternal) this;
 			var tab = string.Join(string.Empty, Enumerable.Repeat(space, nestLevel));
 			nestLevel++;
 
-			stringBuilder.Append($"{tab}{Name.Camelize()}");
+			stringBuilder.Append($"{tab}{asInternal.Name.Camelize()}");
 
 			if (_parameterUsages.Any())
 				stringBuilder.Append($"({string.Join(", ", _parameterUsages)})");
@@ -100,7 +127,7 @@ namespace GraphQL.Common.Request.Builder
 			stringBuilder.AppendLine();
 		}
 
-		IQueryBuilderInternal IQueryBuilderInternal.TryAddField(IQueryBuilder field)
+		IQueryBuilderInternal IQueryBuilderInternal.TryAddField(IQueryBuilderInternal field)
 		{
 			// TODO maybe replace with dictionary
 			var found = _fields.FirstOrDefault(f => f.Name == field.Name);
@@ -126,15 +153,14 @@ namespace GraphQL.Common.Request.Builder
 
 	internal class QueryBuilder<TEntity, TProp, TParams> : QueryBuilder, IQueryBuilder<TEntity, TProp, TParams>
 	{
-		public QueryBuilder()
+		public QueryBuilder(string queryType)
+			: base(queryType)
 		{
-			Name = typeof(TEntity).Name;
 		}
 
 		public QueryBuilder(QueryBuilder source)
 			: base(source)
 		{
-			Name = typeof(TEntity).Name;
 		}
 	}
 }
