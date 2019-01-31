@@ -8,6 +8,7 @@ namespace GraphQL.Common.Request.Builder
 	public abstract class QueryBuilder : IQueryBuilderInternal
 	{
 		protected readonly List<IQueryBuilder> _fields = new List<IQueryBuilder>();
+		private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
 		private IQueryBuilderInternal _currentField;
 		private IQueryBuilderInternal _parent;
 
@@ -32,6 +33,7 @@ namespace GraphQL.Common.Request.Builder
 		protected QueryBuilder(QueryBuilder source)
 		{
 			_fields = new List<IQueryBuilder>(source._fields);
+			_parameters.AddRange(source._parameters);
 			_currentField = ((IQueryBuilderInternal) source).CurrentField;
 		}
 
@@ -49,7 +51,15 @@ namespace GraphQL.Common.Request.Builder
 		public override string ToString()
 		{
 			var stringBuilder = new StringBuilder();
-			Build(stringBuilder, 0);
+			stringBuilder.Append($"query {Name}");
+			if (_parameters.Any())
+				stringBuilder.Append($"({string.Join(", ", _parameters)})");
+
+			stringBuilder.AppendLine(" {");
+
+			Build(stringBuilder, 1);
+
+			stringBuilder.AppendLine("}");
 
 			return stringBuilder.ToString();
 		}
@@ -68,12 +78,15 @@ namespace GraphQL.Common.Request.Builder
 
 			return (IQueryBuilderInternal) found;
 		}
+
+		void IQueryBuilderInternal.AddParameter(QueryParameter parameter)
+		{
+			_parameters.Add(parameter);
+		}
 	}
 
 	public class QueryBuilder<TEntity> : QueryBuilder, IQueryBuilder<TEntity>
 	{
-		private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
-	
 		public QueryBuilder()
 		{
 			Name = typeof(TEntity).Name;

@@ -11,6 +11,7 @@ namespace GraphQL.Common.Request.Builder
 		IQueryBuilderInternal Parent { get; set; }
 		IQueryBuilderInternal CurrentField { get; set; }
 		IQueryBuilderInternal TryAddField(IQueryBuilder field);
+		void AddParameter(QueryParameter parameter);
 	}
 
 	public interface IQueryBuilder<out TEntity> : IQueryBuilder

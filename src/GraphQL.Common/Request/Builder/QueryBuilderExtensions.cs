@@ -68,9 +68,22 @@ namespace GraphQL.Common.Request.Builder
 			field.Parent = (IQueryBuilderInternal) builder;
 
 			field = newInternal.CurrentField.TryAddField(field);
-			newInternal.CurrentField = (IQueryBuilderInternal) field;
+			newInternal.CurrentField = field;
 
 			return newBuilder;
+		}
+
+		public static IQueryBuilder<TEntity> WithParameter<TEntity>(this IQueryBuilder<TEntity> builder, Type parameterType, string parameterName, bool isRequired = true)
+		{
+			var builderInternal = (IQueryBuilderInternal) builder;
+			builderInternal.AddParameter(new QueryParameter
+			{
+				Type = parameterType,
+				Name = parameterName,
+				IsRequired = isRequired
+			});
+
+			return builder;
 		}
 	}
 }

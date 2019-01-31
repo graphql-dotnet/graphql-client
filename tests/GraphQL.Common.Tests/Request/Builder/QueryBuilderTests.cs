@@ -17,8 +17,10 @@ namespace GraphQL.Common.Tests.Request.Builder
 		[Fact]
 		public void BuildSimpleHumanWithNoFriends()
 		{
-			var expected = @"human {
-  name
+			var expected = @"query Human {
+  human {
+    name
+  }
 }
 ";
 
@@ -45,12 +47,14 @@ namespace GraphQL.Common.Tests.Request.Builder
 		[Fact]
 		public void BuildSimpleHumanWithFriends()
 		{
-			var expected = @"human {
-  friends {
+			var expected = @"query Human {
+  human {
+    friends {
+      name
+      age
+    }
     name
-    age
   }
-  name
 }
 ";
 
@@ -68,16 +72,18 @@ namespace GraphQL.Common.Tests.Request.Builder
 		[Fact]
 		public void BuildSimpleHumanWithFriendsOfFriends()
 		{
-			var expected = @"human {
-  friends {
-    name
-    age
+			var expected = @"query Human {
+  human {
     friends {
       name
       age
+      friends {
+        name
+        age
+      }
     }
+    name
   }
-  name
 }
 ";
 
@@ -92,6 +98,24 @@ namespace GraphQL.Common.Tests.Request.Builder
 				.Include(h => h.Friends)
 				.ThenInclude(f => f.Friends)
 				.ThenInclude(f => f.Age)
+				.Include(h => h.Name)
+				.Build();
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public void BuildSimpleHumanWithId()
+		{
+			var expected = @"query Human($id: Int!) {
+  human(id: $id) {
+    name
+  }
+}
+";
+
+			var actual = new QueryBuilder<Human>()
+				.WithParameter(typeof(int), "id")
 				.Include(h => h.Name)
 				.Build();
 
