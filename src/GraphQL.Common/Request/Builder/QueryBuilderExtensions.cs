@@ -16,17 +16,19 @@ namespace GraphQL.Common.Request.Builder
 			var propertyName = body.Member.Name;
 
 			var newBuilder = new QueryBuilder<TEntity, TProp>((QueryBuilder<TEntity>) builder);
-			IQueryBuilder field = new QueryBuilder<TEntity, TProp>
+			var newInternal = (IQueryBuilderInternal) newBuilder;
+			IQueryBuilderInternal field = new QueryBuilder<TEntity, TProp>
 			{
-				Name = propertyName,
-				Parent = newBuilder
+				Name = propertyName
 			};
+			field.Parent = newBuilder;
 
-			field = newBuilder.TryAddField(field);
-			newBuilder.CurrentField = field;
+			field = newInternal.TryAddField(field);
+			newInternal.CurrentField = field;
 
 			return newBuilder;
 		}
+
 		public static IQueryBuilder<TEntity, TProp> ThenInclude<TEntity, TProp, TChild>(this IQueryBuilder<TEntity, TProp> builder, Expression<Func<TProp, TChild>> propertyExpression)
 		{
 			var body = propertyExpression.Body as MemberExpression;
@@ -36,17 +38,19 @@ namespace GraphQL.Common.Request.Builder
 			var propertyName = body.Member.Name;
 
 			var newBuilder = new QueryBuilder<TEntity, TProp>((QueryBuilder<TEntity>) builder);
-			IQueryBuilder field = new QueryBuilder<TEntity, TProp>
+			var newInternal = (IQueryBuilderInternal) newBuilder;
+			IQueryBuilderInternal field = new QueryBuilder<TEntity, TProp>
 			{
-				Name = propertyName,
-				Parent = newBuilder
+				Name = propertyName
 			};
+			field.Parent = newBuilder;
 
-			field = newBuilder.CurrentField.TryAddField(field);
-			newBuilder.CurrentField = field;
+			field = newInternal.CurrentField.TryAddField(field);
+			newInternal.CurrentField = field;
 
 			return newBuilder;
 		}
+
 		public static IQueryBuilder<TEntity, TChild> ThenInclude<TEntity, TProp, TChild>(this IQueryBuilder<TEntity, IEnumerable<TProp>> builder, Expression<Func<TProp, TChild>> propertyExpression)
 		{
 			var body = propertyExpression.Body as MemberExpression;
@@ -56,14 +60,15 @@ namespace GraphQL.Common.Request.Builder
 			var propertyName = body.Member.Name;
 
 			var newBuilder = new QueryBuilder<TEntity, TChild>((QueryBuilder<TEntity>) builder);
-			IQueryBuilder field = new QueryBuilder<TEntity, TChild>
+			var newInternal = (IQueryBuilderInternal) newBuilder;
+			IQueryBuilderInternal field = new QueryBuilder<TEntity, TChild>
 			{
-				Name = propertyName,
-				Parent = builder
+				Name = propertyName
 			};
+			field.Parent = (IQueryBuilderInternal) builder;
 
-			field = newBuilder.CurrentField.TryAddField(field);
-			newBuilder.CurrentField = field;
+			field = newInternal.CurrentField.TryAddField(field);
+			newInternal.CurrentField = (IQueryBuilderInternal) field;
 
 			return newBuilder;
 		}
