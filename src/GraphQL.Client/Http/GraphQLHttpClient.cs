@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -171,7 +172,7 @@ namespace GraphQL.Client.Http {
 
 			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, cancellationToken: _cancellationTokenSource.Token);
 
-			subscriptionStreams.Add(request, observable);
+			subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}
 
@@ -202,11 +203,11 @@ namespace GraphQL.Client.Http {
 				return subscriptionStreams[request];
 
 			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, exceptionHandler, _cancellationTokenSource.Token);
-			subscriptionStreams.Add(request, observable);
+			subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}
 
-		private Dictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new Dictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
+		private ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
 
 		/// <summary>
 		/// Releases unmanaged resources
