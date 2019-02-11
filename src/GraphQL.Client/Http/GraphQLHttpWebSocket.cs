@@ -81,6 +81,8 @@ namespace GraphQL.Client.Http
 
 		public Task InitializeWebSocketTask { get; private set; } = Task.CompletedTask;
 
+		private object _initializeLock = new object();
+
 		#region Private Methods
 
 		private Task _backOff()
@@ -100,36 +102,39 @@ namespace GraphQL.Client.Http
 			if(_disposed != null)
 				throw new OperationCanceledException();
 
-			// if an initialization task is already running, return that
-			if(InitializeWebSocketTask != null &&
-			   !InitializeWebSocketTask.IsFaulted &&
-			   !InitializeWebSocketTask.IsCompleted)
-				return InitializeWebSocketTask;
-
-			// if the websocket is open, return a completed task
-			if (clientWebSocket != null && clientWebSocket.State == WebSocketState.Open)
-				return Task.CompletedTask;
-
-			// else (re-)create websocket and connect
-			//_responseStreamConnection?.Dispose();
-			clientWebSocket?.Dispose();
-
-			// fix websocket not supported on win 7 using
-			// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
-			clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
-			switch (clientWebSocket)
+			lock (_initializeLock)
 			{
-				case ClientWebSocket nativeWebSocket:
-					nativeWebSocket.Options.AddSubProtocol("graphql-ws");
-					break;
-				case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
-					managedWebSocket.Options.AddSubProtocol("graphql-ws");
-					break;
-				default:
-					throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
-			}
+				// if an initialization task is already running, return that
+				if(InitializeWebSocketTask != null &&
+				   !InitializeWebSocketTask.IsFaulted &&
+				   !InitializeWebSocketTask.IsCompleted)
+					return InitializeWebSocketTask;
 
-			return InitializeWebSocketTask = _connectAsync(_cancellationTokenSource.Token);
+				// if the websocket is open, return a completed task
+				if (clientWebSocket != null && clientWebSocket.State == WebSocketState.Open)
+					return Task.CompletedTask;
+
+				// else (re-)create websocket and connect
+				//_responseStreamConnection?.Dispose();
+				clientWebSocket?.Dispose();
+
+				// fix websocket not supported on win 7 using
+				// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
+				clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
+				switch (clientWebSocket)
+				{
+					case ClientWebSocket nativeWebSocket:
+						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
+						break;
+					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
+						managedWebSocket.Options.AddSubProtocol("graphql-ws");
+						break;
+					default:
+						throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
+				}
+
+				return InitializeWebSocketTask = _connectAsync(_cancellationTokenSource.Token);
+			}
 		}
 		
 		private IObservable<GraphQLWebSocketResponse> _createResponseStream()
