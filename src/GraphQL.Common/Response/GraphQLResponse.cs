@@ -29,7 +29,7 @@ namespace GraphQL.Common.Response {
 		/// <param name="fieldName">The name of the field</param>
 		/// <returns>The field of data as an object</returns>
 		public Type GetDataFieldAs<Type>(string fieldName) {
-			var value = (this.Data as JObject?)!.GetValue(fieldName);
+			var value = (this.Data as JObject)!.GetValue(fieldName);
 			return value.ToObject<Type>();
 		}
 

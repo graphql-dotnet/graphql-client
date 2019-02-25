@@ -34,7 +34,7 @@ namespace GraphQL.Common.Request {
 		}
 
 		/// <inheritdoc />
-		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest?);
+		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest);
 
 		/// <inheritdoc />
 		public bool Equals(GraphQLRequest? other) {
@@ -47,13 +47,11 @@ namespace GraphQL.Common.Request {
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = EqualityComparer<string?>.Default.GetHashCode(Query);
-				hashCode = (hashCode * 397) ^ EqualityComparer<string?>.Default.GetHashCode(OperationName);
-				hashCode = (hashCode * 397) ^ EqualityComparer<dynamic?>.Default.GetHashCode(Variables);
+		public override int GetHashCode(){
+			unchecked{
+				var hashCode = EqualityComparer<string>.Default.GetHashCode(this.Query);
+				hashCode = (hashCode * 397) ^ EqualityComparer<string?>.Default.GetHashCode(this.OperationName);
+				hashCode = (hashCode * 397) ^ EqualityComparer<dynamic?>.Default.GetHashCode(this.Variables);
 				return hashCode;
 			}
 		}

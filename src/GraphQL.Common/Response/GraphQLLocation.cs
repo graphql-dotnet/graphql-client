@@ -20,7 +20,7 @@ namespace GraphQL.Common.Response {
 		public uint Line { get; set; }
 
 		/// <inheritdoc />
-		public override bool Equals(object? obj) => this.Equals(obj as GraphQLLocation?);
+		public override bool Equals(object? obj) => this.Equals(obj as GraphQLLocation);
 
 		/// <inheritdoc />
 		public bool Equals(GraphQLLocation? other) {
