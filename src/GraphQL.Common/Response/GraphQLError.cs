@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GraphQL.Common.Response {
 
@@ -27,7 +28,7 @@ namespace GraphQL.Common.Response {
 		/// <summary>
 		/// The Path of an error
 		/// </summary>
-		public string[]? Path { get; set; } //TODO it could be also an array of strings and ints at the same time
+		public dynamic[]? Path { get; set; }
 
 		/// <summary>
 		/// Initialize a new GraphQLError
@@ -45,14 +46,52 @@ namespace GraphQL.Common.Response {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<IDictionary<string, dynamic>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
-			if (!EqualityComparer<GraphQLLocation[]?>.Default.Equals(this.Locations, other.Locations)) { return false; }
+			{
+				if(this.Locations!=null && other.Locations != null) {
+					if (!Enumerable.SequenceEqual(this.Locations, other.Locations)) { return false; }
+				}
+				else if (this.Locations != null && other.Locations == null) { return false; }
+				else if (this.Locations == null && other.Locations != null) { return false; }
+			}
 			if (!EqualityComparer<string>.Default.Equals(this.Message, other.Message)) { return false; }
-			if (!EqualityComparer<string[]?>.Default.Equals(this.Path, other.Path)) { return false; }
+			{
+				if (this.Path != null && other.Path != null) {
+					if (!Enumerable.SequenceEqual(this.Path, other.Path)) { return false; }
+				}
+				else if (this.Path != null && other.Path == null) { return false; }
+				else if (this.Path == null && other.Path != null) { return false; }
+			}
 			return true;
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode() => EqualityComparer<GraphQLError>.Default.GetHashCode(this);
+		public override int GetHashCode() {
+			unchecked {
+				var hashCode = EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
+				{
+					if (this.Locations != null) {
+						foreach(var element in this.Locations) {
+							hashCode = (hashCode * 397) ^ EqualityComparer<GraphQLLocation?>.Default.GetHashCode(element);
+						}
+					}
+					else {
+						hashCode = (hashCode * 397) ^ 0;
+					}
+				}
+				hashCode = (hashCode * 397) ^ EqualityComparer<string>.Default.GetHashCode(this.Message);
+				{
+					if (this.Path != null) {
+						foreach (var element in this.Path) {
+							hashCode = (hashCode * 397) ^ EqualityComparer<dynamic?>.Default.GetHashCode(element);
+						}
+					}
+					else {
+						hashCode = (hashCode * 397) ^ 0;
+					}
+				}
+				return hashCode;
+			}
+		}
 
 		/// <inheritdoc />
 		public static bool operator ==(GraphQLError? error1, GraphQLError? error2) => EqualityComparer<GraphQLError?>.Default.Equals(error1, error2);
