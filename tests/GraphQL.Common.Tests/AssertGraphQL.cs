@@ -1,4 +1,3 @@
-using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Xunit;
 
