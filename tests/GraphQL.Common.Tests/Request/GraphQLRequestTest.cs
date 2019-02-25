@@ -3,7 +3,7 @@ using Xunit;
 
 namespace GraphQL.Common.Tests.Request {
 
-	public class GraphQLRequestTests {
+	public class GraphQLRequestTest {
 
 		[Fact]
 		public void ConstructorFact() {
