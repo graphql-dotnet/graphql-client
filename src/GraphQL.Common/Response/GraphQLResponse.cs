@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GraphQL.Common.Request;
 using Newtonsoft.Json.Linq;
 
@@ -41,12 +42,33 @@ namespace GraphQL.Common.Response {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<dynamic?>.Default.Equals(this.Data, other.Data)) { return false; }
-			if (!EqualityComparer<GraphQLError[]?>.Default.Equals(this.Errors, other.Errors)) { return false; }
+			{
+				if (this.Errors != null && other.Errors != null) {
+					if (!Enumerable.SequenceEqual(this.Errors, other.Errors)) { return false; }
+				}
+				else if (this.Errors != null && other.Errors == null) { return false; }
+				else if (this.Errors == null && other.Errors != null) { return false; }
+			}
 			return true;
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode() => EqualityComparer<GraphQLResponse>.Default.GetHashCode(this);
+		public override int GetHashCode() {
+			unchecked {
+				var hashCode = EqualityComparer<dynamic?>.Default.GetHashCode(this.Data);
+				{
+					if (this.Errors != null) {
+						foreach (var element in this.Errors) {
+							hashCode = (hashCode * 397) ^ EqualityComparer<GraphQLError?>.Default.GetHashCode(element);
+						}
+					}
+					else {
+						hashCode = (hashCode * 397) ^ 0;
+					}
+				}
+				return hashCode;
+			}
+		}
 
 
 		/// <inheritdoc />
