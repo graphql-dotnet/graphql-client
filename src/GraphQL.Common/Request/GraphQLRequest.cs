@@ -47,7 +47,14 @@ namespace GraphQL.Common.Request {
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode() => EqualityComparer<GraphQLRequest>.Default.GetHashCode(this);
+		public override int GetHashCode(){
+			unchecked{
+				var hashCode = EqualityComparer<string>.Default.GetHashCode(this.Query);
+				hashCode = (hashCode * 397) ^ EqualityComparer<string?>.Default.GetHashCode(this.OperationName);
+				hashCode = (hashCode * 397) ^ EqualityComparer<dynamic?>.Default.GetHashCode(this.Variables);
+				return hashCode;
+			}
+		}
 
 		/// <inheritdoc />
 		public static bool operator ==(GraphQLRequest? request1, GraphQLRequest? request2) => EqualityComparer<GraphQLRequest?>.Default.Equals(request1, request2);
