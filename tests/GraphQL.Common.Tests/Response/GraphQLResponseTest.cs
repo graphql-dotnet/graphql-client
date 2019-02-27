@@ -1,4 +1,5 @@
 using GraphQL.Common.Response;
+using GraphQL.Common.Tests.Model;
 using Xunit;
 
 namespace GraphQL.Common.Tests.Response {
@@ -92,6 +93,16 @@ namespace GraphQL.Common.Tests.Response {
 				Errors = new[] { new GraphQLError("message") }
 			};
 			Assert.True(graphQLResponse1.GetHashCode() == graphQLResponse2.GetHashCode());
+		}
+
+		[Fact]
+		public void GetDataFieldAsFact() {
+			var graphQLResponse1 = new GraphQLResponse {
+				Data = new {
+					hero =new Person { Name = "R2-D2" }
+				},
+			};
+			Assert.Equal("R2-D2", graphQLResponse1.GetDataFieldAs<Person>("hero").Name);
 		}
 
 	}

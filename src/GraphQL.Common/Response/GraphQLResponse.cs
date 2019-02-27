@@ -29,9 +29,13 @@ namespace GraphQL.Common.Response {
 		/// <typeparam name="Type">The expected type</typeparam>
 		/// <param name="fieldName">The name of the field</param>
 		/// <returns>The field of data as an object</returns>
-		public Type GetDataFieldAs<Type>(string fieldName) {
-			var value = (this.Data as JObject)!.GetValue(fieldName);
-			return value.ToObject<Type>();
+		public Type? GetDataFieldAs<Type>(string fieldName) where Type:class{
+			if(this.Data is JObject jObjectData) {
+				return jObjectData.GetValue(fieldName).ToObject<Type>();
+			}
+			return (Type)this.Data!.GetType()
+				.GetProperty(fieldName)
+				.GetValue(this.Data!, null);
 		}
 
 		/// <inheritdoc />
