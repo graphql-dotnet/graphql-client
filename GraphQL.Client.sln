@@ -47,7 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Sample", "sa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{A2E950A3-BD50-40C0-8189-57B455FFBC62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Common.Benchmark", "benchmarks\GraphQL.Common.Benchmark\GraphQL.Common.Benchmark.csproj", "{6A935C7C-7DD1-489D-9259-56C1A398D643}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Common.Benchmark", "benchmarks\GraphQL.Common.Benchmark\GraphQL.Common.Benchmark.csproj", "{6A935C7C-7DD1-489D-9259-56C1A398D643}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.Test", "..\graphql-client/tests\GraphQL.Server.Test\GraphQL.Server.Test.csproj", "{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +81,10 @@ Global
 		{6A935C7C-7DD1-489D-9259-56C1A398D643}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A935C7C-7DD1-489D-9259-56C1A398D643}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A935C7C-7DD1-489D-9259-56C1A398D643}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{C1406F03-650F-4633-887D-312943251919} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
 		{B21E97C3-F328-473F-A054-A4BF272B63F0} = {9413EC62-CDDE-4E77-9784-E1136EA5D1EE}
 		{6A935C7C-7DD1-489D-9259-56C1A398D643} = {A2E950A3-BD50-40C0-8189-57B455FFBC62}
+		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}
