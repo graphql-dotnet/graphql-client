@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GraphQL.Common.Request {
 
@@ -23,6 +24,30 @@ namespace GraphQL.Common.Request {
 		/// The Payload of the Request
 		/// </summary>
 		public GraphQLRequest Payload { get; set; }
+
+		private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
+
+		/// <summary>
+		/// Task used to await the actual send operation and to convey potential exceptions
+		/// </summary>
+		/// <returns></returns>
+		public Task SendTask() => _tcs.Task;
+
+		/// <summary>
+		/// gets called when the send operation for this request has completed sucessfully
+		/// </summary>
+		public void SendCompleted() => _tcs.SetResult(true);
+
+		/// <summary>
+		/// gets called when an exception occurs during the send operation
+		/// </summary>
+		/// <param name="e"></param>
+		public void SendFailed(Exception e) => _tcs.SetException(e);
+
+		/// <summary>
+		/// gets called when the GraphQLHttpWebSocket has been disposed before the send operation for this request has started
+		/// </summary>
+		public void SendCanceled() => _tcs.SetCanceled();
 
 		/// <inheritdoc />
 		public override bool Equals(object obj) => this.Equals(obj as GraphQLWebSocketRequest);

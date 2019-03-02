@@ -11,16 +11,20 @@ namespace IntegrationTestServer.ChatSchema
 
         Message AddMessage(Message message);
 
-        IObservable<Message> Messages(string user);
+		MessageFrom Join(string userId);
 
-        Message AddMessage(ReceivedMessage message);
+		IObservable<Message> Messages(string user);
+		IObservable<MessageFrom> UserJoined();
+
+		Message AddMessage(ReceivedMessage message);
     }
 
     public class Chat : IChat
     {
         private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
+		private readonly ISubject<MessageFrom> _userJoined = new Subject<MessageFrom>();
 
-        public Chat()
+		public Chat()
         {
             AllMessages = new ConcurrentStack<Message>();
             Users = new ConcurrentDictionary<string, string>
@@ -58,9 +62,25 @@ namespace IntegrationTestServer.ChatSchema
             AllMessages.Push(message);
             _messageStream.OnNext(message);
             return message;
-        }
+		}
 
-        public IObservable<Message> Messages(string user)
+		public MessageFrom Join(string userId)
+		{
+			if (!Users.TryGetValue(userId, out var displayName))
+			{
+				displayName = "(unknown)";
+			}
+
+			var joinedUser = new MessageFrom {
+				Id = userId,
+				DisplayName = displayName
+			};
+
+			_userJoined.OnNext(joinedUser);
+			return joinedUser;
+		}
+
+		public IObservable<Message> Messages(string user)
         {
             return _messageStream
                 .Select(message =>
@@ -75,5 +95,16 @@ namespace IntegrationTestServer.ChatSchema
         {
             _messageStream.OnError(exception);
         }
-    }
+
+		public IObservable<MessageFrom> UserJoined()
+		{
+			return _userJoined.AsObservable();
+		}
+	}
+
+	public class User
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+	}
 }

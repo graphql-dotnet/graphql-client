@@ -9,14 +9,13 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void QueryPostAsyncFact() {
-			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+			var graphQLRequest = new GraphQLRequest(@"
 				{
 					person(personID: ""1"") {
 						name
 					}
 				}"
-			};
+			);
 			var response = await this.GraphQLClient.PostAsync(graphQLRequest).ConfigureAwait(false);
 
 			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
@@ -24,17 +23,14 @@ namespace GraphQL.Client.Tests {
 		}
 
 		[Fact]
-		public async void QueryPostAsyncWithoutUtf8EncodingFact()
-		{
-			var graphQLRequest = new GraphQLRequest
-			{
-				Query = @"
+		public async void QueryPostAsyncWithoutUtf8EncodingFact(){
+			var graphQLRequest = new GraphQLRequest(@"
 				{
 					person(personID: ""1"") {
 						name
 					}
 				}"
-			};
+			);
 			this.GraphQLClient.Options.MediaType = MediaTypeHeaderValue.Parse("application/json");
 			var response = await this.GraphQLClient.PostAsync(graphQLRequest).ConfigureAwait(false);
 
@@ -44,8 +40,7 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void OperationNamePostAsyncFact() {
-			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+			var graphQLRequest = new GraphQLRequest(@"
 				query Person{
 					person(personID: ""1"") {
 						name
@@ -56,7 +51,7 @@ namespace GraphQL.Client.Tests {
 					planet(planetID: ""1"") {
 						name
 					}
-				}",
+				}") { 
 				OperationName = "Person"
 			};
 			var response = await this.GraphQLClient.PostAsync(graphQLRequest).ConfigureAwait(false);
@@ -67,13 +62,12 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void VariablesPostAsyncFact() {
-			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+			var graphQLRequest = new GraphQLRequest(@"
 				query Person($personId: ID!){
 					person(personID: $personId) {
 						name
 					}
-				}",
+				}") { 
 				Variables = new {
 					personId = "1"
 				}
@@ -86,8 +80,7 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public async void OperationNameVariablePostAsyncFact() {
-			var graphQLRequest = new GraphQLRequest {
-				Query = @"
+			var graphQLRequest = new GraphQLRequest(@"
 				query Person($personId: ID!){
 					person(personID: $personId) {
 						name
@@ -98,7 +91,7 @@ namespace GraphQL.Client.Tests {
 					planet(planetID: ""1"") {
 						name
 					}
-				}",
+				}") { 
 				OperationName = "Person",
 				Variables = new {
 					personId = "1"

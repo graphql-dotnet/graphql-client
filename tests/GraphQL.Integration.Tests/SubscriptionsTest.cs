@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-
 namespace GraphQL.Integration.Tests
 {
 	public class SubscriptionsTest
@@ -24,7 +23,10 @@ namespace GraphQL.Integration.Tests
 			config["server.urls"] = $"http://localhost:{port}";
 
 			var host = new WebHostBuilder()
-				.ConfigureLogging((ctx, logging) => logging.AddDebug())
+				.ConfigureLogging((ctx, logging) =>
+				{
+					logging.AddDebug();
+				})
 				.UseConfiguration(config)
 				.UseKestrel()
 				.UseStartup<IntegrationTestServer.Startup>()
@@ -45,7 +47,7 @@ namespace GraphQL.Integration.Tests
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions
 			{
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
-			} );
+			});
 
 
 		[Fact]
@@ -70,10 +72,7 @@ namespace GraphQL.Integration.Tests
 			  }
 			}";
 
-		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest
-		{
-			Query = SubscriptionQuery
-		};
+		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest(SubscriptionQuery);
 
 		[Fact]
 		public async void CanCreateObservableSubscription()
@@ -165,21 +164,16 @@ namespace GraphQL.Integration.Tests
 
 		private const string SubscriptionQuery2 = @"
 			subscription {
-			  messageAdded{
-			    content
-				from {
-				  displayName
-				}
+			  userJoined{
+				displayName
+				id
 			  }
 			}";
 
-		private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest
-		{
-			Query = SubscriptionQuery2
-		};
+		private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest(SubscriptionQuery2);
 
 		[Fact]
-		public async void CanConnectMultipleSubscriptionsSimultaneously()
+		public async void CanConnectTwoSubscriptionsSimultaneously()
 		{
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			var callbackTester = new CallbackTester<Exception>();
@@ -189,10 +183,12 @@ namespace GraphQL.Integration.Tests
 				var client = GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> subscription1 = client.CreateSubscriptionStream(SubscriptionRequest, callbackTester.Callback);
+				IObservable<GraphQLResponse> observable1 = client.CreateSubscriptionStream(SubscriptionRequest, callbackTester.Callback);
+				IObservable<GraphQLResponse> observable2 = client.CreateSubscriptionStream(SubscriptionRequest2, callbackTester2.Callback);
 
 				Debug.WriteLine("subscribing...");
-				var tester = subscription1.SubscribeTester();
+				var tester = observable1.SubscribeTester();
+				var tester2 = observable2.SubscribeTester();
 
 				const string message1 = "Hello World";
 				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
@@ -202,42 +198,31 @@ namespace GraphQL.Integration.Tests
 					Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
 				});
 
-				IObservable<GraphQLResponse> subscription2 = client.CreateSubscriptionStream(SubscriptionRequest2, callbackTester2.Callback);
-				var tester2 = subscription2.SubscribeTester();
+				await Task.Delay(500); // ToDo: can be removed after https://github.com/graphql-dotnet/server/pull/199 was merged and released
+
+				response = await client.JoinDeveloperUser().ConfigureAwait(false);
+				Assert.Equal("developer", (string)response.Data.join.displayName.Value);
+
 				tester2.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
-					Assert.Equal("tester", (string)gqlResponse.Data.messageAdded.from.displayName.Value);
-				}, TimeSpan.FromSeconds(10));
-
-				const string message2 = "How are you?";
-				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
-				Assert.Equal(message2, (string)response.Data.addMessage.content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse =>
-				{
-					Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal("1", (string)gqlResponse.Data.userJoined.id.Value);
+					Assert.Equal("developer", (string)gqlResponse.Data.userJoined.displayName.Value);
 				});
-				tester2.ShouldHaveReceivedUpdate(gqlResponse =>
-				{
-					Assert.Equal(message2, (string)gqlResponse.Data.messageAdded.content.Value);
-					Assert.Equal("tester", (string)gqlResponse.Data.messageAdded.from.displayName.Value);
-				});
-
+				
 				Debug.WriteLine("disposing subscription...");
-				tester.Dispose();
+				tester2.Dispose();
 
 				const string message3 = "lorem ipsum dolor si amet";
 				response = await client.AddMessageAsync(message3).ConfigureAwait(false);
 				Assert.Equal(message3, (string)response.Data.addMessage.content);
-				tester2.ShouldHaveReceivedUpdate(gqlResponse =>
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
 					Assert.Equal(message3, (string)gqlResponse.Data.messageAdded.content.Value);
-					Assert.Equal("tester", (string)gqlResponse.Data.messageAdded.from.displayName.Value);
 				});
 
 				// disposing the client should complete the subscription
 				client.Dispose();
-				tester2.ShouldHaveCompleted();
+				tester.ShouldHaveCompleted();
 			}
 		}
 

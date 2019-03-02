@@ -1,6 +1,7 @@
 using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Voyager;
+using GraphQL.Server.Ui.Playground;
 using IntegrationTestServer.ChatSchema;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -62,6 +63,10 @@ namespace IntegrationTestServer
 			{
 				GraphQLEndPoint = "/graphql",
 				Path = "/ui/voyager"
+			});
+			app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
+			{
+				Path = "/ui/playground"
 			});
 			app.UseMvc();
 		}

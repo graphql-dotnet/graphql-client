@@ -25,7 +25,15 @@ namespace IntegrationTestServer.ChatSchema
                 Subscriber = new EventStreamResolver<Message>(Subscribe)
             });
 
-            AddField(new EventStreamFieldType
+			AddField(new EventStreamFieldType
+			{
+				Name = "contentAdded",
+				Type = typeof(MessageType),
+				Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+				Subscriber = new EventStreamResolver<Message>(Subscribe)
+			});
+
+			AddField(new EventStreamFieldType
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(
@@ -35,7 +43,15 @@ namespace IntegrationTestServer.ChatSchema
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
                 Subscriber = new EventStreamResolver<Message>(SubscribeById)
             });
-        }
+
+			AddField(new EventStreamFieldType
+			{
+				Name = "userJoined",
+				Type = typeof(MessageFromType),
+				Resolver = new FuncFieldResolver<MessageFrom>(context => context.Source as MessageFrom),
+				Subscriber = new EventStreamResolver<MessageFrom>(context => _chat.UserJoined())
+			});
+		}
 
         private IObservable<Message> SubscribeById(ResolveEventStreamContext context)
         {
