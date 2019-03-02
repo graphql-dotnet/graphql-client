@@ -6,6 +6,8 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 
 		public string Director { get; set; }
 
+		public int Id { get; set; }
+
 		public string Title { get; set; }
 
 	}
@@ -15,6 +17,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public FilmGraphType() {
 			this.Name = nameof(Film);
 			this.Field(expression => expression.Director);
+			this.Field(expression => expression.Id);
 			this.Field(expression => expression.Title);
 		}
 

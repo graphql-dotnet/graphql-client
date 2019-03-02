@@ -19,6 +19,30 @@ namespace GraphQL.Server.Test.GraphQL {
 			}
 		};
 
+		public static Planet[] Planets { get; } = new[] {
+			new Planet {
+				Name="Tatooine"
+			}
+		};
+
+		public static Specie[] Species { get; } = new[] {
+			new Specie {
+				Name="Wookie"
+			}
+		};
+
+		public static Starship[] Starships { get; } = new[] {
+			new Starship {
+				Name="Death Star"
+			}
+		};
+
+		public static Vehicle[] Vehicles { get; } = new[] {
+			new Vehicle {
+				Name="Sand Crawler"
+			}
+		};
+
 	}
 
 }
