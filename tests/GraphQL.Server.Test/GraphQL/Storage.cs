@@ -10,29 +10,13 @@ namespace GraphQL.Server.Test.GraphQL {
 
 		public static IQueryable<People> Peoples { get; set; } = new List<People>().AsQueryable();
 
-		public static Planet[] Planets { get; } = new[] {
-			new Planet {
-				Name="Tatooine"
-			}
-		};
+		public static IQueryable<Planet> Planets { get; set; } = new List<Planet>().AsQueryable();
 
-		public static Specie[] Species { get; } = new[] {
-			new Specie {
-				Name="Wookie"
-			}
-		};
+		public static IQueryable<Specie> Species { get; set; } = new List<Specie>().AsQueryable();
 
-		public static Starship[] Starships { get; } = new[] {
-			new Starship {
-				Name="Death Star"
-			}
-		};
+		public static IQueryable<Starship> Starships { get; set; } = new List<Starship>().AsQueryable();
 
-		public static Vehicle[] Vehicles { get; } = new[] {
-			new Vehicle {
-				Name="Sand Crawler"
-			}
-		};
+		public static IQueryable<Vehicle> Vehicles { get; set; } = new List<Vehicle>().AsQueryable();
 
 	}
 

@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using GraphQL.Types;
 
 namespace GraphQL.Server.Test.GraphQL.Models {
@@ -9,7 +9,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public DateTime Created { get; set; }
 		public DateTime Edited { get; set; }
 		public string EyeColor { get; set; }
-		public List<Film> Films { get; set; }
+		public IQueryable<Film> Films { get; set; }
 		public string Gender { get; set; }
 		public string HairColor { get; set; }
 		public string Height { get; set; }
@@ -18,9 +18,9 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public string Mass { get; set; }
 		public string Name { get; set; }
 		public string SkinColor { get; set; }
-		public List<Specie> Species { get; set; }
-		public List<Starship> Starships { get; set; }
-		public List<Vehicle> Vehicles { get; set; }
+		public IQueryable<Specie> Species { get; set; }
+		public IQueryable<Starship> Starships { get; set; }
+		public IQueryable<Vehicle> Vehicles { get; set; }
 	}
 
 	public class PeopleGraphType : ObjectGraphType<People> {

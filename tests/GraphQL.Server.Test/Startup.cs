@@ -16,11 +16,11 @@ namespace GraphQL.Server.Test {
 
 		public IConfiguration Configuration { get; }
 
-		public Startup(IConfiguration configuration){
+		public Startup(IConfiguration configuration) {
 			this.Configuration = configuration;
-        }
+		}
 
-        public void Configure(IApplicationBuilder app){
+		public void Configure(IApplicationBuilder app) {
 			{
 				var httpClient = new HttpClient();
 				{
@@ -30,19 +30,19 @@ namespace GraphQL.Server.Test {
 						url = jsonObject["next"].Value<string>();
 						foreach (var result in jsonObject["results"].As<JArray>()) {
 							Storage.Films = Storage.Films.Append(new Film {
-								Characters = null,
+								Characters = Storage.Peoples,
 								Created = result["created"].Value<DateTime>(),
 								Director = result["director"].Value<string>(),
 								Edited = result["edited"].Value<DateTime>(),
 								Id = int.Parse(new Uri(result["url"].Value<string>()).Segments.Last().Trim('/')),
 								OpeningCrawl = result["opening_crawl"].Value<string>(),
-								Planets = null,
+								Planets = Storage.Planets,
 								Producer = result["producer"].Value<string>(),
 								ReleaseDate = result["release_date"].Value<string>(),
-								Species = null,
-								Starships = null,
+								Species = Storage.Species,
+								Starships = Storage.Starships,
 								Title = result["title"].Value<string>(),
-								Vehicles = null,
+								Vehicles = Storage.Vehicles,
 							});
 						}
 					}
@@ -58,18 +58,18 @@ namespace GraphQL.Server.Test {
 								Created = result["created"].Value<DateTime>(),
 								Edited = result["edited"].Value<DateTime>(),
 								EyeColor = result["eye_color"].Value<string>(),
-								Films = null,
+								Films = Storage.Films,
 								Gender = result["gender"].Value<string>(),
 								HairColor = result["hair_color"].Value<string>(),
 								Height = result["height"].Value<string>(),
-								Homeworld = null,
+								Homeworld = Storage.Planets.First(),
 								Id = int.Parse(new Uri(result["url"].Value<string>()).Segments.Last().Trim('/')),
 								Mass = result["mass"].Value<string>(),
 								Name = result["name"].Value<string>(),
 								SkinColor = result["skin_color"].Value<string>(),
-								Species = null,
-								Starships = null,
-								Vehicles = null,
+								Species = Storage.Species,
+								Starships = Storage.Starships,
+								Vehicles = Storage.Vehicles,
 							});
 						}
 					}

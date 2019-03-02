@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GraphQL.Types;
 
 namespace GraphQL.Server.Test.GraphQL.Models {
 
 	public class Film {
-		public List<People> Characters { get; set; }
+		public IQueryable<People> Characters { get; set; }
 		public DateTime Created { get; set; }
 		public string Director { get; set; }
 		public DateTime Edited { get; set; }
 		public int Id { get; set; }
 		public string OpeningCrawl { get; set; }
-		public List<Planet> Planets { get; set; }
+		public IQueryable<Planet> Planets { get; set; }
 		public string Producer { get; set; }
 		public string ReleaseDate { get; set; }
 		public string Title { get; set; }
-		public List<Specie> Species { get; set; }
-		public List<Starship> Starships { get; set; }
-		public List<Vehicle> Vehicles { get; set; }
+		public IQueryable<Specie> Species { get; set; }
+		public IQueryable<Starship> Starships { get; set; }
+		public IQueryable<Vehicle> Vehicles { get; set; }
 	}
 
 	public class FilmGraphType:ObjectGraphType<Film> {
