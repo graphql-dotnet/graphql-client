@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
@@ -119,7 +118,7 @@ namespace GraphQL.Client.Http {
 		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
 		{
 			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.Request(request, cancellationToken)
+				? this.graphQlHttpWebSocket.SendRequest(request, cancellationToken)
 				: this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 		}
 
@@ -129,7 +128,7 @@ namespace GraphQL.Client.Http {
 		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
 		{
 			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.Request(request, cancellationToken)
+				? this.graphQlHttpWebSocket.SendRequest(request, cancellationToken)
 				: this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 		}
 
@@ -148,7 +147,7 @@ namespace GraphQL.Client.Http {
 			if (_subscriptionStreams.ContainsKey(request))
 				return _subscriptionStreams[request];
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, cancellationToken: _cancellationTokenSource.Token);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, cancellationToken: _cancellationTokenSource.Token);
 
 			_subscriptionStreams.TryAdd(request, observable);
 			return observable;
@@ -178,7 +177,7 @@ namespace GraphQL.Client.Http {
 			if(_subscriptionStreams.ContainsKey(request))
 				return _subscriptionStreams[request];
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, exceptionHandler, _cancellationTokenSource.Token);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, exceptionHandler, _cancellationTokenSource.Token);
 			_subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}

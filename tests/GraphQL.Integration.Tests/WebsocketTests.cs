@@ -13,7 +13,7 @@ using Xunit;
 
 namespace GraphQL.Integration.Tests
 {
-	public class SubscriptionsTest
+	public class WebsocketTests
 	{
 		public static IWebHost CreateServer(int port)
 		{
@@ -37,14 +37,15 @@ namespace GraphQL.Integration.Tests
 			return host;
 		}
 
-		public SubscriptionsTest()
+		public WebsocketTests()
 		{
 		}
 
-		private GraphQLHttpClient GetGraphQLClient(int port)
+		private GraphQLHttpClient GetGraphQLClient(int port, bool queriesViaWebsocket = false)
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions
 			{
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
+				UseWebSocketForQueriesAndMutations = queriesViaWebsocket
 			});
 
 
@@ -60,6 +61,21 @@ namespace GraphQL.Integration.Tests
 				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
 
 				Assert.Equal(message, (string) response.Data.addMessage.content);
+			}
+		}
+
+		[Fact]
+		public async void CanSendQueryViaWebsocket()
+		{
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port, true);
+
+				const string message = "some random testing message";
+				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
+
+				Assert.Equal(message, (string)response.Data.addMessage.content);
 			}
 		}
 
