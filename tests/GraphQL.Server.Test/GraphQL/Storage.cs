@@ -6,12 +6,7 @@ namespace GraphQL.Server.Test.GraphQL {
 
 	public static class Storage {
 
-		public static Film[] Films { get; } = new[] {
-			new Film {
-				Director="George Lucas",
-				Title="A New Hope"
-			}
-		};
+		public static IQueryable<Film> Films { get; set; } = new List<Film>().AsQueryable();
 
 		public static IQueryable<People> Peoples { get; set; } = new List<People>().AsQueryable();
 

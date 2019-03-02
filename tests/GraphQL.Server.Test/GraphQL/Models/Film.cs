@@ -5,11 +5,13 @@ using GraphQL.Types;
 namespace GraphQL.Server.Test.GraphQL.Models {
 
 	public class Film {
+		public List<People> Characters { get; set; }
 		public DateTime Created { get; set; }
 		public string Director { get; set; }
 		public DateTime Edited { get; set; }
 		public int Id { get; set; }
 		public string OpeningCrawl { get; set; }
+		public List<Planet> Planets { get; set; }
 		public string Producer { get; set; }
 		public string ReleaseDate { get; set; }
 		public string Title { get; set; }
@@ -22,11 +24,13 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 
 		public FilmGraphType() {
 			this.Name = nameof(Film);
+			this.Field<ListGraphType<PeopleGraphType>>("characters");
 			this.Field(expression => expression.Created);
 			this.Field(expression => expression.Director);
 			this.Field(expression => expression.Edited);
 			this.Field(expression => expression.Id);
 			this.Field(expression => expression.OpeningCrawl);
+			this.Field<ListGraphType<PlanetGraphType>>("planets");
 			this.Field(expression => expression.Producer);
 			this.Field(expression => expression.ReleaseDate);
 			this.Field(expression => expression.Title);
