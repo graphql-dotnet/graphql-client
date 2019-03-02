@@ -11,5 +11,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\GraphQL.Common\GraphQL.Common.csproj" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.0.0" />
+	</ItemGroup>
 
 </Project>

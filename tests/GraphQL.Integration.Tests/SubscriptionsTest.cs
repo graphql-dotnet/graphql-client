@@ -37,8 +37,6 @@ namespace GraphQL.Integration.Tests
 			return host;
 		}
 
-		private readonly IWebHost _server;
-
 		public SubscriptionsTest()
 		{
 		}

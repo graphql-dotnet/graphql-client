@@ -41,7 +41,6 @@ namespace GraphQL.Client.Http {
 		}
 
 		/// <inheritdoc />
-		[Obsolete("EXPERIMENTAL")]
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
 
 		#endregion
@@ -49,6 +48,7 @@ namespace GraphQL.Client.Http {
 		internal readonly GraphQLHttpHandler graphQLHttpHandler;
 		internal readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private readonly ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> _subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
 
 		/// <summary>
 		/// Initializes a new instance
@@ -133,27 +133,6 @@ namespace GraphQL.Client.Http {
 				: this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 		}
 
-		[Obsolete("EXPERIMENTAL API")]
-		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
-			this.SendSubscribeAsync(new GraphQLRequest(query), cancellationToken);
-
-		[Obsolete("EXPERIMENTAL API")]
-		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
-		{
-			GraphQLHttpSubscriptionResult graphQLSubscriptionResult = _createSubscription(request, cancellationToken);
-			return Task.FromResult<IGraphQLSubscriptionResult>(graphQLSubscriptionResult);
-		}
-
-		private GraphQLHttpSubscriptionResult _createSubscription(GraphQLRequest request, CancellationToken cancellationToken)
-		{
-			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
-
-			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), request);
-			graphQLSubscriptionResult.StartAsync(cancellationToken);
-			return graphQLSubscriptionResult;
-		}
-
 		private Uri _getWebSocketUri()
 		{
 			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";
@@ -161,23 +140,21 @@ namespace GraphQL.Client.Http {
 		}
 
 		/// <inheritdoc />
-		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request)
 		{
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if (subscriptionStreams.ContainsKey(request))
-				return subscriptionStreams[request];
+			if (_subscriptionStreams.ContainsKey(request))
+				return _subscriptionStreams[request];
 
 			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, cancellationToken: _cancellationTokenSource.Token);
 
-			subscriptionStreams.TryAdd(request, observable);
+			_subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}
 
 		/// <inheritdoc />
-		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler)
 		{
 			if (_disposed)
@@ -193,22 +170,19 @@ namespace GraphQL.Client.Http {
 		}
 
 		/// <inheritdoc />
-		[Obsolete("EXPERIMENTAL API")]
 		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler)
 		{
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if(subscriptionStreams.ContainsKey(request))
-				return subscriptionStreams[request];
+			if(_subscriptionStreams.ContainsKey(request))
+				return _subscriptionStreams[request];
 
 			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, exceptionHandler, _cancellationTokenSource.Token);
-			subscriptionStreams.TryAdd(request, observable);
+			_subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}
-
-		private ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
-
+		
 		/// <summary>
 		/// Releases unmanaged resources
 		/// </summary>
@@ -224,7 +198,7 @@ namespace GraphQL.Client.Http {
 		}
 
 		private bool _disposed = false;
-		private object _disposeLocker = new object();
+		private readonly object _disposeLocker = new object();
 
 		private void _dispose()
 		{
