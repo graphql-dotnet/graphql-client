@@ -12,10 +12,10 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public List<Film> Films { get; set; }
 		public string Gender { get; set; }
 		public string HairColor { get; set; }
-		public int Height { get; set; }
+		public string Height { get; set; }
 		public Planet Homeworld { get; set; }
 		public int Id { get; set; }
-		public int Mass { get; set; }
+		public string Mass { get; set; }
 		public string Name { get; set; }
 		public string SkinColor { get; set; }
 		public List<Specie> Species { get; set; }

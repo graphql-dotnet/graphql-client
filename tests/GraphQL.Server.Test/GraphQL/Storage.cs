@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using GraphQL.Server.Test.GraphQL.Models;
 
@@ -12,14 +13,7 @@ namespace GraphQL.Server.Test.GraphQL {
 			}
 		};
 
-		public static People[] Peoples { get; } = new[] {
-			new People {
-				Films=Storage.Films.ToList(),
-				Height=172,
-				Mass=77,
-				Name="Luke Skywalker"
-			}
-		};
+		public static IQueryable<People> Peoples { get; set; } = new List<People>().AsQueryable();
 
 		public static Planet[] Planets { get; } = new[] {
 			new Planet {
