@@ -35,7 +35,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 			this.Field(expression => expression.EyeColors);
 			this.Field<ListGraphType<FilmGraphType>>("films");
 			this.Field(expression => expression.HairColors);
-			this.Field(expression => expression.Homeworld);
+			this.Field<PlanetGraphType>("homeworld");
 			this.Field(expression => expression.Id);
 			this.Field(expression => expression.Language);
 			this.Field(expression => expression.Name);
