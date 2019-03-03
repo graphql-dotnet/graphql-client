@@ -15,7 +15,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public string Name { get; set; }
 		public string OrbitalPeriod { get; set; }
 		public string Population { get; set; }
-		public string Residents { get; set; }
+		public IQueryable<People> Residents { get; set; }
 		public string RotationPeriod { get; set; }
 		public string SurfaceWater { get; set; }
 		public string Terrain { get; set; }
@@ -35,7 +35,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 			this.Field(expression => expression.Name);
 			this.Field(expression => expression.OrbitalPeriod);
 			this.Field(expression => expression.Population);
-			this.Field(expression => expression.Residents);
+			this.Field<ListGraphType<PeopleGraphType>>("residents");
 			this.Field(expression => expression.RotationPeriod);
 			this.Field(expression => expression.SurfaceWater);
 			this.Field(expression => expression.Terrain);
