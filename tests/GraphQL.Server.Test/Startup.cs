@@ -74,6 +74,31 @@ namespace GraphQL.Server.Test {
 						}
 					}
 				}
+				{
+					var url = "https://swapi.co/api/planets/?page=1";
+					while (url != null) {
+						var jsonObject = JsonConvert.DeserializeObject<JObject>(httpClient.GetStringAsync(url).Result);
+						url = jsonObject["next"].Value<string>();
+						foreach (var result in jsonObject["results"].As<JArray>()) {
+							Storage.Planets = Storage.Planets.Append(new Planet {
+								Climate = result["climate"].Value<string>(),
+								Created = result["created"].Value<DateTime>(),
+								Diameter = result["diameter"].Value<string>(),
+								Edited = result["edited"].Value<DateTime>(),
+								Films = Storage.Films,
+								Gravity = result["gravity"].Value<string>(),
+								Id = int.Parse(new Uri(result["url"].Value<string>()).Segments.Last().Trim('/')),
+								Name = result["name"].Value<string>(),
+								OrbitalPeriod = result["orbital_period"].Value<string>(),
+								Population = result["population"].Value<string>(),
+								Residents = result["residents"].Value<string>(),
+								RotationPeriod = result["rotation_period"].Value<string>(),
+								SurfaceWater = result["surface_water"].Value<string>(),
+								Terrain = result["terrain"].Value<string>(),
+							});
+						}
+					}
+				}
 			}
 			app.UseWebSockets();
 			app.UseGraphQLWebSockets<TestSchema>();
