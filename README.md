@@ -16,11 +16,11 @@ The Library will try to follow the following standards and documents:
 #### Simple Request:
 ```csharp
 var heroRequest = new GraphQLRequest(@"
-    {
+	{
 		hero {
 			name
 		}
-    }"
+	}"
 );
 ```
 
