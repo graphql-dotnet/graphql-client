@@ -51,6 +51,15 @@ namespace IntegrationTestServer.ChatSchema
 				Resolver = new FuncFieldResolver<MessageFrom>(context => context.Source as MessageFrom),
 				Subscriber = new EventStreamResolver<MessageFrom>(context => _chat.UserJoined())
 			});
+
+
+			AddField(new EventStreamFieldType
+			{
+				Name = "failImmediately",
+				Type = typeof(MessageType),
+				Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+				Subscriber = new EventStreamResolver<Message>(context => throw new NotSupportedException("this is supposed to fail"))
+			});
 		}
 
         private IObservable<Message> SubscribeById(ResolveEventStreamContext context)
