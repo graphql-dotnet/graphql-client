@@ -172,10 +172,6 @@ namespace GraphQL.Client.Http
 							case GQLWebSocketMessageType.GQL_COMPLETE:
 								Debug.WriteLine($"received 'complete' message on request {websocketRequest.Id}");
 								return Observable.Empty<GraphQLResponse>();
-							case GQLWebSocketMessageType.GQL_ERROR:
-								Debug.WriteLine($"received 'error' message on request {websocketRequest.Id}");
-								return Observable.Throw<GraphQLResponse>(
-									new GraphQLSubscriptionException(response.Payload));
 							default:
 								Debug.WriteLine($"received response for request {websocketRequest.Id}");
 								return Observable.Return(((JObject)response?.Payload)
