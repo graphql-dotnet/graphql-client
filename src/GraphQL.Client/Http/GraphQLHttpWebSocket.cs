@@ -65,7 +65,7 @@ namespace GraphQL.Client.Http
 				}
 
 				await InitializeWebSocket().ConfigureAwait(false);
-				var webSocketRequestString = JsonConvert.SerializeObject(request);
+				var webSocketRequestString = JsonConvert.SerializeObject(request, _options.JsonSerializerSettings);
 				await this.clientWebSocket.SendAsync(
 					new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString)),
 					WebSocketMessageType.Text,
@@ -245,7 +245,7 @@ namespace GraphQL.Client.Http
 						{
 							var stringResult = await reader.ReadToEndAsync();
 							Debug.WriteLine($"data received on websocket {clientWebSocket.GetHashCode()}: {stringResult}");
-							return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult);
+							return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult, _options.JsonSerializerSettings);
 						}
 					}
 					else

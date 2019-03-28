@@ -43,10 +43,11 @@ namespace GraphQL.Integration.Tests
 		{
 		}
 
-		private GraphQLHttpClient GetGraphQLClient(int port)
+		private GraphQLHttpClient GetGraphQLClient(int port, bool requestsViaWebsocket = false)
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions
 			{
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
+				UseWebSocketForQueriesAndMutations = requestsViaWebsocket
 			});
 
 
@@ -62,6 +63,34 @@ namespace GraphQL.Integration.Tests
 				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
 
 				Assert.Equal(message, (string) response.Data.addMessage.content);
+			}
+		}
+
+		[Fact]
+		public async void CanSendRequestViaWebsocket()
+		{
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port, true);
+				const string message = "some random testing message";
+				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
+
+				Assert.Equal(message, (string)response.Data.addMessage.content);
+			}
+		}
+
+		[Fact]
+		public async void CanHandleRequestErrorViaWebsocket()
+		{
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port, true);
+				const string message = "some random testing message";
+				var response = await client.SendQueryAsync(new GraphQLRequest("this query is formatted quite badly")).ConfigureAwait(false);
+
+				Assert.Single(response.Errors);
 			}
 		}
 
@@ -271,6 +300,64 @@ namespace GraphQL.Integration.Tests
 			client.Dispose();
 			tester.ShouldHaveCompleted(TimeSpan.FromSeconds(5));
 			server.Dispose();
+		}
+		
+		[Fact]
+		public async void CanHandleSubscriptionError()
+		{
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port);
+				Debug.WriteLine("creating subscription stream");
+				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(
+					new GraphQLRequest(@"
+						subscription {
+						  failImmediately {
+						    content
+						  }
+						}")
+					);
+
+				Debug.WriteLine("subscribing...");
+				var tester = observable.SubscribeTester();
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
+				{
+					Assert.Single(gqlResponse.Errors);
+				});
+				tester.ShouldHaveCompleted();
+
+				client.Dispose();
+			}
+		}
+
+		[Fact]
+		public async void CanHandleQueryErrorInSubscription()
+		{
+			var port = NetworkHelpers.GetFreeTcpPortNumber();
+			using (CreateServer(port))
+			{
+				var client = GetGraphQLClient(port);
+				Debug.WriteLine("creating subscription stream");
+				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(
+					new GraphQLRequest(@"
+						subscription {
+						  fieldDoesNotExist {
+						    content
+						  }
+						}")
+				);
+
+				Debug.WriteLine("subscribing...");
+				var tester = observable.SubscribeTester();
+				tester.ShouldHaveReceivedUpdate(gqlResponse =>
+				{
+					Assert.Single(gqlResponse.Errors);
+				});
+				tester.ShouldHaveCompleted();
+
+				client.Dispose();
+			}
 		}
 	}
 }
