@@ -116,13 +116,13 @@ namespace GraphQL.Client.Http {
 		public Task<GraphQLResponse> SendQueryAsync(string query, CancellationToken cancellationToken = default) =>
 			this.SendQueryAsync(new GraphQLRequest(query), cancellationToken);
 
-		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
+		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
 		{
-			var preprocessed = Options.PreProcessRequest(request, this);
+			var preprocessed = await Options.PreProcessRequest(request, this).ConfigureAwait(false);
 
 			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.Request(preprocessed, cancellationToken)
-				: this.graphQLHttpHandler.PostAsync(preprocessed, cancellationToken);
+				? await this.graphQlHttpWebSocket.Request(preprocessed, cancellationToken).ConfigureAwait(false)
+				: await this.graphQLHttpHandler.PostAsync(preprocessed, cancellationToken).ConfigureAwait(false);
 		}
 
 		public Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
@@ -146,7 +146,7 @@ namespace GraphQL.Client.Http {
 		{
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
-			var preprocessed = Options.PreProcessRequest(request, this);
+			var preprocessed = Options.PreProcessRequest(request, this).GetAwaiter().GetResult();
 
 			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), preprocessed);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
@@ -165,15 +165,13 @@ namespace GraphQL.Client.Http {
 		{
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+			
+			if (subscriptionStreams.ContainsKey(request))
+				return subscriptionStreams[request];
 
-			var preprocessed = Options.PreProcessRequest(request, this);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, this, cancellationToken: _cancellationTokenSource.Token);
 
-			if (subscriptionStreams.ContainsKey(preprocessed))
-				return subscriptionStreams[preprocessed];
-
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(preprocessed, Options, cancellationToken: _cancellationTokenSource.Token);
-
-			subscriptionStreams.TryAdd(preprocessed, observable);
+			subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}
 
@@ -200,13 +198,11 @@ namespace GraphQL.Client.Http {
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			var preprocessed = Options.PreProcessRequest(request, this);
+			if (subscriptionStreams.ContainsKey(request))
+				return subscriptionStreams[request];
 
-			if (subscriptionStreams.ContainsKey(preprocessed))
-				return subscriptionStreams[preprocessed];
-
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(preprocessed, Options, exceptionHandler, _cancellationTokenSource.Token);
-			subscriptionStreams.TryAdd(preprocessed, observable);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, this, exceptionHandler, _cancellationTokenSource.Token);
+			subscriptionStreams.TryAdd(request, observable);
 			return observable;
 		}
 

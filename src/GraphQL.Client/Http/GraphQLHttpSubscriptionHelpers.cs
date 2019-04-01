@@ -18,18 +18,19 @@ namespace GraphQL.Client.Http
 		internal static IObservable<GraphQLResponse> CreateSubscriptionStream(
 			this GraphQLHttpWebSocket graphQlHttpWebSocket,
 			GraphQLRequest request,
-			GraphQLHttpClientOptions options,
+			GraphQLHttpClient client,
 			Action<Exception> exceptionHandler = null,
 			CancellationToken cancellationToken = default)
 		{
 			return Observable.Defer(() =>
 				Observable.Create<GraphQLResponse>(async observer =>
 				{
+					var preprocessedRequest = await client.Options.PreProcessRequest(request, client);
 					var startRequest = new GraphQLWebSocketRequest
 					{
 						Id = Guid.NewGuid().ToString("N"),
 						Type = GQLWebSocketMessageType.GQL_START,
-						Payload = request
+						Payload = preprocessedRequest
 					};
 					var closeRequest = new GraphQLWebSocketRequest
 					{
