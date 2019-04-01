@@ -118,20 +118,18 @@ namespace GraphQL.Client.Http {
 
 		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
 		{
+			var preprocessed = Options.PreProcessRequest(request, this);
+
 			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.Request(request, cancellationToken)
-				: this.graphQLHttpHandler.PostAsync(request, cancellationToken);
+				? this.graphQlHttpWebSocket.Request(preprocessed, cancellationToken)
+				: this.graphQLHttpHandler.PostAsync(preprocessed, cancellationToken);
 		}
 
 		public Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
 			this.SendMutationAsync(new GraphQLRequest(query), cancellationToken);
 
-		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
-		{
-			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.Request(request, cancellationToken)
-				: this.graphQLHttpHandler.PostAsync(request, cancellationToken);
-		}
+		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+			this.SendQueryAsync(request, cancellationToken);
 
 		[Obsolete("EXPERIMENTAL API")]
 		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
@@ -148,8 +146,9 @@ namespace GraphQL.Client.Http {
 		{
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+			var preprocessed = Options.PreProcessRequest(request, this);
 
-			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), request);
+			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), preprocessed);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);
 			return graphQLSubscriptionResult;
 		}
@@ -167,12 +166,14 @@ namespace GraphQL.Client.Http {
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if (subscriptionStreams.ContainsKey(request))
-				return subscriptionStreams[request];
+			var preprocessed = Options.PreProcessRequest(request, this);
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, cancellationToken: _cancellationTokenSource.Token);
+			if (subscriptionStreams.ContainsKey(preprocessed))
+				return subscriptionStreams[preprocessed];
 
-			subscriptionStreams.TryAdd(request, observable);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(preprocessed, Options, cancellationToken: _cancellationTokenSource.Token);
+
+			subscriptionStreams.TryAdd(preprocessed, observable);
 			return observable;
 		}
 
@@ -199,11 +200,13 @@ namespace GraphQL.Client.Http {
 			if (_disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if(subscriptionStreams.ContainsKey(request))
-				return subscriptionStreams[request];
+			var preprocessed = Options.PreProcessRequest(request, this);
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, exceptionHandler, _cancellationTokenSource.Token);
-			subscriptionStreams.TryAdd(request, observable);
+			if (subscriptionStreams.ContainsKey(preprocessed))
+				return subscriptionStreams[preprocessed];
+
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(preprocessed, Options, exceptionHandler, _cancellationTokenSource.Token);
+			subscriptionStreams.TryAdd(preprocessed, observable);
 			return observable;
 		}
 

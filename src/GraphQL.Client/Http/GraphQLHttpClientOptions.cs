@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
+using GraphQL.Common.Request;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -54,6 +55,11 @@ namespace GraphQL.Client.Http {
 		/// If <see langword="true"/>, the websocket connection is also used for regular queries and mutations
 		/// </summary>
 		public bool UseWebSocketForQueriesAndMutations { get; set; } = false;
+
+		/// <summary>
+		/// Request preprocessing function. Can be used i.e. to inject authorization info into a GraphQL request payload.
+		/// </summary>
+		public Func<GraphQLRequest, GraphQLHttpClient, GraphQLRequest> PreProcessRequest = (request, client) => request;
 	}
 
 }
