@@ -118,7 +118,7 @@ namespace GraphQL.Client.Http {
 
 		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
 		{
-			var preprocessed = await Options.PreProcessRequest(request, this).ConfigureAwait(false);
+			var preprocessed = await Options.PreprocessRequest(request, this).ConfigureAwait(false);
 
 			return Options.UseWebSocketForQueriesAndMutations
 				? await this.graphQlHttpWebSocket.Request(preprocessed, cancellationToken).ConfigureAwait(false)
@@ -146,7 +146,7 @@ namespace GraphQL.Client.Http {
 		{
 			if (request == null) { throw new ArgumentNullException(nameof(request)); }
 			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
-			var preprocessed = Options.PreProcessRequest(request, this).GetAwaiter().GetResult();
+			var preprocessed = Options.PreprocessRequest(request, this).GetAwaiter().GetResult();
 
 			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), preprocessed);
 			graphQLSubscriptionResult.StartAsync(cancellationToken);

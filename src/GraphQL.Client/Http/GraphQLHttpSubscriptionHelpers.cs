@@ -25,7 +25,7 @@ namespace GraphQL.Client.Http
 			return Observable.Defer(() =>
 				Observable.Create<GraphQLResponse>(async observer =>
 				{
-					var preprocessedRequest = await client.Options.PreProcessRequest(request, client);
+					var preprocessedRequest = await client.Options.PreprocessRequest(request, client);
 					var startRequest = new GraphQLWebSocketRequest
 					{
 						Id = Guid.NewGuid().ToString("N"),
