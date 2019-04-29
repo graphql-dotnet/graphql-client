@@ -15,18 +15,22 @@ The Library will try to follow the following standards and documents:
 ### Create a GraphQLRequest:
 #### Simple Request:
 ```csharp
-var heroRequest = new GraphQLRequest(@"
+var heroRequest = new GraphQLRequest()
+{
+	Query = @"
 	{
 		hero {
 			name
 		}
 	}"
-);
+});
 ```
 
 #### OperationName and Variables Request:
 ```csharp
-var heroAndFriendsRequest = new GraphQLRequest(@"
+var heroAndFriendsRequest = new GraphQLRequest()
+{
+	Query = @"
 	query HeroNameAndFriends($episode: Episode) {
 		hero(episode: $episode) {
 			name
@@ -34,7 +38,7 @@ var heroAndFriendsRequest = new GraphQLRequest(@"
 				name
 			}
 		}
-	}"){
+	}",
 	OperationName = "HeroNameAndFriends",
 	Variables = new {
 		episode = "JEDI"
