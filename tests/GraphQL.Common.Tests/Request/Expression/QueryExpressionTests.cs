@@ -114,5 +114,24 @@ namespace GraphQL.Common.Tests.Request.Expression
 		}
 
 
+		[Fact]
+		public void TestParameters()
+		{
+			var parameter = new QueryParameter()
+			{
+				Name = "test"
+			};
+			var expression = GraphQLExpression<Person>.Build(x => new
+			{
+				hero = x.WithParameters(t => new
+				{
+					t.Name
+				}, parameter)
+			});
+
+			
+			Assert.True(expression.Root.Nodes[0].Parameters.Length == 1);
+			Assert.Equal(parameter, expression.Root.Nodes[0].Parameters[0]);
+		}
 	}
 }

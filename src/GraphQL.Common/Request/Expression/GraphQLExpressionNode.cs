@@ -66,16 +66,44 @@ namespace GraphQL.Common.Request.Expression
 
 				case MethodCallExpression methodCallExpression:
 				{
-					// TODO catch arguments from here
-					var firstArg = methodCallExpression.Arguments.First();
-					var argNode = FromExpression(firstArg);
+//					if (methodCallExpression.Method.Name == nameof(GraphQLHelper.WithParameters))
+					if (methodCallExpression.Method.DeclaringType == typeof(GraphQLHelper)
+					    && methodCallExpression.Method.Name == nameof(GraphQLHelper.WithParameters))
+					{
+						var firstArg = methodCallExpression.Arguments.First();
+						var argNode = FromExpression(firstArg);
 
-					var valueNode = FromExpression(methodCallExpression.Arguments.Last());
 
-					node = valueNode;
+						var expression1 = (methodCallExpression.Arguments[1] as UnaryExpression)?.Operand as LambdaExpression;
+						var valueNode = FromExpression((expression1 as LambdaExpression)?.Body);
+						node = valueNode;
 
-					node.Name = argNode?.Name;
-					node.Alias = argNode?.Alias;
+						node.Name = argNode?.Name;
+						node.Alias = argNode?.Alias;
+
+						var l = System.Linq.Expressions.Expression.Lambda(methodCallExpression.Arguments[2]);
+						var method = l.Compile();
+						var parameters = method.DynamicInvoke() as QueryParameter[];
+
+						node.Parameters = parameters;
+
+						//var methodCall = System.Linq.Expressions.MethodCallExpression
+					}
+					else
+					{
+						// TODO catch arguments from here
+						var firstArg = methodCallExpression.Arguments.First();
+						var argNode = FromExpression(firstArg);
+
+						var valueNode = FromExpression(methodCallExpression.Arguments.Last());
+
+						node = valueNode;
+
+						node.Name = argNode?.Name;
+						node.Alias = argNode?.Alias;
+					}
+
+
 				}
 					break;
 
@@ -94,6 +122,8 @@ namespace GraphQL.Common.Request.Expression
 
 			return node;
 		}
+
+		public QueryParameter[] Parameters { get; set; }
 
 		public string ParentType { get; set; }
 	}
