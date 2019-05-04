@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using FluentAssertions;
 using GraphQL.Common.Request;
 using GraphQL.Common.Request.Expression;
 using GraphQL.Common.Tests.Model;
@@ -11,11 +13,11 @@ namespace GraphQL.Common.Tests.Request.Expression
 {
 	public class QueryExpressionTests
 	{
-		
+
 		[Fact]
 		public void BuildQueryFact()
 		{
-			var expression = GraphQLExpression<Person>.Build(x => new
+			var expression = GqlExp<Person>.Build(x => new
 			{
 				hero = new
 				{
@@ -31,7 +33,7 @@ namespace GraphQL.Common.Tests.Request.Expression
 }
 ");
 
-			Assert.Equal(graphQLRequest.Query, query);
+			Assert.Equal(graphQLRequest.Query, query.Replace("\r\n", "\n"));
 		}
 
 
@@ -39,7 +41,7 @@ namespace GraphQL.Common.Tests.Request.Expression
 		[Fact]
 		public void SimpleBuildQueryFact()
 		{
-			var expression = GraphQLExpression<Person>.Build(x => new
+			var expression = GqlExp<Person>.Build(x => new
 			{
 				hero = new
 				{
@@ -61,9 +63,10 @@ namespace GraphQL.Common.Tests.Request.Expression
 
 
 
-		[Fact] public void SimpleBuildQueryWithAliasFact()
+		[Fact]
+		public void SimpleBuildQueryWithAliasFact()
 		{
-			var expression = GraphQLExpression<Person>.Build(x => new
+			var expression = GqlExp<Person>.Build(x => new
 			{
 				hero = new
 				{
@@ -85,20 +88,20 @@ namespace GraphQL.Common.Tests.Request.Expression
 		[Fact]
 		public void BuildWithSubLinq()
 		{
-			var expression = GraphQLExpression<Person>.Build(x => new
+			var expression = GqlExp<Person>.Build(x => new
 			{
 				hero = new
 				{
 					x.Name,
 
-					friends = x.Friends.Select(f=>new
+					friends = x.Friends.Select(f => new
 					{
 						f.Name
 					})
 				}
 			});
 
-			
+
 			var request = expression.Build();
 			var graphQLRequest = new GraphQLRequest(@"query   {
     hero {
@@ -117,11 +120,8 @@ namespace GraphQL.Common.Tests.Request.Expression
 		[Fact]
 		public void TestParameters()
 		{
-			var parameter = new QueryParameter()
-			{
-				Name = "test"
-			};
-			var expression = GraphQLExpression<Person>.Build(x => new
+			var parameter = GraphQLParameter.Build("test");
+			var expression = GqlExp<Person>.Build(x => new
 			{
 				hero = x.WithParameters(t => new
 				{
@@ -129,9 +129,32 @@ namespace GraphQL.Common.Tests.Request.Expression
 				}, parameter)
 			});
 
-			
+
 			Assert.True(expression.Root.Nodes[0].Parameters.Length == 1);
 			Assert.Equal(parameter, expression.Root.Nodes[0].Parameters[0]);
+		}
+
+		[Fact]
+		public void TestQueryParameter()
+		{
+			var firstParameter = GraphQLParameter.Build<int>("first", true);
+			var expression = GqlExp<Person>.Build(new[] { firstParameter }, x => new
+			{
+				hero = GqlExp.Params(new[] { firstParameter.ToArgument() }, x, t => new
+				{
+					t.Name
+				})
+			});
+
+			var graphQLRequest = new GraphQLRequest(@"query ($first: Int!)   {
+    hero (first: $first) {
+      name
+    }
+  }
+");
+
+			var query = expression.Root.ToQuery(expression.Parameters);
+			Assert.Equal(graphQLRequest.Query, query.Replace("\r\n", "\n"));
 		}
 	}
 }

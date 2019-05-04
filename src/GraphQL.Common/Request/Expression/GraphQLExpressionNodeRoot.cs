@@ -1,5 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.XPath;
 
 namespace GraphQL.Common.Request.Expression
 {
@@ -23,7 +26,7 @@ namespace GraphQL.Common.Request.Expression
 			return builder.ToString();
 		}
 
-		public string ToQuery()
+		public string ToQuery(GraphQLParameter[] parameters)
 		{
 			var builder = new StringBuilder();
 
@@ -33,7 +36,12 @@ namespace GraphQL.Common.Request.Expression
 				builder.Append($" {Name}");
 			}
 
-			// TODO parameters
+			if (parameters?.Any() == true)
+			{
+				builder.Append(" (");
+				builder.Append(string.Join(", ", parameters.Select(x => x.ToQueryParameter())));
+				builder.Append(")");
+			}
 
 
 			Build(builder, this, 1);
@@ -41,6 +49,43 @@ namespace GraphQL.Common.Request.Expression
 			return builder.ToString();
 		}
 
+
+		public IEnumerable<string> BuildLines(GraphQLExpressionNode node, int nestLevel, bool pretty = true)
+		{
+			const string space = "  ";
+			var tab = pretty ?  string.Join(string.Empty, Enumerable.Repeat(space, nestLevel)) : " ";
+			++nestLevel;
+			var name = node.Name?.ToCamelCase() ?? node.Alias?.ToCamelCase();
+
+			var field = name == node.Alias?.ToCamelCase()
+				? name.ToCamelCase()
+				: $"{node.Alias}: {node.Name.ToCamelCase()}";
+
+
+			var parameters = "";
+
+			if(node.Parameters?.Any() == true)
+			{
+				parameters = $" ({string.Join(", ", node.Parameters.Select(x => x.ToParameter()))}) ";
+			}
+
+
+			if (node.Nodes.Any())
+			{
+				yield return $"{tab}{field}{parameters} {{";
+
+				foreach (var n in node.Nodes.SelectMany(x=>BuildLines(x, nestLevel, pretty)))
+				{
+					yield return n;
+				}
+
+				yield return $"{tab}}}";
+			}
+			else
+			{
+				yield return $"{tab}{field}{parameters}";
+			}
+		}
 
 		public void Build(StringBuilder builder, GraphQLExpressionNode node, int nestLevel)
 		{
@@ -55,6 +100,13 @@ namespace GraphQL.Common.Request.Expression
 				: $"{node.Alias}: {node.Name.ToCamelCase()}";
 
 			builder.Append($"{tab}{field}");
+
+			if (node.Parameters?.Any() == true)
+			{
+				builder.Append(" (");
+				builder.Append(string.Join(", ", node.Parameters.Select(x => x.ToParameter())));
+				builder.Append(")");
+			}
 
 
 			if (node.Nodes.Any())
