@@ -38,6 +38,29 @@ namespace GraphQL.Client.Tests.Http
 			Assert.Equal("my-secret-api-key", queryParams["code"]);
 		}
 
+		[Fact]
+		public async Task SendQueryAsyncShouldIncludeResponseHeadersInGraphQLResponse()
+		{
+			var endpoint = new Uri("http://localhost/api/graphql");
+			var handlerStub = new HttpHandlerStub();
+			var options = new GraphQLHttpClientOptions
+			{
+				EndPoint = endpoint,
+				HttpMessageHandler = handlerStub
+			};
+			var systemUnderTest = new GraphQLHttpClient(options);
+
+			var response = await systemUnderTest.SendQueryAsync(new GraphQLRequest(@"
+				{
+					person(personID: ""1"") {
+						name
+					}
+				}"
+			));
+
+			Assert.NotNull(response.Headers);
+		}
+
 
 		private class HttpHandlerStub : HttpMessageHandler{
 
