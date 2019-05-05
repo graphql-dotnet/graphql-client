@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using GraphQL.Common.Response;
 
@@ -10,9 +11,22 @@ namespace GraphQL.Common.Request.Expression
 		public GraphQLExpressionNodeRoot Root { get; set; }
 		public GraphQLParameter[] Parameters { get; set; }
 
+		public GqlVariable[] Variables { get; set; }
+
 
 		public GraphQLRequest Build()
 		{
+			if (Variables != null)
+			{
+				Parameters = Variables.Select(x => new GraphQLParameter()
+				{
+					IsRequired = x.IsRequired,
+					Value = x.Value,
+					Name = x.Name,
+					GraphQLType = x.GqlType
+				}).ToArray();
+			}
+
 			return new GraphQLRequest(Root.ToQuery(Parameters));
 		}
 
@@ -22,14 +36,84 @@ namespace GraphQL.Common.Request.Expression
 		}
 	}
 
+	
+
+	public static class Gql<TType>
+	{
+		public static GraphQLExpression<TType, TReturn> Query<TReturn, TArgs>(System.Linq.Expressions.Expression<Func<TType, TArgs, TReturn>> expression, TArgs args = default, string name = "")
+			where TReturn : class
+		{
+			var variables = GqlVariable.FromArgs(args);
+			var root = GraphQLExpressionNode.FromExpression(expression, new GraphQLExpressionNode.GqlExpressionContext()
+			{
+				Variables = variables,
+				VariableParameterName = expression.Parameters.Last().Name,
+
+				Args = args,
+			});
+			
+			root.Name = name;
+
+			return new GraphQLExpression<TType, TReturn>()
+			{
+				Root = new GraphQLExpressionNodeRoot(root),
+				Variables = variables
+
+			};
+		}
+
+		public static GraphQLExpression<TType, TReturn> Query<TReturn>(System.Linq.Expressions.Expression<Func<TType, TReturn>> expression, string name = "")
+			where TReturn : class
+		{
+			var root = GraphQLExpressionNode.FromExpression(expression, null);
+			root.Name = name;
+
+			return new GraphQLExpression<TType, TReturn>()
+			{
+				Root = new GraphQLExpressionNodeRoot(root),
+				//ParametersOld = parameters
+			};
+		}
+
+		public static TReturn Field<TReturn>(System.Linq.Expressions.Expression<Func<TType, TReturn>> expression)
+			where TReturn : class
+		{
+			return null;
+		}
+
+		public static TReturn Field<TReturn, TArgs>(System.Linq.Expressions.Expression<Func<TType, TArgs, TReturn>> expression, TArgs args)
+			where TReturn : class
+		{
+			return null;
+		}
+	}
+
+	public static class Gql
+	{
+		public static TReturn Field<TType, TReturn>(TType field, System.Linq.Expressions.Expression<Func<TType, TReturn>> expression)
+			where TReturn : class
+		{
+			return null;
+		}
+
+		public static TReturn Field<TType, TReturn, TArgs>(TType field, System.Linq.Expressions.Expression<Func<TType, TReturn>> expression, TArgs args)
+			where TReturn : class
+		{
+			return null;
+		}
+	}
+
+
+
 	public static class GqlExp<TType>
 	{
+
 		public static GraphQLExpression<TType, TReturn> Build<TReturn>(
 			GraphQLParameter[] parameters,
 			System.Linq.Expressions.Expression<Func<TType, TReturn>> expression, string name = "")
 			where TReturn : class
 		{
-			var root = GraphQLExpressionNode.FromExpression(expression);
+			var root = GraphQLExpressionNode.FromExpression(expression, null);
 			root.Name = name;
 
 			return new GraphQLExpression<TType, TReturn>()
@@ -48,6 +132,72 @@ namespace GraphQL.Common.Request.Expression
 	}
 
 
+	public class GqlVariable
+	{
+		public string Name { get; set; }
+		public bool IsRequired { get; set; }
+
+		public object Value { get; set; }
+
+		public string GqlType { get; set; }
+
+		public static GqlVariable[] FromArgs<TArgs>(TArgs args)
+		{
+			return args.GetType().GetProperties()
+				.Select(x =>
+				{
+					var value = x.GetValue(args);
+					if (value is GqlVariable variable)
+					{
+						return variable;
+					}
+
+					if (value is GraphQLParameter param)
+					{
+						return new GqlVariable()
+						{
+							Name = param.Name,
+							Value = param.Value,
+							IsRequired = param.IsRequired,
+							GqlType = param.GetGqlType()
+
+						};
+					}
+
+					var nullableType = Nullable.GetUnderlyingType(x.PropertyType);
+
+					return new GqlVariable()
+					{
+						Name = x.Name,
+						IsRequired = nullableType == null,
+						Value = value,
+						GqlType = (nullableType ?? x.PropertyType).GetGraphQLType()
+					};
+				}).ToArray();
+
+		}
+	}
+
+	public class GqlParameter
+	{
+		public string Name { get; set; }
+
+		public object Value { get; set; }
+
+		public string ToParameter()
+		{
+			var name = Name.ToCamelCase();
+
+			var value = Value is GqlVariable variable
+				? $"${variable.Name}"
+				: (Value is string ? $"\"{Value}\"" : Value);
+
+//			var value = string.IsNullOrEmpty(ParameterValue?.Name) ? (Value is string ? $"\"{Value}\"" : Value)
+//				: $"${ParameterValue.Name}";
+
+			return $"{name}: {value}";
+		}
+	}
 
 	public class GraphQLParameter
 	{
@@ -101,6 +251,13 @@ namespace GraphQL.Common.Request.Expression
 				Name = name,
 				ParameterValue = parameter
 			};
+		}
+
+		public string GetGqlType()
+		{
+			return string.IsNullOrEmpty(GraphQLType)
+				? Type.GetGraphQLType()
+				: GraphQLType;
 		}
 
 		public string ToQueryParameter()

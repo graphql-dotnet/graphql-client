@@ -64,9 +64,9 @@ namespace GraphQL.Common.Request.Expression
 
 			var parameters = "";
 
-			if(node.Parameters?.Any() == true)
+			if(node.ParametersOld?.Any() == true)
 			{
-				parameters = $" ({string.Join(", ", node.Parameters.Select(x => x.ToParameter()))}) ";
+				parameters = $" ({string.Join(", ", node.ParametersOld.Select(x => x.ToParameter()))}) ";
 			}
 
 
@@ -100,6 +100,13 @@ namespace GraphQL.Common.Request.Expression
 				: $"{node.Alias}: {node.Name.ToCamelCase()}";
 
 			builder.Append($"{tab}{field}");
+
+			if (node.ParametersOld?.Any() == true)
+			{
+				builder.Append(" (");
+				builder.Append(string.Join(", ", node.ParametersOld.Select(x => x.ToParameter())));
+				builder.Append(")");
+			}
 
 			if (node.Parameters?.Any() == true)
 			{
