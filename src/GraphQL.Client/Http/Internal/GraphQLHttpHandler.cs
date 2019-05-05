@@ -85,8 +85,9 @@ namespace GraphQL.Client.Http.Internal {
 				var jsonSerializer = new JsonSerializer	{
 					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
 				};
+				GraphQLResponse response;
+
 				if (!httpResponseMessage.IsSuccessStatusCode) {
-					GraphQLResponse response;
 					try {
 						response = jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
 					}
@@ -103,16 +104,10 @@ namespace GraphQL.Client.Http.Internal {
 					return response;
 				}
 
-				try {
-					var response = jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+				response = jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+				response.Headers = httpResponseMessage.Headers;
 
-					response.Headers = httpResponseMessage.Headers;
-
-					return response;
-				}
-				catch (JsonReaderException)	{
-					throw;
-				}
+				return response;
 			}
 		}
 
