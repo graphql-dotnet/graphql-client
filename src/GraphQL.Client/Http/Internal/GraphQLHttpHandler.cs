@@ -98,11 +98,17 @@ namespace GraphQL.Client.Http.Internal {
 						throw new GraphQLHttpException(httpResponseMessage);
 					}
 
+					response.Headers = httpResponseMessage.Headers;
+
 					return response;
 				}
 
 				try {
-					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+					var response = jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
+
+					response.Headers = httpResponseMessage.Headers;
+
+					return response;
 				}
 				catch (JsonReaderException)	{
 					throw;

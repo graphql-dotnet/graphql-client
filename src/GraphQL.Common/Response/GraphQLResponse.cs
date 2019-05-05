@@ -26,7 +26,7 @@ namespace GraphQL.Common.Response {
 		/// <summary>
 		/// The headers of the response.
 		/// </summary>
-		public IDictionary<string, IEnumerable<string>> Headers { get; set; }
+		public IEnumerable<KeyValuePair<string, IEnumerable<string>>>? Headers { get; set; }
 
 		/// <summary>
 		/// Get a field of <see cref="Data"/> as Type
