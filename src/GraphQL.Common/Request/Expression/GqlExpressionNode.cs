@@ -5,23 +5,21 @@ using System.Linq.Expressions;
 
 namespace GraphQL.Common.Request.Expression
 {
-	public class GraphQLExpressionNode
+	public class GqlExpressionNode
 	{
-		public GraphQLExpressionNode(string name)
+		public GqlExpressionNode(string name)
 		{
 			Name = name;
 		}
 
-		public GraphQLExpressionNode()
+		public GqlExpressionNode()
 		{
 		}
 
 		public string Name { get; set; }
 
-		public List<GraphQLExpressionNode> Nodes { get; } = new List<GraphQLExpressionNode>();
+		public List<GqlExpressionNode> Nodes { get; } = new List<GqlExpressionNode>();
 		public string Alias { get; set; }
-
-		public GraphQLParameter[] ParametersOld { get; set; }
 
 		public string ParentType { get; set; }
 
@@ -36,9 +34,9 @@ namespace GraphQL.Common.Request.Expression
 			public object Args { get; set; }
 		}
 
-		public static GraphQLExpressionNode FromExpression(System.Linq.Expressions.Expression expression, GqlExpressionContext context)
+		public static GqlExpressionNode FromExpression(System.Linq.Expressions.Expression expression, GqlExpressionContext context)
 		{
-			var node = new GraphQLExpressionNode();
+			var node = new GqlExpressionNode();
 
 			switch (expression)
 			{
@@ -73,48 +71,7 @@ namespace GraphQL.Common.Request.Expression
 
 				case MethodCallExpression methodCallExpression:
 					{
-						if (methodCallExpression.Method.DeclaringType == typeof(GqlExp))
-						{
-							System.Linq.Expressions.Expression typeArgument;
-							LambdaExpression resultArgument;
-							LambdaExpression parametersArgument;
-							switch (methodCallExpression.Method.Name)
-							{
-								case nameof(GqlExp.WithParameters):
-									{
-										typeArgument = methodCallExpression.Arguments[0];
-										resultArgument =
-											(methodCallExpression.Arguments[1] as UnaryExpression)?.Operand as LambdaExpression;
-										parametersArgument =
-											System.Linq.Expressions.Expression.Lambda(methodCallExpression.Arguments[2]);
-										break;
-									}
-								case nameof(GqlExp.Params):
-									{
-										typeArgument = methodCallExpression.Arguments[1];
-										resultArgument =
-											(methodCallExpression.Arguments[2] as UnaryExpression)?.Operand as LambdaExpression;
-										parametersArgument =
-											System.Linq.Expressions.Expression.Lambda(methodCallExpression.Arguments[0]);
-										break;
-									}
-								default:
-									throw new ArgumentOutOfRangeException();
-							}
-
-							var argNode = FromExpression(typeArgument, context);
-							var valueNode = FromExpression(resultArgument?.Body, context);
-							node = valueNode;
-
-							node.Name = argNode?.Name;
-							node.Alias = argNode?.Alias;
-
-							var method = parametersArgument.Compile();
-							var parameters = method.DynamicInvoke() as GraphQLParameter[];
-
-							node.ParametersOld = parameters;
-						}
-						else if (methodCallExpression.Method.DeclaringType == typeof(Gql))
+						if (methodCallExpression.Method.DeclaringType == typeof(Gql))
 						{
 							if (methodCallExpression.Method.Name == nameof(Gql.Field))
 							{
@@ -123,8 +80,6 @@ namespace GraphQL.Common.Request.Expression
 
 								var expressionArg =
 									(methodCallExpression.Arguments[1] as UnaryExpression)?.Operand as LambdaExpression;
-
-								//var argNode = FromExpression(firstArg, context);
 
 								var valueNode = FromExpression(expressionArg.Body, context);
 								node = valueNode;
@@ -138,8 +93,6 @@ namespace GraphQL.Common.Request.Expression
 										.ToList();
 									node.Parameters = args;
 								}
-
-
 							}
 						}
 						else
@@ -214,14 +167,6 @@ namespace GraphQL.Common.Request.Expression
 								throw new Exception("Not supported");
 							}
 
-
-							//						var argNode = FromExpression(argument, context);
-							//						argNode.Alias = expressionAlias;
-
-
-							//						if (string.IsNullOrEmpty(argNode.ParentType) == false) node.Name = argNode.ParentType;
-							//
-							//						node.Nodes.Add(argNode);
 						}
 
 						break;
