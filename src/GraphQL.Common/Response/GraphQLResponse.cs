@@ -24,16 +24,21 @@ namespace GraphQL.Common.Response {
 		public GraphQLError[]? Errors { get; set; }
 
 		/// <summary>
+		/// The headers of the response.
+		/// </summary>
+		public IDictionary<string, IEnumerable<string>> Headers { get; set; }
+
+		/// <summary>
 		/// Get a field of <see cref="Data"/> as Type
 		/// </summary>
-		/// <typeparam name="Type">The expected type</typeparam>
+		/// <typeparam name="TOut">The expected type</typeparam>
 		/// <param name="fieldName">The name of the field</param>
 		/// <returns>The field of data as an object</returns>
-		public Type? GetDataFieldAs<Type>(string fieldName) where Type:class{
+		public TOut? GetDataFieldAs<TOut>(string fieldName) where TOut:class{
 			if(this.Data is JObject jObjectData) {
-				return jObjectData.GetValue(fieldName).ToObject<Type>();
+				return jObjectData.GetValue(fieldName).ToObject<TOut>();
 			}
-			return (Type)this.Data!.GetType()
+			return (TOut)this.Data!.GetType()
 				.GetProperty(fieldName)
 				.GetValue(this.Data!, null);
 		}
