@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http.Internal;
 using GraphQL.Common.Request;
+using GraphQL.Common.Request.Expression;
 using GraphQL.Common.Response;
 
 namespace GraphQL.Client.Http {
@@ -105,6 +106,13 @@ namespace GraphQL.Client.Http {
 
 		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) =>
 			this.graphQLHttpHandler.PostAsync(request, cancellationToken);
+
+		public Task<GraphQLResponse<TResponse>> SendAsync<TType, TResponse>(GqlExpression<TType, TResponse> expression, CancellationToken cancellationToken = default) where TResponse : class =>
+			this.graphQLHttpHandler.PostAsync<TResponse>(expression.Build(), cancellationToken);
+
+		public Task<GraphQLResponse<TResponse>> SendAsync<TType, TResponse, TArgs>(GqlExpression<TType, TResponse, TArgs> expression, TArgs args,
+			CancellationToken cancellationToken = default) where TResponse : class =>
+			this.graphQLHttpHandler.PostAsync<TResponse>(expression.Build(args), cancellationToken);
 
 		public Task<GraphQLResponse> SendMutationAsync(string query, CancellationToken cancellationToken = default) =>
 			this.SendMutationAsync(new GraphQLRequest(query), cancellationToken);

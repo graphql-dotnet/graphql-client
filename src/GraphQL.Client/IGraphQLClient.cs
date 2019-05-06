@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Common.Request;
+using GraphQL.Common.Request.Expression;
 using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
@@ -18,6 +19,18 @@ namespace GraphQL.Client {
 		/// <param name="cancellationToken">The Cancellation Token</param>
 		/// <returns>The Response</returns>
 		Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
+
+
+		Task<GraphQLResponse<TResponse>> SendAsync<TType, TResponse>(GqlExpression<TType, TResponse> expression,
+			CancellationToken cancellationToken = default)
+			where TResponse : class;
+
+		Task<GraphQLResponse<TResponse>> SendAsync<TType, TResponse, TArgs>(GqlExpression<TType, TResponse, TArgs> expression,
+			TArgs args,
+			CancellationToken cancellationToken = default)
+			where TResponse : class;
+
+
 
 		/// <summary>
 		/// Send a Mutation Async

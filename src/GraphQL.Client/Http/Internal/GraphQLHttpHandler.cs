@@ -73,6 +73,22 @@ namespace GraphQL.Client.Http.Internal {
 			}
 		}
 
+		public async Task<GraphQLResponse<TResponse>> PostAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
+		{
+			if (request == null) { throw new ArgumentNullException(nameof(request)); }
+			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
+
+			var graphQLString = JsonConvert.SerializeObject(request, this.Options.JsonSerializerSettings);
+			using (var httpContent = new StringContent(graphQLString))
+			{
+				httpContent.Headers.ContentType = this.Options.MediaType;
+				using (var httpResponseMessage = await this.HttpClient.PostAsync(this.Options.EndPoint, httpContent, cancellationToken).ConfigureAwait(false))
+				{
+					return await this.ReadHttpResponseMessageAsync<TResponse>(httpResponseMessage).ConfigureAwait(false);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Reads the <see cref="HttpResponseMessage"/>
 		/// </summary>
@@ -105,6 +121,48 @@ namespace GraphQL.Client.Http.Internal {
 					return jsonSerializer.Deserialize<GraphQLResponse>(jsonTextReader);
 				}
 				catch (JsonReaderException)	{
+					throw;
+				}
+			}
+		}
+
+		public async Task<GraphQLResponse<TResponse>> ReadHttpResponseMessageAsync<TResponse>(
+			HttpResponseMessage httpResponseMessage)
+		{
+			using (var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false))
+			using (var streamReader = new StreamReader(stream))
+			using (var jsonTextReader = new JsonTextReader(streamReader))
+			{
+				var jsonSerializer = new JsonSerializer
+				{
+					ContractResolver = this.Options.JsonSerializerSettings.ContractResolver
+				};
+				if (!httpResponseMessage.IsSuccessStatusCode)
+				{
+					GraphQLResponse<TResponse> response;
+					try
+					{
+						response = jsonSerializer.Deserialize<GraphQLResponse<TResponse>>(jsonTextReader);
+					}
+					catch (JsonReaderException)
+					{
+						throw new GraphQLHttpException(httpResponseMessage);
+					}
+
+					if (response == null || response.Data == null)
+					{
+						throw new GraphQLHttpException(httpResponseMessage);
+					}
+
+					return response;
+				}
+
+				try
+				{
+					return jsonSerializer.Deserialize<GraphQLResponse<TResponse>>(jsonTextReader);
+				}
+				catch (JsonReaderException)
+				{
 					throw;
 				}
 			}
