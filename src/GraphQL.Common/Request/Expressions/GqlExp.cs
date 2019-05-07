@@ -1,52 +1,37 @@
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
-namespace GraphQL.Common.Request.Expression
+namespace GraphQL.Common.Request.Expressions
 {
 	public class GqlExpression<TType, TResponse>
 		where TResponse : class
 	{
-		public GqlExpressionRoot Root { get; set; }
 		public GqlVariable[] Variables { get; set; }
-
+		public string Query { get; set; }
 
 		public GraphQLRequest Build()
 		{
-			return new GraphQLRequest(Root.ToQuery(Variables));
-		}
-
-
-		public TResponse FromResponse(GraphQLResponse response)
-		{
-			return response.GetDataFieldAs<TResponse>(Root.Name);
+			return new GraphQLRequest(Query);
 		}
 	}
 
 	public class GqlExpression<TType, TResponse, TArgs>
 		where TResponse : class
 	{
-		public GqlExpressionRoot Root { get; set; }
 		public GqlVariable[] Variables { get; set; }
 
+		public string Query { get; set; }
 
 		public GraphQLRequest Build(TArgs variables = default)
 		{
-			return new GraphQLRequest(Root.ToQuery(Variables))
+			return new GraphQLRequest(Query)
 			{
 				Variables = variables
 			};
-		}
-
-
-		public TResponse FromResponse(GraphQLResponse response)
-		{
-			return response.GetDataFieldAs<TResponse>(Root.Name);
 		}
 	}
 
@@ -54,24 +39,35 @@ namespace GraphQL.Common.Request.Expression
 
 	public static class Gql<TType>
 	{
+		//public static GqlExpression<TType, TReturn, TArgs> Query<TReturn, TArgs>(System.Linq.Expressions.Expression<Func<TType, TArgs, TReturn>> expression, TArgs args = default, string name = "")
+		//	where TReturn : class
+		//{
+		//	var variables = GqlVariable.FromArgs(args);
+		//	var root = GqlExpressionNode.FromExpression(expression, new GqlExpressionNode.GqlExpressionContext()
+		//	{
+		//		Variables = variables,
+		//		VariableParameterName = expression.Parameters.Last().Name,
+		//		Args = args,
+		//	});
+		//	root.Name = name;
+
+		//	return new GqlExpression<TType, TReturn, TArgs>()
+		//	{
+		//		Root = new GqlExpressionRoot(root)
+		//		{
+		//			QueryType = "query"
+		//		},
+		//		Variables = variables
+		//	};
+		//}
 		public static GqlExpression<TType, TReturn, TArgs> Query<TReturn, TArgs>(System.Linq.Expressions.Expression<Func<TType, TArgs, TReturn>> expression, TArgs args = default, string name = "")
 			where TReturn : class
 		{
 			var variables = GqlVariable.FromArgs(args);
-			var root = GqlExpressionNode.FromExpression(expression, new GqlExpressionNode.GqlExpressionContext()
-			{
-				Variables = variables,
-				VariableParameterName = expression.Parameters.Last().Name,
-				Args = args,
-			});
-			root.Name = name;
-
+			var query = new GqlExpVisitor().GetQuery(expression, name, variables, expression.Parameters.Last().Name, args);
 			return new GqlExpression<TType, TReturn, TArgs>()
 			{
-				Root = new GqlExpressionRoot(root)
-				{
-					QueryType = "query"
-				},
+				Query = query,
 				Variables = variables
 			};
 		}
@@ -79,28 +75,24 @@ namespace GraphQL.Common.Request.Expression
 		public static GqlExpression<TType, TReturn> Query<TReturn>(System.Linq.Expressions.Expression<Func<TType, TReturn>> expression, string name = "")
 			where TReturn : class
 		{
-			var root = GqlExpressionNode.FromExpression(expression, null);
-			root.Name = name;
-
+			var query = new GqlExpVisitor().GetQuery(expression, name, variableParameterName: expression.Parameters.Last().Name);
 			return new GqlExpression<TType, TReturn>()
 			{
-				Root = new GqlExpressionRoot(root)
-				{
-					QueryType = "query"
-				},
+				Query = query,
 			};
 		}
+
 
 		public static TReturn Field<TReturn>(System.Linq.Expressions.Expression<Func<TType, TReturn>> expression)
 			where TReturn : class
 		{
-			return null;
+			throw new InvalidOperationException();
 		}
 
 		public static TReturn Field<TReturn, TArgs>(System.Linq.Expressions.Expression<Func<TType, TArgs, TReturn>> expression, TArgs args)
 			where TReturn : class
 		{
-			return null;
+			throw new InvalidOperationException();
 		}
 	}
 
@@ -194,7 +186,8 @@ namespace GraphQL.Common.Request.Expression
 	}
 
 
-	[JsonConverter(typeof(NiceDateConverter))]
+	[JsonConverter(typeof(GqlIDConverter))]
+	[GraphQLType("ID")]
 	public class GqlID<T>
 		where T : struct
 	{
@@ -204,19 +197,9 @@ namespace GraphQL.Common.Request.Expression
 		{
 			Value = value;
 		}
-
-		//public void SetValue(object target, object value)
-		//{
-		//	Value = (T)value;
-		//}
-
-		//public object GetValue(object target)
-		//{
-		//	return Value;
-		//}
 	}
 
-	public class NiceDateConverter : JsonConverter
+	public class GqlIDConverter : JsonConverter
 	{
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
@@ -229,15 +212,9 @@ namespace GraphQL.Common.Request.Expression
 			throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
 		}
 
-		public override bool CanRead
-		{
-			get { return false; }
-		}
+		public override bool CanRead => false;
 
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType.IsGenericType && objectType.GetGenericTypeDefinition().IsAssignableFrom(typeof(GqlID<>));
-		}
+		public override bool CanConvert(Type objectType) => objectType.IsGenericType && objectType.GetGenericTypeDefinition().IsAssignableFrom(typeof(GqlID<>));
 	}
 
 	public static class GqlID
@@ -258,8 +235,6 @@ namespace GraphQL.Common.Request.Expression
 			if (type == typeof(string)) return "String";
 			if (type == typeof(bool)) return "Boolean";
 			if (type == typeof(Guid)) return "ID";
-
-			if (type.IsGenericType && type.GetGenericTypeDefinition().IsAssignableFrom(typeof(GqlID<>))) return "ID";
 
 			var graphQLTypeAttribute = (GraphQLTypeAttribute)type.GetCustomAttribute(typeof(GraphQLTypeAttribute));
 			if (graphQLTypeAttribute != null)

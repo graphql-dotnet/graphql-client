@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using GraphQL.Common.Request;
-using GraphQL.Common.Request.Expression;
+using GraphQL.Common.Request.Expressions;
 using GraphQL.Common.Tests.Model;
 using Xunit;
 
@@ -11,9 +11,8 @@ namespace GraphQL.Common.Tests.Request.Expression
 	public class QueryExpressionTests
 	{
 		
-
 		[Fact]
-		public void BuildQueryFact()
+		public void SimpleQuery()
 		{
 			var expression = Gql<Schema>.Query(x => new
 			{
@@ -23,20 +22,13 @@ namespace GraphQL.Common.Tests.Request.Expression
 				}
 			});
 
-			var query = expression.Build();
-			var graphQLRequest = new GraphQLRequest(@"query   {
-    mainHero {
-      name
-    }
-  }
-");
+			var graphQLRequest = @"query { mainHero { name } }";
 
-
-			Assert.Equal(graphQLRequest.Query, query.Query); //.Replace("\r\n", "\n"));
+			Assert.Equal(graphQLRequest, expression.Query);
 		}
 
 		[Fact]
-		public void BuildQueryUsingSubField()
+		public void SimpleQueryWithField()
 		{
 			var expression = Gql<Schema>.Query(x => new
 			{
@@ -46,40 +38,29 @@ namespace GraphQL.Common.Tests.Request.Expression
 				})
 			});
 
-			var query = expression.Build();
-			var graphQLRequest = new GraphQLRequest(@"query   {
-    mainHero {
-      name
-    }
-  }
-");
+			var graphQLRequest = @"query { mainHero { name } }";
 
-			Assert.Equal(graphQLRequest.Query, query.Query); //.Replace("\r\n", "\n"));
+			Assert.Equal(graphQLRequest, expression.Query);
 		}
 
 		[Fact]
-		public void BuildQueryUsingAlias()
+		public void QueryUsingAlias()
 		{
 			var expression = Gql<Schema>.Query(x => new
 			{
 				hero = new 
 				{
-					x.MainHero.Name
+					x.MainHero.Name,
 				}
 			});
 
-			var query = expression.Build();
-			var graphQLRequest = new GraphQLRequest(@"query   {
-    hero: mainHero {
-      name
-    }
-  }
-");
+			var graphQLRequest = @"query { hero: mainHero { name } }";
 
-			Assert.Equal(graphQLRequest.Query, query.Query); //.Replace("\r\n", "\n"));
+			Assert.Equal(graphQLRequest, expression.Query); //.Replace("\r\n", "\n"));
 		}
+
 		[Fact]
-		public void BuildWithSubLinq()
+		public void QueryWithSubLinq()
 		{
 			var expression = Gql<Schema>.Query(schema => new
 			{
@@ -95,22 +76,35 @@ namespace GraphQL.Common.Tests.Request.Expression
 			});
 
 
-			var request = expression.Build();
-			var graphQLRequest = new GraphQLRequest(@"query   {
-    mainHero {
-      name
-      friends {
-        name
-      }
-    }
-  }
-");
+			var request = @"query { mainHero { name friends { name } } }";
 
-			Assert.Equal(graphQLRequest, request);
+			Assert.Equal(request, expression.Query);
 		}
 
 		[Fact]
-		public void SimpleBuildQueryWithAliasFact()
+		public void QueryWithSubLinq2()
+		{
+			var expression = Gql<Schema>.Query(schema => new
+			{
+				MainHero = new
+				{
+					schema.MainHero.Name,
+
+					friends = schema.MainHero.Friends.Select(f => new
+					{
+						f.Name
+					}),
+				}
+			});
+
+
+			var request = @"query { mainHero { name friends { name } } }";
+			Assert.Equal(request, expression.Query);
+		}
+
+
+		[Fact]
+		public void SimpleQueryWithAliasFact()
 		{
 			var expression = Gql<Schema>.Query(x => new
 			{
@@ -120,35 +114,14 @@ namespace GraphQL.Common.Tests.Request.Expression
 				}
 			});
 
-			var request = expression.Build();
-			var graphQLRequest = new GraphQLRequest(@"query   {
-    hero: mainHero {
-      heroName: name
-    }
-  }
-");
+			var graphQLRequest = @"query { hero: mainHero { heroName: name } }";
 
-			Assert.Equal(graphQLRequest, request);
+			Assert.Equal(graphQLRequest, expression.Query);
 		}
 
 
 		[Fact]
-		public void TestParameters()
-		{
-			var expression = Gql<Schema>.Query(x => new
-			{
-				hero = Gql.Field(x.MainHero, h => new
-				{
-					h.Name
-				}, new { test = default(int) })
-			});
-
-
-			Assert.True(expression.Root.Nodes[0].Parameters.Count == 1);
-		}
-
-		[Fact]
-		public void TestQueryParameter()
+		public void QueryParameters()
 		{
 			var expression = Gql<Schema>.Query((schema, args) => new
 			{
@@ -158,21 +131,14 @@ namespace GraphQL.Common.Tests.Request.Expression
 				}, new { args.first, offset = 10 })
 			}, new { first = default(int) });
 
-			var graphQLRequest = new GraphQLRequest(@"query ($first: Int!)   {
-    heroes (first: $first, offset: 10) {
-      name
-    }
-  }
-");
+			var graphQLRequest = @"query ($first: Int!) { heroes (first: $first, offset: 10) { name } }";
 
-			var query = expression.Build();
-			//Assert.Equal(graphQLRequest.Query, query.Replace("\r\n", "\n"));
-			Assert.Equal(graphQLRequest.Query, query.Query);
+			Assert.Equal(graphQLRequest, expression.Query);
 		}
 
 
 		[Fact]
-		public void TestQueryParameterNew()
+		public void TestQueryParameterNew2()
 		{
 			var expression = Gql<Schema>.Query((schema, args) => new
 			{
@@ -182,16 +148,12 @@ namespace GraphQL.Common.Tests.Request.Expression
 				}, new { args.first, last = 3 })
 			}, new { first = default(int) });
 
-			var graphQLRequest = new GraphQLRequest(@"query ($first: Int!)   {
-    hero: mainHero (first: $first, last: 3) {
-      name
-    }
-  }
-");
+			var graphQLRequest = @"query ($first: Int!) { hero: mainHero (first: $first, last: 3) { name } }";
 
-			var request = expression.Build();
-			//			Assert.Equal(graphQLRequest.Query, query.Replace("\r\n", "\n"));
-			Assert.Equal(graphQLRequest.Query, request.Query);
+			Assert.Equal(graphQLRequest, expression.Query);
 		}
+
+
+
 	}
 }

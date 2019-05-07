@@ -1,6 +1,6 @@
 using System.Linq;
 using GraphQL.Common.Request;
-using GraphQL.Common.Request.Expression;
+using GraphQL.Common.Request.Expressions;
 using GraphQL.Common.Tests.Model;
 using Xunit;
 
