@@ -1,4 +1,4 @@
-
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,24 +13,25 @@ namespace GraphQL.Common.Response {
 	/// </summary>
 	public class GraphQLResponse : GraphQLResponse<dynamic> {
 		/// <summary>
-		/// Get a field of <see cref="Data"/> as Type
+		/// Get a field of <see cref="GraphQLResponse{dynamic}.Data"/> as Type
 		/// </summary>
-		/// <typeparam name="Type">The expected type</typeparam>
+		/// <typeparam name="TType">The expected type</typeparam>
 		/// <param name="fieldName">The name of the field</param>
 		/// <returns>The field of data as an object</returns>
-		public Type? GetDataFieldAs<Type>(string fieldName) where Type:class
+		public TType? GetDataFieldAs<TType>(string fieldName) where TType:class
 		{
 			if(this.Data is JObject jObjectData) {
-				return jObjectData.GetValue(fieldName).ToObject<Type>();
+				return jObjectData.GetValue(fieldName).ToObject<TType>();
 			}
-			return (Type?)this.Data.GetType()
+			return (TType?)this.Data?.GetType()
 				.GetProperty(fieldName)
 				.GetValue(this.Data, null);
 		}
 	}
 
 
-	public class GraphQLResponse<TData> : IEquatable<GraphQLResponse<TData>>
+	public class GraphQLResponse<TData> : IEquatable<GraphQLResponse<TData>?>
+		where TData: class
 	{
 		/// <summary>
 		/// The data of the response
