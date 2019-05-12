@@ -83,6 +83,7 @@ namespace GraphQL.Common.Request.Expressions
 		}
 
 
+
 		public static TReturn Field<TReturn>(System.Linq.Expressions.Expression<Func<TType, TReturn>> expression)
 			where TReturn : class
 		{
@@ -104,7 +105,7 @@ namespace GraphQL.Common.Request.Expressions
 			throw new InvalidOperationException();
 		}
 
-		public static TReturn Field<TType, TReturn, TArgs>(IEnumerable<TType> listField, System.Linq.Expressions.Expression<Func<TType, TReturn>> expression, TArgs args)
+		public static IEnumerable<TReturn> Field<TType, TReturn, TArgs>(IEnumerable<TType> listField, System.Linq.Expressions.Expression<Func<TType, TReturn>> expression, TArgs args)
 			where TReturn : class
 		{
 			throw new InvalidOperationException();
@@ -189,7 +190,7 @@ namespace GraphQL.Common.Request.Expressions
 	[JsonConverter(typeof(GqlIDConverter))]
 	[GraphQLType("ID")]
 	public class GqlID<T>
-		where T : struct
+//		where T : struct
 	{
 		public T Value { get; }
 
@@ -220,7 +221,7 @@ namespace GraphQL.Common.Request.Expressions
 	public static class GqlID
 	{
 		public static GqlID<T> From<T>(T v)
-			where T : struct
+//			where T : struct
 		{
 			return new GqlID<T>(v);
 		}

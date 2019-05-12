@@ -104,5 +104,4 @@ namespace GraphQL.Client.Tests {
 		}
 
 	}
-
 }

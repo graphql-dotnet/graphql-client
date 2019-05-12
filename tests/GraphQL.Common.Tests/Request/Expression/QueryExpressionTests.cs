@@ -56,7 +56,7 @@ namespace GraphQL.Common.Tests.Request.Expression
 
 			var graphQLRequest = @"query { hero: mainHero { name } }";
 
-			Assert.Equal(graphQLRequest, expression.Query); //.Replace("\r\n", "\n"));
+			Assert.Equal(graphQLRequest, expression.Query);
 		}
 
 		[Fact]
@@ -138,7 +138,7 @@ namespace GraphQL.Common.Tests.Request.Expression
 
 
 		[Fact]
-		public void TestQueryParameterNew2()
+		public void TestQueryParameterNewNullable()
 		{
 			var expression = Gql<Schema>.Query((schema, args) => new
 			{
@@ -146,14 +146,12 @@ namespace GraphQL.Common.Tests.Request.Expression
 				{
 					x.Name
 				}, new { args.first, last = 3 })
-			}, new { first = default(int) });
+			}, new { first = default(int?) });
 
-			var graphQLRequest = @"query ($first: Int!) { hero: mainHero (first: $first, last: 3) { name } }";
+			var graphQLRequest = @"query ($first: Int) { hero: mainHero (first: $first, last: 3) { name } }";
 
 			Assert.Equal(graphQLRequest, expression.Query);
 		}
-
-
 
 	}
 }
