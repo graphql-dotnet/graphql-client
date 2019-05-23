@@ -13,7 +13,7 @@ commands:
 jobs:
   test-debug:
     docker:
-      - image: microsoft/dotnet:3.0-sdk
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
     steps:
       - checkout
       - dotnet-test:
@@ -26,7 +26,7 @@ jobs:
           project: ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   test-release:
     docker:
-      - image: microsoft/dotnet:3.0-sdk
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
     steps:
       - checkout
       - dotnet-test:
@@ -39,7 +39,7 @@ jobs:
           project: ./tests/GraphQL.Client.Tests/GraphQL.Client.Tests.csproj
   deploy:
     docker:
-      - image: microsoft/dotnet:3.0-sdk
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.0
     environment:
       MY_GET_SOURCE: https://www.myget.org/F/graphql-dotnet/api/v3/index.json
     steps:
