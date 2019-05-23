@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="../tests.props" />
@@ -9,12 +9,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
-		<ProjectReference Include="..\GraphQL.Common.Tests\GraphQL.Common.Tests.csproj" />
+		<ProjectReference Include="../../src/GraphQL.Client/GraphQL.Client.csproj" />
+		<ProjectReference Include="../GraphQL.Common.Tests/GraphQL.Common.Tests.csproj" />
+		<ProjectReference Include="../GraphQL.Server.Test/GraphQL.Server.Test.csproj" />
 	</ItemGroup>
 
 </Project>
