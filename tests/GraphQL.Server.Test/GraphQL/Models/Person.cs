@@ -4,7 +4,7 @@ using GraphQL.Types;
 
 namespace GraphQL.Server.Test.GraphQL.Models {
 
-	public class People {
+	public class Person {
 		public string BirthYear { get; set; }
 		public DateTime Created { get; set; }
 		public DateTime Edited { get; set; }
@@ -23,10 +23,10 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public IQueryable<Vehicle> Vehicles { get; set; }
 	}
 
-	public class PeopleGraphType : ObjectGraphType<People> {
+	public class PersonGraphType : ObjectGraphType<Person> {
 
-		public PeopleGraphType() {
-			this.Name = nameof(People);
+		public PersonGraphType() {
+			this.Name = nameof(Person);
 			this.Field(expression => expression.BirthYear);
 			this.Field(expression => expression.Created);
 			this.Field(expression => expression.Edited);

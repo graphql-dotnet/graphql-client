@@ -12,13 +12,13 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public string Designation { get; set; }
 		public DateTime Edited { get; set; }
 		public string EyeColors { get; set; }
-		public IQueryable<People> Films { get; set; }
+		public IQueryable<Person> Films { get; set; }
 		public string HairColors { get; set; }
 		public Planet Homeworld { get; set; }
 		public int Id { get; set; }
 		public string Language { get; set; }
 		public string Name { get; set; }
-		public IQueryable<People> People { get; set; }
+		public IQueryable<Person> People { get; set; }
 		public string SkinColors { get; set; }
 	}
 
@@ -39,7 +39,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 			this.Field(expression => expression.Id);
 			this.Field(expression => expression.Language);
 			this.Field(expression => expression.Name);
-			this.Field<ListGraphType<PeopleGraphType>>("people");
+			this.Field<ListGraphType<PersonGraphType>>("people");
 			this.Field(expression => expression.SkinColors);
 		}
 

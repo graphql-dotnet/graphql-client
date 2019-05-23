@@ -8,7 +8,7 @@ namespace GraphQL.Server.Test.GraphQL {
 
 		public static IQueryable<Film> Films { get; set; } = new List<Film>().AsQueryable();
 
-		public static IQueryable<People> Peoples { get; set; } = new List<People>().AsQueryable();
+		public static IQueryable<Person> People { get; set; } = new List<Person>().AsQueryable();
 
 		public static IQueryable<Planet> Planets { get; set; } = new List<Planet>().AsQueryable();
 

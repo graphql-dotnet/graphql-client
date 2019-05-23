@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using GraphQL.Server.Test.GraphQL;
 using GraphQL.Server.Test.GraphQL.Models;
 using GraphQL.Server.Ui.GraphiQL;
@@ -34,7 +35,29 @@ namespace GraphQL.Server.Test {
 				options.EnableMetrics = true;
 				options.ExposeExceptions = true;
 			}).AddWebSockets();
+			this.LoadPeople().Wait();
+		}
 
+		public async Task LoadPeople() {
+			using (var httpClient = new HttpClient()) {
+				var page = 1;
+				var next = true;
+				do {
+					var body = await httpClient.GetStringAsync($"https://www.swapi.co/api/people/?page={page}");
+					var json = JsonConvert.DeserializeObject<JObject>(body);
+					var results = json["results"] as JArray;
+					foreach (var item in results) {
+						var person = item as JObject;
+						Storage.People = Storage.People.Append(new Person {
+							Height = person["height"].Value<string>(),
+							Mass = person["mass"].Value<string>(),
+							Name = person["name"].Value<string>(),
+						});
+					}
+					page++;
+					next = (json["next"] as JValue).Value != null;
+				} while (next);
+			}
 		}
 
 	}

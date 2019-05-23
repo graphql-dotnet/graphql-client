@@ -21,7 +21,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public string Model { get; set; }
 		public string Name { get; set; }
 		public string Passengers { get; set; }
-		public IQueryable<People> Pilots { get; set; }
+		public IQueryable<Person> Pilots { get; set; }
 		public string StarshipClass { get; set; }
 	}
 

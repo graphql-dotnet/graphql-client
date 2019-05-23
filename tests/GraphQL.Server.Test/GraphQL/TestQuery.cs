@@ -8,8 +8,8 @@ namespace GraphQL.Server.Test.GraphQL {
 		public TestQuery() {
 			this.Field<ListGraphType<FilmGraphType>>("films",
 				resolve: context => Storage.Films);
-			this.Field<ListGraphType<PeopleGraphType>>("peoples",
-				resolve: context => Storage.Peoples);
+			this.Field<ListGraphType<PersonGraphType>>("people",
+				resolve: context => Storage.People);
 			this.Field<ListGraphType<PlanetGraphType>>("planets",
 				resolve: context => Storage.Planets);
 			this.Field<ListGraphType<SpecieGraphType>>("species",

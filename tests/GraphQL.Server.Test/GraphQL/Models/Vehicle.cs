@@ -19,7 +19,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 		public string Model { get; set; }
 		public string Name { get; set; }
 		public string Passengers { get; set; }
-		public IQueryable<People> Pilots { get; set; }
+		public IQueryable<Person> Pilots { get; set; }
 		public string VehicleClass { get; set; }
 	}
 
@@ -41,7 +41,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 			this.Field(expression => expression.Model);
 			this.Field(expression => expression.Name);
 			this.Field(expression => expression.Passengers);
-			this.Field<ListGraphType<PeopleGraphType>>("pilots");
+			this.Field<ListGraphType<PersonGraphType>>("pilots");
 			this.Field(expression => expression.VehicleClass);
 		}
 

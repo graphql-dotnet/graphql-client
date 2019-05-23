@@ -6,7 +6,7 @@ using GraphQL.Types;
 namespace GraphQL.Server.Test.GraphQL.Models {
 
 	public class Film {
-		public IQueryable<People> Characters { get; set; }
+		public IQueryable<Person> Characters { get; set; }
 		public DateTime Created { get; set; }
 		public string Director { get; set; }
 		public DateTime Edited { get; set; }
@@ -25,7 +25,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 
 		public FilmGraphType() {
 			this.Name = nameof(Film);
-			this.Field<ListGraphType<PeopleGraphType>>("characters");
+			this.Field<ListGraphType<PersonGraphType>>("characters");
 			this.Field(expression => expression.Created);
 			this.Field(expression => expression.Director);
 			this.Field(expression => expression.Edited);
