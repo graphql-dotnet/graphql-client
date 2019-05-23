@@ -49,9 +49,14 @@ namespace GraphQL.Server.Test {
 					foreach (var item in results) {
 						var person = item as JObject;
 						Storage.People = Storage.People.Append(new Person {
+							BirthYear = person["birth_year"].Value<string>(),
+							EyeColor = person["eye_color"].Value<string>(),
+							Gender = person["gender"].Value<string>(),
+							HairColor = person["hair_color"].Value<string>(),
 							Height = person["height"].Value<string>(),
 							Mass = person["mass"].Value<string>(),
 							Name = person["name"].Value<string>(),
+							SkinColor = person["skin_color"].Value<string>(),
 						});
 					}
 					page++;
