@@ -1,0 +1,27 @@
+{
+	"iisSettings": {
+		"anonymousAuthentication": true,
+		"iisExpress": {
+			"applicationUrl": "http://localhost:60642",
+			"sslPort": 0
+		},
+		"windowsAuthentication": false
+	},
+	"profiles": {
+		"GraphQL.Server.Test": {
+			"applicationUrl": "http://localhost:5000",
+			"commandName": "Project",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"launchBrowser": true
+		},
+		"IIS Express": {
+			"commandName": "IISExpress",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"launchBrowser": true
+		}
+	}
+}
