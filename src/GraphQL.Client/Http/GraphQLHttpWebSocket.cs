@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using GraphQL.Common.Request;
 using GraphQL.Common.Response;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace GraphQL.Client.Http
 {
@@ -125,9 +126,13 @@ namespace GraphQL.Client.Http
 				{
 					case ClientWebSocket nativeWebSocket:
 						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
+						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)(_options.HttpMessageHandler)).ClientCertificates;
+						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)(_options.HttpMessageHandler)).UseDefaultCredentials;
 						break;
 					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
 						managedWebSocket.Options.AddSubProtocol("graphql-ws");
+						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)(_options.HttpMessageHandler)).ClientCertificates;
+						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)(_options.HttpMessageHandler)).UseDefaultCredentials;
 						break;
 					default:
 						throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
