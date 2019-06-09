@@ -94,6 +94,23 @@ namespace GraphQL.Client.Http
 						})
 					);
 
+					var initRequest = new GraphQLWebSocketRequest
+					{
+						Id = startRequest.Id,
+						Type = GQLWebSocketMessageType.GQL_CONNECTION_INIT,
+					};
+					Debug.WriteLine($"sending init on subscription {startRequest.Id}");
+					// send subscription request
+					try
+					{
+						await graphQlHttpWebSocket.SendWebSocketRequest(initRequest).ConfigureAwait(false);
+						//await graphQlHttpWebSocket.SendWebSocketRequest(startRequest);
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine(e);
+						throw;
+					}
 					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
 					// send subscription request
 					try
