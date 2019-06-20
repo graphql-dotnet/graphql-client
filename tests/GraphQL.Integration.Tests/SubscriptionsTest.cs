@@ -220,6 +220,7 @@ namespace GraphQL.Integration.Tests
 				var tester2 = observable2.SubscribeTester();
 
 				const string message1 = "Hello World";
+				await Task.Delay(200);	// seems to be needed for test to be reliable
 				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
 				Assert.Equal(message1, (string)response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
