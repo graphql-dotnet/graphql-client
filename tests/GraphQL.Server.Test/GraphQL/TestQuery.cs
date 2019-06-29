@@ -6,6 +6,9 @@ namespace GraphQL.Server.Test.GraphQL {
 	public class TestQuery:ObjectGraphType {
 
 		public TestQuery() {
+			this.Field<RepositoryGraphType>("repository", arguments: new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>>{Name="owner"}, new QueryArgument<NonNullGraphType<StringGraphType>>{Name="name"}), resolve: context => {
+					return Storage.Repositories;
+			});
 			this.Field<ListGraphType<FilmGraphType>>("films",
 				resolve: context => Storage.Films);
 			this.Field<ListGraphType<PersonGraphType>>("people",
