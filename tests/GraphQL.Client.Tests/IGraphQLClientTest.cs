@@ -10,15 +10,13 @@ namespace GraphQL.Client.Tests {
 		public async void QueryGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
 				{
-					person(personID: ""1"") {
+					repository(owner: ""graphql-dotnet"", name: ""graphql-client"") {
 						name
 					}
 				}"
 			);
-			var response = await this.GraphQLClientSwapi.SendQueryAsync(graphQLRequest).ConfigureAwait(false);
-
-			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
-			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
+			var response = await this.ServerGraphQLClient.SendQueryAsync(graphQLRequest);
+			Assert.Equal("graphql-client", response.Data.repository.name.Value);
 		}
 
 		[Fact]
@@ -34,7 +32,7 @@ namespace GraphQL.Client.Tests {
 					planet(planetID: ""1"") {
 						name
 					}
-				}") { 
+				}") {
 				OperationName = "Person"
 			};
 			var response = await this.GraphQLClientSwapi.SendQueryAsync(graphQLRequest).ConfigureAwait(false);
@@ -74,7 +72,7 @@ namespace GraphQL.Client.Tests {
 					planet(planetID: ""1"") {
 						name
 					}
-				}") { 
+				}") {
 				OperationName = "Person",
 				Variables = new {
 					personId = "1"

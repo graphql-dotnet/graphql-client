@@ -16,7 +16,9 @@ namespace GraphQL.Client.Tests {
 		private readonly TestServer testServer = new TestServer(Program.CreateHostBuilder());
 
 		public BaseGraphQLClientTest() {
-			this.ServerGraphQLClient=this.testServer.CreateClient().AsGraphQLClient(new GraphQLClientOptions());
+			var graphQlHttpClient = this.testServer.CreateClient().AsGraphQLClient(new GraphQLClientOptions{});
+			graphQlHttpClient.EndPoint = new Uri($"{this.testServer.BaseAddress}");
+			this.ServerGraphQLClient = graphQlHttpClient;
 		}
 
 		public void Dispose() {

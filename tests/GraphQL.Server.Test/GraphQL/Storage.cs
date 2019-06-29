@@ -17,18 +17,6 @@ namespace GraphQL.Server.Test.GraphQL {
 			})
 			.AsQueryable();
 
-		public static IQueryable<Film> Films { get; set; } = new List<Film>().AsQueryable();
-
-		public static IQueryable<Person> People { get; set; } = new List<Person>().AsQueryable();
-
-		public static IQueryable<Planet> Planets { get; set; } = new List<Planet>().AsQueryable();
-
-		public static IQueryable<Specie> Species { get; set; } = new List<Specie>().AsQueryable();
-
-		public static IQueryable<Starship> Starships { get; set; } = new List<Starship>().AsQueryable();
-
-		public static IQueryable<Vehicle> Vehicles { get; set; } = new List<Vehicle>().AsQueryable();
-
 	}
 
 }
