@@ -54,6 +54,7 @@ namespace GraphQL.Server.Test {
 							Gender = person["gender"].Value<string>(),
 							HairColor = person["hair_color"].Value<string>(),
 							Height = person["height"].Value<string>(),
+							Id = int.Parse(new Uri(person["url"].Value<string>()).Segments[3].Trim('/')),
 							Mass = person["mass"].Value<string>(),
 							Name = person["name"].Value<string>(),
 							SkinColor = person["skin_color"].Value<string>(),

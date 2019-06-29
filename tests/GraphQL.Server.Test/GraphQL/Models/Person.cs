@@ -36,7 +36,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 			this.Field(expression => expression.HairColor);
 			this.Field(expression => expression.Height);
 			this.Field<PlanetGraphType>("homeworld");
-			this.Field(expression => expression.Id);
+			this.Field<NonNullGraphType<IdGraphType>>("id");
 			this.Field(expression => expression.Mass);
 			this.Field(expression => expression.Name);
 			this.Field(expression => expression.SkinColor);
