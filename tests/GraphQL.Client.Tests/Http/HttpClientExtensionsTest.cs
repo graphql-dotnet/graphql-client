@@ -9,8 +9,6 @@ namespace GraphQL.Client.Tests.Http {
 
 	public class HttpClientExtensionsTest : BaseGraphQLClientTest {
 
-		public GraphQLHttpClient GraphQLHttpClient => new HttpClient().AsGraphQLClient(new GraphQLHttpClientOptions {EndPoint=new Uri( "https://swapi.apis.guru/") });
-
 		[Fact]
 		public async void QueryGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
@@ -79,7 +77,7 @@ namespace GraphQL.Client.Tests.Http {
 					planet(planetID: ""1"") {
 						name
 					}
-				}") { 
+				}") {
 				OperationName = "Person",
 				Variables = new {
 					personId = "1"

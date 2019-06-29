@@ -7,6 +7,7 @@ namespace GraphQL.Client.Tests {
 
 	public class GraphQLClientPostTests : BaseGraphQLClientTest {
 
+		/*
 		[Fact]
 		public async void QueryPostAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
@@ -51,7 +52,7 @@ namespace GraphQL.Client.Tests {
 					planet(planetID: ""1"") {
 						name
 					}
-				}") { 
+				}") {
 				OperationName = "Person"
 			};
 			var response = await this.GraphQLClient.PostAsync(graphQLRequest).ConfigureAwait(false);
@@ -67,7 +68,7 @@ namespace GraphQL.Client.Tests {
 					person(personID: $personId) {
 						name
 					}
-				}") { 
+				}") {
 				Variables = new {
 					personId = "1"
 				}
@@ -91,7 +92,7 @@ namespace GraphQL.Client.Tests {
 					planet(planetID: ""1"") {
 						name
 					}
-				}") { 
+				}") {
 				OperationName = "Person",
 				Variables = new {
 					personId = "1"
@@ -102,7 +103,7 @@ namespace GraphQL.Client.Tests {
 			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
 			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
 		}
-
+*/
 	}
 
 }

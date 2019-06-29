@@ -6,6 +6,7 @@ namespace GraphQL.Client.Tests {
 
 	public class GraphQLClientGetTests : BaseGraphQLClientTest {
 
+		/*
 		[Fact]
 		public async void QueryGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
@@ -83,7 +84,7 @@ namespace GraphQL.Client.Tests {
 
 			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
 			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
-		}
+		}*/
 
 	}
 

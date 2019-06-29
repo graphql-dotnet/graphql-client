@@ -15,7 +15,7 @@ namespace GraphQL.Client.Tests {
 					}
 				}"
 			);
-			var response = await this.ServerGraphQLClient.SendQueryAsync(graphQLRequest);
+			var response = await this.GraphQLClient.SendQueryAsync(graphQLRequest);
 			Assert.Equal("graphql-client", response.Data.repository.name.Value);
 		}
 

@@ -1,32 +1,34 @@
 using System;
+using System.Net.Http;
 using GraphQL.Client.Http;
 using GraphQL.Server.Test;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace GraphQL.Client.Tests {
 
 	public abstract class BaseGraphQLClientTest : IDisposable {
 
-		protected IGraphQLClient ServerGraphQLClient { get; }
+		protected IGraphQLClient GraphQLClient { get; }
+		protected GraphQLHttpClient GraphQLHttpClient { get; }
 
-		protected GraphQLClient GraphQLClient { get; } = new GraphQLClient("https://swapi.apis.guru/");
 		protected IGraphQLClient GraphQLClientSwapi { get; } = new GraphQLHttpClient("https://swapi.apis.guru/");
 		protected GraphQLHttpClient GitHuntClient { get; } = new GraphQLHttpClient("http://api.githunt.com/graphql");
 
+		private readonly HttpClient httpClient;
 		private readonly TestServer testServer = new TestServer(Program.CreateHostBuilder());
 
 		public BaseGraphQLClientTest() {
-			var graphQlHttpClient = this.testServer.CreateClient().AsGraphQLClient(new GraphQLClientOptions{});
-			graphQlHttpClient.EndPoint = new Uri($"{this.testServer.BaseAddress}");
-			this.ServerGraphQLClient = graphQlHttpClient;
+			this.httpClient = this.testServer.CreateClient();
+			this.GraphQLHttpClient = this.httpClient.AsGraphQLClient(new GraphQLHttpClientOptions());
+			this.GraphQLHttpClient.EndPoint=new Uri($"{this.testServer.BaseAddress}");
+			this.GraphQLClient = this.GraphQLHttpClient;
 		}
 
 		public void Dispose() {
 			this.GraphQLClient.Dispose();
-			this.GraphQLClientSwapi.Dispose();
-			this.GitHuntClient.Dispose();
-
-			this.ServerGraphQLClient.Dispose();
+			this.GraphQLHttpClient.Dispose();
+			this.httpClient.Dispose();
 			this.testServer.Dispose();
 		}
 
