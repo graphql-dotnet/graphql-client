@@ -20,8 +20,9 @@ namespace GraphQL.Client.Tests {
 
 		public BaseGraphQLClientTest() {
 			this.httpClient = this.testServer.CreateClient();
-			this.GraphQLHttpClient = this.httpClient.AsGraphQLClient(new GraphQLHttpClientOptions());
-			this.GraphQLHttpClient.EndPoint=new Uri($"{this.testServer.BaseAddress}");
+			this.GraphQLHttpClient = this.httpClient.AsGraphQLClient(new GraphQLHttpClientOptions {
+				EndPoint = new Uri($"{this.testServer.BaseAddress}graphql")
+			});
 			this.GraphQLClient = this.GraphQLHttpClient;
 		}
 
