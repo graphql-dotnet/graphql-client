@@ -18,7 +18,7 @@ namespace GraphQL.Server.Test.GraphQL.Models {
 			this.Field(expression => expression.DatabaseId);
 			this.Field<NonNullGraphType<IdGraphType>>("id");
 			this.Field(expression => expression.Name);
-			this.Field(expression => expression.Owner);
+			//this.Field(expression => expression.Owner);
 			this.Field<NonNullGraphType<UriGraphType>>("url");
 		}
 
