@@ -22,66 +22,64 @@ namespace GraphQL.Client.Tests {
 		[Fact]
 		public async void OperationNameGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
-				query Person{
-					person(personID: ""1"") {
+				query Repository{
+					repository(owner: ""graphql-dotnet"", name: ""graphql-client"") {
 						name
 					}
 				}
 
-				query Planet {
-					planet(planetID: ""1"") {
+				query NotRepository{
+					repository(owner: """", name: """") {
 						name
 					}
-				}") {
-				OperationName = "Person"
+				}"
+			) {
+				OperationName = "Repository"
 			};
-			var response = await this.GraphQLClientSwapi.SendQueryAsync(graphQLRequest).ConfigureAwait(false);
-
-			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
-			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
+			var response = await this.GraphQLClient.SendQueryAsync(graphQLRequest);
+			Assert.Equal("graphql-client", response.Data.repository.name.Value);
 		}
 
 		[Fact]
 		public async void VariablesGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
-				query Person($personId: ID!){
-					person(personID: $personId) {
+				query Repository($owner: String!, $name: String!){
+					repository(owner: $owner, name: $name) {
 						name
 					}
-				}") {
+				}"
+			) {
 				Variables = new {
-					personId = "1"
+					owner = "graphql-dotnet",
+					name = "graphql-client"
 				}
 			};
-			var response = await this.GraphQLClientSwapi.SendQueryAsync(graphQLRequest).ConfigureAwait(false);
-
-			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
-			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
+			var response = await this.GraphQLClient.SendQueryAsync(graphQLRequest);
+			Assert.Equal("graphql-client", response.Data.repository.name.Value);
 		}
 
 		[Fact]
 		public async void OperationNameVariableGetAsyncFact() {
 			var graphQLRequest = new GraphQLRequest(@"
-				query Person($personId: ID!){
-					person(personID: $personId) {
+				query Repository($owner: String!, $name: String!){
+					repository(owner: $owner, name: $name) {
 						name
 					}
 				}
-
-				query Planet {
-					planet(planetID: ""1"") {
+				query NotRepository{
+					repository(owner: """", name: """") {
 						name
 					}
-				}") {
-				OperationName = "Person",
+				}"
+			) {
+				OperationName = "Repository",
 				Variables = new {
-					personId = "1"
+					owner = "graphql-dotnet",
+					name = "graphql-client"
 				}
 			};
-			var response = await this.GraphQLClientSwapi.SendQueryAsync(graphQLRequest).ConfigureAwait(false);
-
-			Assert.Equal("Luke Skywalker", response.Data.person.name.Value);
-			Assert.Equal("Luke Skywalker", response.GetDataFieldAs<Person>("person").Name);
+			var response = await this.GraphQLClient.SendQueryAsync(graphQLRequest);
+			Assert.Equal("graphql-client", response.Data.repository.name.Value);
 		}
 
 	}
