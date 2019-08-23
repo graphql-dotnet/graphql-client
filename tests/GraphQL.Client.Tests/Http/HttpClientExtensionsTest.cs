@@ -37,7 +37,7 @@ namespace GraphQL.Client.Tests.Http {
 					planet(planetID: ""1"") {
 						name
 					}
-				}"){
+				}") {
 				OperationName = "Person"
 			};
 			var response = await this.GraphQLHttpClient.SendQueryAsync(graphQLRequest).ConfigureAwait(false);

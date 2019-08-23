@@ -29,8 +29,8 @@ namespace GraphQL.Common.Response {
 		/// <typeparam name="TOut">The expected type</typeparam>
 		/// <param name="fieldName">The name of the field</param>
 		/// <returns>The field of data as an object</returns>
-		public TOut? GetDataFieldAs<TOut>(string fieldName) where TOut:class{
-			if(this.Data is JObject jObjectData) {
+		public TOut? GetDataFieldAs<TOut>(string fieldName) where TOut : class {
+			if (this.Data is JObject jObjectData) {
 				return jObjectData.GetValue(fieldName).ToObject<TOut>();
 			}
 			return (TOut)this.Data!.GetType()

@@ -29,7 +29,7 @@ namespace GraphQL.Common.Tests.Response {
 
 		[Fact]
 		public void Equality3Fact() {
-			var graphQLError1 = new GraphQLError("message") { Locations= new[] { new GraphQLLocation { Column = 1, Line = 2 } } };
+			var graphQLError1 = new GraphQLError("message") { Locations = new[] { new GraphQLLocation { Column = 1, Line = 2 } } };
 			var graphQLError2 = new GraphQLError("message") { Locations = new[] { new GraphQLLocation { Column = 1, Line = 2 } } };
 			Assert.Equal(graphQLError1, graphQLError2);
 		}

@@ -16,8 +16,8 @@ namespace GraphQL.Common.Tests.Response {
 		[Fact]
 		public void Constructor2Fact() {
 			var graphQLResponse = new GraphQLResponse {
-				Data=new { a=1},
-				Errors=new[] { new GraphQLError("message") }
+				Data = new { a = 1 },
+				Errors = new[] { new GraphQLError("message") }
 			};
 			Assert.NotNull(graphQLResponse.Data);
 			Assert.NotNull(graphQLResponse.Errors);
@@ -99,7 +99,7 @@ namespace GraphQL.Common.Tests.Response {
 		public void GetDataFieldAsFact() {
 			var graphQLResponse1 = new GraphQLResponse {
 				Data = new {
-					hero =new Person { Name = "R2-D2" }
+					hero = new Person { Name = "R2-D2" }
 				},
 			};
 			Assert.Equal("R2-D2", graphQLResponse1.GetDataFieldAs<Person>("hero").Name);

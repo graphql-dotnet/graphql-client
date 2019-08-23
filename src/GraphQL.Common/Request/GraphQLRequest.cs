@@ -29,7 +29,7 @@ namespace GraphQL.Common.Request {
 		/// Initialize a new GraphQLRequest
 		/// </summary>
 		/// <param name="query">The Query</param>
-		public GraphQLRequest(string query){
+		public GraphQLRequest(string query) {
 			this.Query = query;
 		}
 
@@ -38,7 +38,7 @@ namespace GraphQL.Common.Request {
 
 		/// <inheritdoc />
 		public bool Equals(GraphQLRequest? other) {
-			if (other == null) {return false;}
+			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<string>.Default.Equals(this.Query, other.Query)) { return false; }
 			if (!EqualityComparer<string?>.Default.Equals(this.OperationName, other.OperationName)) { return false; }
@@ -47,8 +47,8 @@ namespace GraphQL.Common.Request {
 		}
 
 		/// <inheritdoc />
-		public override int GetHashCode(){
-			unchecked{
+		public override int GetHashCode() {
+			unchecked {
 				var hashCode = EqualityComparer<string>.Default.GetHashCode(this.Query);
 				hashCode = (hashCode * 397) ^ EqualityComparer<string?>.Default.GetHashCode(this.OperationName);
 				hashCode = (hashCode * 397) ^ EqualityComparer<dynamic?>.Default.GetHashCode(this.Variables);

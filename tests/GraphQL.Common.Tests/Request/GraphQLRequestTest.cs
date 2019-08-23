@@ -16,9 +16,9 @@ namespace GraphQL.Common.Tests.Request {
 		[Fact]
 		public void ConstructorExtendedFact() {
 			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
-				OperationName="operationName",
+				OperationName = "operationName",
 				Variables = new {
-					varName ="varValue"
+					varName = "varValue"
 				}
 			};
 			Assert.NotNull(graphQLRequest.Query);
@@ -29,7 +29,7 @@ namespace GraphQL.Common.Tests.Request {
 		[Fact]
 		public void Equality1Fact() {
 			var graphQLRequest = new GraphQLRequest("{hero{name}}");
-			Assert.Equal(graphQLRequest,graphQLRequest);
+			Assert.Equal(graphQLRequest, graphQLRequest);
 		}
 
 		[Fact]
@@ -101,7 +101,7 @@ namespace GraphQL.Common.Tests.Request {
 		public void InEqualityOperatorFact() {
 			var graphQLRequest1 = new GraphQLRequest("{hero{name1}}");
 			var graphQLRequest2 = new GraphQLRequest("{hero{name2}}");
-			Assert.True(graphQLRequest1!= graphQLRequest2);
+			Assert.True(graphQLRequest1 != graphQLRequest2);
 		}
 
 		[Fact]
@@ -136,7 +136,7 @@ namespace GraphQL.Common.Tests.Request {
 					varName = "varValue"
 				}
 			};
-			Assert.Equal("{hero{name}}",graphQLRequest.Query);
+			Assert.Equal("{hero{name}}", graphQLRequest.Query);
 		}
 
 		[Fact]
@@ -165,7 +165,7 @@ namespace GraphQL.Common.Tests.Request {
 		[Fact]
 		public void PropertyOperationNameNullGetFact() {
 			var graphQLRequest = new GraphQLRequest("{hero{name}}");
-			Assert.Null( graphQLRequest.OperationName);
+			Assert.Null(graphQLRequest.OperationName);
 		}
 
 		[Fact]
@@ -207,7 +207,7 @@ namespace GraphQL.Common.Tests.Request {
 					varName = "varValue1"
 				}
 			};
-			graphQLRequest.Variables =  new {
+			graphQLRequest.Variables = new {
 				varName = "varValue2"
 			};
 			Assert.Equal(new {

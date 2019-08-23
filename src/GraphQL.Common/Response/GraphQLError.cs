@@ -47,7 +47,7 @@ namespace GraphQL.Common.Response {
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<IDictionary<string, dynamic>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			{
-				if(this.Locations!=null && other.Locations != null) {
+				if (this.Locations != null && other.Locations != null) {
 					if (!Enumerable.SequenceEqual(this.Locations, other.Locations)) { return false; }
 				}
 				else if (this.Locations != null && other.Locations == null) { return false; }
@@ -70,7 +70,7 @@ namespace GraphQL.Common.Response {
 				var hashCode = EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
 				{
 					if (this.Locations != null) {
-						foreach(var element in this.Locations) {
+						foreach (var element in this.Locations) {
 							hashCode = (hashCode * 397) ^ EqualityComparer<GraphQLLocation?>.Default.GetHashCode(element);
 						}
 					}

@@ -7,8 +7,8 @@ namespace GraphQL.Common.Tests.Response {
 
 		[Fact]
 		public void ConstructorFact() {
-			var graphQLLocation = new GraphQLLocation { Column=1,Line=2};
-			Assert.Equal(1U,graphQLLocation.Column);
+			var graphQLLocation = new GraphQLLocation { Column = 1, Line = 2 };
+			Assert.Equal(1U, graphQLLocation.Column);
 			Assert.Equal(2U, graphQLLocation.Line);
 		}
 
@@ -29,7 +29,7 @@ namespace GraphQL.Common.Tests.Response {
 		public void EqualityOperatorFact() {
 			var graphQLLocation1 = new GraphQLLocation { Column = 1, Line = 2 };
 			var graphQLLocation2 = new GraphQLLocation { Column = 1, Line = 2 };
-			Assert.True(graphQLLocation1== graphQLLocation2);
+			Assert.True(graphQLLocation1 == graphQLLocation2);
 		}
 
 		[Fact]
@@ -43,7 +43,7 @@ namespace GraphQL.Common.Tests.Response {
 		public void InEqualityOperatorFact() {
 			var graphQLLocation1 = new GraphQLLocation { Column = 1, Line = 2 };
 			var graphQLLocation2 = new GraphQLLocation { Column = 2, Line = 1 };
-			Assert.True(graphQLLocation1!=graphQLLocation2);
+			Assert.True(graphQLLocation1 != graphQLLocation2);
 		}
 
 		[Fact]
