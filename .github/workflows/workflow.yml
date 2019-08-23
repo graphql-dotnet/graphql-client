@@ -1,0 +1,14 @@
+ 
+name: Main workflow
+on: [push]
+jobs:
+  run:
+    name: Run
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: 3.0.100-preview8-013656
+    - run: dotnet restore
+    - run: dotnet build
