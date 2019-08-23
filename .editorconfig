@@ -11,6 +11,9 @@ insert_final_newline = true
 tab_width = 4
 trim_trailing_whitespace = true
 
+[*.cs]
+csharp_new_line_before_open_brace = false
+
 [*.{yaml,yml}]
 indent_size = 2
 indent_style = space
