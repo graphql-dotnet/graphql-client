@@ -36,12 +36,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{6326E0
 		assets\logo.svg = assets\logo.svg
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".circleci", ".circleci", "{C1406F03-650F-4633-887D-312943251919}"
-	ProjectSection(SolutionItems) = preProject
-		.circleci\config.yml = .circleci\config.yml
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.Test", "tests\GraphQL.Server.Test\GraphQL.Server.Test.csproj", "{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{C42106CF-F685-4F29-BC18-A70616BD68A0}"
+ProjectSection(SolutionItems) = preProject
+	.github\FUNDING.yml = .github\FUNDING.yml
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{05CAF9B2-981E-40C0-AE31-5FA56E351F12}"
+ProjectSection(SolutionItems) = preProject
+	.github\workflows\workflow.yml = .github\workflows\workflow.yml
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,8 +84,9 @@ Global
 		{FEDAE425-B505-4DD6-98ED-3F8593358FC8} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{EEF323E0-CA8E-49A2-B3D7-D4185D92492B} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{6326E0E2-3F48-4BAF-80D3-47AED5EB647C} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
-		{C1406F03-650F-4633-887D-312943251919} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{C42106CF-F685-4F29-BC18-A70616BD68A0} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
+		{05CAF9B2-981E-40C0-AE31-5FA56E351F12} = {C42106CF-F685-4F29-BC18-A70616BD68A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}
