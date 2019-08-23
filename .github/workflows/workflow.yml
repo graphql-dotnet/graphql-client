@@ -2,13 +2,9 @@
 name: Main workflow
 on: [push]
 jobs:
-  run:
-    name: Run
-    runs-on: ubuntu-latest
+  build:
+    container: mcr.microsoft.com/dotnet/core/sdk:3.0
     steps:
     - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@master
-      with:
-        dotnet-version: 3.0.100-preview8-013656
     - run: dotnet restore
     - run: dotnet build
