@@ -1,8 +1,7 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 
-namespace GraphQL.Common.Response {
+namespace GraphQL.Client {
 
 	/// <summary>
 	/// Represents the location where the <see cref="GraphQLError"/> has been found

@@ -1,5 +1,4 @@
 using System;
-using GraphQL.Common.Response;
 
 namespace GraphQL.Client {
 

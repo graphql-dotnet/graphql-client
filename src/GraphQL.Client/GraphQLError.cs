@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GraphQL.Common.Response {
+namespace GraphQL.Client {
 
 	/// <summary>
 	/// Represents the error of a <see cref="GraphQLResponse"/>

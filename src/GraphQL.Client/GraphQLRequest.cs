@@ -1,8 +1,7 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 
-namespace GraphQL.Common.Request {
+namespace GraphQL.Client {
 
 	/// <summary>
 	/// Represents a Query that can be fetched to a GraphQL Server.

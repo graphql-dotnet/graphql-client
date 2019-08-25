@@ -1,11 +1,9 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GraphQL.Common.Request;
 using Newtonsoft.Json.Linq;
 
-namespace GraphQL.Common.Response {
+namespace GraphQL.Client {
 
 	/// <summary>
 	/// Represent the response of a <see cref="GraphQLRequest"/>
