@@ -8,8 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F
 		src\src.props = src\src.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Common", "src\GraphQL.Common\GraphQL.Common.csproj", "{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client", "src\GraphQL.Client\GraphQL.Client.csproj", "{42BEFACE-39F9-4FE4-B725-15CD2B16292E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63F75859-4698-4EDE-8B70-4ACBB8BC425A}"
@@ -48,16 +46,14 @@ ProjectSection(SolutionItems) = preProject
 	.github\workflows\workflow.yml = .github\workflows\workflow.yml
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Http", "src\GraphQL.Client.Http\GraphQL.Client.Http.csproj", "{FA10201B-AE2A-4BFC-8E8F-6F944680974D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42BEFACE-39F9-4FE4-B725-15CD2B16292E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,12 +70,15 @@ Global
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA10201B-AE2A-4BFC-8E8F-6F944680974D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA10201B-AE2A-4BFC-8E8F-6F944680974D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA10201B-AE2A-4BFC-8E8F-6F944680974D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA10201B-AE2A-4BFC-8E8F-6F944680974D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7BCCC9F5-F4A0-45A9-8FEC-31AA9329C44E} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{42BEFACE-39F9-4FE4-B725-15CD2B16292E} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{FEDAE425-B505-4DD6-98ED-3F8593358FC8} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{EEF323E0-CA8E-49A2-B3D7-D4185D92492B} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
@@ -87,6 +86,7 @@ Global
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{C42106CF-F685-4F29-BC18-A70616BD68A0} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
 		{05CAF9B2-981E-40C0-AE31-5FA56E351F12} = {C42106CF-F685-4F29-BC18-A70616BD68A0}
+		{FA10201B-AE2A-4BFC-8E8F-6F944680974D} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}

@@ -4,8 +4,6 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http.Internal;
-using GraphQL.Common.Request;
-using GraphQL.Common.Response;
 
 namespace GraphQL.Client.Http {
 
