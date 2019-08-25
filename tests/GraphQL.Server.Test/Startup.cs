@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using GraphQL.Server.Test.GraphQL;
-using GraphQL.Server.Test.GraphQL.Models;
 using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Server.Test {
 
