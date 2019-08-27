@@ -4,8 +4,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Common.Request;
-using GraphQL.Common.Response;
 using Newtonsoft.Json;
 
 namespace GraphQL.Client.Http.Internal {

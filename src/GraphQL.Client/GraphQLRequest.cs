@@ -24,14 +24,6 @@ namespace GraphQL.Client {
 		/// </summary>
 		public dynamic? Variables { get; set; }
 
-		/// <summary>
-		/// Initialize a new GraphQLRequest
-		/// </summary>
-		/// <param name="query">The Query</param>
-		public GraphQLRequest(string query) {
-			this.Query = query;
-		}
-
 		/// <inheritdoc />
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest);
 

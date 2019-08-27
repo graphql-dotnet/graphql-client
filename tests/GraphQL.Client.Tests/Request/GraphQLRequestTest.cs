@@ -6,7 +6,7 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void ConstructorFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}");
+			var graphQLRequest = new GraphQLRequest { Query = "{hero{name}}" };
 			Assert.NotNull(graphQLRequest.Query);
 			Assert.Null(graphQLRequest.OperationName);
 			Assert.Null(graphQLRequest.Variables);
@@ -14,7 +14,8 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void ConstructorExtendedFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -27,26 +28,28 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void Equality1Fact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}");
+			var graphQLRequest = new GraphQLRequest { Query = "{hero{name}}" };
 			Assert.Equal(graphQLRequest, graphQLRequest);
 		}
 
 		[Fact]
 		public void Equality2Fact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name}}");
-			var graphQLRequest2 = new GraphQLRequest("{hero{name}}");
+			var graphQLRequest1 = new GraphQLRequest { Query = "{hero{name}}" };
+			var graphQLRequest2 = new GraphQLRequest { Query = "{hero{name}}" };
 			Assert.Equal(graphQLRequest1, graphQLRequest2);
 		}
 
 		[Fact]
 		public void Equality3Fact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest1 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
 				}
 			};
-			var graphQLRequest2 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest2 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -57,13 +60,15 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void EqualityOperatorFact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest1 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
 				}
 			};
-			var graphQLRequest2 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest2 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -74,20 +79,22 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void InEquality1Fact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name1}}");
-			var graphQLRequest2 = new GraphQLRequest("{hero{name2}}");
+			var graphQLRequest1 = new GraphQLRequest { Query = "{hero{name1}}" };
+			var graphQLRequest2 = new GraphQLRequest { Query = "{hero{name2}}" };
 			Assert.NotEqual(graphQLRequest1, graphQLRequest2);
 		}
 
 		[Fact]
 		public void InEquality2Fact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest1 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue1"
 				}
 			};
-			var graphQLRequest2 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest2 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue2"
@@ -98,27 +105,29 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void InEqualityOperatorFact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name1}}");
-			var graphQLRequest2 = new GraphQLRequest("{hero{name2}}");
+			var graphQLRequest1 = new GraphQLRequest { Query = "{hero{name1}}" };
+			var graphQLRequest2 = new GraphQLRequest { Query = "{hero{name2}}" };
 			Assert.True(graphQLRequest1 != graphQLRequest2);
 		}
 
 		[Fact]
 		public void GetHashCode1Fact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name}}");
-			var graphQLRequest2 = new GraphQLRequest("{hero{name}}");
+			var graphQLRequest1 = new GraphQLRequest { Query = "{hero{name}}" };
+			var graphQLRequest2 = new GraphQLRequest { Query = "{hero{name}}" };
 			Assert.True(graphQLRequest1.GetHashCode() == graphQLRequest2.GetHashCode());
 		}
 
 		[Fact]
 		public void GetHashCode2Fact() {
-			var graphQLRequest1 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest1 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
 				}
 			};
-			var graphQLRequest2 = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest2 = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -129,7 +138,8 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void PropertyQueryGetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -140,7 +150,8 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void PropertyQuerySetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name1}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name1}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -152,7 +163,8 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void PropertyOperationNameGetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -163,13 +175,14 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void PropertyOperationNameNullGetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}");
+			var graphQLRequest = new GraphQLRequest { Query = "{hero{name}}" };
 			Assert.Null(graphQLRequest.OperationName);
 		}
 
 		[Fact]
 		public void PropertyOperationNameSetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName1",
 				Variables = new {
 					varName = "varValue"
@@ -181,7 +194,8 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void PropertyVariableGetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue"
@@ -194,13 +208,14 @@ namespace GraphQL.Client.Tests.Request {
 
 		[Fact]
 		public void PropertyVariableNullGetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}");
+			var graphQLRequest = new GraphQLRequest { Query = "{hero{name}}" };
 			Assert.Null(graphQLRequest.Variables);
 		}
 
 		[Fact]
 		public void PropertyVariableSetFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}") {
+			var graphQLRequest = new GraphQLRequest {
+				Query = "{hero{name}}",
 				OperationName = "operationName",
 				Variables = new {
 					varName = "varValue1"
