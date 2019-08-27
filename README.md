@@ -7,26 +7,28 @@ A GraphQL Client for .NET Standard over HTTP.
 
 ## Specification:
 The Library will try to follow the following standards and documents:
-[GraphQL Specification](https://facebook.github.io/graphql/June2018/)
-[GraphQL HomePage](http://graphql.org/learn/)
+[GraphQL Specification](https://facebook.github.io/graphql/June2018)
+[GraphQL HomePage](http://graphql.org/learn)
 
 ## Usage:
 
 ### Create a GraphQLRequest:
 #### Simple Request:
 ```csharp
-var heroRequest = new GraphQLRequest(@"
+var heroRequest = new GraphQLRequest{
+    Query = @"
 	{
 		hero {
 			name
 		}
 	}"
-);
+};
 ```
 
 #### OperationName and Variables Request:
 ```csharp
-var heroAndFriendsRequest = new GraphQLRequest(@"
+var heroAndFriendsRequest = new GraphQLRequest{
+    Query =@"
 	query HeroNameAndFriends($episode: Episode) {
 		hero(episode: $episode) {
 			name
@@ -34,7 +36,7 @@ var heroAndFriendsRequest = new GraphQLRequest(@"
 				name
 			}
 		}
-	}"){
+	}",
 	OperationName = "HeroNameAndFriends",
 	Variables = new {
 		episode = "JEDI"
