@@ -1,4 +1,4 @@
-namespace GraphQL.Common.Tests.Model {
+namespace GraphQL.Client.Tests.Model {
 
 	public class Person {
 

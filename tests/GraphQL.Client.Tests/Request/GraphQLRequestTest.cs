@@ -1,7 +1,6 @@
-using GraphQL.Common.Request;
 using Xunit;
 
-namespace GraphQL.Common.Tests.Request {
+namespace GraphQL.Client.Tests.Request {
 
 	public class GraphQLRequestTest {
 
