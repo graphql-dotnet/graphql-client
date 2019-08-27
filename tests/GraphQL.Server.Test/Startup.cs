@@ -1,8 +1,10 @@
 using GraphQL.Server.Test.GraphQL;
 using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace GraphQL.Server.Test {
 
@@ -15,6 +17,12 @@ namespace GraphQL.Server.Test {
 		}
 
 		public void Configure(IApplicationBuilder app) {
+			var webHostEnvironment = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+			if (webHostEnvironment.IsDevelopment()) {
+				app.UseDeveloperExceptionPage();
+			}
+			app.UseHttpsRedirection();
+
 			app.UseWebSockets();
 			app.UseGraphQLWebSockets<TestSchema>();
 			app.UseGraphQL<TestSchema>();

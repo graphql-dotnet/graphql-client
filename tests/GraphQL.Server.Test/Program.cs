@@ -6,7 +6,6 @@ namespace GraphQL.Server.Test {
 
 	public class Program {
 
-		// This exposes https://swapi.co/ via GraphQL with some additions
 		public static async Task Main(string[] args) =>
 			await CreateHostBuilder(args).Build().RunAsync();
 
