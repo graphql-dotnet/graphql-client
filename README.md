@@ -1,4 +1,4 @@
-# GraphQL.Client:
+# GraphQL.Client
 [![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 [![MyGet](https://img.shields.io/myget/graphql-dotnet/v/GraphQL.Client.svg)](https://www.myget.org/feed/graphql-dotnet/package/nuget/GraphQL.Client)
 
