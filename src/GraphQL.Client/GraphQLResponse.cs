@@ -5,7 +5,7 @@ using System.Linq;
 namespace GraphQL.Client {
 
 	/// <summary>
-	/// Represent the response of a <see cref="GraphQLRequest"/>
+	/// Represent the response of a <see cref="GraphQLRequest{V}"/>
 	/// For more information <see href="http://graphql.org/learn/serving-over-http/#response"/>
 	/// </summary>
 	/// <typeparam name="T">The Data Type</typeparam>
