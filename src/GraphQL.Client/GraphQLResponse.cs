@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client {
 
@@ -9,38 +8,24 @@ namespace GraphQL.Client {
 	/// Represent the response of a <see cref="GraphQLRequest"/>
 	/// For more information <see href="http://graphql.org/learn/serving-over-http/#response"/>
 	/// </summary>
-	public class GraphQLResponse : IEquatable<GraphQLResponse?> {
+	/// <typeparam name="T">The Data Type</typeparam>
+	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
 		/// <summary>
 		/// The data of the response
 		/// </summary>
-		public dynamic? Data { get; set; }
+		public T Data { get; set; }
 
 		/// <summary>
 		/// The Errors if occurred
 		/// </summary>
 		public GraphQLError[]? Errors { get; set; }
 
-		/// <summary>
-		/// Get a field of <see cref="Data"/> as Type
-		/// </summary>
-		/// <typeparam name="TOut">The expected type</typeparam>
-		/// <param name="fieldName">The name of the field</param>
-		/// <returns>The field of data as an object</returns>
-		public TOut? GetDataFieldAs<TOut>(string fieldName) where TOut : class {
-			if (this.Data is JObject jObjectData) {
-				return jObjectData.GetValue(fieldName).ToObject<TOut>();
-			}
-			return (TOut)this.Data!.GetType()
-				.GetProperty(fieldName)
-				.GetValue(this.Data!, null);
-		}
+		/// <inheritdoc />
+		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
 		/// <inheritdoc />
-		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse);
-
-		/// <inheritdoc />
-		public bool Equals(GraphQLResponse? other) {
+		public bool Equals(GraphQLResponse<T>? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<dynamic?>.Default.Equals(this.Data, other.Data)) { return false; }
@@ -74,11 +59,16 @@ namespace GraphQL.Client {
 
 
 		/// <inheritdoc />
-		public static bool operator ==(GraphQLResponse? response1, GraphQLResponse? response2) => EqualityComparer<GraphQLResponse?>.Default.Equals(response1, response2);
+		public static bool operator ==(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => EqualityComparer<GraphQLResponse<T>?>.Default.Equals(response1, response2);
 
 		/// <inheritdoc />
-		public static bool operator !=(GraphQLResponse? response1, GraphQLResponse? response2) => !(response1 == response2);
+		public static bool operator !=(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => !(response1 == response2);
 
 	}
+
+	/// <summary>
+	/// The dynamic version of <see cref="GraphQLResponse{T}"/>
+	/// </summary>
+	public class GraphQLResponse : GraphQLResponse<dynamic?> { }
 
 }

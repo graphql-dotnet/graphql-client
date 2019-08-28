@@ -6,7 +6,7 @@ using System.Linq;
 namespace GraphQL.Client {
 
 	/// <summary>
-	/// Represents the error of a <see cref="GraphQLResponse"/>
+	/// Represents the error of a <see cref="GraphQLResponse{T}"/>
 	/// </summary>
 	public class GraphQLError : IEquatable<GraphQLError?> {
 
