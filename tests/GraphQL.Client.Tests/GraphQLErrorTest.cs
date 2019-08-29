@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace GraphQL.Client.Tests.Response {
+namespace GraphQL.Client.Tests {
 
 	public class GraphQLErrorTest {
 
