@@ -6,17 +6,17 @@ namespace GraphQL.Client {
 	/// Represents the Result of a subscription
 	/// </summary>
 	[Obsolete("EXPERIMENTAL")]
-	public interface IGraphQLSubscriptionResult : IDisposable {
+	public interface IGraphQLSubscriptionResult<T> : IDisposable {
 
 		/// <summary>
 		/// Event triggered when a new Response is received
 		/// </summary>
-		event Action<GraphQLResponse> OnReceive;
+		event Action<GraphQLResponse<T>> OnReceive;
 
 		/// <summary>
 		/// Last Response Received
 		/// </summary>
-		GraphQLResponse LastResponse { get; }
+		GraphQLResponse<T> LastResponse { get; }
 
 	}
 
