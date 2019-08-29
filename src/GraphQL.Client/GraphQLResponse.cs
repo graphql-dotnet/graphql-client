@@ -4,27 +4,14 @@ using System.Linq;
 
 namespace GraphQL.Client {
 
-	/// <summary>
-	/// Represent the response of a <see cref="GraphQLRequest{V}"/>
-	/// For more information <see href="http://graphql.org/learn/serving-over-http/#response"/>
-	/// </summary>
-	/// <typeparam name="T">The Data Type</typeparam>
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
-		/// <summary>
-		/// The data of the response
-		/// </summary>
 		public T Data { get; set; }
 
-		/// <summary>
-		/// The Errors if occurred
-		/// </summary>
 		public GraphQLError[]? Errors { get; set; }
 
-		/// <inheritdoc />
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
-		/// <inheritdoc />
 		public bool Equals(GraphQLResponse<T>? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
@@ -39,7 +26,6 @@ namespace GraphQL.Client {
 			return true;
 		}
 
-		/// <inheritdoc />
 		public override int GetHashCode() {
 			unchecked {
 				var hashCode = EqualityComparer<dynamic?>.Default.GetHashCode(this.Data);
@@ -58,10 +44,8 @@ namespace GraphQL.Client {
 		}
 
 
-		/// <inheritdoc />
 		public static bool operator ==(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => EqualityComparer<GraphQLResponse<T>?>.Default.Equals(response1, response2);
 
-		/// <inheritdoc />
 		public static bool operator !=(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => !(response1 == response2);
 
 	}

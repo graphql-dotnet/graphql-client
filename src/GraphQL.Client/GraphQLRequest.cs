@@ -3,33 +3,15 @@ using System.Collections.Generic;
 
 namespace GraphQL.Client {
 
-	/// <summary>
-	/// Represents a Query that can be fetched to a GraphQL Server.
-	/// For more information <see href="http://graphql.org/learn/serving-over-http/#post-request"/>
-	/// </summary>
-	/// <typeparam name="V">The Variable Type</typeparam>
-	public class GraphQLRequest<V> : IEquatable<GraphQLRequest<V>?> {
+	public class GraphQLRequest<T> : IEquatable<GraphQLRequest<T>?> {
 
-		/// <summary>
-		/// The Query
-		/// </summary>
 		public string Query { get; set; }
-
-		/// <summary>
-		/// If the provided <see cref="Query"/> contains multiple named operations, this specifies which operation should be executed.
-		/// </summary>
 		public string? OperationName { get; set; }
+		public T Variables { get; set; }
 
-		/// <summary>
-		/// The Variables
-		/// </summary>
-		public V Variables { get; set; }
+		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest<T>);
 
-		/// <inheritdoc />
-		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest<V>);
-
-		/// <inheritdoc />
-		public bool Equals(GraphQLRequest<V>? other) {
+		public bool Equals(GraphQLRequest<T>? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<string>.Default.Equals(this.Query, other.Query)) { return false; }
@@ -38,7 +20,6 @@ namespace GraphQL.Client {
 			return true;
 		}
 
-		/// <inheritdoc />
 		public override int GetHashCode() {
 			unchecked {
 				var hashCode = EqualityComparer<string>.Default.GetHashCode(this.Query);
@@ -48,11 +29,9 @@ namespace GraphQL.Client {
 			}
 		}
 
-		/// <inheritdoc />
-		public static bool operator ==(GraphQLRequest<V>? request1, GraphQLRequest<V>? request2) => EqualityComparer<GraphQLRequest<V>?>.Default.Equals(request1, request2);
+		public static bool operator ==(GraphQLRequest<T>? request1, GraphQLRequest<T>? request2) => EqualityComparer<GraphQLRequest<T>?>.Default.Equals(request1, request2);
 
-		/// <inheritdoc />
-		public static bool operator !=(GraphQLRequest<V>? request1, GraphQLRequest<V>? request2) => !(request1 == request2);
+		public static bool operator !=(GraphQLRequest<T>? request1, GraphQLRequest<T>? request2) => !(request1 == request2);
 
 	}
 
