@@ -56,6 +56,6 @@ namespace GraphQL.Client {
 
 	}
 
-	public class GraphQLRequest: GraphQLRequest<dynamic?>{}
+	public class GraphQLRequest : GraphQLRequest<dynamic?> { }
 
 }

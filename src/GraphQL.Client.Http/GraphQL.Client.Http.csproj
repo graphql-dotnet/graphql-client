@@ -8,4 +8,10 @@
       <ProjectReference Include="..\GraphQL.Client\GraphQL.Client.csproj" />
     </ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+		<PackageReference Include="System.Text.Json" Version="4.6.0-preview8.19405.3" />
+	</ItemGroup>
+
 </Project>
