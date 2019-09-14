@@ -3,7 +3,7 @@
 	"tools": {
 		"dotnet-format": {
 			"commands": [
-                		"dotnet-format"
+                "dotnet-format"
 			],
 			"version": "3.1.37601"
 		}
