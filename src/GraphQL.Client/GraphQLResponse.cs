@@ -7,8 +7,8 @@ namespace GraphQL.Client {
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
 		public T Data { get; set; }
-
 		public GraphQLError[]? Errors { get; set; }
+		public IDictionary<string, dynamic>? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
@@ -23,6 +23,7 @@ namespace GraphQL.Client {
 				else if (this.Errors != null && other.Errors == null) { return false; }
 				else if (this.Errors == null && other.Errors != null) { return false; }
 			}
+			if (!EqualityComparer<IDictionary<string, dynamic>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			return true;
 		}
 
@@ -39,6 +40,7 @@ namespace GraphQL.Client {
 						hashCode = (hashCode * 397) ^ 0;
 					}
 				}
+				hashCode = (hashCode * 397) ^ EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
 				return hashCode;
 			}
 		}
