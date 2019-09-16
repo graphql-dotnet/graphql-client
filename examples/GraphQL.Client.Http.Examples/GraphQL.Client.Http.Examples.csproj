@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -6,8 +6,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src\GraphQL.Client.Http\GraphQL.Client.Http.csproj" />
-	  <ProjectReference Include="..\..\tests\GraphQL.Server.Test\GraphQL.Server.Test.csproj" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\GraphQL.Client.Http\GraphQL.Client.Http.csproj" />
+		<ProjectReference Include="..\..\tests\GraphQL.Server.Test\GraphQL.Server.Test.csproj" />
 	</ItemGroup>
 
 </Project>
