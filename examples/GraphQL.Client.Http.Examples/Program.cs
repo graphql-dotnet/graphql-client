@@ -9,7 +9,7 @@ namespace GraphQL.Client.Http.Examples {
 		private static readonly TestServer testServer = new TestServer(Server.Test.Program.CreateHostBuilder());
 
 		public async static Task Main(string[] args) {
-			var httpClient = testServer.CreateWebSocketClient();
+			using var httpClient = testServer.CreateClient();
 			Console.WriteLine("Hello World!");
 		}
 
