@@ -7,8 +7,11 @@ namespace GraphQL.Client {
 	public class GraphQLError : IEquatable<GraphQLError?> {
 
 		public IDictionary<string, dynamic>? Extensions { get; set; }
+
 		public GraphQLLocation[]? Locations { get; set; }
+
 		public string Message { get; set; }
+
 		public dynamic[]? Path { get; set; }
 
 		public GraphQLError(string message) {

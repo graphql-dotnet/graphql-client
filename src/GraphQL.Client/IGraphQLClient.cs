@@ -10,9 +10,6 @@ namespace GraphQL.Client {
 
 		Task<GraphQLResponse<R>> SendMutationAsync<V, R>(GraphQLRequest<V> request, CancellationToken cancellationToken = default);
 
-		[Obsolete("EXPERIMENTAL")]
-		Task<IGraphQLSubscriptionResult<R>> SendSubscribeAsync<V, R>(GraphQLRequest<V> request, CancellationToken cancellationToken = default);
-
 	}
 
 }

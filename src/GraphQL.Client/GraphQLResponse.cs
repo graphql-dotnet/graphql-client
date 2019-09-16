@@ -7,7 +7,9 @@ namespace GraphQL.Client {
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
 		public T Data { get; set; }
+
 		public GraphQLError[]? Errors { get; set; }
+
 		public IDictionary<string, dynamic>? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);

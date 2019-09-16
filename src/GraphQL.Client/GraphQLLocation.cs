@@ -6,6 +6,7 @@ namespace GraphQL.Client {
 	public class GraphQLLocation : IEquatable<GraphQLLocation?> {
 
 		public uint Column { get; set; }
+
 		public uint Line { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLLocation);

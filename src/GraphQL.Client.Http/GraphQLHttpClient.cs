@@ -7,9 +7,6 @@ using GraphQL.Client.Http.Internal;
 
 namespace GraphQL.Client.Http {
 
-	/// <summary>
-	/// A Client to access GraphQL EndPoints
-	/// </summary>
 	public partial class GraphQLHttpClient : IGraphQLClient {
 
 		#region Properties

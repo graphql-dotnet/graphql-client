@@ -6,7 +6,9 @@ namespace GraphQL.Client {
 	public class GraphQLRequest<T> : IEquatable<GraphQLRequest<T>?> {
 
 		public string Query { get; set; }
+
 		public string? OperationName { get; set; }
+
 		public T Variables { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLRequest<T>);
