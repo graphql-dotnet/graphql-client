@@ -20,6 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - run: dotnet restore
+    - run: dotnet build
     - run: dotnet test
   publish:
     container: mcr.microsoft.com/dotnet/core/sdk:3.0
@@ -29,4 +30,5 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - run: dotnet restore
+    - run: dotnet build --configuration Release
     - run: dotnet pack --configuration Release
