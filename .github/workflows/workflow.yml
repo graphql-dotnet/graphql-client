@@ -26,4 +26,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - run: dotnet pack
+    - run: dotnet pack --configuration Release
