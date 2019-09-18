@@ -11,13 +11,15 @@ jobs:
     - run: dotnet format --check --dry-run
     - run: dotnet restore
     - run: dotnet build
-  test:
+    - run: dotnet pack
+ test:
     container: mcr.microsoft.com/dotnet/core/sdk:3.0
     name: Test
     needs: build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - run: dotnet restore
     - run: dotnet test
   publish:
     container: mcr.microsoft.com/dotnet/core/sdk:3.0
@@ -26,4 +28,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - run: dotnet restore
     - run: dotnet pack --configuration Release
