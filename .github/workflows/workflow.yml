@@ -32,3 +32,5 @@ jobs:
     - run: dotnet restore
     - run: dotnet build --configuration Release
     - run: dotnet pack --configuration Release
+    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.4.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
+    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.2.0.0-alpha.4.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
