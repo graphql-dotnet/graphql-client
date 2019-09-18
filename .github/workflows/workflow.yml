@@ -12,7 +12,7 @@ jobs:
     - run: dotnet restore
     - run: dotnet build
     - run: dotnet pack
- test:
+  test:
     container: mcr.microsoft.com/dotnet/core/sdk:3.0
     name: Test
     needs: build
