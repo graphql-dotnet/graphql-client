@@ -11,13 +11,13 @@ namespace GraphQL.Client.Http {
 
 		private readonly HttpClient httpClient;
 
-		public GraphQLHttpClient(string endPoint){
+		public GraphQLHttpClient(string endPoint) {
 			this.EndPoint = new Uri(endPoint);
 			this.httpClient = new HttpClient();
 		}
 
 		public GraphQLHttpClient(Uri endPoint) {
-			this.EndPoint =endPoint;
+			this.EndPoint = endPoint;
 			this.httpClient = new HttpClient();
 		}
 
