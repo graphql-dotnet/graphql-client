@@ -3,6 +3,7 @@ on: [push]
 jobs:
   build:
     container: mcr.microsoft.com/dotnet/core/sdk:3.0
+    name: Build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -10,8 +11,10 @@ jobs:
     - run: dotnet format --check --dry-run
     - run: dotnet restore
     - run: dotnet build
+    - run: dotnet pack
   test:
     container: mcr.microsoft.com/dotnet/core/sdk:3.0
+    name: Test
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -19,3 +22,15 @@ jobs:
     - run: dotnet restore
     - run: dotnet build
     - run: dotnet test
+  publish:
+    container: mcr.microsoft.com/dotnet/core/sdk:3.0
+    name: Publish
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - run: dotnet restore
+    - run: dotnet build --configuration Release
+    - run: dotnet pack --configuration Release
+    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.4.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
+    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.2.0.0-alpha.4.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
