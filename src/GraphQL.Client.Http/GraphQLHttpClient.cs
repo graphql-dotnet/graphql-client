@@ -65,9 +65,9 @@ namespace GraphQL.Client.Http {
 			if (!httpResponseMessage.IsSuccessStatusCode) {
 				throw new GraphQLHttpException(httpResponseMessage);
 			}
-			var httpBody = await httpRequestMessage.Content.ReadAsStringAsync();
-			var graphQLHttpResponse=JsonSerializer.Deserialize<GraphQLHttpResponse<TResponse>>(httpBody, this.JsonSerializerOptions);
-			throw new NotImplementedException();
+
+			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+			return await JsonSerializer.DeserializeAsync<GraphQLHttpResponse<TResponse>>(bodyStream, this.JsonSerializerOptions, cancellationToken);
 		}
 
 		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TResponse>(GraphQLHttpRequest request, CancellationToken cancellationToken = default) =>
