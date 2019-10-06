@@ -59,25 +59,28 @@ namespace GraphQL.Client.Http {
 
 		public void Dispose() => this.httpClient.Dispose();
 
-		public async Task<GraphQLHttpResponse<R>> SendHttpQueryAsync<V, R>(GraphQLHttpRequest<V> request, CancellationToken cancellationToken = default) {
-			using var httpRequestMessage = await this.GenerateHttpRequestMessageAsync(request);
+		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
+			using var httpRequestMessage = this.GenerateHttpRequestMessage(request);
 			using var httpResponseMessage = await this.httpClient.SendAsync(httpRequestMessage, cancellationToken);
 			throw new NotImplementedException();
 		}
 
-		public async Task<GraphQLHttpResponse<R>> SendHttpMutationAsync<V, R>(GraphQLHttpRequest<V> request, CancellationToken cancellationToken = default) {
+		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TResponse>(GraphQLHttpRequest request, CancellationToken cancellationToken = default) =>
+			await this.SendHttpQueryAsync<dynamic, TResponse>(request, cancellationToken);
+
+		public async Task<GraphQLHttpResponse<TResponse>> SendHttpMutationAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
-		public async Task<GraphQLResponse<R>> SendQueryAsync<V, R>(GraphQLRequest<V> request, CancellationToken cancellationToken = default) {
+		public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TVariable, TResponse>(GraphQLRequest<TVariable> request, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
-		public async Task<GraphQLResponse<R>> SendMutationAsync<V, R>(GraphQLRequest<V> request, CancellationToken cancellationToken = default) {
+		public async Task<GraphQLResponse<TResponse>> SendMutationAsync<TVariable, TResponse>(GraphQLRequest<TVariable> request, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
-		private async Task<HttpRequestMessage> GenerateHttpRequestMessageAsync<T>(GraphQLRequest<T> request, CancellationToken cancellationToken = default) {
+		private HttpRequestMessage GenerateHttpRequestMessage<T>(GraphQLRequest<T> request) {
 			return new HttpRequestMessage(HttpMethod.Post, this.EndPoint) {
 				Content = new StringContent(JsonSerializer.Serialize(request, this.JsonSerializerOptions), Encoding.UTF8, "application/json")
 			};
