@@ -54,6 +54,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Http.Example
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Primitives", "src\GraphQL.Primitives\GraphQL.Primitives.csproj", "{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Primitives.Tests", "tests\GraphQL.Primitives.Tests\GraphQL.Primitives.Tests.csproj", "{C212983F-67DB-44EB-BFB0-5DA75A86DF55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{8F5BBBDA-B3DD-458B-B97F-F67531D323E0} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{95D78D57-3232-491D-BAD6-F373D76EA34D} = {D61415CA-D822-43DD-9AE7-993B8B60E855}
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{C212983F-67DB-44EB-BFB0-5DA75A86DF55} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}
