@@ -6,7 +6,7 @@ namespace GraphQL {
 	/// <summary>
 	/// Represents a GraphQL Location of a GraphQL Query
 	/// </summary>
-	public class GraphQLLocation : IEquatable<GraphQLLocation?> {
+	public sealed class GraphQLLocation : IEquatable<GraphQLLocation?> {
 
 		/// <summary>
 		/// The Column

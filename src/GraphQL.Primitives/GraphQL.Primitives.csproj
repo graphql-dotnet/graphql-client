@@ -19,8 +19,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="$(MSBuildProjectDirectory)../../../LICENSE.txt" Pack="true" PackagePath="LICENSE.txt" Visible="false" />
-		<Content Include="$(MSBuildProjectDirectory)../../../assets/logo.64x64.png" Pack="true" PackagePath="icon.png" Visible="false" />
+		<Content Include="$(MSBuildProjectDirectory)../../../LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>true</Pack>
+			<PackagePath>LICENSE.txt</PackagePath>
+			<Visible>false</Visible>
+		</Content>
+		<Content Include="$(MSBuildProjectDirectory)../../../assets/logo.64x64.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>true</Pack>
+			<PackagePath>icon.png</PackagePath>
+			<Visible>false</Visible>
+		</Content>
 	</ItemGroup>
 	
 </Project>
