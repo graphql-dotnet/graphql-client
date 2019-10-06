@@ -62,6 +62,11 @@ namespace GraphQL.Client.Http {
 		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
 			using var httpRequestMessage = this.GenerateHttpRequestMessage(request);
 			using var httpResponseMessage = await this.httpClient.SendAsync(httpRequestMessage, cancellationToken);
+			if (!httpResponseMessage.IsSuccessStatusCode) {
+				throw new GraphQLHttpException(httpResponseMessage);
+			}
+			var httpBody = await httpRequestMessage.Content.ReadAsStringAsync();
+			var graphQLHttpResponse=JsonSerializer.Deserialize<GraphQLHttpResponse<TResponse>>(httpBody, this.JsonSerializerOptions);
 			throw new NotImplementedException();
 		}
 
