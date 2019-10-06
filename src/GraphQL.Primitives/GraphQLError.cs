@@ -2,24 +2,54 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GraphQL.Client {
+namespace GraphQL {
 
+	/// <summary>
+	/// <inheritdoc />
+	/// </summary>
 	public class GraphQLError : IEquatable<GraphQLError?> {
 
+		/// <summary>
+		/// <inheritdoc />
+		/// </summary>
 		public IDictionary<string, dynamic>? Extensions { get; set; }
 
+		/// <summary>
+		/// <inheritdoc />
+		/// </summary>
 		public GraphQLLocation[]? Locations { get; set; }
 
+		/// <summary>
+		/// <inheritdoc />
+		/// </summary>
 		public string Message { get; set; }
 
+		/// <summary>
+		/// <inheritdoc />
+		/// </summary>
 		public dynamic[]? Path { get; set; }
 
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="message"></param>
 		public GraphQLError(string message) {
 			this.Message = message;
 		}
 
-		public override bool Equals(object? obj) => this.Equals(obj as GraphQLError);
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		public override bool Equals(object? obj) =>
+			this.Equals(obj as GraphQLError);
 
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		public bool Equals(GraphQLError? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
@@ -42,6 +72,10 @@ namespace GraphQL.Client {
 			return true;
 		}
 
+		/// <summary>
+		///
+		/// </summary>
+		/// <returns></returns>
 		public override int GetHashCode() {
 			unchecked {
 				var hashCode = EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
@@ -70,9 +104,23 @@ namespace GraphQL.Client {
 			}
 		}
 
-		public static bool operator ==(GraphQLError? error1, GraphQLError? error2) => EqualityComparer<GraphQLError?>.Default.Equals(error1, error2);
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <returns></returns>
+		public static bool operator ==(GraphQLError? left, GraphQLError? right) =>
+			EqualityComparer<GraphQLError?>.Default.Equals(left, right);
 
-		public static bool operator !=(GraphQLError? error1, GraphQLError? error2) => !(error1 == error2);
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <returns></returns>
+		public static bool operator !=(GraphQLError? left, GraphQLError? right) =>
+			!EqualityComparer<GraphQLError?>.Default.Equals(left, right);
 
 	}
 
