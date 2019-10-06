@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.0.100'
     - run: dotnet tool restore
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.0.100'
     - run: dotnet restore
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.0.100'
     - run: dotnet restore
