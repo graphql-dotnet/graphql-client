@@ -26,8 +26,8 @@ namespace GraphQL.Client.Http.Examples {
 						}
 					}"
 			};
-			var graphQlHttpResponse = await graphqlClient.SendHttpQueryAsync<Schema>(graphQLHttpRequest);
-			Console.WriteLine(JsonSerializer.Serialize(graphQlHttpResponse, new JsonSerializerOptions{ WriteIndented = true}));
+			var graphQLHttpResponse = await graphqlClient.SendHttpQueryAsync<Schema>(graphQLHttpRequest);
+			Console.WriteLine(JsonSerializer.Serialize(graphQLHttpResponse, new JsonSerializerOptions{ WriteIndented = true}));
 		}
 
 		private class Schema {
