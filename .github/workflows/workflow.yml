@@ -2,33 +2,39 @@ name: Main workflow
 on: [push]
 jobs:
   build:
-    container: mcr.microsoft.com/dotnet/core/sdk:3.0
     name: Build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: '3.0.100'
     - run: dotnet tool restore
     - run: dotnet format --check --dry-run
     - run: dotnet restore
     - run: dotnet build
     - run: dotnet pack
   test:
-    container: mcr.microsoft.com/dotnet/core/sdk:3.0
     name: Test
     needs: build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: '3.0.100'
     - run: dotnet restore
     - run: dotnet build
     - run: dotnet test
   publish:
-    container: mcr.microsoft.com/dotnet/core/sdk:3.0
     name: Publish
     needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: '3.0.100'
     - run: dotnet restore
     - run: dotnet build --configuration Release
     - run: dotnet pack --configuration Release
