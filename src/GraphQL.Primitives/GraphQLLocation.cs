@@ -18,7 +18,7 @@ namespace GraphQL {
 		public bool Equals(GraphQLLocation? other) {
 			return other != null &&
 				EqualityComparer<uint>.Default.Equals(this.Column, other.Column) &&
-			    EqualityComparer<uint>.Default.Equals(this.Line, other.Line);
+				EqualityComparer<uint>.Default.Equals(this.Line, other.Line);
 		}
 
 		public override int GetHashCode() =>
