@@ -84,8 +84,8 @@ namespace GraphQL.Primitives.Tests {
 		public void Equality5() {
 			var graphQLLocation1 = new GraphQLLocation();
 			var graphQLLocation2 = new GraphQLLocation();
-			Assert.True(graphQLLocation1.Equals((object) graphQLLocation2));
-			Assert.True(graphQLLocation2.Equals((object) graphQLLocation1));
+			Assert.True(graphQLLocation1.Equals((object)graphQLLocation2));
+			Assert.True(graphQLLocation2.Equals((object)graphQLLocation1));
 		}
 
 		[Fact]
@@ -136,7 +136,7 @@ namespace GraphQL.Primitives.Tests {
 		[Fact]
 		public void Inequality1() {
 			var graphQLLocation1 = new GraphQLLocation();
-			var graphQLLocation2 = new GraphQLLocation{Column = 1, Line = 2};
+			var graphQLLocation2 = new GraphQLLocation { Column = 1, Line = 2 };
 			Assert.False(graphQLLocation1.Equals(graphQLLocation2));
 			Assert.False(graphQLLocation2.Equals(graphQLLocation1));
 		}
@@ -158,7 +158,7 @@ namespace GraphQL.Primitives.Tests {
 		[Fact]
 		public void Inequality3() {
 			var graphQLLocation1 = new GraphQLLocation();
-			var graphQLLocation2 = new GraphQLLocation{Column = 1, Line = 2};
+			var graphQLLocation2 = new GraphQLLocation { Column = 1, Line = 2 };
 			Assert.True(graphQLLocation1 != graphQLLocation2);
 			Assert.True(graphQLLocation2 != graphQLLocation1);
 		}
@@ -180,9 +180,9 @@ namespace GraphQL.Primitives.Tests {
 		[Fact]
 		public void Inequality5() {
 			var graphQLLocation1 = new GraphQLLocation();
-			var graphQLLocation2 = new GraphQLLocation{Column = 1, Line = 2};
-			Assert.False(graphQLLocation1.Equals((object) graphQLLocation2));
-			Assert.False(graphQLLocation2.Equals((object) graphQLLocation1));
+			var graphQLLocation2 = new GraphQLLocation { Column = 1, Line = 2 };
+			Assert.False(graphQLLocation1.Equals((object)graphQLLocation2));
+			Assert.False(graphQLLocation2.Equals((object)graphQLLocation1));
 		}
 
 		[Fact]
