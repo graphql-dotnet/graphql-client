@@ -45,10 +45,10 @@ namespace GraphQL {
 		public bool Equals(GraphQLError? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
-			if (!EqualityComparer<IDictionary<string, dynamic>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
+			if (!EqualityComparer<IDictionary<string, dynamic?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			{
 				if (this.Locations != null && other.Locations != null) {
-					if (!Enumerable.SequenceEqual(this.Locations, other.Locations)) { return false; }
+					if (!this.Locations.SequenceEqual(other.Locations)) { return false; }
 				}
 				else if (this.Locations != null && other.Locations == null) { return false; }
 				else if (this.Locations == null && other.Locations != null) { return false; }
@@ -56,7 +56,7 @@ namespace GraphQL {
 			if (!EqualityComparer<string>.Default.Equals(this.Message, other.Message)) { return false; }
 			{
 				if (this.Path != null && other.Path != null) {
-					if (!Enumerable.SequenceEqual(this.Path, other.Path)) { return false; }
+					if (!this.Path.SequenceEqual(other.Path)) { return false; }
 				}
 				else if (this.Path != null && other.Path == null) { return false; }
 				else if (this.Path == null && other.Path != null) { return false; }
@@ -68,31 +68,18 @@ namespace GraphQL {
 		/// <inheritdoc cref="Object.GetHashCode"/>
 		/// </summary>
 		public override int GetHashCode() {
-			unchecked {
-				var hashCode = EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
-				{
-					if (this.Locations != null) {
-						foreach (var element in this.Locations) {
-							hashCode = (hashCode * 397) ^ EqualityComparer<GraphQLLocation?>.Default.GetHashCode(element);
-						}
-					}
-					else {
-						hashCode = (hashCode * 397) ^ 0;
-					}
-				}
-				hashCode = (hashCode * 397) ^ EqualityComparer<string>.Default.GetHashCode(this.Message);
-				{
-					if (this.Path != null) {
-						foreach (var element in this.Path) {
-							hashCode = (hashCode * 397) ^ EqualityComparer<dynamic?>.Default.GetHashCode(element);
-						}
-					}
-					else {
-						hashCode = (hashCode * 397) ^ 0;
-					}
-				}
-				return hashCode;
+			var hashCode = 0;
+			if (this.Extensions != null) {
+				hashCode = hashCode ^ EqualityComparer<IDictionary<string, dynamic?>>.Default.GetHashCode(this.Extensions);
 			}
+			if (this.Locations != null) {
+				hashCode = hashCode ^ EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(this.Locations);
+			}
+			hashCode = hashCode ^ EqualityComparer<string>.Default.GetHashCode(this.Message);
+			if (this.Path != null) {
+				hashCode = hashCode ^ EqualityComparer<dynamic>.Default.GetHashCode(this.Path);
+			}
+			return hashCode;
 		}
 
 		/// <summary>

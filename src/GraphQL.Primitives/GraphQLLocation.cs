@@ -31,8 +31,9 @@ namespace GraphQL {
 		/// <param name="other">The object to compare with this instance</param>
 		/// <returns>true if obj is an instance of <see cref="GraphQLLocation"/> and equals the value of the instance; otherwise, false</returns>
 		public bool Equals(GraphQLLocation? other) {
-			return other != null &&
-				EqualityComparer<uint>.Default.Equals(this.Column, other.Column) &&
+			if (other == null) { return false; }
+			if (ReferenceEquals(this, other)) { return true; }
+			return EqualityComparer<uint>.Default.Equals(this.Column, other.Column) &&
 				EqualityComparer<uint>.Default.Equals(this.Line, other.Line);
 		}
 
