@@ -6,7 +6,7 @@
 		<Description>A GraphQL Client for .NET Standard</Description>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<LangVersion>8</LangVersion>
+		<LangVersion>8.0</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<NoWarn>CS0618;CS1591;CS1701;CS8618;NU5048;NU5105;NU5125</NoWarn>
 		<Nullable>annotations</Nullable>
