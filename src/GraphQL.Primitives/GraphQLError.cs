@@ -5,43 +5,43 @@ using System.Linq;
 namespace GraphQL {
 
 	/// <summary>
-	/// <inheritdoc />
+	/// Represents a GraphQL Error of a GraphQL Query
 	/// </summary>
 	public class GraphQLError : IEquatable<GraphQLError?> {
 
 		/// <summary>
-		/// <inheritdoc />
+		/// The extensions of the error
 		/// </summary>
-		public IDictionary<string, dynamic>? Extensions { get; set; }
+		public IDictionary<string, dynamic?>? Extensions { get; set; }
 
 		/// <summary>
-		/// <inheritdoc />
+		/// The locations of the error
 		/// </summary>
 		public GraphQLLocation[]? Locations { get; set; }
 
 		/// <summary>
-		/// <inheritdoc />
+		/// The message of the error
 		/// </summary>
 		public string Message { get; set; }
 
 		/// <summary>
-		/// <inheritdoc />
+		/// The Path of the error
 		/// </summary>
 		public dynamic[]? Path { get; set; }
 
 		/// <summary>
-		///
+		/// Returns a value that indicates whether this instance is equal to a specified object
 		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
+		/// <param name="obj">The object to compare with this instance</param>
+		/// <returns>true if obj is an instance of <see cref="GraphQLError"/> and equals the value of the instance; otherwise, false</returns>
 		public override bool Equals(object? obj) =>
 			this.Equals(obj as GraphQLError);
 
 		/// <summary>
-		///
+		/// Returns a value that indicates whether this instance is equal to a specified object
 		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
+		/// <param name="other">The object to compare with this instance</param>
+		/// <returns>true if obj is an instance of <see cref="GraphQLError"/> and equals the value of the instance; otherwise, false</returns>
 		public bool Equals(GraphQLError? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
@@ -65,9 +65,8 @@ namespace GraphQL {
 		}
 
 		/// <summary>
-		///
+		/// <inheritdoc cref="Object.GetHashCode"/>
 		/// </summary>
-		/// <returns></returns>
 		public override int GetHashCode() {
 			unchecked {
 				var hashCode = EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
@@ -97,20 +96,20 @@ namespace GraphQL {
 		}
 
 		/// <summary>
-		///
+		/// Tests whether two specified <see cref="GraphQLError"/> instances are equivalent
 		/// </summary>
-		/// <param name="left"></param>
-		/// <param name="right"></param>
-		/// <returns></returns>
+		/// <param name="left">The <see cref="GraphQLError"/> instance that is to the left of the equality operator</param>
+		/// <param name="right">The <see cref="GraphQLError"/> instance that is to the right of the equality operator</param>
+		/// <returns>true if left and right are equal; otherwise, false</returns>
 		public static bool operator ==(GraphQLError? left, GraphQLError? right) =>
 			EqualityComparer<GraphQLError?>.Default.Equals(left, right);
 
 		/// <summary>
-		///
+		/// Tests whether two specified <see cref="GraphQLError"/> instances are not equal
 		/// </summary>
-		/// <param name="left"></param>
-		/// <param name="right"></param>
-		/// <returns></returns>
+		/// <param name="left">The <see cref="GraphQLError"/> instance that is to the left of the not equal operator</param>
+		/// <param name="right">The <see cref="GraphQLError"/> instance that is to the right of the not equal operator</param>
+		/// <returns>true if left and right are unequal; otherwise, false</returns>
 		public static bool operator !=(GraphQLError? left, GraphQLError? right) =>
 			!EqualityComparer<GraphQLError?>.Default.Equals(left, right);
 
