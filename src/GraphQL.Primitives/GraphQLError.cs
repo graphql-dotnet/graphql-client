@@ -32,14 +32,6 @@ namespace GraphQL {
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="message"></param>
-		public GraphQLError(string message) {
-			this.Message = message;
-		}
-
-		/// <summary>
-		///
-		/// </summary>
 		/// <param name="obj"></param>
 		/// <returns></returns>
 		public override bool Equals(object? obj) =>
