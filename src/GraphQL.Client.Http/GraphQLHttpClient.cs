@@ -74,14 +74,17 @@ namespace GraphQL.Client.Http {
 			await this.SendHttpQueryAsync<dynamic, TResponse>(request, cancellationToken);
 
 		public async Task<GraphQLHttpResponse<TResponse>> SendHttpMutationAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
 			throw new NotImplementedException();
 		}
 
 		public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TVariable, TResponse>(GraphQLRequest<TVariable> request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
 			throw new NotImplementedException();
 		}
 
 		public async Task<GraphQLResponse<TResponse>> SendMutationAsync<TVariable, TResponse>(GraphQLRequest<TVariable> request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
 			throw new NotImplementedException();
 		}
 
