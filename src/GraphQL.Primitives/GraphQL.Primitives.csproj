@@ -4,8 +4,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<LangVersion>8</LangVersion>
-		<NoWarn>CS8618</NoWarn>
-		<Nullable>enable</Nullable>
+		<Nullable>annotations</Nullable>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/graphql-dotnet/graphql-client.git</PackageProjectUrl>
