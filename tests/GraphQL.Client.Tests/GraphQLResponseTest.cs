@@ -15,7 +15,7 @@ namespace GraphQL.Client.Tests {
 		public void Constructor2Fact() {
 			var graphQLResponse = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			Assert.NotNull(graphQLResponse.Data);
 			Assert.NotNull(graphQLResponse.Errors);
@@ -38,11 +38,11 @@ namespace GraphQL.Client.Tests {
 		public void Equality3Fact() {
 			var graphQLResponse1 = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			var graphQLResponse2 = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			Assert.Equal(graphQLResponse1, graphQLResponse2);
 		}
@@ -58,11 +58,11 @@ namespace GraphQL.Client.Tests {
 		public void InEqualityFact() {
 			var graphQLResponse1 = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			var graphQLResponse2 = new GraphQLResponse {
 				Data = new { a = 2 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			Assert.NotEqual(graphQLResponse1, graphQLResponse2);
 		}
@@ -71,11 +71,11 @@ namespace GraphQL.Client.Tests {
 		public void InEqualityOperatorFact() {
 			var graphQLResponse1 = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			var graphQLResponse2 = new GraphQLResponse {
 				Data = new { a = 2 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			Assert.True(graphQLResponse1 != graphQLResponse2);
 		}
@@ -84,11 +84,11 @@ namespace GraphQL.Client.Tests {
 		public void GetHashCodeFact() {
 			var graphQLResponse1 = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			var graphQLResponse2 = new GraphQLResponse {
 				Data = new { a = 1 },
-				Errors = new[] { new GraphQLError("message") }
+				Errors = new[] { new GraphQLError { Message = "message" } }
 			};
 			Assert.True(graphQLResponse1.GetHashCode() == graphQLResponse2.GetHashCode());
 		}
