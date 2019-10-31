@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="../src.props" />
@@ -9,6 +9,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+		<PackageIconUrl />
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,4 +17,9 @@
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="../../assets/logo.64x64.png" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+
+	
 </Project>
