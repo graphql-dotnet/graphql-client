@@ -31,12 +31,12 @@ namespace GraphQL {
 		/// <param name="other">The object to compare with this instance</param>
 		/// <returns>true if obj is an instance of <see cref="GraphQLRequest"/> and equals the value of the instance; otherwise, false</returns>
 		public bool Equals(GraphQLRequest? other) {
-        	if (other == null) { return false; }
-        	if (ReferenceEquals(this, other)) { return true; }
-        	if (!EqualityComparer<string>.Default.Equals(this.Query, other.Query)) { return false; }
-        	if (!EqualityComparer<string?>.Default.Equals(this.OperationName, other.OperationName)) { return false; }
-        	return true;
-        }
+			if (other == null) { return false; }
+			if (ReferenceEquals(this, other)) { return true; }
+			if (!EqualityComparer<string>.Default.Equals(this.Query, other.Query)) { return false; }
+			if (!EqualityComparer<string?>.Default.Equals(this.OperationName, other.OperationName)) { return false; }
+			return true;
+		}
 
 		/// <summary>
 		/// <inheritdoc cref="Object.GetHashCode"/>
