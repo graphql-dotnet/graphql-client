@@ -8,11 +8,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
+	  	<ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
 	</ItemGroup>
 
 </Project>
