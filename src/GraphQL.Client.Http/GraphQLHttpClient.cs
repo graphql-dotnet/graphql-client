@@ -94,6 +94,15 @@ namespace GraphQL.Client.Http {
 			};
 		}
 
+		public async Task<GraphQLResponse<R>> SendQueryAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
+			throw new NotImplementedException();
+		}
+
+		public async Task<GraphQLResponse<R>> SendMutationAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
+			throw new NotImplementedException();
+		}
 	}
 
 }
