@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GraphQL.Common.Request {
+namespace GraphQL.Client.Http {
 
 	/// <summary>
 	/// A Subscription Request

@@ -19,6 +19,19 @@ namespace GraphQL {
 		public string? OperationName { get; set; }
 
 		/// <summary>
+		/// The request variables
+		/// </summary>
+		public object? Variables { get; set; }
+
+		public GraphQLRequest()
+		{
+		}
+
+		public GraphQLRequest(string query) {
+			Query = query;
+		}
+
+		/// <summary>
 		/// Returns a value that indicates whether this instance is equal to a specified object
 		/// </summary>
 		/// <param name="obj">The object to compare with this instance</param>
@@ -70,9 +83,9 @@ namespace GraphQL {
 	public class GraphQLRequest<T> : GraphQLRequest, IEquatable<GraphQLRequest<T>?> {
 
 		/// <summary>
-		/// Represents the variables sended
+		/// Represents the request variables
 		/// </summary>
-		public T Variables { get; set; }
+		public new T Variables { get; set; }
 
 		/// <summary>
 		/// Returns a value that indicates whether this instance is equal to a specified object

@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using GraphQL.Client;
 using GraphQL.Client.Http;
-using GraphQL.Common.Request;
-using GraphQL.Common.Response;
 
 namespace GraphQL.Integration.Tests
 {

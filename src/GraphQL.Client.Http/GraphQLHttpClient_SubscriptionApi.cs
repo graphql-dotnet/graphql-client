@@ -7,15 +7,13 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Http.Internal;
-using GraphQL.Common.Request;
-using GraphQL.Common.Response;
 
 namespace GraphQL.Client.Http {
 
 	/// <summary>
 	/// A Client to access GraphQL EndPoints
 	/// </summary>
-	public partial class GraphQLHttpClient : IGraphQLClient {
+	public class GraphQLHttpClient_SubscriptionApi : IGraphQLClient {
 
 		#region Properties
 
@@ -54,27 +52,27 @@ namespace GraphQL.Client.Http {
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
-		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
+		public GraphQLHttpClient_SubscriptionApi(string endPoint) : this(new Uri(endPoint)) { }
 
 		/// <summary>
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
-		public GraphQLHttpClient(Uri endPoint) : this(new GraphQLHttpClientOptions { EndPoint = endPoint }) { }
-
-		/// <summary>
-		/// Initializes a new instance
-		/// </summary>
-		/// <param name="endPoint">The EndPoint to be used</param>
-		/// <param name="options">The Options to be used</param>
-		public GraphQLHttpClient(string endPoint, GraphQLHttpClientOptions options) : this(new Uri(endPoint), options) { }
+		public GraphQLHttpClient_SubscriptionApi(Uri endPoint) : this(new GraphQLHttpClientOptions { EndPoint = endPoint }) { }
 
 		/// <summary>
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="endPoint">The EndPoint to be used</param>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLHttpClient(Uri endPoint, GraphQLHttpClientOptions options) {
+		public GraphQLHttpClient_SubscriptionApi(string endPoint, GraphQLHttpClientOptions options) : this(new Uri(endPoint), options) { }
+
+		/// <summary>
+		/// Initializes a new instance
+		/// </summary>
+		/// <param name="endPoint">The EndPoint to be used</param>
+		/// <param name="options">The Options to be used</param>
+		public GraphQLHttpClient_SubscriptionApi(Uri endPoint, GraphQLHttpClientOptions options) {
 
 			options.EndPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
 
@@ -91,7 +89,7 @@ namespace GraphQL.Client.Http {
 		/// Initializes a new instance
 		/// </summary>
 		/// <param name="options">The Options to be used</param>
-		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
+		public GraphQLHttpClient_SubscriptionApi(GraphQLHttpClientOptions options) {
 			if (options == null) { throw new ArgumentNullException(nameof(options)); }
 			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
 			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
@@ -102,7 +100,7 @@ namespace GraphQL.Client.Http {
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(_getWebSocketUri(), options);
 		}
 
-		internal GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
+		internal GraphQLHttpClient_SubscriptionApi(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			if (options == null) { throw new ArgumentNullException(nameof(options)); }
 			if (options.EndPoint == null) { throw new ArgumentNullException(nameof(options.EndPoint)); }
 			if (options.JsonSerializerSettings == null) { throw new ArgumentNullException(nameof(options.JsonSerializerSettings)); }
@@ -132,28 +130,7 @@ namespace GraphQL.Client.Http {
 				? this.graphQlHttpWebSocket.Request(request, cancellationToken)
 				: this.graphQLHttpHandler.PostAsync(request, cancellationToken);
 		}
-
-		[Obsolete("EXPERIMENTAL API")]
-		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(string query, CancellationToken cancellationToken = default) =>
-			this.SendSubscribeAsync(new GraphQLRequest(query), cancellationToken);
-
-		[Obsolete("EXPERIMENTAL API")]
-		public Task<IGraphQLSubscriptionResult> SendSubscribeAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
-		{
-			GraphQLHttpSubscriptionResult graphQLSubscriptionResult = _createSubscription(request, cancellationToken);
-			return Task.FromResult<IGraphQLSubscriptionResult>(graphQLSubscriptionResult);
-		}
-
-		private GraphQLHttpSubscriptionResult _createSubscription(GraphQLRequest request, CancellationToken cancellationToken)
-		{
-			if (request == null) { throw new ArgumentNullException(nameof(request)); }
-			if (request.Query == null) { throw new ArgumentNullException(nameof(request.Query)); }
-
-			var graphQLSubscriptionResult = new GraphQLHttpSubscriptionResult(_getWebSocketUri(), request);
-			graphQLSubscriptionResult.StartAsync(cancellationToken);
-			return graphQLSubscriptionResult;
-		}
-
+		
 		private Uri _getWebSocketUri()
 		{
 			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";

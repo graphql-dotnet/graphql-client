@@ -9,8 +9,6 @@ using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Common.Request;
-using GraphQL.Common.Response;
 using Newtonsoft.Json;
 
 namespace GraphQL.Client.Http

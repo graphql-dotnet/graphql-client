@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GraphQL.Common
+namespace GraphQL.Client.Http
 {
-	public static class GQLWebSocketMessageType
+	public static class GraphQLWebSocketMessageType
 	{
 
 		/// <summary>

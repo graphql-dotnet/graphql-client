@@ -6,9 +6,6 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Common;
-using GraphQL.Common.Request;
-using GraphQL.Common.Response;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client.Http
@@ -28,13 +25,13 @@ namespace GraphQL.Client.Http
 					var startRequest = new GraphQLWebSocketRequest
 					{
 						Id = Guid.NewGuid().ToString("N"),
-						Type = GQLWebSocketMessageType.GQL_START,
+						Type = GraphQLWebSocketMessageType.GQL_START,
 						Payload = request
 					};
 					var closeRequest = new GraphQLWebSocketRequest
 					{
 						Id = startRequest.Id,
-						Type = GQLWebSocketMessageType.GQL_STOP
+						Type = GraphQLWebSocketMessageType.GQL_STOP
 					};
 
 					var observable = Observable.Create<GraphQLResponse>(o =>
@@ -44,7 +41,7 @@ namespace GraphQL.Client.Http
 								if (response == null || response.Id != startRequest.Id) return;
 
 								// terminate the sequence when a 'complete' message is received
-								if (response.Type == GQLWebSocketMessageType.GQL_COMPLETE)
+								if (response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
 								{
 									Debug.WriteLine($"received 'complete' message on subscription {startRequest.Id}");
 									o.OnCompleted();
@@ -56,7 +53,7 @@ namespace GraphQL.Client.Http
 								o.OnNext(((JObject)response.Payload)?.ToObject<GraphQLResponse>());
 
 								// in case of a GraphQL error, terminate the sequence after the response has been posted
-								if (response.Type == GQLWebSocketMessageType.GQL_ERROR)
+								if (response.Type == GraphQLWebSocketMessageType.GQL_ERROR)
 								{
 									Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");
 									o.OnCompleted();
@@ -167,12 +164,12 @@ namespace GraphQL.Client.Http
 				var websocketRequest = new GraphQLWebSocketRequest
 				{
 					Id = Guid.NewGuid().ToString("N"),
-					Type = GQLWebSocketMessageType.GQL_START,
+					Type = GraphQLWebSocketMessageType.GQL_START,
 					Payload = request
 				};
 				var observable = graphQlHttpWebSocket.ResponseStream
 					.Where(response => response != null && response.Id == websocketRequest.Id)
-					.TakeUntil(response => response.Type == GQLWebSocketMessageType.GQL_COMPLETE)
+					.TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
 					.Select(response =>
 					{
 						Debug.WriteLine($"received response for request {websocketRequest.Id}");

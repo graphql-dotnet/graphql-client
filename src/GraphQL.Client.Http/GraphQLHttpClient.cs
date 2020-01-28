@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -9,56 +11,50 @@ namespace GraphQL.Client.Http {
 
 	public class GraphQLHttpClient : IDisposable, IGraphQLClient {
 
+		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
+		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+		private readonly HttpClient httpClient;
+
 		public Uri EndPoint { get; set; }
 
 		public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions {
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 		};
+		
+		/// <summary>
+		/// The Options	to be used
+		/// </summary>
+		public GraphQLHttpClientOptions Options { get; }
 
-		private readonly HttpClient httpClient;
+		/// <inheritdoc />
+		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
 
-		public GraphQLHttpClient(string endPoint) {
-			this.EndPoint = new Uri(endPoint);
+
+		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint))
+		{ }
+
+		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint)
+		{ }
+		
+		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) {
+			Options = new GraphQLHttpClientOptions();
+			configure(Options);
 			this.httpClient = new HttpClient();
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
-		public GraphQLHttpClient(Uri endPoint) {
-			this.EndPoint = endPoint;
+		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
+			Options = options;
 			this.httpClient = new HttpClient();
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
-		public GraphQLHttpClient(string endPoint, GraphQLHttpClientOptions options) {
-			this.EndPoint = new Uri(endPoint);
-			this.httpClient = new HttpClient();
-		}
-
-		public GraphQLHttpClient(Uri endPoint, GraphQLHttpClientOptions options) {
-			this.EndPoint = endPoint;
-			this.httpClient = new HttpClient();
-		}
-
-		public GraphQLHttpClient(string endPoint, HttpClient httpClient) {
-			this.EndPoint = new Uri(endPoint);
+		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
+			Options = options;
 			this.httpClient = httpClient;
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
-
-		public GraphQLHttpClient(Uri endPoint, HttpClient httpClient) {
-			this.EndPoint = endPoint;
-			this.httpClient = httpClient;
-		}
-
-		public GraphQLHttpClient(string endPoint, GraphQLHttpClientOptions options, HttpClient httpClient) {
-			this.EndPoint = new Uri(endPoint);
-			this.httpClient = httpClient;
-		}
-
-		public GraphQLHttpClient(Uri endPoint, GraphQLHttpClientOptions options, HttpClient httpClient) {
-			this.EndPoint = endPoint;
-			this.httpClient = httpClient;
-		}
-
-		public void Dispose() => this.httpClient.Dispose();
-
+		
 		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
 			using var httpRequestMessage = this.GenerateHttpRequestMessage(request);
 			using var httpResponseMessage = await this.httpClient.SendAsync(httpRequestMessage, cancellationToken);
@@ -103,6 +99,90 @@ namespace GraphQL.Client.Http {
 			await Task.CompletedTask;
 			throw new NotImplementedException();
 		}
+		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
+			throw new NotImplementedException();
+		}
+
+		public async Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			await Task.CompletedTask;
+			throw new NotImplementedException();
+		}
+
+		private Uri GetWebSocketUri() {
+			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";
+			return new Uri($"{webSocketSchema}://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
+		}
+
+		/// <inheritdoc />
+		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request) {
+			if (disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+
+			if (subscriptionStreams.ContainsKey(request))
+				return subscriptionStreams[request];
+
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, cancellationToken: cancellationTokenSource.Token);
+
+			subscriptionStreams.TryAdd(request, observable);
+			return observable;
+		}
+
+		/// <inheritdoc />
+		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) {
+			if (disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+
+			return CreateSubscriptionStream(request, e => {
+				if (e is WebSocketException webSocketException)
+					webSocketExceptionHandler(webSocketException);
+				else
+					throw e;
+			});
+		}
+
+		/// <inheritdoc />
+		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler) {
+			if (disposed)
+				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+
+			if (subscriptionStreams.ContainsKey(request))
+				return subscriptionStreams[request];
+
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, exceptionHandler, cancellationTokenSource.Token);
+			subscriptionStreams.TryAdd(request, observable);
+			return observable;
+		}
+
+		private ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
+
+
+		#region IDisposable
+
+		/// <summary>
+		/// Releases unmanaged resources
+		/// </summary>
+		public void Dispose() {
+			lock (disposeLocker) {
+				if (!disposed) {
+					_dispose();
+				}
+			}
+		}
+
+		private bool disposed = false;
+		private readonly object disposeLocker = new object();
+
+		private void _dispose() {
+			disposed = true;
+			this.httpClient.Dispose();
+			this.graphQlHttpWebSocket.Dispose();
+			cancellationTokenSource.Cancel();
+			cancellationTokenSource.Dispose();
+		}
+
+		#endregion
+
 	}
 
 }

@@ -11,6 +11,10 @@ namespace GraphQL.Client {
 
 		Task<GraphQLResponse<R>> SendMutationAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default);
 
+		Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
+
+		Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>
 		/// All subscriptions made to this stream share the same hot observable.<br/>
@@ -18,7 +22,6 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="request">the GraphQL request for this subscription</param>
 		/// <returns>an observable stream for the specified subscription</returns>
-		[Obsolete("EXPERIMENTAL")]
 		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request);
 
 		/// <summary>
@@ -31,7 +34,6 @@ namespace GraphQL.Client {
 		/// <param name="request">the GraphQL request for this subscription</param>
 		/// <param name="webSocketExceptionHandler">an external handler for all <see cref="WebSocketException"/>s occuring within the sequence</param>
 		/// <returns>an observable stream for the specified subscription</returns>
-		[Obsolete("EXPERIMENTAL")]
 		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler);
 
 		/// <summary>
@@ -44,13 +46,11 @@ namespace GraphQL.Client {
 		/// <param name="request">the GraphQL request for this subscription</param>
 		/// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occuring within the sequence</param>
 		/// <returns>an observable stream for the specified subscription</returns>
-		[Obsolete("EXPERIMENTAL")]
 		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler);
 
 		/// <summary>
 		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
 		/// </summary>
-		[Obsolete("EXPERIMENTAL")]
 		IObservable<Exception> WebSocketReceiveErrors { get; }
 	}
 
