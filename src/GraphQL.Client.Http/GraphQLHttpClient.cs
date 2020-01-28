@@ -9,17 +9,11 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Http {
 
-	public class GraphQLHttpClient : IDisposable, IGraphQLClient {
+	public class GraphQLHttpClient : IGraphQLClient {
 
 		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 		private readonly HttpClient httpClient;
-
-		public Uri EndPoint { get; set; }
-
-		public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions {
-			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-		};
 		
 		/// <summary>
 		/// The Options	to be used
@@ -63,7 +57,7 @@ namespace GraphQL.Client.Http {
 			}
 
 			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeAsync<GraphQLHttpResponse<TResponse>>(bodyStream, this.JsonSerializerOptions, cancellationToken);
+			return await JsonSerializer.DeserializeAsync<GraphQLHttpResponse<TResponse>>(bodyStream, this.Options.JsonSerializerOptions, cancellationToken);
 		}
 
 		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TResponse>(GraphQLHttpRequest request, CancellationToken cancellationToken = default) =>
@@ -85,8 +79,8 @@ namespace GraphQL.Client.Http {
 		}
 
 		private HttpRequestMessage GenerateHttpRequestMessage<T>(GraphQLRequest<T> request) {
-			return new HttpRequestMessage(HttpMethod.Post, this.EndPoint) {
-				Content = new StringContent(JsonSerializer.Serialize(request, this.JsonSerializerOptions), Encoding.UTF8, "application/json")
+			return new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
+				Content = new StringContent(JsonSerializer.Serialize(request, this.Options.JsonSerializerOptions), Encoding.UTF8, "application/json")
 			};
 		}
 
@@ -110,8 +104,8 @@ namespace GraphQL.Client.Http {
 		}
 
 		private Uri GetWebSocketUri() {
-			var webSocketSchema = this.EndPoint.Scheme == "https" ? "wss" : "ws";
-			return new Uri($"{webSocketSchema}://{this.EndPoint.Host}:{this.EndPoint.Port}{this.EndPoint.AbsolutePath}");
+			var webSocketSchema = this.Options.EndPoint.Scheme == "https" ? "wss" : "ws";
+			return new Uri($"{webSocketSchema}://{this.Options.EndPoint.Host}:{this.Options.EndPoint.Port}{this.Options.EndPoint.AbsolutePath}");
 		}
 
 		/// <inheritdoc />
@@ -154,7 +148,7 @@ namespace GraphQL.Client.Http {
 			return observable;
 		}
 
-		private ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
+		private readonly ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
 
 
 		#region IDisposable

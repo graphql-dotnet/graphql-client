@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -27,6 +28,13 @@ namespace GraphQL.Client.Http {
 			{
 				new StringEnumConverter()
 			}
+		};
+
+		/// <summary>
+		/// The <see cref="JsonSerializerOptions"/> that is going to be used
+		/// </summary>
+		public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions {
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 		};
 
 		/// <summary>
