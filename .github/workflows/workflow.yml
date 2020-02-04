@@ -5,17 +5,22 @@ jobs:
     name: GenerateVersionInfo
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - uses: actions/setup-dotnet@master
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet tool restore
-    - run: git fetch
-    - run: dotnet dotnet-gitversion /output json | Out-File gitversion.json
-    - run: Get-Content gitversion.json
-    - uses: actions/upload-artifact@v1
+    - name: Restore dotnet tools
+      run: dotnet tool restore
+    - name: Fetch complete repository 
+      run: git fetch
+    - name: Generate version info from git history
+      run: dotnet dotnet-gitversion /output json | Out-File gitversion.json; Get-Content gitversion.json
+    - name: Upload version info file
+      uses: actions/upload-artifact@v1
       with:
         name: gitversion
         path: gitversion.json
@@ -25,33 +30,42 @@ jobs:
     needs: generateVersionInfo
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-dotnet@master
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - uses: actions/download-artifact@v1
+    - name: Download version info file
+      uses: actions/download-artifact@v1
       with:
         name: gitversion
         path: ./
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
-    - run: 'Get-ChildItem env:'
-    - run: dotnet build -c Release
+    - name: Inject version info into environment
+      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }; $env:GitVersion_SemVer
+    - name: Build solution
+      run: dotnet build -c Release
 
   test:
     name: Test
     needs: [build, generateVersionInfo]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-dotnet@master
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - uses: actions/download-artifact@v1
+    - name: Download version info file
+      uses: actions/download-artifact@v1
       with:
         name: gitversion
         path: ./
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
-    - run: dotnet test -c Release -p:ParallelizeTestCollections=false
+    - name: Inject version info into environment
+      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
+    - name: Run tests
+      run: dotnet test -c Release -p:ParallelizeTestCollections=false
 
   # publish:
   #   name: Publish
