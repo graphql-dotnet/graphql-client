@@ -14,10 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		dotnet-tools.json = dotnet-tools.json
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 		root.props = root.props
-		dotnet-tools.json = dotnet-tools.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}"
@@ -53,9 +53,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{D6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Http.Examples", "examples\GraphQL.Client.Http.Examples\GraphQL.Client.Http.Examples.csproj", "{95D78D57-3232-491D-BAD6-F373D76EA34D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Primitives", "src\GraphQL.Primitives\GraphQL.Primitives.csproj", "{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Primitives", "src\GraphQL.Primitives\GraphQL.Primitives.csproj", "{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Primitives.Tests", "tests\GraphQL.Primitives.Tests\GraphQL.Primitives.Tests.csproj", "{C212983F-67DB-44EB-BFB0-5DA75A86DF55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Primitives.Tests", "tests\GraphQL.Primitives.Tests\GraphQL.Primitives.Tests.csproj", "{C212983F-67DB-44EB-BFB0-5DA75A86DF55}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTestServer", "tests\IntegrationTestServer\IntegrationTestServer.csproj", "{92107DF5-73DF-4371-8EB1-6734FED704AD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Integration.Tests", "tests\GraphQL.Integration.Tests\GraphQL.Integration.Tests.csproj", "{C68C26EB-7659-402A-93D1-E6E248DA5427}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +99,14 @@ Global
 		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C212983F-67DB-44EB-BFB0-5DA75A86DF55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92107DF5-73DF-4371-8EB1-6734FED704AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92107DF5-73DF-4371-8EB1-6734FED704AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92107DF5-73DF-4371-8EB1-6734FED704AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92107DF5-73DF-4371-8EB1-6734FED704AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C68C26EB-7659-402A-93D1-E6E248DA5427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C68C26EB-7659-402A-93D1-E6E248DA5427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C68C26EB-7659-402A-93D1-E6E248DA5427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C68C26EB-7659-402A-93D1-E6E248DA5427}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +123,8 @@ Global
 		{95D78D57-3232-491D-BAD6-F373D76EA34D} = {D61415CA-D822-43DD-9AE7-993B8B60E855}
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{C212983F-67DB-44EB-BFB0-5DA75A86DF55} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{92107DF5-73DF-4371-8EB1-6734FED704AD} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{C68C26EB-7659-402A-93D1-E6E248DA5427} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}

@@ -1,42 +1,104 @@
 name: Main workflow
 on: [push]
 jobs:
+  generateVersionInfo:  
+    name: GenerateVersionInfo
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: '3.1.100'
+    - name: Restore dotnet tools
+      run: dotnet tool restore
+    - name: Fetch complete repository 
+      run: git fetch
+    - name: Generate version info from git history
+      run: dotnet dotnet-gitversion /output json | Out-File gitversion.json; Get-Content gitversion.json
+    - name: Upload version info file
+      uses: actions/upload-artifact@v1
+      with:
+        name: gitversion
+        path: gitversion.json
+
   build:
     name: Build
-    runs-on: ubuntu-latest
+    needs: generateVersionInfo
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@master
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet tool restore
-    - run: dotnet format --check --dry-run
-    - run: dotnet restore
-    - run: dotnet build
-    - run: dotnet pack
+    - name: Download version info file
+      uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+        path: ./
+    - name: Inject version info into environment
+      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }; $env:GitVersion_SemVer
+    - name: Build solution
+      run: dotnet build -c Release
+
   test:
     name: Test
-    needs: build
-    runs-on: ubuntu-latest
+    needs: [build, generateVersionInfo]
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@master
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet restore
-    - run: dotnet build
-    - run: dotnet test
+    - name: Download version info file
+      uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+        path: ./
+    - name: Inject version info into environment
+      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
+    - name: Run tests
+      run: dotnet test -c Release -p:ParallelizeTestCollections=false
+
   publish:
     name: Publish
-    needs: test
-    runs-on: ubuntu-latest
+    needs: [test, generateVersionInfo]
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-dotnet@master
+    - name: Checkout
+      uses: actions/checkout@v2
+    # - name: Evaluate repository owner
+    #   run: $owner = Split-Path -Path $env:GITHUB_REPOSITORY; "::set-env name=OWNER::$($owner)"
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet restore
-    - run: dotnet build --configuration Release
-    - run: dotnet pack --configuration Release
-    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.2.0.0-alpha.4.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
-    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.2.0.0-alpha.4.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
+    - name: Download version info file
+      uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+        path: ./
+    - name: Inject version info into environment
+      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
+    - name: Build solution
+      run: dotnet build -c Release
+    - name: Setup GitHub Packages as nuget source
+      uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: '3.1.100'
+        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json      
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    - name: push GraphQL.Primitives
+      run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - name: push GraphQL.Client
+      run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - name: push GraphQL.Client.Http
+      run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
