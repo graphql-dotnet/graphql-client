@@ -1,4 +1,4 @@
-using GraphQL.Server;
+﻿using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Voyager;
 using GraphQL.Server.Ui.Playground;

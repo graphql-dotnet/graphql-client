@@ -1,4 +1,4 @@
-using GraphQL.Server.Test.GraphQL;
+﻿using GraphQL.Server.Test.GraphQL;
 using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

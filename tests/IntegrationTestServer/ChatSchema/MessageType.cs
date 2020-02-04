@@ -1,4 +1,4 @@
-using GraphQL.Types;
+﻿using GraphQL.Types;
 
 namespace IntegrationTestServer.ChatSchema {
 	public class MessageType : ObjectGraphType<Message> {

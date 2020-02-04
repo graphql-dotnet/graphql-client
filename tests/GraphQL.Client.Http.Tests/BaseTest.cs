@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.TestHost;
 
 namespace GraphQL.Client.Http.Tests {
