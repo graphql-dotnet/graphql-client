@@ -1,7 +1,7 @@
 name: Main workflow
 on: [push]
 jobs:
-  jobs:
+  generateVersionInfo:  
     name: GenerateVersionInfo
     runs-on: windows-latest
     steps:
@@ -10,6 +10,7 @@ jobs:
       with:
         dotnet-version: '3.1.100'
     - run: dotnet tool restore
+    - run: dotnet dotnet-gitversion /output buildserver
     - run: dotnet dotnet-gitversion /output json | Out-File gitversion.json
     - uses: actions/upload-artifact@v1
       with:
@@ -18,6 +19,7 @@ jobs:
 
   build:
     name: Build
+    needs: generateVersionInfo
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
@@ -32,7 +34,7 @@ jobs:
 
   test:
     name: Test
-    needs: build
+    needs: [build, generateVersionInfo]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@master
@@ -47,7 +49,7 @@ jobs:
 
   # publish:
   #   name: Publish
-  #   needs: test
+  #   needs: [test, generateVersionInfo]
   #   runs-on: windows-latest
   #   steps:
   #   - uses: actions/checkout@master
