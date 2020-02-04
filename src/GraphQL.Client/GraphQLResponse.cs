@@ -54,9 +54,6 @@ namespace GraphQL.Client {
 
 	}
 
-	/// <summary>
-	/// The dynamic version of <see cref="GraphQLResponse{T}"/>
-	/// </summary>
-	public class GraphQLResponse : GraphQLResponse<dynamic?> { }
+	
 
 }

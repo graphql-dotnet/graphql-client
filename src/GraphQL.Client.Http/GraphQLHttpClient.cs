@@ -51,24 +51,18 @@ namespace GraphQL.Client.Http {
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 		
-		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null,
+			CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
 				? this.graphQlHttpWebSocket.Request<TResponse>(request, Options, cancellationToken)
 				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 
-		public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null,
+			CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
 				? this.graphQlHttpWebSocket.Request<TResponse>(request, Options, cancellationToken)
 				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
-		}
-
-		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
-		}
-
-		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
 		}
 
 		/// <inheritdoc />

@@ -7,13 +7,9 @@ namespace GraphQL.Client {
 
 	public interface IGraphQLClient : IDisposable {
 
-		Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
+		Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null, CancellationToken cancellationToken = default);
 
-		Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
-
-		Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
-
-		Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
+		Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>

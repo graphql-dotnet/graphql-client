@@ -12,10 +12,10 @@ namespace GraphQL.Client.Http.Examples {
 			AllowSynchronousIO = true
 		};
 
-		public async static Task Main(string[] args) {
+		public static async Task Main(string[] args) {
 			using var httpClient = testServer.CreateClient();
 			using var graphqlClient = httpClient.AsGraphQLClient($"{testServer.BaseAddress}graphql");
-			var graphQLRequest = GraphQLRequest.New(
+			var graphQLRequest = new GraphQLRequest(
 				@"
 					{
 						repository(owner: ""graphql-dotnet"", name: ""graphql-client"") {
