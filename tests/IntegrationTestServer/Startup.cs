@@ -8,16 +8,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace IntegrationTestServer {
 	public class Startup {
-		public Startup(IConfiguration configuration, IHostingEnvironment environment) {
+		public Startup(IConfiguration configuration, IWebHostEnvironment environment) {
 			Configuration = configuration;
 			Environment = environment;
 		}
 
 		public IConfiguration Configuration { get; }
-		public IHostingEnvironment Environment { get; }
+		public IWebHostEnvironment Environment { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -39,12 +40,10 @@ namespace IntegrationTestServer {
 				options.ExposeExceptions = Environment.IsDevelopment();
 			})
 				.AddWebSockets();
-
-			//services.AddMvc();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			}
@@ -63,7 +62,6 @@ namespace IntegrationTestServer {
 			app.UseGraphQLPlayground(new GraphQLPlaygroundOptions {
 				Path = "/ui/playground"
 			});
-			//app.UseMvc();
 		}
 	}
 }
