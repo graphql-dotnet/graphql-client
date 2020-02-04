@@ -15,7 +15,7 @@ jobs:
     - run: git fetch
     - run: dotnet dotnet-gitversion /output json | Out-File gitversion.json
     - run: Get-Content gitversion.json
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
     - run: 'Get-ChildItem env:'    
     - uses: actions/upload-artifact@v1
       with:
