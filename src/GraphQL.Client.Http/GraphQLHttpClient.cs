@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http {
 
@@ -14,7 +15,8 @@ namespace GraphQL.Client.Http {
 		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 		private readonly HttpClient httpClient;
-		
+		private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
+
 		/// <summary>
 		/// The Options	to be used
 		/// </summary>
@@ -49,85 +51,48 @@ namespace GraphQL.Client.Http {
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 		
-		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
-			using var httpRequestMessage = this.GenerateHttpRequestMessage(request);
-			using var httpResponseMessage = await this.httpClient.SendAsync(httpRequestMessage, cancellationToken);
-			if (!httpResponseMessage.IsSuccessStatusCode) {
-				throw new GraphQLHttpException(httpResponseMessage);
-			}
-
-			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeAsync<GraphQLHttpResponse<TResponse>>(bodyStream, this.Options.JsonSerializerOptions, cancellationToken);
+		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			return Options.UseWebSocketForQueriesAndMutations
+				? this.graphQlHttpWebSocket.Request<TResponse>(request, Options, cancellationToken)
+				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 
-		public async Task<GraphQLHttpResponse<TResponse>> SendHttpQueryAsync<TResponse>(GraphQLHttpRequest request, CancellationToken cancellationToken = default) =>
-			await this.SendHttpQueryAsync<dynamic, TResponse>(request, cancellationToken);
+		public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			return Options.UseWebSocketForQueriesAndMutations
+				? this.graphQlHttpWebSocket.Request<TResponse>(request, Options, cancellationToken)
+				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
+		}
 
-		public async Task<GraphQLHttpResponse<TResponse>> SendHttpMutationAsync<TVariable, TResponse>(GraphQLHttpRequest<TVariable> request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
+		public Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
-		public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TVariable, TResponse>(GraphQLRequest<TVariable> request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
+		public Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
-		}
-
-		public async Task<GraphQLResponse<TResponse>> SendMutationAsync<TVariable, TResponse>(GraphQLRequest<TVariable> request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
-			throw new NotImplementedException();
-		}
-
-		private HttpRequestMessage GenerateHttpRequestMessage<T>(GraphQLRequest<T> request) {
-			return new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
-				Content = new StringContent(JsonSerializer.Serialize(request, this.Options.JsonSerializerOptions), Encoding.UTF8, "application/json")
-			};
-		}
-
-		public async Task<GraphQLResponse<R>> SendQueryAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
-			throw new NotImplementedException();
-		}
-
-		public async Task<GraphQLResponse<R>> SendMutationAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
-			throw new NotImplementedException();
-		}
-		public async Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
-			throw new NotImplementedException();
-		}
-
-		public async Task<GraphQLResponse> SendMutationAsync(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			await Task.CompletedTask;
-			throw new NotImplementedException();
-		}
-
-		private Uri GetWebSocketUri() {
-			var webSocketSchema = this.Options.EndPoint.Scheme == "https" ? "wss" : "ws";
-			return new Uri($"{webSocketSchema}://{this.Options.EndPoint.Host}:{this.Options.EndPoint.Port}{this.Options.EndPoint.AbsolutePath}");
 		}
 
 		/// <inheritdoc />
-		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request) {
+		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) {
 			if (disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if (subscriptionStreams.ContainsKey(request))
-				return subscriptionStreams[request];
+			var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, cancellationToken: cancellationTokenSource.Token);
+			if (subscriptionStreams.ContainsKey(key))
+				return (IObservable<GraphQLResponse<TResponse>>) subscriptionStreams[key];
 
-			subscriptionStreams.TryAdd(request, observable);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, Options, cancellationToken: cancellationTokenSource.Token);
+
+			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
 
 		/// <inheritdoc />
-		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) {
+		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) {
 			if (disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			return CreateSubscriptionStream(request, e => {
+			return CreateSubscriptionStream<TResponse>(request, e => {
 				if (e is WebSocketException webSocketException)
 					webSocketExceptionHandler(webSocketException);
 				else
@@ -136,19 +101,45 @@ namespace GraphQL.Client.Http {
 		}
 
 		/// <inheritdoc />
-		public IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler) {
+		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler) {
 			if (disposed)
 				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if (subscriptionStreams.ContainsKey(request))
-				return subscriptionStreams[request];
+			var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream(request, Options, exceptionHandler, cancellationTokenSource.Token);
-			subscriptionStreams.TryAdd(request, observable);
+			if (subscriptionStreams.ContainsKey(key))
+				return (IObservable<GraphQLResponse<TResponse>>) subscriptionStreams[key];
+
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, Options, exceptionHandler, cancellationTokenSource.Token);
+			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
 
-		private readonly ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>> subscriptionStreams = new ConcurrentDictionary<GraphQLRequest, IObservable<GraphQLResponse>>();
+		#region Private Methods
+
+		private async Task<GraphQLResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			using var httpRequestMessage = this.GenerateHttpRequestMessage(request.SerializeToJson(Options));
+			using var httpResponseMessage = await this.httpClient.SendAsync(httpRequestMessage, cancellationToken);
+			if (!httpResponseMessage.IsSuccessStatusCode) {
+				throw new GraphQLHttpException(httpResponseMessage);
+			}
+
+			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+			return await bodyStream.DeserializeFromJsonAsync<GraphQLHttpResponse<TResponse>>(Options, cancellationToken);
+		}
+		
+		private HttpRequestMessage GenerateHttpRequestMessage(string requestString) {
+			return new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
+				Content = new StringContent(requestString, Encoding.UTF8, "application/json")
+			};
+		}
+
+		private Uri GetWebSocketUri() {
+			var webSocketSchema = this.Options.EndPoint.Scheme == "https" ? "wss" : "ws";
+			return new Uri($"{webSocketSchema}://{this.Options.EndPoint.Host}:{this.Options.EndPoint.Port}{this.Options.EndPoint.AbsolutePath}");
+		}
+
+		#endregion
 
 
 		#region IDisposable

@@ -1,4 +1,4 @@
-namespace GraphQL.Client.Http
+namespace GraphQL.Client.Http.Websocket
 {
 	public static class GraphQLWebSocketMessageType
 	{

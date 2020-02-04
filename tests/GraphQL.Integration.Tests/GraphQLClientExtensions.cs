@@ -9,41 +9,34 @@ namespace GraphQL.Integration.Tests
 	{
 		public static async Task<GraphQLResponse> AddMessageAsync(this GraphQLHttpClient client, string message)
 		{
-			var graphQLRequest = new GraphQLRequest(@"
-				mutation($input: MessageInputType){
+			var graphQLRequest = GraphQLRequest.New(
+				@"mutation($input: MessageInputType){
 				  addMessage(message: $input){
 				    content
 				  }
-				}")
-			{
-				Variables = new
-				{
-					input = new
-					{
+				}",
+				new {
+					input = new {
 						fromId = "2",
 						content = message,
 						sentAt = DateTime.Now
 					}
-				}
-			};
+				});
 			return await client.SendMutationAsync(graphQLRequest).ConfigureAwait(false);
 		}
 
 		public static async Task<GraphQLResponse> JoinDeveloperUser(this GraphQLHttpClient client)
 		{
-			var graphQLRequest = new GraphQLRequest(@"
+			var graphQLRequest = GraphQLRequest.New(@"
 				mutation($userId: String){
 				  join(userId: $userId){
 				    displayName
 				    id
 				  }
-				}")
-			{
-				Variables = new
-				{
+				}",
+				new {
 					userId = "1"
-				}
-			};
+				});
 			return await client.SendMutationAsync(graphQLRequest).ConfigureAwait(false);
 		}
 	}

@@ -7,9 +7,9 @@ namespace GraphQL.Client {
 
 	public interface IGraphQLClient : IDisposable {
 
-		Task<GraphQLResponse<R>> SendQueryAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default);
+		Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
 
-		Task<GraphQLResponse<R>> SendMutationAsync<R>(GraphQLRequest request, CancellationToken cancellationToken = default);
+		Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
 
 		Task<GraphQLResponse> SendQueryAsync(GraphQLRequest request, CancellationToken cancellationToken = default);
 
@@ -22,7 +22,7 @@ namespace GraphQL.Client {
 		/// </summary>
 		/// <param name="request">the GraphQL request for this subscription</param>
 		/// <returns>an observable stream for the specified subscription</returns>
-		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request);
+		IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request);
 
 		/// <summary>
 		/// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>
@@ -34,7 +34,7 @@ namespace GraphQL.Client {
 		/// <param name="request">the GraphQL request for this subscription</param>
 		/// <param name="webSocketExceptionHandler">an external handler for all <see cref="WebSocketException"/>s occuring within the sequence</param>
 		/// <returns>an observable stream for the specified subscription</returns>
-		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler);
+		IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler);
 
 		/// <summary>
 		/// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>
@@ -46,7 +46,7 @@ namespace GraphQL.Client {
 		/// <param name="request">the GraphQL request for this subscription</param>
 		/// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occuring within the sequence</param>
 		/// <returns>an observable stream for the specified subscription</returns>
-		IObservable<GraphQLResponse> CreateSubscriptionStream(GraphQLRequest request, Action<Exception> exceptionHandler);
+		IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
 
 		/// <summary>
 		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)

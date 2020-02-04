@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GraphQL.Client.Http {
+namespace GraphQL.Client.Http.Websocket {
 
 	/// <summary>
 	/// A Subscription Request
@@ -21,7 +21,7 @@ namespace GraphQL.Client.Http {
 		public string Type { get; set; }
 
 		/// <summary>
-		/// The Payload of the Request
+		/// The payload of the websocket request
 		/// </summary>
 		public GraphQLRequest Payload { get; set; }
 
@@ -77,7 +77,7 @@ namespace GraphQL.Client.Http {
 			var hashCode = 9958074;
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Id);
 			hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Type);
-			hashCode = hashCode * -1521134295 + EqualityComparer<GraphQLRequest>.Default.GetHashCode(this.Payload);
+			hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(this.Payload);
 			return hashCode;
 		}
 

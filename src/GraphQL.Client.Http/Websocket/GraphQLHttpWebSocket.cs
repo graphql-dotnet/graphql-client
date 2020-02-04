@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace GraphQL.Client.Http
+namespace GraphQL.Client.Http.Websocket
 {
 	internal class GraphQLHttpWebSocket: IDisposable
 	{
@@ -20,7 +20,7 @@ namespace GraphQL.Client.Http
 		private readonly ArraySegment<byte> buffer;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-		private Subject<GraphQLWebSocketResponse> _responseSubject;
+		private Subject<WebsocketResponseWrapper> _responseSubject;
 		private Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
 		private Subject<Exception> _exceptionSubject = new Subject<Exception>();
 		private IDisposable _requestSubscription;
@@ -42,8 +42,8 @@ namespace GraphQL.Client.Http
 
 		public IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
 
-		public IObservable<GraphQLWebSocketResponse> ResponseStream => _responseStream;
-		public IObservable<GraphQLWebSocketResponse> _responseStream;
+		public IObservable<WebsocketResponseWrapper> ResponseStream => _responseStream;
+		public IObservable<WebsocketResponseWrapper> _responseStream;
 		//private IDisposable _responseStreamConnection;
 
 		public Task SendWebSocketRequest(GraphQLWebSocketRequest request)
@@ -63,9 +63,9 @@ namespace GraphQL.Client.Http
 				}
 
 				await InitializeWebSocket().ConfigureAwait(false);
-				var webSocketRequestString = JsonConvert.SerializeObject(request, _options.JsonSerializerSettings);
+				var requestBytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(request, _options.JsonSerializerOptions);
 				await this.clientWebSocket.SendAsync(
-					new ArraySegment<byte>(Encoding.UTF8.GetBytes(webSocketRequestString)),
+					new ArraySegment<byte>(requestBytes),
 					WebSocketMessageType.Text,
 					true,
 					_cancellationTokenSource.Token).ConfigureAwait(false);
@@ -135,19 +135,19 @@ namespace GraphQL.Client.Http
 			}
 		}
 		
-		private IObservable<GraphQLWebSocketResponse> _createResponseStream()
+		private IObservable<WebsocketResponseWrapper> _createResponseStream()
 		{
-			return Observable.Create<GraphQLWebSocketResponse>(_createResultStream)
+			return Observable.Create<WebsocketResponseWrapper>(_createResultStream)
 				// complete sequence on OperationCanceledException, this is triggered by the cancellation token on disposal
-				.Catch<GraphQLWebSocketResponse, OperationCanceledException>(exception =>
-					Observable.Empty<GraphQLWebSocketResponse>());
+				.Catch<WebsocketResponseWrapper, OperationCanceledException>(exception =>
+					Observable.Empty<WebsocketResponseWrapper>());
 		}
 
-		private async Task<IDisposable> _createResultStream(IObserver<GraphQLWebSocketResponse> observer, CancellationToken token)
+		private async Task<IDisposable> _createResultStream(IObserver<WebsocketResponseWrapper> observer, CancellationToken token)
 		{
 			if (_responseSubject == null || _responseSubject.IsDisposed)
 			{
-				_responseSubject = new Subject<GraphQLWebSocketResponse>();
+				_responseSubject = new Subject<WebsocketResponseWrapper>();
 				var observable = await _getReceiveResultStream().ConfigureAwait(false);
 				observable.Subscribe(_responseSubject);
 
@@ -173,7 +173,7 @@ namespace GraphQL.Client.Http
 			);
 		}
 
-		private async Task<IObservable<GraphQLWebSocketResponse>> _getReceiveResultStream()
+		private async Task<IObservable<WebsocketResponseWrapper>> _getReceiveResultStream()
 		{
 			await InitializeWebSocket().ConfigureAwait(false);
 			return Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat();
@@ -198,13 +198,13 @@ namespace GraphQL.Client.Http
 		}
 
 
-		private Task<GraphQLWebSocketResponse> _receiveAsyncTask = null;
+		private Task<WebsocketResponseWrapper> _receiveAsyncTask = null;
 		private object _receiveTaskLocker = new object();
 		/// <summary>
 		/// wrapper method to pick up the existing request task if already running
 		/// </summary>
 		/// <returns></returns>
-		private Task<GraphQLWebSocketResponse> _getReceiveTask()
+		private Task<WebsocketResponseWrapper> _getReceiveTask()
 		{
 			lock (_receiveTaskLocker)
 			{
@@ -217,15 +217,15 @@ namespace GraphQL.Client.Http
 			return _receiveAsyncTask;
 		}
 
-		private async Task<GraphQLWebSocketResponse> _receiveResultAsync()
+		private async Task<WebsocketResponseWrapper> _receiveResultAsync()
 		{
 			try
 			{
 				Debug.WriteLine($"receiving data on websocket {clientWebSocket.GetHashCode()} ...");
-				WebSocketReceiveResult webSocketReceiveResult = null;
 
 				using (var ms = new MemoryStream())
 				{
+					WebSocketReceiveResult webSocketReceiveResult = null;
 					do
 					{
 						_cancellationTokenSource.Token.ThrowIfCancellationRequested();
@@ -237,14 +237,14 @@ namespace GraphQL.Client.Http
 					_cancellationTokenSource.Token.ThrowIfCancellationRequested();
 					ms.Seek(0, SeekOrigin.Begin);
 
-					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
-					{
-						using (var reader = new StreamReader(ms, Encoding.UTF8))
-						{
-							var stringResult = await reader.ReadToEndAsync();
-							Debug.WriteLine($"data received on websocket {clientWebSocket.GetHashCode()}: {stringResult}");
-							return JsonConvert.DeserializeObject<GraphQLWebSocketResponse>(stringResult, _options.JsonSerializerSettings);
-						}
+					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text) {
+						var bytes = ms.ToArray();
+						var response =
+							System.Text.Json.JsonSerializer.Deserialize<WebsocketResponseWrapper>(bytes,
+								_options.JsonSerializerOptions);
+						response.MessageBytes = bytes;
+
+						return response;
 					}
 					else
 					{

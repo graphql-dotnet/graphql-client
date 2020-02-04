@@ -87,7 +87,7 @@ namespace GraphQL.Integration.Tests
 			{
 				var client = GetGraphQLClient(port, true);
 				const string message = "some random testing message";
-				var response = await client.SendQueryAsync(new GraphQLRequest("this query is formatted quite badly")).ConfigureAwait(false);
+				var response = await client.SendQueryAsync("this query is formatted quite badly").ConfigureAwait(false);
 
 				Assert.Single(response.Errors);
 			}
@@ -100,7 +100,7 @@ namespace GraphQL.Integration.Tests
 			  }
 			}";
 
-		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest(SubscriptionQuery);
+		private readonly GraphQLRequest SubscriptionRequest = GraphQLRequest.New(SubscriptionQuery);
 
 		[Fact]
 		public async void CanCreateObservableSubscription()
@@ -110,7 +110,7 @@ namespace GraphQL.Integration.Tests
 			{
 				var client = GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest);
+				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable.SubscribeTester();
@@ -121,7 +121,7 @@ namespace GraphQL.Integration.Tests
 
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message1, (string) gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message1, gqlResponse.Data.MessageAdded.Content);
 				});
 
 				const string message2 = "lorem ipsum dolor si amet";
@@ -129,12 +129,20 @@ namespace GraphQL.Integration.Tests
 				Assert.Equal(message2, (string) response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message2, (string) gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message2, gqlResponse.Data.MessageAdded.Content);
 				});
 
 				// disposing the client should throw a TaskCanceledException on the subscription
 				client.Dispose();
 				tester.ShouldHaveCompleted();
+			}
+		}
+
+		public class MessageAddedSubscriptionResult {
+			public MessageAddedContent MessageAdded { get; set; }
+
+			public class MessageAddedContent {
+				public string Content { get; set; }
 			}
 		}
 
@@ -147,7 +155,7 @@ namespace GraphQL.Integration.Tests
 				var client = GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest);
+				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable.SubscribeTester();
@@ -157,7 +165,7 @@ namespace GraphQL.Integration.Tests
 				Assert.Equal(message1, (string) response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message1, (string) gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message1, (string) gqlResponse.Data.MessageAdded.Content);
 				});
 
 				const string message2 = "How are you?";
@@ -165,7 +173,7 @@ namespace GraphQL.Integration.Tests
 				Assert.Equal(message2, (string) response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message2, (string) gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message2, (string) gqlResponse.Data.MessageAdded.Content);
 				});
 
 				Debug.WriteLine("disposing subscription...");
@@ -174,14 +182,14 @@ namespace GraphQL.Integration.Tests
 				Debug.WriteLine("creating new subscription...");
 				tester = observable.SubscribeTester();
 				tester.ShouldHaveReceivedUpdate(
-					gqlResponse => { Assert.Equal(message2, (string) gqlResponse.Data.messageAdded.content.Value); },
+					gqlResponse => { Assert.Equal(message2, (string) gqlResponse.Data.MessageAdded.Content); },
 					TimeSpan.FromSeconds(10));
 				const string message3 = "lorem ipsum dolor si amet";
 				response = await client.AddMessageAsync(message3).ConfigureAwait(false);
 				Assert.Equal(message3, (string) response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message3, (string) gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message3, (string) gqlResponse.Data.MessageAdded.Content);
 				});
 
 				// disposing the client should complete the subscription
@@ -198,7 +206,17 @@ namespace GraphQL.Integration.Tests
 			  }
 			}";
 
-		private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest(SubscriptionQuery2);
+		public class UserJoinedSubscriptionResult {
+			public UserJoinedContent UserJoined { get; set; }
+
+			public class UserJoinedContent {
+				public string DisplayName { get; set; }
+				public string Id { get; set; }
+			}
+
+		}
+
+		private readonly GraphQLRequest SubscriptionRequest2 = GraphQLRequest.New(SubscriptionQuery2);
 
 		[Fact]
 		public async void CanConnectTwoSubscriptionsSimultaneously()
@@ -211,8 +229,8 @@ namespace GraphQL.Integration.Tests
 				var client = GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> observable1 = client.CreateSubscriptionStream(SubscriptionRequest, callbackTester.Callback);
-				IObservable<GraphQLResponse> observable2 = client.CreateSubscriptionStream(SubscriptionRequest2, callbackTester2.Callback);
+				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable1 = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
+				IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> observable2 = client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(SubscriptionRequest2, callbackTester2.Callback);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable1.SubscribeTester();
@@ -223,7 +241,7 @@ namespace GraphQL.Integration.Tests
 				Assert.Equal(message1, (string)response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message1, (string)gqlResponse.Data.MessageAdded.Content);
 				});
 
 				await Task.Delay(500); // ToDo: can be removed after https://github.com/graphql-dotnet/server/pull/199 was merged and released
@@ -233,8 +251,8 @@ namespace GraphQL.Integration.Tests
 
 				tester2.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal("1", (string)gqlResponse.Data.userJoined.id.Value);
-					Assert.Equal("developer", (string)gqlResponse.Data.userJoined.displayName.Value);
+					Assert.Equal("1", (string)gqlResponse.Data.UserJoined.Id);
+					Assert.Equal("developer", (string)gqlResponse.Data.UserJoined.DisplayName);
 				});
 				
 				Debug.WriteLine("disposing subscription...");
@@ -245,7 +263,7 @@ namespace GraphQL.Integration.Tests
 				Assert.Equal(message3, (string)response.Data.addMessage.content);
 				tester.ShouldHaveReceivedUpdate(gqlResponse =>
 				{
-					Assert.Equal(message3, (string)gqlResponse.Data.messageAdded.content.Value);
+					Assert.Equal(message3, (string)gqlResponse.Data.MessageAdded.Content);
 				});
 
 				// disposing the client should complete the subscription
@@ -263,7 +281,7 @@ namespace GraphQL.Integration.Tests
 
 			var client = GetGraphQLClient(port);
 			Debug.WriteLine("creating subscription stream");
-			IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(SubscriptionRequest, callbackTester.Callback);
+			IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
 
 			Debug.WriteLine("subscribing...");
 			var tester = observable.SubscribeTester();
@@ -274,7 +292,7 @@ namespace GraphQL.Integration.Tests
 
 			tester.ShouldHaveReceivedUpdate(gqlResponse =>
 			{
-				Assert.Equal(message1, (string)gqlResponse.Data.messageAdded.content.Value);
+				Assert.Equal(message1, (string)gqlResponse.Data.MessageAdded.Content);
 			});
 
 			Debug.WriteLine("stopping web host...");
@@ -309,8 +327,8 @@ namespace GraphQL.Integration.Tests
 			{
 				var client = GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(
-					new GraphQLRequest(@"
+				IObservable<GraphQLResponse<object>> observable = client.CreateSubscriptionStream<object>(
+					GraphQLRequest.New(@"
 						subscription {
 						  failImmediately {
 						    content
@@ -336,10 +354,13 @@ namespace GraphQL.Integration.Tests
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port))
 			{
+
+				var test = GraphQLRequest.New("tset", new { test = "blaa"});
+
 				var client = GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse> observable = client.CreateSubscriptionStream(
-					new GraphQLRequest(@"
+				IObservable<GraphQLResponse<object>> observable = client.CreateSubscriptionStream<object>(
+					GraphQLRequest.New(@"
 						subscription {
 						  fieldDoesNotExist {
 						    content

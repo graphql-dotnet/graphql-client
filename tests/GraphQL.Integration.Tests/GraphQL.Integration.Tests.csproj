@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\GraphQL.Client.Http\GraphQL.Client.Http.csproj" />
     <ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
-    <ProjectReference Include="..\..\src\GraphQL.Common\GraphQL.Common.csproj" />
     <ProjectReference Include="..\IntegrationTestServer\IntegrationTestServer.csproj" />
   </ItemGroup>
 
