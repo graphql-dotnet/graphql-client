@@ -90,21 +90,22 @@ jobs:
     - name: Build solution
       run: dotnet build -c Release
     - name: Setup GitHub Packages as nuget source
-      uses: actions/setup-dotnet@master
-      with:
-        dotnet-version: '3.1.100'
-        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json      
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      # uses: actions/setup-dotnet@master
+      # with:
+      #   dotnet-version: '3.1.100'
+      #   source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json      
+      # env:
+      #   NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: nuget source Add -Name "GPR" -Source "https://nuget.pkg.github.com/graphql-dotnet/index.json" -UserName graphql-dotnet -Password ${{ secrets.GITHUB_TOKEN }}          
     - name: push GraphQL.Primitives
-      run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -k $env:NUGET_AUTH_TOKEN
+      run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -s "GPR" --skip-duplicate
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: push GraphQL.Client
-      run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -k $env:NUGET_AUTH_TOKEN
+      run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -s "GPR" --skip-duplicate
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: push GraphQL.Client.Http
-      run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -k $env:NUGET_AUTH_TOKEN
+      run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -s "GPR" --skip-duplicate
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
