@@ -89,6 +89,6 @@ jobs:
         source-url: https://nuget.pkg.github.com/${{env.OWNER}}/index.json      
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
-    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
-    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
