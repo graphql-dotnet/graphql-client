@@ -15,8 +15,6 @@ jobs:
     - run: git fetch
     - run: dotnet dotnet-gitversion /output json | Out-File gitversion.json
     - run: Get-Content gitversion.json
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
-    - run: 'Get-ChildItem env:'    
     - uses: actions/upload-artifact@v1
       with:
         name: gitversion
@@ -35,7 +33,7 @@ jobs:
       with:
         name: gitversion
         path: ./
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
     - run: 'Get-ChildItem env:'
     - run: dotnet build -c Release
 
@@ -52,7 +50,7 @@ jobs:
       with:
         name: gitversion
         path: ./
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
     - run: dotnet test -c Release -p:ParallelizeTestCollections=false
 
   # publish:
@@ -64,8 +62,12 @@ jobs:
   #   - uses: actions/setup-dotnet@master
   #     with:
   #       dotnet-version: '3.1.100'
+    # - uses: actions/download-artifact@v1
+    #     with:
+    #       name: gitversion
+    #       path: ./
   #   - run: $env:OWNER = Split-Path -Path $env:GITHUB_REPOSITORY
-  #   - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+  #   - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
   #   - run: dotnet build -c Release
   #   - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --user $env:GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$env:OWNER/index.json
   #   - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --user $env:GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$env:OWNER/index.json
