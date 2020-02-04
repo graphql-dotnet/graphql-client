@@ -35,8 +35,6 @@ namespace GraphQL.Integration.Tests {
 			return host;
 		}
 
-		private readonly IWebHost _server;
-
 		public SubscriptionsTest(ITestOutputHelper output) {
 			this.output = output;
 		}
@@ -78,7 +76,6 @@ namespace GraphQL.Integration.Tests {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = GetGraphQLClient(port, true);
-				const string message = "some random testing message";
 				var response = await client.SendQueryAsync<object>("this query is formatted quite badly").ConfigureAwait(false);
 
 				Assert.Single(response.Errors);
