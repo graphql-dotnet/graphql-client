@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GraphQL.Client.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 

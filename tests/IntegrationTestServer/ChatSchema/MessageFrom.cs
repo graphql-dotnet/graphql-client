@@ -1,4 +1,4 @@
-﻿namespace IntegrationTestServer.ChatSchema {
+namespace IntegrationTestServer.ChatSchema {
 	public class MessageFrom {
 		public string Id { get; set; }
 

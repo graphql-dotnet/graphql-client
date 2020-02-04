@@ -10,7 +10,7 @@ jobs:
       with:
         dotnet-version: '3.1.100'
     - run: dotnet tool restore
-    - run: dotnet format --check --dry-run
+#    - run: dotnet format --check --dry-run
     - run: dotnet restore
     - run: dotnet build
     - run: dotnet pack

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace IntegrationTestServer.ChatSchema {
 	public class ReceivedMessage {
