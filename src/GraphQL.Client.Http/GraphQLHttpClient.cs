@@ -48,15 +48,13 @@ namespace GraphQL.Client.Http {
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
-		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null,
-			CancellationToken cancellationToken = default) {
+		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
 				? this.graphQlHttpWebSocket.Request<TResponse>(request, Options, cancellationToken)
 				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 
-		public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null,
-			CancellationToken cancellationToken = default) {
+		public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
 				? this.graphQlHttpWebSocket.Request<TResponse>(request, Options, cancellationToken)
 				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
@@ -77,20 +75,7 @@ namespace GraphQL.Client.Http {
 			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
-
-		/// <inheritdoc />
-		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) {
-			if (disposed)
-				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-
-			return CreateSubscriptionStream<TResponse>(request, e => {
-				if (e is WebSocketException webSocketException)
-					webSocketExceptionHandler(webSocketException);
-				else
-					throw e;
-			});
-		}
-
+		
 		/// <inheritdoc />
 		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler) {
 			if (disposed)
