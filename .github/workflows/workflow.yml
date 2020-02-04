@@ -1,6 +1,21 @@
 name: Main workflow
 on: [push]
 jobs:
+  jobs:
+    name: GenerateVersionInfo
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: '3.1.100'
+    - run: dotnet tool restore
+    - run: dotnet dotnet-gitversion /output json | Out-File gitversion.json
+    - uses: actions/upload-artifact@v1
+      with:
+        name: gitversion
+        path: gitversion.json
+
   build:
     name: Build
     runs-on: windows-latest
@@ -9,8 +24,10 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet tool restore
-    - run: dotnet dotnet-gitversion /output json | Out-String | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+    - uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
     - run: dotnet build -c Release
 
   test:
@@ -22,8 +39,10 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet tool restore
-    - run: dotnet dotnet-gitversion /output json | Out-String | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+    - uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
     - run: dotnet test -c Release -p:ParallelizeTestCollections=false
 
   # publish:
@@ -36,8 +55,7 @@ jobs:
   #     with:
   #       dotnet-version: '3.1.100'
   #   - run: $env:OWNER = Split-Path -Path $env:GITHUB_REPOSITORY
-  #   - run: dotnet tool restore
-  #   - run: dotnet dotnet-gitversion /output json | Out-String | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
+  #   - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
   #   - run: dotnet build -c Release
   #   - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --user $env:GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$env:OWNER/index.json
   #   - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --user $env:GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$env:OWNER/index.json
