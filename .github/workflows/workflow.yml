@@ -11,9 +11,9 @@ jobs:
         dotnet-version: '3.1.100'
     - run: dotnet tool restore
 #    - run: dotnet format --check --dry-run
-    - run: dotnet restore
+    # - run: dotnet restore
     - run: dotnet build
-    - run: dotnet pack
+    # - run: dotnet pack
 
   test:
     name: Test
@@ -24,9 +24,9 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet restore
-    - run: dotnet build
-    - run: dotnet test
+    # - run: dotnet restore
+    # - run: dotnet build
+    - run: dotnet test -p:ParallelizeTestCollections=false
 
   publish:
     name: Publish
