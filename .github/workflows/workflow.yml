@@ -5,7 +5,10 @@ jobs:
     name: GenerateVersionInfo
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        ref: ${{ github.ref }}
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
@@ -22,7 +25,7 @@ jobs:
     needs: generateVersionInfo
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
@@ -37,7 +40,7 @@ jobs:
     needs: [build, generateVersionInfo]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
@@ -52,7 +55,7 @@ jobs:
   #   needs: [test, generateVersionInfo]
   #   runs-on: windows-latest
   #   steps:
-  #   - uses: actions/checkout@master
+  #   - uses: actions/checkout@v2
   #   - uses: actions/setup-dotnet@master
   #     with:
   #       dotnet-version: '3.1.100'
