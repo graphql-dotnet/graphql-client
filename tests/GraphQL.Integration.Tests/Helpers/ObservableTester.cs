@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Xunit;
 
-namespace GraphQL.Integration.Tests {
+namespace GraphQL.Integration.Tests.Helpers {
 	public class ObservableTester<T> : IDisposable {
 		private readonly IDisposable _subscription;
 		private ManualResetEventSlim _updateReceived { get; } = new ManualResetEventSlim();

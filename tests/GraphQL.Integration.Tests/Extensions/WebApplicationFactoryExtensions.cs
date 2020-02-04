@@ -2,7 +2,7 @@ using System;
 using GraphQL.Client.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 
-namespace GraphQL.Integration.Tests {
+namespace GraphQL.Integration.Tests.Extensions {
 	public static class WebApplicationFactoryExtensions {
 		public static GraphQLHttpClient CreateGraphQlHttpClient<TEntryPoint>(
 			this WebApplicationFactory<TEntryPoint> factory, string graphQlSchemaUrl, string urlScheme = "http://") where TEntryPoint : class {

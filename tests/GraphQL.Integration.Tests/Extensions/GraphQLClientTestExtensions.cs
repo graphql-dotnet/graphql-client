@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using GraphQL.Client;
 using GraphQL.Client.Http;
 
-namespace GraphQL.Integration.Tests {
+namespace GraphQL.Integration.Tests.Extensions {
 	public static class GraphQLClientTestExtensions {
 		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this GraphQLHttpClient client, string message) {
 			var graphQLRequest = new GraphQLRequest(

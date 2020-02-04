@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client;
 using GraphQL.Client.Http;
+using GraphQL.Integration.Tests.Extensions;
+using GraphQL.Integration.Tests.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

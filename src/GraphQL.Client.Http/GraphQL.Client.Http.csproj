@@ -7,14 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="GraphQLHttpClient_SubscriptionApi.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="GraphQLHttpClient_SubscriptionApi.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\GraphQL.Client\GraphQL.Client.csproj" />
     </ItemGroup>
 

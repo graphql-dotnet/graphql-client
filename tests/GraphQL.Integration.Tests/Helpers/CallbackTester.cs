@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Xunit;
 
-namespace GraphQL.Integration.Tests {
+namespace GraphQL.Integration.Tests.Helpers {
 	public class CallbackTester<T> {
 		private ManualResetEventSlim _callbackInvoked { get; } = new ManualResetEventSlim();
 
