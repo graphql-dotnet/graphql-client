@@ -84,7 +84,7 @@ jobs:
       with:
         name: gitversion
         path: ./
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
+    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
     - run: dotnet build -c Release
     - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg
     - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg
