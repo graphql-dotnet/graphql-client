@@ -8,13 +8,12 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        # ref: ${{ github.ref }}
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
     - run: dotnet tool restore
     - run: git fetch
-    - run: dotnet dotnet-gitversion /output buildserver
+    - run: dotnet dotnet-gitversion
     - run: dotnet dotnet-gitversion /output json | Out-File gitversion.json
     - uses: actions/upload-artifact@v1
       with:
@@ -33,6 +32,7 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: gitversion
+        path: ./
     - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
     - run: dotnet build -c Release
 
@@ -48,6 +48,7 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: gitversion
+        path: ./
     - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
     - run: dotnet test -c Release -p:ParallelizeTestCollections=false
 
