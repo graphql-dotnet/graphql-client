@@ -1,5 +1,11 @@
 name: Main workflow
-on: [push]
+on: 
+  push:
+    branches:
+      - master
+      - develop
+      - 'release/**'
+      - 'releases/**'
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo
@@ -76,7 +82,7 @@ jobs:
 
   publish:
     name: Publish
-    needs: [test, generateVersionInfo]
+    needs: [test]
     runs-on: windows-latest
     steps:
     - name: Checkout
