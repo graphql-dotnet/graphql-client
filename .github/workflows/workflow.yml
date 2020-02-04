@@ -10,10 +10,7 @@ jobs:
       with:
         dotnet-version: '3.1.100'
     - run: dotnet tool restore
-#    - run: dotnet format --check --dry-run
-    # - run: dotnet restore
-    - run: dotnet build
-    # - run: dotnet pack
+    - run: dotnet build -c Release
 
   test:
     name: Test
@@ -24,9 +21,7 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    # - run: dotnet restore
-    # - run: dotnet build
-    - run: dotnet test -p:ParallelizeTestCollections=false
+    - run: dotnet test -c Release -p:ParallelizeTestCollections=false
 
   publish:
     name: Publish
@@ -37,8 +32,7 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - run: dotnet restore
-    - run: dotnet build --configuration Release
-    - run: dotnet pack --configuration Release
-    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
-    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.*.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/graphql-dotnet/graphql-client/index.json
+    - run: dotnet pack -c Release
+    - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
