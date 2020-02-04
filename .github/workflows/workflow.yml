@@ -33,6 +33,6 @@ jobs:
       with:
         dotnet-version: '3.1.100'
     - run: dotnet build -c Release
-    - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/$GITHUB_ACTOR/index.json"
-    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/$GITHUB_ACTOR/index.json"
-    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/$GITHUB_ACTOR/index.json"
+    - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$GITHUB_REPOSITORY/index.json
+    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$GITHUB_REPOSITORY/index.json
+    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$GITHUB_REPOSITORY/index.json
