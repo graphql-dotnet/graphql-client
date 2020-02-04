@@ -45,6 +45,13 @@ jobs:
       run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }; $env:GitVersion_SemVer
     - name: Build solution
       run: dotnet build -c Release
+    - name: Create NuGet packages
+      run: dotnet pack -c Release --no-build -o nupkg 
+    - name: Upload nuget packages
+      uses: actions/upload-artifact@v1
+      with:
+        name: nupkg
+        path: nupkg
 
   test:
     name: Test
@@ -74,21 +81,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    # - name: Evaluate repository owner
-    #   run: $owner = Split-Path -Path $env:GITHUB_REPOSITORY; "::set-env name=OWNER::$($owner)"
-    - name: Setup dotnet environment
-      uses: actions/setup-dotnet@master
-      with:
-        dotnet-version: '3.1.100'
-    - name: Download version info file
+    - name: Download nuget packages
       uses: actions/download-artifact@v1
       with:
-        name: gitversion
-        path: ./
-    - name: Inject version info into environment
-      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
-    - name: Build solution
-      run: dotnet build -c Release
+        name: nupkg
     - name: Setup GitHub Packages as nuget source
       uses: actions/setup-dotnet@master
       with:
@@ -97,15 +93,8 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       # run: nuget source Add -Name "GPR" -Source "https://nuget.pkg.github.com/graphql-dotnet/index.json" -UserName graphql-dotnet -Password ${{ secrets.GITHUB_TOKEN }}          
-    - name: push GraphQL.Primitives
-      run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -s "GPR" --skip-duplicate
+    - name: push packages
+      run: dotnet nuget push .\nupkg\*.nupkg --skip-duplicate
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    - name: push GraphQL.Client
-      run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -s "GPR" --skip-duplicate
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    - name: push GraphQL.Client.Http
-      run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -s "GPR" --skip-duplicate
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    
