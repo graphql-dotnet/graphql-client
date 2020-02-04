@@ -92,9 +92,6 @@ jobs:
         source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json      
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      # run: nuget source Add -Name "GPR" -Source "https://nuget.pkg.github.com/graphql-dotnet/index.json" -UserName graphql-dotnet -Password ${{ secrets.GITHUB_TOKEN }}          
     - name: push packages
       run: dotnet nuget push .\nupkg\*.nupkg --skip-duplicate
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     
