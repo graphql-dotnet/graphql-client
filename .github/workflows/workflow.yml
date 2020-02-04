@@ -72,23 +72,33 @@ jobs:
     needs: [test, generateVersionInfo]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-    - run: $owner = Split-Path -Path $env:GITHUB_REPOSITORY; "::set-env name=OWNER::$($owner)"
-    - uses: actions/setup-dotnet@master
+    - name: Checkout
+      uses: actions/checkout@v2
+    # - name: Evaluate repository owner
+    #   run: $owner = Split-Path -Path $env:GITHUB_REPOSITORY; "::set-env name=OWNER::$($owner)"
+    - name: Setup dotnet environment
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-    - uses: actions/download-artifact@v1
+    - name: Download version info file
+      uses: actions/download-artifact@v1
       with:
         name: gitversion
         path: ./
-    - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
-    - run: dotnet build -c Release
-    - uses: actions/setup-dotnet@master
+    - name: Inject version info into environment
+      run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
+    - name: Build solution
+      run: dotnet build -c Release
+    - name: Setup GitHub Packages as nuget source
+      uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
-        source-url: https://nuget.pkg.github.com/${{env.OWNER}}/index.json      
+        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json      
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    - run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
-    - run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
-    - run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - name: push GraphQL.Primitives
+      run: dotnet nuget push .\src\GraphQL.Primitives\bin\Release\GraphQL.Primitives.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - name: push GraphQL.Client
+      run: dotnet nuget push .\src\GraphQL.Client\bin\Release\GraphQL.Client.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
+    - name: push GraphQL.Client.Http
+      run: dotnet nuget push .\src\GraphQL.Client.Http\bin\Release\GraphQL.Client.Http.*.nupkg -k ${{secrets.GITHUB_TOKEN}}
