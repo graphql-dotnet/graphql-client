@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace GraphQL.Client {
 	public static class GraphQLClientExtensions {
 
-		
+
 		public static Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(this IGraphQLClient client,
 			string query, object? variables = null,
 			string? operationName = null, CancellationToken cancellationToken = default) {

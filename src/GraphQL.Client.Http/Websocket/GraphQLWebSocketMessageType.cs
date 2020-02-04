@@ -1,7 +1,5 @@
-namespace GraphQL.Client.Http.Websocket
-{
-	public static class GraphQLWebSocketMessageType
-	{
+namespace GraphQL.Client.Http.Websocket {
+	public static class GraphQLWebSocketMessageType {
 
 		/// <summary>
 		///     Client sends this message after plain websocket connection to start the communication with the server

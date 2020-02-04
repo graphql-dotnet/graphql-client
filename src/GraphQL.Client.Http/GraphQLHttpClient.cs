@@ -26,12 +26,10 @@ namespace GraphQL.Client.Http {
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
 
 
-		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint))
-		{ }
+		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
 
-		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint)
-		{ }
-		
+		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint) { }
+
 		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) {
 			Options = new GraphQLHttpClientOptions();
 			configure(Options);
@@ -50,7 +48,7 @@ namespace GraphQL.Client.Http {
 			this.httpClient = httpClient;
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
-		
+
 		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, Func<TResponse> defineResponseType = null,
 			CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
@@ -73,7 +71,7 @@ namespace GraphQL.Client.Http {
 			var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
 
 			if (subscriptionStreams.ContainsKey(key))
-				return (IObservable<GraphQLResponse<TResponse>>) subscriptionStreams[key];
+				return (IObservable<GraphQLResponse<TResponse>>)subscriptionStreams[key];
 
 			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, Options, cancellationToken: cancellationTokenSource.Token);
 
@@ -102,7 +100,7 @@ namespace GraphQL.Client.Http {
 			var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
 
 			if (subscriptionStreams.ContainsKey(key))
-				return (IObservable<GraphQLResponse<TResponse>>) subscriptionStreams[key];
+				return (IObservable<GraphQLResponse<TResponse>>)subscriptionStreams[key];
 
 			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, Options, exceptionHandler, cancellationTokenSource.Token);
 			subscriptionStreams.TryAdd(key, observable);
@@ -121,7 +119,7 @@ namespace GraphQL.Client.Http {
 			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
 			return await bodyStream.DeserializeFromJsonAsync<GraphQLHttpResponse<TResponse>>(Options, cancellationToken);
 		}
-		
+
 		private HttpRequestMessage GenerateHttpRequestMessage(string requestString) {
 			return new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
 				Content = new StringContent(requestString, Encoding.UTF8, "application/json")

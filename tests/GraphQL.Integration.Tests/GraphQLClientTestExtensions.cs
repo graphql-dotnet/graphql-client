@@ -3,12 +3,9 @@ using System.Threading.Tasks;
 using GraphQL.Client;
 using GraphQL.Client.Http;
 
-namespace GraphQL.Integration.Tests
-{
-	public static class GraphQLClientTestExtensions
-	{
-		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this GraphQLHttpClient client, string message)
-		{
+namespace GraphQL.Integration.Tests {
+	public static class GraphQLClientTestExtensions {
+		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this GraphQLHttpClient client, string message) {
 			var graphQLRequest = new GraphQLRequest(
 				@"mutation($input: MessageInputType){
 				  addMessage(message: $input){
@@ -25,8 +22,7 @@ namespace GraphQL.Integration.Tests
 			return client.SendMutationAsync<AddMessageMutationResult>(graphQLRequest);
 		}
 
-		public static Task<GraphQLResponse<JoinDeveloperMutationResult>> JoinDeveloperUser(this GraphQLHttpClient client)
-		{
+		public static Task<GraphQLResponse<JoinDeveloperMutationResult>> JoinDeveloperUser(this GraphQLHttpClient client) {
 			var graphQLRequest = new GraphQLRequest(@"
 				mutation($userId: String){
 				  join(userId: $userId){

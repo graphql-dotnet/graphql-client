@@ -51,8 +51,7 @@ namespace GraphQL.Client.Http {
 		/// The back-off strategy for automatic websocket/subscription reconnects. Calculates the delay before the next connection attempt is made.<br/>
 		/// default formula: min(n, 5) * 1,5 * random(0.0, 1.0)
 		/// </summary>
-		public Func<int, TimeSpan> BackOffStrategy = n =>
-		{
+		public Func<int, TimeSpan> BackOffStrategy = n => {
 			var rnd = new Random();
 			return TimeSpan.FromSeconds(Math.Min(n, 5) * 1.5 + rnd.NextDouble());
 		};

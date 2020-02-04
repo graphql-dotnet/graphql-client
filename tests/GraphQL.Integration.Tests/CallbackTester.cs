@@ -2,10 +2,8 @@ using System;
 using System.Threading;
 using Xunit;
 
-namespace GraphQL.Integration.Tests
-{
-	public class CallbackTester<T>
-	{
+namespace GraphQL.Integration.Tests {
+	public class CallbackTester<T> {
 		private ManualResetEventSlim _callbackInvoked { get; } = new ManualResetEventSlim();
 
 		/// <summary>
@@ -22,8 +20,7 @@ namespace GraphQL.Integration.Tests
 		/// </summary>
 		public T LastPayload { get; private set; }
 
-		public void Callback(T param)
-		{
+		public void Callback(T param) {
 			LastPayload = param;
 			_callbackInvoked.Set();
 		}
@@ -33,17 +30,14 @@ namespace GraphQL.Integration.Tests
 		/// If supplied, the <paramref name="assertPayload"/> action is executed on the submitted payload.
 		/// </summary>
 		/// <param name="assertPayload">action to assert the contents of the payload</param>
-		public void CallbackShouldHaveBeenInvoked(Action<T> assertPayload = null, TimeSpan? timeout = null)
-		{
-			try
-			{
+		public void CallbackShouldHaveBeenInvoked(Action<T> assertPayload = null, TimeSpan? timeout = null) {
+			try {
 				if (!_callbackInvoked.Wait(timeout ?? Timeout))
 					Assert.True(false, $"callback not invoked within {(timeout ?? Timeout).TotalSeconds} s!");
 
 				assertPayload?.Invoke(LastPayload);
 			}
-			finally
-			{
+			finally {
 				Reset();
 			}
 		}
@@ -52,16 +46,13 @@ namespace GraphQL.Integration.Tests
 		/// Asserts that no new update has been pushed within the given <paramref name="millisecondsTimeout"/> since the last <see cref="Reset"/>
 		/// </summary>
 		/// <param name="millisecondsTimeout">the time in ms in which no new update must be pushed to the <see cref="IObservable{T}"/>. defaults to 100</param>
-		public void CallbackShouldNotHaveBeenInvoked(TimeSpan? timeout = null)
-		{
-			if(!timeout.HasValue) timeout = TimeSpan.FromMilliseconds(100);
-			try
-			{
+		public void CallbackShouldNotHaveBeenInvoked(TimeSpan? timeout = null) {
+			if (!timeout.HasValue) timeout = TimeSpan.FromMilliseconds(100);
+			try {
 				if (_callbackInvoked.Wait(timeout.Value))
 					Assert.True(false, "callback was inadvertently invoked pushed!");
 			}
-			finally
-			{
+			finally {
 				Reset();
 			}
 		}
@@ -69,8 +60,7 @@ namespace GraphQL.Integration.Tests
 		/// <summary>
 		/// Resets the tester class. Should be called before triggering the potential update
 		/// </summary>
-		public void Reset()
-		{
+		public void Reset() {
 			LastPayload = default(T);
 			_callbackInvoked.Reset();
 		}

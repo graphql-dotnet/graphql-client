@@ -7,7 +7,7 @@ namespace GraphQL {
 	/// A GraphQL request
 	/// </summary>
 	public class GraphQLRequest : IEquatable<GraphQLRequest?> {
-		
+
 		/// <summary>
 		/// The Query
 		/// </summary>
@@ -24,8 +24,7 @@ namespace GraphQL {
 		public virtual object? Variables { get; set; }
 
 
-		public GraphQLRequest()
-		{
+		public GraphQLRequest() {
 		}
 
 		public GraphQLRequest(string query, object? variables = null, string? operationName = null) {
@@ -55,8 +54,8 @@ namespace GraphQL {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
 			return Query == other.Query
-			       && OperationName == other.OperationName
-			       && EqualityComparer<object>.Default.Equals(Variables, other.Variables);
+				   && OperationName == other.OperationName
+				   && EqualityComparer<object>.Default.Equals(Variables, other.Variables);
 		}
 
 		/// <summary>

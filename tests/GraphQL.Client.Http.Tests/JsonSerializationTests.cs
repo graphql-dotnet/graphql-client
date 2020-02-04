@@ -7,7 +7,7 @@ namespace GraphQL.Client.Http.Tests {
 
 		[Fact]
 		public void WebSocketResponseDeserialization() {
-			var testObject = new ExtendedTestObject { Id = "test", OtherData = "this is some other stuff"};
+			var testObject = new ExtendedTestObject { Id = "test", OtherData = "this is some other stuff" };
 			var json = JsonSerializer.Serialize(testObject);
 			var deserialized = JsonSerializer.Deserialize<TestObject>(json);
 

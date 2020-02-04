@@ -64,25 +64,21 @@ namespace GraphQL.Client.Http.Websocket {
 	public class GraphQLWebSocketResponse<TResponse> : GraphQLWebSocketResponse, IEquatable<GraphQLWebSocketResponse<TResponse>> {
 		public GraphQLHttpResponse<TResponse> Payload { get; set; }
 
-		public bool Equals(GraphQLWebSocketResponse<TResponse>? other)
-		{
+		public bool Equals(GraphQLWebSocketResponse<TResponse>? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
 			return base.Equals(other) && Payload.Equals(other.Payload);
 		}
 
-		public override bool Equals(object? obj)
-		{
+		public override bool Equals(object? obj) {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			if (obj.GetType() != this.GetType()) return false;
-			return Equals((GraphQLWebSocketResponse<TResponse>) obj);
+			return Equals((GraphQLWebSocketResponse<TResponse>)obj);
 		}
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
+		public override int GetHashCode() {
+			unchecked {
 				return (base.GetHashCode() * 397) ^ Payload.GetHashCode();
 			}
 		}

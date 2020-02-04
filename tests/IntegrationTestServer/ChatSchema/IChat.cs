@@ -3,13 +3,11 @@ using System.Collections.Concurrent;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace IntegrationTestServer.ChatSchema
-{
-    public interface IChat
-    {
-        ConcurrentStack<Message> AllMessages { get; }
+namespace IntegrationTestServer.ChatSchema {
+	public interface IChat {
+		ConcurrentStack<Message> AllMessages { get; }
 
-        Message AddMessage(Message message);
+		Message AddMessage(Message message);
 
 		MessageFrom Join(string userId);
 
@@ -17,57 +15,47 @@ namespace IntegrationTestServer.ChatSchema
 		IObservable<MessageFrom> UserJoined();
 
 		Message AddMessage(ReceivedMessage message);
-    }
+	}
 
-    public class Chat : IChat
-    {
-        private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
+	public class Chat : IChat {
+		private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
 		private readonly ISubject<MessageFrom> _userJoined = new Subject<MessageFrom>();
 
-		public Chat()
-        {
-            AllMessages = new ConcurrentStack<Message>();
-            Users = new ConcurrentDictionary<string, string>
-            {
-                ["1"] = "developer",
-                ["2"] = "tester"
-            };
-        }
-
-        public ConcurrentDictionary<string, string> Users { get; set; }
-
-        public ConcurrentStack<Message> AllMessages { get; }
-
-        public Message AddMessage(ReceivedMessage message)
-        {
-            if (!Users.TryGetValue(message.FromId, out var displayName))
-            {
-                displayName = "(unknown)";
-            }
-
-            return AddMessage(new Message
-            {
-                Content = message.Content,
-                SentAt = message.SentAt,
-                From = new MessageFrom
-                {
-                    DisplayName = displayName,
-                    Id = message.FromId
-                }
-            });
-        }
-
-        public Message AddMessage(Message message)
-        {
-            AllMessages.Push(message);
-            _messageStream.OnNext(message);
-            return message;
+		public Chat() {
+			AllMessages = new ConcurrentStack<Message>();
+			Users = new ConcurrentDictionary<string, string> {
+				["1"] = "developer",
+				["2"] = "tester"
+			};
 		}
 
-		public MessageFrom Join(string userId)
-		{
-			if (!Users.TryGetValue(userId, out var displayName))
-			{
+		public ConcurrentDictionary<string, string> Users { get; set; }
+
+		public ConcurrentStack<Message> AllMessages { get; }
+
+		public Message AddMessage(ReceivedMessage message) {
+			if (!Users.TryGetValue(message.FromId, out var displayName)) {
+				displayName = "(unknown)";
+			}
+
+			return AddMessage(new Message {
+				Content = message.Content,
+				SentAt = message.SentAt,
+				From = new MessageFrom {
+					DisplayName = displayName,
+					Id = message.FromId
+				}
+			});
+		}
+
+		public Message AddMessage(Message message) {
+			AllMessages.Push(message);
+			_messageStream.OnNext(message);
+			return message;
+		}
+
+		public MessageFrom Join(string userId) {
+			if (!Users.TryGetValue(userId, out var displayName)) {
 				displayName = "(unknown)";
 			}
 
@@ -80,30 +68,25 @@ namespace IntegrationTestServer.ChatSchema
 			return joinedUser;
 		}
 
-		public IObservable<Message> Messages(string user)
-        {
-            return _messageStream
-                .Select(message =>
-                {
-                    message.Sub = user;
-                    return message;
-                })
-                .AsObservable();
-        }
+		public IObservable<Message> Messages(string user) {
+			return _messageStream
+				.Select(message => {
+					message.Sub = user;
+					return message;
+				})
+				.AsObservable();
+		}
 
-        public void AddError(Exception exception)
-        {
-            _messageStream.OnError(exception);
-        }
+		public void AddError(Exception exception) {
+			_messageStream.OnError(exception);
+		}
 
-		public IObservable<MessageFrom> UserJoined()
-		{
+		public IObservable<MessageFrom> UserJoined() {
 			return _userJoined.AsObservable();
 		}
 	}
 
-	public class User
-	{
+	public class User {
 		public string Id { get; set; }
 		public string Name { get; set; }
 	}

@@ -54,6 +54,6 @@ namespace GraphQL.Client {
 
 	}
 
-	
+
 
 }

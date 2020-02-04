@@ -2,10 +2,8 @@ using System;
 using System.Threading;
 using Xunit;
 
-namespace GraphQL.Integration.Tests
-{
-	public class ObservableTester<T> : IDisposable
-	{
+namespace GraphQL.Integration.Tests {
+	public class ObservableTester<T> : IDisposable {
 		private readonly IDisposable _subscription;
 		private ManualResetEventSlim _updateReceived { get; } = new ManualResetEventSlim();
 		private ManualResetEventSlim _completed { get; } = new ManualResetEventSlim();
@@ -31,15 +29,13 @@ namespace GraphQL.Integration.Tests
 		/// Creates a new <see cref="ObservableTester{T}"/> which subscribes to the supplied <see cref="IObservable{T}"/>
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
-		public ObservableTester(IObservable<T> observable)
-		{
+		public ObservableTester(IObservable<T> observable) {
 			_subscription = observable.Subscribe(
 				obj => {
 					LastPayload = obj;
 					_updateReceived.Set();
 				},
-				ex =>
-				{
+				ex => {
 					Error = ex;
 					_error.Set();
 				},
@@ -52,17 +48,14 @@ namespace GraphQL.Integration.Tests
 		/// If supplied, the <paramref name="assertPayload"/> action is executed on the submitted payload.
 		/// </summary>
 		/// <param name="assertPayload">action to assert the contents of the payload</param>
-		public void ShouldHaveReceivedUpdate(Action<T> assertPayload = null, TimeSpan? timeout = null)
-		{
-			try
-			{
+		public void ShouldHaveReceivedUpdate(Action<T> assertPayload = null, TimeSpan? timeout = null) {
+			try {
 				if (!_updateReceived.Wait(timeout ?? Timeout))
 					Assert.True(false, $"no update received within {(timeout ?? Timeout).TotalSeconds} s!");
 
 				assertPayload?.Invoke(LastPayload);
 			}
-			finally
-			{
+			finally {
 				_reset();
 			}
 		}
@@ -71,16 +64,13 @@ namespace GraphQL.Integration.Tests
 		/// Asserts that no new update has been pushed within the given <paramref name="millisecondsTimeout"/> since the last <see cref="_reset"/>
 		/// </summary>
 		/// <param name="millisecondsTimeout">the time in ms in which no new update must be pushed to the <see cref="IObservable{T}"/>. defaults to 100</param>
-		public void ShouldNotHaveReceivedUpdate(TimeSpan? timeout = null)
-		{
-			if(!timeout.HasValue) timeout = TimeSpan.FromMilliseconds(100);
-			try
-			{
+		public void ShouldNotHaveReceivedUpdate(TimeSpan? timeout = null) {
+			if (!timeout.HasValue) timeout = TimeSpan.FromMilliseconds(100);
+			try {
 				if (_updateReceived.Wait(timeout.Value))
 					Assert.True(false, "update was inadvertently pushed!");
 			}
-			finally
-			{
+			finally {
 				_reset();
 			}
 		}
@@ -88,15 +78,12 @@ namespace GraphQL.Integration.Tests
 		/// <summary>
 		/// Asserts that the subscription has completed within the configured <see cref="Timeout"/> since the last <see cref="_reset"/>
 		/// </summary>
-		public void ShouldHaveCompleted(TimeSpan? timeout = null)
-		{
-			try
-			{
+		public void ShouldHaveCompleted(TimeSpan? timeout = null) {
+			try {
 				if (!_completed.Wait(timeout ?? Timeout))
 					Assert.True(false, $"subscription did not complete within {(timeout ?? Timeout).TotalSeconds} s!");
 			}
-			finally
-			{
+			finally {
 				_reset();
 			}
 		}
@@ -104,17 +91,14 @@ namespace GraphQL.Integration.Tests
 		/// <summary>
 		/// Asserts that the subscription has completed within the configured <see cref="Timeout"/> since the last <see cref="_reset"/>
 		/// </summary>
-		public void ShouldHaveThrownError(Action<Exception> assertError = null, TimeSpan? timeout = null)
-		{
-			try
-			{
+		public void ShouldHaveThrownError(Action<Exception> assertError = null, TimeSpan? timeout = null) {
+			try {
 				if (!_error.Wait(timeout ?? Timeout))
 					Assert.True(false, $"subscription did not throw an error within {(timeout ?? Timeout).TotalSeconds} s!");
 
 				assertError?.Invoke(Error);
 			}
-			finally
-			{
+			finally {
 				_reset();
 			}
 		}
@@ -122,8 +106,7 @@ namespace GraphQL.Integration.Tests
 		/// <summary>
 		/// Resets the tester class. Should be called before triggering the potential update
 		/// </summary>
-		private void _reset()
-		{
+		private void _reset() {
 			//if (_completed.IsSet)
 			//	throw new InvalidOperationException(
 			//		"the subscription sequence has completed. this tester instance cannot be reused");
@@ -133,16 +116,13 @@ namespace GraphQL.Integration.Tests
 		}
 
 		/// <inheritdoc />
-		public void Dispose()
-		{
+		public void Dispose() {
 			_subscription?.Dispose();
 		}
 	}
 
-	public static class ObservableExtensions
-	{
-		public static ObservableTester<T> SubscribeTester<T>(this IObservable<T> observable)
-		{
+	public static class ObservableExtensions {
+		public static ObservableTester<T> SubscribeTester<T>(this IObservable<T> observable) {
 			return new ObservableTester<T>(observable);
 		}
 	}

@@ -14,7 +14,7 @@ namespace GraphQL.Client.Tests {
 
 		[Fact]
 		public void ConstructorExtendedFact() {
-			var graphQLRequest = new GraphQLRequest("{hero{name}}", new {varName = "varValue"}, "operationName");
+			var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue" }, "operationName");
 			Assert.NotNull(graphQLRequest.Query);
 			Assert.NotNull(graphQLRequest.OperationName);
 			Assert.NotNull(graphQLRequest.Variables);
