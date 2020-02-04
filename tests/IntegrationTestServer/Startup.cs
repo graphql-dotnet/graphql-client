@@ -5,6 +5,7 @@ using GraphQL.Server.Ui.Playground;
 using IntegrationTestServer.ChatSchema;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +22,10 @@ namespace IntegrationTestServer {
 		// This method gets called by the runtime. Use this method to add services to the container.
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services) {
+			services.Configure<KestrelServerOptions>(options =>
+			{
+				options.AllowSynchronousIO = true;
+			});
 			services.AddSingleton<IChat, Chat>();
 			services.AddSingleton<ChatSchema.ChatSchema>();
 			services.AddSingleton<ChatQuery>();
@@ -35,7 +40,7 @@ namespace IntegrationTestServer {
 			})
 				.AddWebSockets();
 
-			services.AddMvc();
+			//services.AddMvc();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,7 +63,7 @@ namespace IntegrationTestServer {
 			app.UseGraphQLPlayground(new GraphQLPlaygroundOptions {
 				Path = "/ui/playground"
 			});
-			app.UseMvc();
+			//app.UseMvc();
 		}
 	}
 }
