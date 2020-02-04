@@ -9,6 +9,7 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
+    - run: dotnet dotnet-gitversion /output json | Out-String | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
     - run: dotnet tool restore
     - run: dotnet build -c Release
 
@@ -21,6 +22,7 @@ jobs:
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
+    - run: dotnet dotnet-gitversion /output json | Out-String | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
     - run: dotnet test -c Release -p:ParallelizeTestCollections=false
 
   # publish:
@@ -33,6 +35,7 @@ jobs:
   #     with:
   #       dotnet-version: '3.1.100'
   #   - run: $env:OWNER = Split-Path -Path $env:GITHUB_REPOSITORY
+  #   - run: dotnet dotnet-gitversion /output json | Out-String | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { Set-Item -Path "env:GitVersion_$($item.Name)" -Value $item.Value } }
   #   - run: dotnet build -c Release
   #   - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --user $env:GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$env:OWNER/index.json
   #   - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --user $env:GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/$env:OWNER/index.json
