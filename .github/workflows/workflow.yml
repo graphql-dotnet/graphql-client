@@ -27,12 +27,14 @@ jobs:
     name: Publish
     needs: test
     runs-on: ubuntu-latest
+    env:
+      SOURCE: https://nuget.pkg.github.com/$GITHUB_ACTOR/index.json
     steps:
     - uses: actions/checkout@master
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
     - run: dotnet build -c Release
-    - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
-    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
-    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+    - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "$SOURCE"
+    - run: dotnet nuget push ./src/GraphQL.Client/bin/Release/GraphQL.Client.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "$SOURCE"
+    - run: dotnet nuget push ./src/GraphQL.Client.Http/bin/Release/GraphQL.Client.Http.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "$SOURCE"
