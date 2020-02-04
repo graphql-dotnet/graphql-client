@@ -73,7 +73,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - run: '$owner = Split-Path -Path "graphql-dotnet/graphql-client"; "::set-env name=OWNER::$($owner)"'
+    - run: $owner = Split-Path -Path "graphql-dotnet/graphql-client"; "::set-env name=OWNER::$($owner)"
     - uses: actions/setup-dotnet@master
       with:
         dotnet-version: '3.1.100'
@@ -81,9 +81,9 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - uses: actions/download-artifact@v1
-        with:
-          name: gitversion
-          path: ./
+      with:
+        name: gitversion
+        path: ./
     - run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$item.Value" } }
     - run: dotnet build -c Release
     - run: dotnet nuget push ./src/GraphQL.Primitives/bin/Release/GraphQL.Primitives.*.nupkg
