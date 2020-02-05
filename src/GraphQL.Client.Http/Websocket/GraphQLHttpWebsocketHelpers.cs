@@ -13,11 +13,12 @@ namespace GraphQL.Client.Http.Websocket {
 		internal static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
 			this GraphQLHttpWebSocket graphQlHttpWebSocket,
 			GraphQLRequest request,
-			GraphQLHttpClientOptions options,
+			GraphQLHttpClient client,
 			Action<Exception> exceptionHandler = null,
 			CancellationToken cancellationToken = default) {
 			return Observable.Defer(() =>
 				Observable.Create<GraphQLResponse<TResponse>>(async observer => {
+					await client.Options.PreprocessRequest(request, client);
 					var startRequest = new GraphQLWebSocketRequest {
 						Id = Guid.NewGuid().ToString("N"),
 						Type = GraphQLWebSocketMessageType.GQL_START,
@@ -48,7 +49,7 @@ namespace GraphQL.Client.Http.Websocket {
 									Debug.WriteLine($"received payload on subscription {startRequest.Id}");
 									var typedResponse =
 										JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
-											options.JsonSerializerOptions);
+											client.Options.JsonSerializerOptions);
 									o.OnNext(typedResponse.Payload);
 
 									// in case of a GraphQL error, terminate the sequence after the response has been posted
@@ -154,50 +155,51 @@ namespace GraphQL.Client.Http.Websocket {
 		internal static Task<GraphQLResponse<TResponse>> Request<TResponse>(
 			this GraphQLHttpWebSocket graphQlHttpWebSocket,
 			GraphQLRequest request,
-			GraphQLHttpClientOptions options,
+			GraphQLHttpClient client,
 			CancellationToken cancellationToken = default) {
 			return Observable.Create<GraphQLResponse<TResponse>>(async observer => {
-				var websocketRequest = new GraphQLWebSocketRequest {
-					Id = Guid.NewGuid().ToString("N"),
-					Type = GraphQLWebSocketMessageType.GQL_START,
-					Payload = request
-				};
-				var observable = graphQlHttpWebSocket.ResponseStream
-					.Where(response => response != null && response.Id == websocketRequest.Id)
-					.TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
-					.Select(response => {
-						Debug.WriteLine($"received response for request {websocketRequest.Id}");
-						var typedResponse =
-							JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
-								options.JsonSerializerOptions);
-						return typedResponse.Payload;
-					});
+					await client.Options.PreprocessRequest(request, client);
+					var websocketRequest = new GraphQLWebSocketRequest {
+						Id = Guid.NewGuid().ToString("N"),
+						Type = GraphQLWebSocketMessageType.GQL_START,
+						Payload = request
+					};
+					var observable = graphQlHttpWebSocket.ResponseStream
+						.Where(response => response != null && response.Id == websocketRequest.Id)
+						.TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
+						.Select(response => {
+							Debug.WriteLine($"received response for request {websocketRequest.Id}");
+							var typedResponse =
+								JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
+									client.Options.JsonSerializerOptions);
+							return typedResponse.Payload;
+						});
 
-				try {
-					// intialize websocket (completes immediately if socket is already open)
-					await graphQlHttpWebSocket.InitializeWebSocket().ConfigureAwait(false);
-				}
-				catch (Exception e) {
-					// subscribe observer to failed observable
-					return Observable.Throw<GraphQLResponse<TResponse>>(e).Subscribe(observer);
-				}
+					try {
+						// intialize websocket (completes immediately if socket is already open)
+						await graphQlHttpWebSocket.InitializeWebSocket().ConfigureAwait(false);
+					}
+					catch (Exception e) {
+						// subscribe observer to failed observable
+						return Observable.Throw<GraphQLResponse<TResponse>>(e).Subscribe(observer);
+					}
 
-				var disposable = new CompositeDisposable(
-					observable.Subscribe(observer)
-				);
+					var disposable = new CompositeDisposable(
+						observable.Subscribe(observer)
+					);
 
-				Debug.WriteLine($"submitting request {websocketRequest.Id}");
-				// send request
-				try {
-					await graphQlHttpWebSocket.SendWebSocketRequest(websocketRequest).ConfigureAwait(false);
-				}
-				catch (Exception e) {
-					Console.WriteLine(e);
-					throw;
-				}
+					Debug.WriteLine($"submitting request {websocketRequest.Id}");
+					// send request
+					try {
+						await graphQlHttpWebSocket.SendWebSocketRequest(websocketRequest).ConfigureAwait(false);
+					}
+					catch (Exception e) {
+						Console.WriteLine(e);
+						throw;
+					}
 
-				return disposable;
-			})
+					return disposable;
+				})
 			// complete sequence on OperationCanceledException, this is triggered by the cancellation token
 			.Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
 				Observable.Empty<GraphQLResponse<TResponse>>())

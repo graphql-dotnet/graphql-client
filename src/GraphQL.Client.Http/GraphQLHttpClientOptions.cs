@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Dahomey.Json;
 
 namespace GraphQL.Client.Http {
@@ -46,6 +47,10 @@ namespace GraphQL.Client.Http {
 		/// If <see langword="true"/>, the websocket connection is also used for regular queries and mutations
 		/// </summary>
 		public bool UseWebSocketForQueriesAndMutations { get; set; } = false;
-	}
 
+		/// <summary>
+		/// Request preprocessing function. Can be used i.e. to inject authorization info into a GraphQL request payload.
+		/// </summary>
+		public Func<GraphQLRequest, GraphQLHttpClient, Task<GraphQLRequest>> PreprocessRequest { get; set; } = (request, client) => Task.FromResult(request);
+	}
 }
