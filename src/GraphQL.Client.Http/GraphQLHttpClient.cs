@@ -12,8 +12,12 @@ namespace GraphQL.Client.Http {
 
 		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-		private readonly HttpClient httpClient;
 		private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
+
+		/// <summary>
+		/// the instance of <see cref="HttpClient"/> which is used internally
+		/// </summary>
+		public HttpClient HttpClient { get; }
 
 		/// <summary>
 		/// The Options	to be used
@@ -30,19 +34,19 @@ namespace GraphQL.Client.Http {
 		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) {
 			Options = new GraphQLHttpClientOptions();
 			configure(Options);
-			this.httpClient = new HttpClient(Options.HttpMessageHandler);
+			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
 			Options = options;
-			this.httpClient = new HttpClient(Options.HttpMessageHandler);
+			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
-			this.httpClient = httpClient;
+			this.HttpClient = httpClient;
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
@@ -99,7 +103,7 @@ namespace GraphQL.Client.Http {
 
 		private async Task<GraphQLResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			using var httpRequestMessage = this.GenerateHttpRequestMessage(request.SerializeToJson(Options));
-			using var httpResponseMessage = await this.httpClient.SendAsync(httpRequestMessage, cancellationToken);
+			using var httpResponseMessage = await this.HttpClient.SendAsync(httpRequestMessage, cancellationToken);
 			if (!httpResponseMessage.IsSuccessStatusCode) {
 				throw new GraphQLHttpException(httpResponseMessage);
 			}
@@ -140,7 +144,7 @@ namespace GraphQL.Client.Http {
 
 		private void _dispose() {
 			disposed = true;
-			this.httpClient.Dispose();
+			this.HttpClient.Dispose();
 			this.graphQlHttpWebSocket.Dispose();
 			cancellationTokenSource.Cancel();
 			cancellationTokenSource.Dispose();
