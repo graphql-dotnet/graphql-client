@@ -24,7 +24,6 @@ namespace GraphQL.Client.Http {
 		/// <inheritdoc />
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
 
-
 		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
 
 		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint) { }
@@ -90,6 +89,12 @@ namespace GraphQL.Client.Http {
 			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
+
+		/// <summary>
+		/// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
+		/// </summary>
+		/// <returns></returns>
+		public Task InitializeWebsocketConnection() => graphQlHttpWebSocket.InitializeWebSocket();
 
 		#region Private Methods
 

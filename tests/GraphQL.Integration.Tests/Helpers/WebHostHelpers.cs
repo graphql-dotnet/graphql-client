@@ -36,8 +36,7 @@ namespace GraphQL.Integration.Tests.Helpers
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
 				UseWebSocketForQueriesAndMutations = requestsViaWebsocket
 			});
-
-
+		
 		public static TestServerSetup SetupTest<TStartup>(bool requestsViaWebsocket = false) where TStartup : class
 		{
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
