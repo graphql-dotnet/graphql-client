@@ -24,7 +24,11 @@ namespace GraphQL.Client.Http.Websocket {
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
 
+#if NETFRAMEWORK
 		private WebSocket clientWebSocket = null;
+#else
+		private ClientWebSocket clientWebSocket = null;
+#endif
 		private int _connectionAttempt = 0;
 
 		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options) {
@@ -71,7 +75,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 		private readonly object _initializeLock = new object();
 
-		#region Private Methods
+#region Private Methods
 
 		private Task _backOff() {
 			_connectionAttempt++;
@@ -103,6 +107,7 @@ namespace GraphQL.Client.Http.Websocket {
 				//_responseStreamConnection?.Dispose();
 				clientWebSocket?.Dispose();
 
+#if NETFRAMEWORK
 				// fix websocket not supported on win 7 using
 				// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
 				clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
@@ -120,7 +125,12 @@ namespace GraphQL.Client.Http.Websocket {
 					default:
 						throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
 				}
-
+#else
+				clientWebSocket = new ClientWebSocket();
+				clientWebSocket.Options.AddSubProtocol("graphql-ws");
+				clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)_options.HttpMessageHandler).ClientCertificates;
+				clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)_options.HttpMessageHandler).UseDefaultCredentials;
+#endif
 				return InitializeWebSocketTask = _connectAsync(_cancellationTokenSource.Token);
 			}
 		}
@@ -247,9 +257,9 @@ namespace GraphQL.Client.Http.Websocket {
 			await this.clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", cancellationToken).ConfigureAwait(false);
 		}
 
-		#endregion
+#endregion
 
-		#region IDisposable
+#region IDisposable
 
 		private Task _disposed;
 		private object _disposedLocker = new object();
@@ -269,6 +279,6 @@ namespace GraphQL.Client.Http.Websocket {
 			_cancellationTokenSource.Dispose();
 			Debug.WriteLine($"websocket {clientWebSocket.GetHashCode()} disposed");
 		}
-		#endregion
+#endregion
 	}
 }
