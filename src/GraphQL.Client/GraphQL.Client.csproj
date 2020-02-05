@@ -12,8 +12,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
-		<PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
 		<PackageReference Include="System.Reactive" Version="4.1.2" />
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>

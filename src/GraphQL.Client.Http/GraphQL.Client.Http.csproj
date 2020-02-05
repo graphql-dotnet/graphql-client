@@ -3,19 +3,32 @@
 	<Import Project="../src.props" />
 
     <PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net461</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\GraphQL.Client\GraphQL.Client.csproj" />
     </ItemGroup>
 
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+		<DefineConstants>NETSTANDARD</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<DefineConstants>NETFRAMEWORK</DefineConstants>
+	</PropertyGroup>
+
+
 	<ItemGroup>
 		<PackageReference Include="Dahomey.Json" Version="1.6.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="System.Net.Http" Version="4.3.4" />
-		<PackageReference Include="System.Net.WebSockets.Client" Version="4.3.2" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461'">
 		<PackageReference Include="System.Text.Json" Version="4.7.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
 	</ItemGroup>
 
 </Project>

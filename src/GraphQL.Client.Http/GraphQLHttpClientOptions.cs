@@ -52,5 +52,6 @@ namespace GraphQL.Client.Http {
 		/// Request preprocessing function. Can be used i.e. to inject authorization info into a GraphQL request payload.
 		/// </summary>
 		public Func<GraphQLRequest, GraphQLHttpClient, Task<GraphQLRequest>> PreprocessRequest { get; set; } = (request, client) => Task.FromResult(request);
+
 	}
 }
