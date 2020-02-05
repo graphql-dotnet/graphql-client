@@ -30,13 +30,13 @@ namespace GraphQL.Client.Http {
 		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) {
 			Options = new GraphQLHttpClientOptions();
 			configure(Options);
-			this.httpClient = new HttpClient();
+			this.httpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
 			Options = options;
-			this.httpClient = new HttpClient();
+			this.httpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
