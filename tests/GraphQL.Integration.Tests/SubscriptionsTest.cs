@@ -7,9 +7,8 @@ using GraphQL.Client;
 using GraphQL.Client.Http;
 using GraphQL.Integration.Tests.Extensions;
 using GraphQL.Integration.Tests.Helpers;
+using IntegrationTestServer;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,25 +16,7 @@ namespace GraphQL.Integration.Tests {
 	public class SubscriptionsTest {
 		private readonly ITestOutputHelper output;
 
-		public static IWebHost CreateServer(int port) {
-			var configBuilder = new ConfigurationBuilder();
-			configBuilder.AddInMemoryCollection();
-			var config = configBuilder.Build();
-			config["server.urls"] = $"http://localhost:{port}";
-
-			var host = new WebHostBuilder()
-				.ConfigureLogging((ctx, logging) => {
-					logging.AddDebug();
-				})
-				.UseConfiguration(config)
-				.UseKestrel()
-				.UseStartup<IntegrationTestServer.Startup>()
-				.Build();
-
-			host.Start();
-
-			return host;
-		}
+		private static IWebHost CreateServer(int port) => WebHostHelpers.CreateServer<StartupChat>(port);
 
 		public SubscriptionsTest(ITestOutputHelper output) {
 			this.output = output;
@@ -99,7 +80,7 @@ namespace GraphQL.Integration.Tests {
 			using (CreateServer(port)) {
 				var client = GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
+				IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable.SubscribeTester();
@@ -140,7 +121,7 @@ namespace GraphQL.Integration.Tests {
 				var client = GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
+				IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable.SubscribeTester();
@@ -209,8 +190,8 @@ namespace GraphQL.Integration.Tests {
 				var client = GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
-				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable1 = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
-				IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> observable2 = client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(SubscriptionRequest2, callbackTester2.Callback);
+				IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable1 = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
+				IObservable<GraphQLResponse<SubscriptionsTest.UserJoinedSubscriptionResult>> observable2 = client.CreateSubscriptionStream<SubscriptionsTest.UserJoinedSubscriptionResult>(SubscriptionRequest2, callbackTester2.Callback);
 
 				Debug.WriteLine("subscribing...");
 				var tester = observable1.SubscribeTester();
@@ -257,7 +238,7 @@ namespace GraphQL.Integration.Tests {
 
 			var client = GetGraphQLClient(port);
 			Debug.WriteLine("creating subscription stream");
-			IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
+			IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
 
 			Debug.WriteLine("subscribing...");
 			var tester = observable.SubscribeTester();
