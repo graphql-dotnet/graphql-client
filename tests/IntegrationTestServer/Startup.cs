@@ -1,10 +1,8 @@
-using System.Xml.Serialization;
 using GraphQL;
 using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Voyager;
 using GraphQL.Server.Ui.Playground;
-using IntegrationTestServer.ChatSchema;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
