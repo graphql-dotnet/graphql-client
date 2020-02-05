@@ -27,34 +27,38 @@ namespace GraphQL.Client.Http.Websocket {
 						Id = startRequest.Id,
 						Type = GraphQLWebSocketMessageType.GQL_STOP
 					};
+					var initRequest = new GraphQLWebSocketRequest {
+						Id = startRequest.Id,
+						Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+					};
 
 					var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
 						graphQlHttpWebSocket.ResponseStream
 							// ignore null values and messages for other requests
 							.Where(response => response != null && response.Id == startRequest.Id)
 							.Subscribe(response => {
-								// terminate the sequence when a 'complete' message is received
-								if (response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE) {
-									Debug.WriteLine($"received 'complete' message on subscription {startRequest.Id}");
-									o.OnCompleted();
-									return;
-								}
+									// terminate the sequence when a 'complete' message is received
+									if (response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE) {
+										Debug.WriteLine($"received 'complete' message on subscription {startRequest.Id}");
+										o.OnCompleted();
+										return;
+									}
 
-								// post the GraphQLResponse to the stream (even if a GraphQL error occurred)
-								Debug.WriteLine($"received payload on subscription {startRequest.Id}");
-								var typedResponse =
-									JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
-										options.JsonSerializerOptions);
-								o.OnNext(typedResponse.Payload);
+									// post the GraphQLResponse to the stream (even if a GraphQL error occurred)
+									Debug.WriteLine($"received payload on subscription {startRequest.Id}");
+									var typedResponse =
+										JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
+											options.JsonSerializerOptions);
+									o.OnNext(typedResponse.Payload);
 
-								// in case of a GraphQL error, terminate the sequence after the response has been posted
-								if (response.Type == GraphQLWebSocketMessageType.GQL_ERROR) {
-									Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");
-									o.OnCompleted();
-								}
-							},
-							o.OnError,
-							o.OnCompleted)
+									// in case of a GraphQL error, terminate the sequence after the response has been posted
+									if (response.Type == GraphQLWebSocketMessageType.GQL_ERROR) {
+										Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");
+										o.OnCompleted();
+									}
+								},
+								o.OnError,
+								o.OnCompleted)
 					);
 
 					try {
@@ -80,6 +84,16 @@ namespace GraphQL.Client.Http.Websocket {
 							catch (OperationCanceledException) { }
 						})
 					);
+
+					// send connection init
+					Debug.WriteLine($"sending connection init on subscription {startRequest.Id}");
+					try {
+						await graphQlHttpWebSocket.SendWebSocketRequest(initRequest).ConfigureAwait(false);
+					}
+					catch (Exception e) {
+						Console.WriteLine(e);
+						throw;
+					}
 
 					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
 					// send subscription request
