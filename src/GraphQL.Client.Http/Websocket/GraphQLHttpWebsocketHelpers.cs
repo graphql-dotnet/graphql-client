@@ -152,7 +152,7 @@ namespace GraphQL.Client.Http.Websocket {
 				.Publish().RefCount();
 		}
 
-		internal static Task<GraphQLResponse<TResponse>> Request<TResponse>(
+		internal static Task<GraphQLResponse<TResponse>> SendRequest<TResponse>(
 			this GraphQLHttpWebSocket graphQlHttpWebSocket,
 			GraphQLRequest request,
 			GraphQLHttpClient client,

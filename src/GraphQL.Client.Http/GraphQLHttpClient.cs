@@ -53,7 +53,7 @@ namespace GraphQL.Client.Http {
 		/// <inheritdoc />
 		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.Request<TResponse>(request, this, cancellationToken)
+				? this.graphQlHttpWebSocket.SendRequest<TResponse>(request, this, cancellationToken)
 				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 

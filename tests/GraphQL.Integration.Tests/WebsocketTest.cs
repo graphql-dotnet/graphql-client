@@ -12,14 +12,12 @@ using Xunit;
 using Xunit.Abstractions;
 
 namespace GraphQL.Integration.Tests {
-	public class SubscriptionsTest {
+	public class WebsocketTest {
 		private readonly ITestOutputHelper output;
 
 		private static IWebHost CreateServer(int port) => WebHostHelpers.CreateServer<StartupChat>(port);
 
-		private static TimeSpan WaitForConnectionDelay = TimeSpan.FromMilliseconds(200);
-
-		public SubscriptionsTest(ITestOutputHelper output) {
+		public WebsocketTest(ITestOutputHelper output) {
 			this.output = output;
 		}
 		
