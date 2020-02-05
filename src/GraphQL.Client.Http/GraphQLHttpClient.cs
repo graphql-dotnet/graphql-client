@@ -103,7 +103,7 @@ namespace GraphQL.Client.Http {
 
 		private async Task<GraphQLResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			var preprocessedRequest = await Options.PreprocessRequest(request, this);
-			using var httpRequestMessage = this.GenerateHttpRequestMessage(preprocessedRequest.SerializeToJson(Options));
+			using var httpRequestMessage = this.GenerateHttpRequestMessage(preprocessedRequest);
 			using var httpResponseMessage = await this.HttpClient.SendAsync(httpRequestMessage, cancellationToken);
 			if (!httpResponseMessage.IsSuccessStatusCode) {
 				throw new GraphQLHttpException(httpResponseMessage);
@@ -113,10 +113,15 @@ namespace GraphQL.Client.Http {
 			return await bodyStream.DeserializeFromJsonAsync<GraphQLHttpResponse<TResponse>>(Options, cancellationToken);
 		}
 
-		private HttpRequestMessage GenerateHttpRequestMessage(string requestString) {
-			return new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
-				Content = new StringContent(requestString, Encoding.UTF8, "application/json")
+		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
+			var message = new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
+				Content = new StringContent(request.SerializeToJson(Options), Encoding.UTF8, "application/json")
 			};
+
+			if (request is GraphQLHttpRequest httpRequest)
+				httpRequest.PreprocessHttpRequestMessage(message);
+
+			return message;
 		}
 
 		private Uri GetWebSocketUri() {
