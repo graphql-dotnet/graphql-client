@@ -139,6 +139,7 @@ namespace GraphQL.Integration.Tests {
 
 				Debug.WriteLine("disposing subscription...");
 				tester.Dispose();
+				await Task.Delay(500);
 				await client.InitializeWebsocketConnection();
 
 				Debug.WriteLine("creating new subscription...");
