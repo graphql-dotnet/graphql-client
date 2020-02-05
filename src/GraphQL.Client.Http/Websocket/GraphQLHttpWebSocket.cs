@@ -6,10 +6,8 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace GraphQL.Client.Http.Websocket {
 	internal class GraphQLHttpWebSocket : IDisposable {
@@ -19,8 +17,8 @@ namespace GraphQL.Client.Http.Websocket {
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private Subject<WebsocketResponseWrapper> _responseSubject;
-		private Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
-		private Subject<Exception> _exceptionSubject = new Subject<Exception>();
+		private readonly Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
+		private readonly Subject<Exception> _exceptionSubject = new Subject<Exception>();
 		private IDisposable _requestSubscription;
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
@@ -40,8 +38,7 @@ namespace GraphQL.Client.Http.Websocket {
 		public IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
 
 		public IObservable<WebsocketResponseWrapper> ResponseStream => _responseStream;
-		public IObservable<WebsocketResponseWrapper> _responseStream;
-		//private IDisposable _responseStreamConnection;
+		public readonly IObservable<WebsocketResponseWrapper> _responseStream;
 
 		public Task SendWebSocketRequest(GraphQLWebSocketRequest request) {
 			_requestSubject.OnNext(request);
@@ -71,7 +68,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 		public Task InitializeWebSocketTask { get; private set; } = Task.CompletedTask;
 
-		private object _initializeLock = new object();
+		private readonly object _initializeLock = new object();
 
 		#region Private Methods
 
@@ -167,7 +164,6 @@ namespace GraphQL.Client.Http.Websocket {
 				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
 				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
 				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
-				//_responseStreamConnection = _responseStream.Connect();
 				_connectionAttempt = 1;
 			}
 			catch (Exception e) {
@@ -178,7 +174,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 
 		private Task<WebsocketResponseWrapper> _receiveAsyncTask = null;
-		private object _receiveTaskLocker = new object();
+		private readonly object _receiveTaskLocker = new object();
 		/// <summary>
 		/// wrapper method to pick up the existing request task if already running
 		/// </summary>

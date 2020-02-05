@@ -7,7 +7,6 @@ using System.Reactive.Threading.Tasks;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client.Http.Websocket {
 	public static class GraphQLHttpWebsocketHelpers {

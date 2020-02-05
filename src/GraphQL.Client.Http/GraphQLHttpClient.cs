@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Net.Http;
-using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +22,6 @@ namespace GraphQL.Client.Http {
 
 		/// <inheritdoc />
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
-
 
 		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
 
@@ -90,6 +88,12 @@ namespace GraphQL.Client.Http {
 			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
+
+		/// <summary>
+		/// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
+		/// </summary>
+		/// <returns></returns>
+		public Task InitializeWebsocketConnection() => graphQlHttpWebSocket.InitializeWebSocket();
 
 		#region Private Methods
 
