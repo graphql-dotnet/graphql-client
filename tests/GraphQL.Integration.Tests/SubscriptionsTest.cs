@@ -4,7 +4,6 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client;
-using GraphQL.Client.Http;
 using GraphQL.Integration.Tests.Extensions;
 using GraphQL.Integration.Tests.Helpers;
 using IntegrationTestServer;
@@ -21,19 +20,12 @@ namespace GraphQL.Integration.Tests {
 		public SubscriptionsTest(ITestOutputHelper output) {
 			this.output = output;
 		}
-
-		private GraphQLHttpClient GetGraphQLClient(int port, bool requestsViaWebsocket = false)
-			=> new GraphQLHttpClient(new GraphQLHttpClientOptions {
-				EndPoint = new Uri($"http://localhost:{port}/graphql"),
-				UseWebSocketForQueriesAndMutations = requestsViaWebsocket
-			});
-
-
+		
 		[Fact]
 		public async void AssertTestingHarness() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port);
+				var client = WebHostHelpers.GetGraphQLClient(port);
 
 				const string message = "some random testing message";
 				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
@@ -46,7 +38,7 @@ namespace GraphQL.Integration.Tests {
 		public async void CanSendRequestViaWebsocket() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port, true);
+				var client = WebHostHelpers.GetGraphQLClient(port, true);
 				const string message = "some random testing message";
 				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
 
@@ -58,7 +50,7 @@ namespace GraphQL.Integration.Tests {
 		public async void CanHandleRequestErrorViaWebsocket() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port, true);
+				var client = WebHostHelpers.GetGraphQLClient(port, true);
 				var response = await client.SendQueryAsync<object>("this query is formatted quite badly").ConfigureAwait(false);
 
 				Assert.Single(response.Errors);
@@ -78,7 +70,7 @@ namespace GraphQL.Integration.Tests {
 		public async void CanCreateObservableSubscription() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port);
+				var client = WebHostHelpers.GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
 				IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest);
 
@@ -118,7 +110,7 @@ namespace GraphQL.Integration.Tests {
 		public async void CanReconnectWithSameObservable() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port);
+				var client = WebHostHelpers.GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
 				IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest);
@@ -187,7 +179,7 @@ namespace GraphQL.Integration.Tests {
 			var callbackTester = new CallbackTester<Exception>();
 			var callbackTester2 = new CallbackTester<Exception>();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port);
+				var client = WebHostHelpers.GetGraphQLClient(port);
 
 				Debug.WriteLine("creating subscription stream");
 				IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable1 = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
@@ -236,7 +228,7 @@ namespace GraphQL.Integration.Tests {
 			var server = CreateServer(port);
 			var callbackTester = new CallbackTester<Exception>();
 
-			var client = GetGraphQLClient(port);
+			var client = WebHostHelpers.GetGraphQLClient(port);
 			Debug.WriteLine("creating subscription stream");
 			IObservable<GraphQLResponse<SubscriptionsTest.MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<SubscriptionsTest.MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
 
@@ -276,7 +268,7 @@ namespace GraphQL.Integration.Tests {
 		public void CanHandleSubscriptionError() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
-				var client = GetGraphQLClient(port);
+				var client = WebHostHelpers.GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
 				IObservable<GraphQLResponse<object>> observable = client.CreateSubscriptionStream<object>(
 					new GraphQLRequest(@"
@@ -305,7 +297,7 @@ namespace GraphQL.Integration.Tests {
 
 				var test = new GraphQLRequest("tset", new { test = "blaa" });
 
-				var client = GetGraphQLClient(port);
+				var client = WebHostHelpers.GetGraphQLClient(port);
 				Debug.WriteLine("creating subscription stream");
 				IObservable<GraphQLResponse<object>> observable = client.CreateSubscriptionStream<object>(
 					new GraphQLRequest(@"

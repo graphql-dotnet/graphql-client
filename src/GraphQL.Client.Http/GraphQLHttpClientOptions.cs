@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Dahomey.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -20,22 +21,11 @@ namespace GraphQL.Client.Http {
 		public Uri EndPoint { get; set; }
 
 		/// <summary>
-		/// The <see cref="Newtonsoft.Json.JsonSerializerSettings"/> that is going to be used
-		/// </summary>
-		public JsonSerializerSettings JsonSerializerSettings { get; set; } = new JsonSerializerSettings {
-			ContractResolver = new CamelCasePropertyNamesContractResolver(),
-			Converters = new List<JsonConverter>
-			{
-				new StringEnumConverter()
-			}
-		};
-
-		/// <summary>
 		/// The <see cref="JsonSerializerOptions"/> that is going to be used
 		/// </summary>
 		public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions {
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-		};
+		}.SetupExtensions();
 
 		/// <summary>
 		/// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used
