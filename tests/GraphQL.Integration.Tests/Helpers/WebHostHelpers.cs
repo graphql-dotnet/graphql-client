@@ -50,7 +50,7 @@ namespace GraphQL.Integration.Tests.Helpers
 	public class TestServerSetup : IDisposable
 	{
 		public IWebHost Server { get; set; }
-		public IGraphQLClient Client { get; set; }
+		public GraphQLHttpClient Client { get; set; }
 		public void Dispose()
 		{
 			Server?.Dispose();
