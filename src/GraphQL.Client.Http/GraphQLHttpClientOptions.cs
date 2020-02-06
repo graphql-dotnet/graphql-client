@@ -31,7 +31,7 @@ namespace GraphQL.Client.Http {
 		/// <summary>
 		/// The <see cref="MediaTypeHeaderValue"/> that will be send on POST
 		/// </summary>
-		public MediaTypeHeaderValue MediaType { get; set; } = MediaTypeHeaderValue.Parse("application/json; charset=utf-8"); // This should be "application/graphql" also "application/x-www-form-urlencoded" is Accepted
+		public string MediaType { get; set; } = "application/json"; // This should be "application/graphql" also "application/x-www-form-urlencoded" is Accepted
 
 		/// <summary>
 		/// The back-off strategy for automatic websocket/subscription reconnects. Calculates the delay before the next connection attempt is made.<br/>
