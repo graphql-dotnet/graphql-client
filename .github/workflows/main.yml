@@ -25,6 +25,8 @@ jobs:
       run: git fetch
     - name: Generate version info from git history
       run: dotnet dotnet-gitversion /output json | Out-File gitversion.json; Get-Content gitversion.json
+      env:
+        IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
     - name: Upload version info file
       uses: actions/upload-artifact@v1
       with:
