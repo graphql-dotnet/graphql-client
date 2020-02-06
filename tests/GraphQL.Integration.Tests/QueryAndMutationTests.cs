@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Text.Json;
 using GraphQL.Client;
 using GraphQL.Client.Http;
 using GraphQL.Integration.Tests.Helpers;
@@ -22,6 +23,20 @@ namespace GraphQL.Integration.Tests {
 
 				Assert.Null(response.Errors);
 				Assert.Equal(name, response.Data.Human.Name);
+			}
+		}
+
+		[Theory]
+		[ClassData(typeof(StarWarsHumans))]
+		public async void QueryWithJsonElementAsReturnTypeTheory(int id, string name) {
+			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
+
+			using (var setup = SetupTest()) {
+				var response = await setup.Client.SendQueryAsync<JsonElement>(graphQLRequest)
+					.ConfigureAwait(false);
+
+				Assert.Null(response.Errors);
+				Assert.Equal(name, response.Data.GetProperty("human").GetProperty("name").GetString());
 			}
 		}
 
