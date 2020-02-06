@@ -2,15 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GraphQL.Client {
 
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
+		[JsonPropertyName("data")]
 		public T Data { get; set; }
 
+		[JsonPropertyName("errors")]
 		public GraphQLError[]? Errors { get; set; }
 
+		[JsonPropertyName("extensions")]
 		public JsonElement? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace GraphQL {
 
@@ -11,16 +12,20 @@ namespace GraphQL {
 		/// <summary>
 		/// The Query
 		/// </summary>
+		/// 
+		[JsonPropertyName("query")]
 		public string Query { get; set; }
 
 		/// <summary>
 		/// The name of the Operation
 		/// </summary>
+		[JsonPropertyName("operationName")]
 		public string? OperationName { get; set; }
 
 		/// <summary>
 		/// Represents the request variables
 		/// </summary>
+		[JsonPropertyName("variables")]
 		public virtual object? Variables { get; set; }
 
 

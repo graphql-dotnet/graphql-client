@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GraphQL {
 
@@ -12,22 +13,26 @@ namespace GraphQL {
 
 		/// <summary>
 		/// The extensions of the error
-		/// </summary>
+		/// </summary> 
+		[JsonPropertyName("extensions")]
 		public JsonElement? Extensions { get; set; }
 
 		/// <summary>
 		/// The locations of the error
 		/// </summary>
+		[JsonPropertyName("locations")]
 		public GraphQLLocation[]? Locations { get; set; }
 
 		/// <summary>
 		/// The message of the error
 		/// </summary>
+		[JsonPropertyName("message")]
 		public string Message { get; set; }
 
 		/// <summary>
 		/// The Path of the error
 		/// </summary>
+		[JsonPropertyName("path")]
 		public object[]? Path { get; set; }
 
 		/// <summary>
