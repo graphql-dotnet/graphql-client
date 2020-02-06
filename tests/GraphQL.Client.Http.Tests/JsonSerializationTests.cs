@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Xunit;
 using System.Text.Json;
+using FluentAssertions;
 
 namespace GraphQL.Client.Http.Tests {
 	public class JsonSerializationTests {
@@ -9,7 +11,9 @@ namespace GraphQL.Client.Http.Tests {
 			var testObject = new ExtendedTestObject { Id = "test", OtherData = "this is some other stuff" };
 			var json = JsonSerializer.Serialize(testObject);
 			var deserialized = JsonSerializer.Deserialize<TestObject>(json);
-
+			var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+			var childObject = (JsonElement) dict["ChildObject"];
+			childObject.GetProperty("Id").GetString().Should().Be(testObject.ChildObject.Id);
 		}
 
 		public class TestObject {
@@ -19,6 +23,8 @@ namespace GraphQL.Client.Http.Tests {
 
 		public class ExtendedTestObject : TestObject {
 			public string OtherData { get; set; }
+
+			public TestObject ChildObject{ get; set; } = new TestObject {Id = "1337"};
 		}
 	}
 }

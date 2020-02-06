@@ -1,23 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GraphQL.Client {
 
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
+		[JsonPropertyName("data")]
 		public T Data { get; set; }
 
+		[JsonPropertyName("errors")]
 		public GraphQLError[]? Errors { get; set; }
 
-		public IDictionary<string, dynamic>? Extensions { get; set; }
+		[JsonPropertyName("extensions")]
+		public JsonElement? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
 		public bool Equals(GraphQLResponse<T>? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
-			if (!EqualityComparer<dynamic?>.Default.Equals(this.Data, other.Data)) { return false; }
+			if (!EqualityComparer<T>.Default.Equals(this.Data, other.Data)) { return false; }
 			{
 				if (this.Errors != null && other.Errors != null) {
 					if (!Enumerable.SequenceEqual(this.Errors, other.Errors)) { return false; }
@@ -25,13 +30,13 @@ namespace GraphQL.Client {
 				else if (this.Errors != null && other.Errors == null) { return false; }
 				else if (this.Errors == null && other.Errors != null) { return false; }
 			}
-			if (!EqualityComparer<IDictionary<string, dynamic>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
+			if (!EqualityComparer<JsonElement?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			return true;
 		}
 
 		public override int GetHashCode() {
 			unchecked {
-				var hashCode = EqualityComparer<dynamic?>.Default.GetHashCode(this.Data);
+				var hashCode = EqualityComparer<T>.Default.GetHashCode(this.Data);
 				{
 					if (this.Errors != null) {
 						foreach (var element in this.Errors) {
@@ -42,7 +47,7 @@ namespace GraphQL.Client {
 						hashCode = (hashCode * 397) ^ 0;
 					}
 				}
-				hashCode = (hashCode * 397) ^ EqualityComparer<IDictionary<string, dynamic>?>.Default.GetHashCode(this.Extensions);
+				hashCode = (hashCode * 397) ^ EqualityComparer<JsonElement?>.Default.GetHashCode(this.Extensions);
 				return hashCode;
 			}
 		}
