@@ -5,11 +5,10 @@
 	<PropertyGroup>
 		<Description>GraphQL basic types</Description>
 		<RootNamespace>GraphQL</RootNamespace>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="System.Text.Json" Version="4.7.0" />
 	</ItemGroup>
 </Project>
