@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace GraphQL {
 
@@ -12,7 +13,7 @@ namespace GraphQL {
 		/// <summary>
 		/// The extensions of the error
 		/// </summary>
-		public IDictionary<string, dynamic?>? Extensions { get; set; }
+		public JsonElement? Extensions { get; set; }
 
 		/// <summary>
 		/// The locations of the error
@@ -27,7 +28,7 @@ namespace GraphQL {
 		/// <summary>
 		/// The Path of the error
 		/// </summary>
-		public dynamic[]? Path { get; set; }
+		public object[]? Path { get; set; }
 
 		/// <summary>
 		/// Returns a value that indicates whether this instance is equal to a specified object
@@ -45,7 +46,7 @@ namespace GraphQL {
 		public bool Equals(GraphQLError? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
-			if (!EqualityComparer<IDictionary<string, dynamic?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
+			if (!EqualityComparer<JsonElement?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			{
 				if (this.Locations != null && other.Locations != null) {
 					if (!this.Locations.SequenceEqual(other.Locations)) { return false; }
@@ -70,7 +71,7 @@ namespace GraphQL {
 		public override int GetHashCode() {
 			var hashCode = 0;
 			if (this.Extensions != null) {
-				hashCode = hashCode ^ EqualityComparer<IDictionary<string, dynamic?>>.Default.GetHashCode(this.Extensions);
+				hashCode = hashCode ^ EqualityComparer<JsonElement?>.Default.GetHashCode(this.Extensions);
 			}
 			if (this.Locations != null) {
 				hashCode = hashCode ^ EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(this.Locations);

@@ -2,6 +2,8 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Dahomey.Json;
+using Dahomey.Json.Serialization.Converters.Factories;
 
 namespace GraphQL.Client.Http {
 	public static class GraphQLSerializationExtensions {
@@ -21,5 +23,14 @@ namespace GraphQL.Client.Http {
 			return JsonSerializer.DeserializeAsync<TGraphQLResponse>(stream, options.JsonSerializerOptions, cancellationToken);
 		}
 
+		public static JsonSerializerOptions SetupDahomeyJson(this JsonSerializerOptions options) {
+			options.Converters.Add(new JsonSerializerOptionsState(options));
+			options.Converters.Add(new DictionaryConverterFactory());
+			options.Converters.Add(new CollectionConverterFactory());
+			//options.Converters.Add(new JsonNodeConverterFactory());
+			options.Converters.Add(new ObjectConverterFactory());
+
+			return options;
+		}
 	}
 }
