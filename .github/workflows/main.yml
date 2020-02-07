@@ -2,10 +2,12 @@ name: Main workflow
 on: 
   push:
     branches:
-      - master
       - develop
       - 'release/**'
       - 'releases/**'
+    tags:        
+      - v*
+      - V*
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo

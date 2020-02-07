@@ -2,7 +2,6 @@ name: Branch workflow
 on: 
   push:
     branches-ignore:
-      - master
       - develop
       - 'release/**'
       - 'releases/**'
