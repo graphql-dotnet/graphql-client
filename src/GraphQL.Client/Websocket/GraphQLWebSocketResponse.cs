@@ -6,7 +6,6 @@ namespace GraphQL.Client.Http.Websocket {
 	/// <summary>
 	/// A Subscription Response
 	/// </summary>
-	[Obsolete("EXPERIMENTAL")]
 	public class GraphQLWebSocketResponse : IEquatable<GraphQLWebSocketResponse> {
 
 		/// <summary>
