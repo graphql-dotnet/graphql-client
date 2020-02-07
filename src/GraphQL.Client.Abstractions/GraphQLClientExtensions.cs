@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GraphQL.Client {
+namespace GraphQL.Client.Abstractions {
 	public static class GraphQLClientExtensions {
 		public static Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(this IGraphQLClient client,
 			string query, object? variables = null,

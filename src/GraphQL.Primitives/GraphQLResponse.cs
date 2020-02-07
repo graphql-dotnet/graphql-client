@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GraphQL.Client {
+namespace GraphQL {
 
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http {

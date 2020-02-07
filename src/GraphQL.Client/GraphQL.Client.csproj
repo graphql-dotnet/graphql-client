@@ -2,21 +2,34 @@
 
 	<Import Project="../src.props" />
 
-	<PropertyGroup>
-		<Description>A GraphQL Client</Description>
-		<TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net461</TargetFrameworks>
+	    <RootNamespace>GraphQL.Client.Http</RootNamespace>
+    </PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+		<DefineConstants>NETSTANDARD</DefineConstants>
 	</PropertyGroup>
 
-	<ItemGroup>
-      <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
-	</ItemGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<DefineConstants>NETFRAMEWORK</DefineConstants>
+	</PropertyGroup>
+
 
 	<ItemGroup>
-		<PackageReference Include="System.Reactive" Version="4.1.2" />
+		<PackageReference Include="Dahomey.Json" Version="1.6.0" />
 	</ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461'">
 		<PackageReference Include="System.Text.Json" Version="4.7.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>

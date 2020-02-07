@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GraphQL.Client {
+namespace GraphQL.Client.Abstractions {
 
 	public interface IGraphQLClient : IDisposable {
 

@@ -1,5 +1,6 @@
 using System;
 using System.Net.WebSockets;
+using GraphQL.Client.Abstractions;
 
 namespace GraphQL.Client.Http {
 	public static class GraphQLHttpClientExtensions {

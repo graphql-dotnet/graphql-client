@@ -1,6 +1,6 @@
 using System.Net.Http;
 using System.Text.Json;
-using GraphQL.Client;
+using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Integration.Tests.Helpers;
 using GraphQL.Integration.Tests.TestData;

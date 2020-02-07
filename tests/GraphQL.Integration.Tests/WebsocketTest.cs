@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using GraphQL.Client;
+using GraphQL.Client.Abstractions;
 using GraphQL.Integration.Tests.Extensions;
 using GraphQL.Integration.Tests.Helpers;
 using IntegrationTestServer;

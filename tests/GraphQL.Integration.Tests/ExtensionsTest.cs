@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using Dahomey.Json;
 using FluentAssertions;
-using GraphQL.Client;
-using GraphQL.Integration.Tests.Extensions;
+using GraphQL.Client.Abstractions;
 using GraphQL.Integration.Tests.Helpers;
 using IntegrationTestServer;
 using IntegrationTestServer.ChatSchema;
