@@ -1,5 +1,6 @@
 # GraphQL.Client
 [![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
+[![NuGet](https://img.shields.io/nuget/vpre/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 
 A GraphQL Client for .NET Standard over HTTP.
 
@@ -56,15 +57,7 @@ public class HeroAndFriendsResponse {
     }
 }
 
-var graphQLResponse = await graphQLClient.SendQueryAsync(
-    heroAndFriendsRequest, 
-    () => new {
-        hero = new { 
-            name = string.Empty , 
-            friends = new List<new { name = string.Empty}>
-        }
-    }
-);
+var graphQLResponse = await graphQLClient.SendQueryAsync<HeroAndFriendsResponse>(heroAndFriendsRequest);
 
 var heroName = graphQLResponse.Data.Hero.Name;
 ```
@@ -95,9 +88,13 @@ var userJoinedRequest = new GraphQLRequest {
 	}"
 };
 
-IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> subscriptionStream = client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(userJoinedRequest);
+IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> subscriptionStream 
+	= client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(userJoinedRequest);
 
-var subscription = subscriptionStream.Subscribe(response => Console.WriteLine($"user '{response.Data.UserJoined.DisplayName}' joined"));
+var subscription = subscriptionStream.Subscribe(response => 
+	{
+		Console.WriteLine($"user '{response.Data.UserJoined.DisplayName}' joined")
+	});
 ```
 
 #### End Subscription
