@@ -11,12 +11,6 @@ namespace GraphQL {
 	public class GraphQLError : IEquatable<GraphQLError?> {
 
 		/// <summary>
-		/// The extensions of the error
-		/// </summary> 
-		[DataMember(Name = "extensions")]
-		public IDictionary<string, object?>? Extensions { get; set; }
-
-		/// <summary>
 		/// The locations of the error
 		/// </summary>
 		[DataMember(Name = "locations")]
@@ -50,7 +44,6 @@ namespace GraphQL {
 		public bool Equals(GraphQLError? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
-			if (!EqualityComparer<IDictionary<string, object?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			{
 				if (this.Locations != null && other.Locations != null) {
 					if (!this.Locations.SequenceEqual(other.Locations)) { return false; }
@@ -74,9 +67,6 @@ namespace GraphQL {
 		/// </summary>
 		public override int GetHashCode() {
 			var hashCode = 0;
-			if (this.Extensions != null) {
-				hashCode = hashCode ^ EqualityComparer<IDictionary<string, object?>?>.Default.GetHashCode(this.Extensions);
-			}
 			if (this.Locations != null) {
 				hashCode = hashCode ^ EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(this.Locations);
 			}

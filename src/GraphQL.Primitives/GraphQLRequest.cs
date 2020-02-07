@@ -12,7 +12,6 @@ namespace GraphQL {
 		/// <summary>
 		/// The Query
 		/// </summary>
-		/// 
 		[DataMember(Name = "query")]
 		public string Query { get; set; }
 
