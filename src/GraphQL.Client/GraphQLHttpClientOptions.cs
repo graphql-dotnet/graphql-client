@@ -1,10 +1,9 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Dahomey.Json;
-using Dahomey.Json.Serialization.Converters.Factories;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.Http {
 
@@ -19,9 +18,11 @@ namespace GraphQL.Client.Http {
 		public Uri EndPoint { get; set; }
 
 		/// <summary>
-		/// The <see cref="JsonSerializerOptions"/> that is going to be used
+		/// The <see cref="JsonSerializerSettings"/> that is going to be used
 		/// </summary>
-		public JsonSerializerOptions JsonSerializerOptions { get; set; } = GetDefaultJsonSerializerOptions();
+		public JsonSerializerSettings JsonSerializerSettings { get; set; } = new JsonSerializerSettings {
+			ContractResolver = new CamelCasePropertyNamesContractResolver()
+		};
 
 		/// <summary>
 		/// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used
@@ -51,25 +52,5 @@ namespace GraphQL.Client.Http {
 		/// Request preprocessing function. Can be used i.e. to inject authorization info into a GraphQL request payload.
 		/// </summary>
 		public Func<GraphQLRequest, GraphQLHttpClient, Task<GraphQLRequest>> PreprocessRequest { get; set; } = (request, client) => Task.FromResult(request);
-
-		/// <summary>
-		/// Generates the default <see cref="JsonSerializerOptions"/>
-		/// </summary>
-		/// <returns></returns>
-		public static JsonSerializerOptions GetDefaultJsonSerializerOptions() {
-			var options = new JsonSerializerOptions {
-				PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-			};
-
-			//options.Converters.Add(new JsonSerializerOptionsState(options));
-			//options.Converters.Add(new DictionaryConverterFactory());
-			//options.Converters.Add(new CollectionConverterFactory());
-			//options.Converters.Add(new JsonNodeConverterFactory());
-			//options.Converters.Add(new ObjectConverterFactory());
-
-			options.SetupExtensions();
-
-			return options;
-		}
 	}
 }

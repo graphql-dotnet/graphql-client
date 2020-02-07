@@ -3,7 +3,7 @@
 	<Import Project="../src.props" />
 
     <PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netcoreapp3.1;net461</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
 	    <RootNamespace>GraphQL.Client.Http</RootNamespace>
     </PropertyGroup>
 
@@ -17,11 +17,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Dahomey.Json" Version="1.6.0" />
-	</ItemGroup>
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461'">
-		<PackageReference Include="System.Text.Json" Version="4.7.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net461'">

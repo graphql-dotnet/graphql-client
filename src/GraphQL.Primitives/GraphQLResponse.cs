@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
 
 namespace GraphQL {
 
 	public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?> {
 
-		[JsonPropertyName("data")]
+		[DataMember(Name = "data")]
 		public T Data { get; set; }
 
-		[JsonPropertyName("errors")]
+		[DataMember(Name = "errors")]
 		public GraphQLError[]? Errors { get; set; }
 
-		[JsonPropertyName("extensions")]
-		public JsonElement? Extensions { get; set; }
+		[DataMember(Name = "extensions")]
+		public IDictionary<string, object?>? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
@@ -30,7 +29,7 @@ namespace GraphQL {
 				else if (this.Errors != null && other.Errors == null) { return false; }
 				else if (this.Errors == null && other.Errors != null) { return false; }
 			}
-			if (!EqualityComparer<JsonElement?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
+			if (!EqualityComparer<IDictionary<string, object?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			return true;
 		}
 
@@ -47,7 +46,7 @@ namespace GraphQL {
 						hashCode = (hashCode * 397) ^ 0;
 					}
 				}
-				hashCode = (hashCode * 397) ^ EqualityComparer<JsonElement?>.Default.GetHashCode(this.Extensions);
+				hashCode = (hashCode * 397) ^ EqualityComparer<IDictionary<string, object?>?>.Default.GetHashCode(this.Extensions);
 				return hashCode;
 			}
 		}

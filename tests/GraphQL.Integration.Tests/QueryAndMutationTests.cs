@@ -5,6 +5,7 @@ using GraphQL.Client.Http;
 using GraphQL.Integration.Tests.Helpers;
 using GraphQL.Integration.Tests.TestData;
 using IntegrationTestServer;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace GraphQL.Integration.Tests {
@@ -28,15 +29,15 @@ namespace GraphQL.Integration.Tests {
 
 		[Theory]
 		[ClassData(typeof(StarWarsHumans))]
-		public async void QueryWithJsonElementAsReturnTypeTheory(int id, string name) {
+		public async void QueryWithDynamicReturnTypeTheory(int id, string name) {
 			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
 
 			using (var setup = SetupTest()) {
-				var response = await setup.Client.SendQueryAsync<JsonElement>(graphQLRequest)
+				var response = await setup.Client.SendQueryAsync<dynamic>(graphQLRequest)
 					.ConfigureAwait(false);
 
 				Assert.Null(response.Errors);
-				Assert.Equal(name, response.Data.GetProperty("human").GetProperty("name").GetString());
+				Assert.Equal(name, response.Data.human.name.ToString());
 			}
 		}
 

@@ -4,9 +4,9 @@ using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GraphQL.Client.Http.Websocket {
 	public static class GraphQLHttpWebsocketHelpers {
@@ -48,8 +48,7 @@ namespace GraphQL.Client.Http.Websocket {
 									// post the GraphQLResponse to the stream (even if a GraphQL error occurred)
 									Debug.WriteLine($"received payload on subscription {startRequest.Id}");
 									var typedResponse =
-										JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
-											client.Options.JsonSerializerOptions);
+										response.MessageBytes.DeserializeFromBytes<GraphQLWebSocketResponse<TResponse>>(client.Options);
 									o.OnNext(typedResponse.Payload);
 
 									// in case of a GraphQL error, terminate the sequence after the response has been posted
@@ -168,10 +167,9 @@ namespace GraphQL.Client.Http.Websocket {
 						.Where(response => response != null && response.Id == websocketRequest.Id)
 						.TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
 						.Select(response => {
-							Debug.WriteLine($"received response for request {websocketRequest.Id}");
+							Debug.WriteLine($"received response for request {websocketRequest.Id}"); ;
 							var typedResponse =
-								JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(response.MessageBytes,
-									client.Options.JsonSerializerOptions);
+								response.MessageBytes.DeserializeFromBytes<GraphQLWebSocketResponse<TResponse>>(client.Options);
 							return typedResponse.Payload;
 						});
 

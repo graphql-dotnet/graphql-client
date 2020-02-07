@@ -1,6 +1,6 @@
 using System;
 using System.Net.Http;
-using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
 
 namespace GraphQL.Client.Http {
 
@@ -16,7 +16,7 @@ namespace GraphQL.Client.Http {
 		/// <summary>
 		/// Allows to preprocess a <see cref="HttpRequestMessage"/> before it is sent, i.e. add custom headers
 		/// </summary>
-		[JsonIgnore]
+		[IgnoreDataMember]
 		public Action<HttpRequestMessage> PreprocessHttpRequestMessage { get; set; } = message => { };
 	}
 }

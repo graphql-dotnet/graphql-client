@@ -1,9 +1,9 @@
-using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
 
 namespace GraphQL.Client.Http.Websocket {
 	public class WebsocketResponseWrapper : GraphQLWebSocketResponse {
 
-		[JsonIgnore]
+		[IgnoreDataMember]
 		public byte[] MessageBytes { get; set; }
 	}
 }

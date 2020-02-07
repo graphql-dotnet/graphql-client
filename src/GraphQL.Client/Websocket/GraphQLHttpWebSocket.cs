@@ -9,6 +9,7 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GraphQL.Client.Http.Websocket {
 	internal class GraphQLHttpWebSocket : IDisposable {
@@ -58,7 +59,7 @@ namespace GraphQL.Client.Http.Websocket {
 				}
 
 				await InitializeWebSocket().ConfigureAwait(false);
-				var requestBytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(request, _options.JsonSerializerOptions);
+				var requestBytes = request.SerializeToBytes(_options);
 				await this.clientWebSocket.SendAsync(
 					new ArraySegment<byte>(requestBytes),
 					WebSocketMessageType.Text,
@@ -222,13 +223,14 @@ namespace GraphQL.Client.Http.Websocket {
 					ms.Seek(0, SeekOrigin.Begin);
 
 					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text) {
-						var bytes = ms.ToArray();
-						var response =
-							System.Text.Json.JsonSerializer.Deserialize<WebsocketResponseWrapper>(bytes,
-								_options.JsonSerializerOptions);
-						response.MessageBytes = bytes;
+						using (StreamReader sr = new StreamReader(ms))
+						using (JsonReader reader = new JsonTextReader(sr)) {
+							JsonSerializer serializer = JsonSerializer.Create(_options.JsonSerializerSettings);
 
-						return response;
+							var response = serializer.Deserialize<WebsocketResponseWrapper>(reader);
+							response.MessageBytes = ms.ToArray();
+							return response;
+						}
 					}
 					else {
 						throw new NotSupportedException("binary websocket messages are not supported");

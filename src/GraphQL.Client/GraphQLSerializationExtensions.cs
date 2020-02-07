@@ -1,36 +1,48 @@
 using System.IO;
-using System.Text.Json;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dahomey.Json;
-using Dahomey.Json.Serialization.Converters.Factories;
+using GraphQL.Client.Http.Websocket;
+using Newtonsoft.Json;
 
 namespace GraphQL.Client.Http {
 	public static class GraphQLSerializationExtensions {
 
 		public static string SerializeToJson(this GraphQLRequest request,
 			GraphQLHttpClientOptions options) {
-			return JsonSerializer.Serialize(request, options.JsonSerializerOptions);
+			return JsonConvert.SerializeObject(request, options.JsonSerializerSettings);
+		}
+		
+		public static byte[] SerializeToBytes(this GraphQLRequest request,
+			GraphQLHttpClientOptions options) {
+			var json = JsonConvert.SerializeObject(request, options.JsonSerializerSettings);
+			return Encoding.UTF8.GetBytes(json);
+		}
+		public static byte[] SerializeToBytes(this GraphQLWebSocketRequest request,
+			GraphQLHttpClientOptions options) {
+			var json = JsonConvert.SerializeObject(request, options.JsonSerializerSettings);
+			return Encoding.UTF8.GetBytes(json);
 		}
 
 		public static TGraphQLResponse DeserializeFromJson<TGraphQLResponse>(this string jsonString,
 			GraphQLHttpClientOptions options) {
-			return JsonSerializer.Deserialize<TGraphQLResponse>(jsonString, options.JsonSerializerOptions);
+			return JsonConvert.DeserializeObject<TGraphQLResponse>(jsonString, options.JsonSerializerSettings);
 		}
 
-		public static ValueTask<TGraphQLResponse> DeserializeFromJsonAsync<TGraphQLResponse>(this Stream stream,
+		public static TObject DeserializeFromBytes<TObject>(this byte[] utf8bytes,
+			GraphQLHttpClientOptions options) {
+			return JsonConvert.DeserializeObject<TObject>(Encoding.UTF8.GetString(utf8bytes), options.JsonSerializerSettings);
+		}
+
+
+		public static Task<TGraphQLResponse> DeserializeFromJsonAsync<TGraphQLResponse>(this Stream stream,
 			GraphQLHttpClientOptions options, CancellationToken cancellationToken = default) {
-			return JsonSerializer.DeserializeAsync<TGraphQLResponse>(stream, options.JsonSerializerOptions, cancellationToken);
-		}
-
-		public static JsonSerializerOptions SetupDahomeyJson(this JsonSerializerOptions options) {
-			options.Converters.Add(new JsonSerializerOptionsState(options));
-			options.Converters.Add(new DictionaryConverterFactory());
-			options.Converters.Add(new CollectionConverterFactory());
-			//options.Converters.Add(new JsonNodeConverterFactory());
-			options.Converters.Add(new ObjectConverterFactory());
-
-			return options;
+			using (StreamReader sr = new StreamReader(stream))
+			using (JsonReader reader = new JsonTextReader(sr)) {
+				JsonSerializer serializer = JsonSerializer.Create(options.JsonSerializerSettings);
+				
+				return Task.FromResult(serializer.Deserialize<TGraphQLResponse>(reader));
+			}
 		}
 	}
 }
