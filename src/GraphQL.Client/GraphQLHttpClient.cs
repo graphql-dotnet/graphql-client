@@ -14,6 +14,7 @@ namespace GraphQL.Client.Http {
 		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 		private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
+		private IGraphQLJsonSerializer JsonSerializer => Options.JsonSerializer;
 
 		/// <summary>
 		/// the instance of <see cref="HttpClient"/> which is used internally
@@ -111,12 +112,12 @@ namespace GraphQL.Client.Http {
 			}
 
 			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			return await bodyStream.DeserializeFromJsonAsync<GraphQLHttpResponse<TResponse>>(Options, cancellationToken);
+			return await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
 		}
 
 		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
 			var message = new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
-				Content = new StringContent(request.SerializeToJson(Options), Encoding.UTF8, Options.MediaType)
+				Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, Options.MediaType)
 			};
 
 			if (request is GraphQLHttpRequest httpRequest)

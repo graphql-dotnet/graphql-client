@@ -25,11 +25,9 @@ namespace GraphQL {
 		/// Represents the request variables
 		/// </summary>
 		[DataMember(Name = "variables")]
-		public virtual object? Variables { get; set; }
+		public object? Variables { get; set; }
 
-
-		public GraphQLRequest() {
-		}
+		public GraphQLRequest() { }
 
 		public GraphQLRequest(string query, object? variables = null, string? operationName = null) {
 			Query = query;
