@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GraphQL {
 
@@ -11,23 +12,27 @@ namespace GraphQL {
 
 		/// <summary>
 		/// The extensions of the error
-		/// </summary>
-		public IDictionary<string, dynamic?>? Extensions { get; set; }
+		/// </summary> 
+		[DataMember(Name = "extensions")]
+		public IDictionary<string, object?>? Extensions { get; set; }
 
 		/// <summary>
 		/// The locations of the error
 		/// </summary>
+		[DataMember(Name = "locations")]
 		public GraphQLLocation[]? Locations { get; set; }
 
 		/// <summary>
 		/// The message of the error
 		/// </summary>
+		[DataMember(Name = "message")]
 		public string Message { get; set; }
 
 		/// <summary>
 		/// The Path of the error
 		/// </summary>
-		public dynamic[]? Path { get; set; }
+		[DataMember(Name = "path")]
+		public object[]? Path { get; set; }
 
 		/// <summary>
 		/// Returns a value that indicates whether this instance is equal to a specified object
@@ -45,7 +50,7 @@ namespace GraphQL {
 		public bool Equals(GraphQLError? other) {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
-			if (!EqualityComparer<IDictionary<string, dynamic?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
+			if (!EqualityComparer<IDictionary<string, object?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			{
 				if (this.Locations != null && other.Locations != null) {
 					if (!this.Locations.SequenceEqual(other.Locations)) { return false; }
@@ -70,7 +75,7 @@ namespace GraphQL {
 		public override int GetHashCode() {
 			var hashCode = 0;
 			if (this.Extensions != null) {
-				hashCode = hashCode ^ EqualityComparer<IDictionary<string, dynamic?>>.Default.GetHashCode(this.Extensions);
+				hashCode = hashCode ^ EqualityComparer<IDictionary<string, object?>?>.Default.GetHashCode(this.Extensions);
 			}
 			if (this.Locations != null) {
 				hashCode = hashCode ^ EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(this.Locations);

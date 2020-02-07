@@ -1,6 +1,6 @@
 # GraphQL.Client
 [![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
-[![MyGet](https://img.shields.io/myget/graphql-dotnet/v/GraphQL.Client.svg)](https://www.myget.org/feed/graphql-dotnet/package/nuget/GraphQL.Client)
+[![NuGet](https://img.shields.io/nuget/vpre/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 
 A GraphQL Client for .NET Standard over HTTP.
 
@@ -43,25 +43,64 @@ var heroAndFriendsRequest = new GraphQLRequest {
 };
 ```
 
-### Send Request:
+### Execute Query/Mutation:
 ```csharp
 var graphQLClient = new GraphQLClient("https://swapi.apis.guru/");
-var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
+
+public class HeroAndFriendsResponse {
+    public Hero Hero {get; set;}
+
+    public class Hero {
+        public string Name {get; set;}
+
+        public List<Hero> Friends {get; set;}
+    }
+}
+
+var graphQLResponse = await graphQLClient.SendQueryAsync<HeroAndFriendsResponse>(heroAndFriendsRequest);
+
+var heroName = graphQLResponse.Data.Hero.Name;
 ```
 
-### Read GraphQLResponse:
+### Use Subscriptions
 
-#### Dynamic:
 ```csharp
-var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
-var dynamicHeroName = graphQLResponse.Data.hero.name.Value; //Value of data->hero->name
+public class UserJoinedSubscriptionResult {
+	public ChatUser UserJoined { get; set; }
+
+	public class ChatUser {
+		public string DisplayName { get; set; }
+		public string Id { get; set; }
+	}
+}
 ```
 
-#### Typed:
+#### Create subscription
+
 ```csharp
-var graphQLResponse = await graphQLClient.PostAsync(heroRequest);
-var personType = graphQLResponse.GetDataFieldAs<Person>("hero"); //data->hero is casted as Person
-var name = personType.Name;
+var userJoinedRequest = new GraphQLRequest {
+    Query = @"
+	subscription {
+		userJoined{
+			displayName
+			id
+		}
+	}"
+};
+
+IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> subscriptionStream 
+	= client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(userJoinedRequest);
+
+var subscription = subscriptionStream.Subscribe(response => 
+	{
+		Console.WriteLine($"user '{response.Data.UserJoined.DisplayName}' joined")
+	});
+```
+
+#### End Subscription
+
+```csharp
+subscription.Dispose();
 ```
 
 ## Useful Links:

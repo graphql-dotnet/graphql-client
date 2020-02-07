@@ -1,18 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="../src.props" />
 
-	<PropertyGroup>
-		<Description>A GraphQL Client</Description>
-		<TargetFramework>netstandard2.0</TargetFramework>
+    <PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+	    <RootNamespace>GraphQL.Client.Http</RootNamespace>
+    </PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+		<DefineConstants>NETSTANDARD</DefineConstants>
 	</PropertyGroup>
 
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<DefineConstants>NETFRAMEWORK</DefineConstants>
+	</PropertyGroup>
+
+
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
+		<PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  	<ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
+	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>

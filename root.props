@@ -2,13 +2,13 @@
 <Project>
 
 	<PropertyGroup>
-		<Authors>Deinok,graphql-dotnet</Authors>
+		<Authors>Deinok,Alexander Rose,graphql-dotnet</Authors>
 		<Description>A GraphQL Client for .NET Standard</Description>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<LangVersion>8.0</LangVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<NoWarn>CS0618;CS1591;CS1701;CS8618;NU5048;NU5105;NU5125</NoWarn>
+		<NoWarn>CS0618;CS1591;CS1701;CS8618;CS8632;NU5048;NU5105;NU5125</NoWarn>
 		<Nullable>annotations</Nullable>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -16,9 +16,8 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageTags>GraphQL</PackageTags>
 		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/graphql-dotnet/graphql-client.git</RepositoryUrl>
+		<RepositoryUrl>https://github.com/graphql-dotnet/graphql-client</RepositoryUrl>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-		<Version>2.0.0-alpha.4</Version>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>
 

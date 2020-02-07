@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="../src.props" />
+
+	<PropertyGroup>
+		<Description>A GraphQL Client</Description>
+		<RootNamespace>GraphQL.Client.Abstractions</RootNamespace>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+	</PropertyGroup>
+
+	<ItemGroup>
+      <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Reactive" Version="4.1.2" />
+	</ItemGroup>
+
+</Project>
