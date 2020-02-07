@@ -99,13 +99,3 @@ jobs:
       run: nuget sources Add -Name "GPR" -Source https://nuget.pkg.github.com/graphql-dotnet/index.json -UserName graphql-dotnet -Password ${{secrets.GITHUB_TOKEN}}
     - name: push packages
       run: nuget push .\nupkg\*.nupkg -SkipDuplicate -Source "GPR"
-    # - name: Setup GitHub Packages as nuget source
-    #   uses: actions/setup-dotnet@master
-    #   with:
-    #     dotnet-version: '3.1.100'
-    #     source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json      
-    #   env:
-    #     NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    # - name: push packages
-    #   run: dotnet nuget push .\nupkg\*.nupkg --skip-duplicate -k ${{secrets.GITHUB_TOKEN}}
-    
