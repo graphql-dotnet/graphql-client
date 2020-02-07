@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace GraphQL.Client.Tests {
+namespace GraphQL.Primitives.Tests {
 
 	public class GraphQLLocationTest {
 

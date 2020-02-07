@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Xunit;
 using System.Text.Json;
 using FluentAssertions;
+using Xunit;
 
-namespace GraphQL.Client.Http.Tests {
+namespace GraphQL.Primitives.Tests {
 	public class JsonSerializationTests {
 
 		[Fact]
