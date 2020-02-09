@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GraphQL.Client.Http.Websocket {
+namespace GraphQL.Client.Abstractions.Websocket {
 
 	/// <summary>
 	/// A Subscription Response
@@ -60,10 +60,10 @@ namespace GraphQL.Client.Http.Websocket {
 
 	}
 
-	public class GraphQLWebSocketResponse<TResponse> : GraphQLWebSocketResponse, IEquatable<GraphQLWebSocketResponse<TResponse>> {
-		public GraphQLHttpResponse<TResponse> Payload { get; set; }
+	public class GraphQLWebSocketResponse<TPayload> : GraphQLWebSocketResponse, IEquatable<GraphQLWebSocketResponse<TPayload>> {
+		public TPayload Payload { get; set; }
 
-		public bool Equals(GraphQLWebSocketResponse<TResponse>? other) {
+		public bool Equals(GraphQLWebSocketResponse<TPayload>? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
 			return base.Equals(other) && Payload.Equals(other.Payload);
@@ -73,7 +73,7 @@ namespace GraphQL.Client.Http.Websocket {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
 			if (obj.GetType() != this.GetType()) return false;
-			return Equals((GraphQLWebSocketResponse<TResponse>)obj);
+			return Equals((GraphQLWebSocketResponse<TPayload>)obj);
 		}
 
 		public override int GetHashCode() {

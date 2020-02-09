@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace GraphQL.Client.Http.Websocket {
+namespace GraphQL.Client.Abstractions.Websocket {
 	public class WebsocketResponseWrapper : GraphQLWebSocketResponse {
 
 		[IgnoreDataMember]

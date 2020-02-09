@@ -117,7 +117,7 @@ namespace GraphQL.Client.Http {
 
 		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
 			var message = new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
-				Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, Options.MediaType)
+				Content = new StringContent(JsonSerializer.SerializeToString(request), Encoding.UTF8, Options.MediaType)
 			};
 
 			if (request is GraphQLHttpRequest httpRequest)

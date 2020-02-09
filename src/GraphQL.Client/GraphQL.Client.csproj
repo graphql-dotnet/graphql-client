@@ -15,6 +15,14 @@
 		<DefineConstants>NETFRAMEWORK</DefineConstants>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove="GraphQLSerializationExtensions.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="GraphQLSerializationExtensions.cs" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
@@ -25,6 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
 	</ItemGroup>
 
