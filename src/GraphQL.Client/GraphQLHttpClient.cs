@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
+using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http {
@@ -48,6 +49,13 @@ namespace GraphQL.Client.Http {
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
+			this.HttpClient = httpClient;
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+		}
+
+		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {
+			Options = options;
+			Options.JsonSerializer = serializer;
 			this.HttpClient = httpClient;
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
