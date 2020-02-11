@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions.Websocket {
@@ -8,21 +9,27 @@ namespace GraphQL.Client.Abstractions.Websocket {
 	/// A Subscription Request
 	/// </summary>
 	public class GraphQLWebSocketRequest : IEquatable<GraphQLWebSocketRequest> {
+		public const string IdKey = "id";
+		public const string TypeKey = "type";
+		public const string PayloadKey = "payload";
 
 		/// <summary>
 		/// The Identifier of the Response
 		/// </summary>
-		public string Id { get; set; }
+		[DataMember(Name = IdKey)]
+		public virtual string Id { get; set; }
 
 		/// <summary>
 		/// The Type of the Request
 		/// </summary>
-		public string Type { get; set; }
+		[DataMember(Name = TypeKey)]
+		public virtual string Type { get; set; }
 
 		/// <summary>
 		/// The payload of the websocket request
 		/// </summary>
-		public GraphQLRequest Payload { get; set; }
+		[DataMember(Name = PayloadKey)]
+		public virtual GraphQLRequest Payload { get; set; }
 
 		private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 

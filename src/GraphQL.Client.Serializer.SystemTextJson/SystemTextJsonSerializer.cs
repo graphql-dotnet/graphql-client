@@ -26,7 +26,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 	    }
 
 	    public string SerializeToString(GraphQLRequest request) {
-		    return JsonSerializer.Serialize(request, Options.JsonSerializerOptions);
+		    return JsonSerializer.Serialize(new STJGraphQLRequest(request), Options.JsonSerializerOptions);
 	    }
 
 	    public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) {
@@ -34,7 +34,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 	    }
 
 	    public byte[] SerializeToBytes(GraphQLWebSocketRequest request) {
-		    return JsonSerializer.SerializeToUtf8Bytes(request, Options.JsonSerializerOptions);
+		    return JsonSerializer.SerializeToUtf8Bytes(new STJGraphQLWebSocketRequest(request), Options.JsonSerializerOptions);
 	    }
 
 	    public Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
@@ -45,5 +45,6 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 		    return JsonSerializer.Deserialize<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(new ReadOnlySpan<byte>(bytes),
 			    Options.JsonSerializerOptions);
 	    }
+
     }
 }
