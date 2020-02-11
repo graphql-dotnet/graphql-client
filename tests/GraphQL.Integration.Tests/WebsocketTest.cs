@@ -4,7 +4,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
-using GraphQL.Integration.Tests.Extensions;
+using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Integration.Tests.Helpers;
 using IntegrationTestServer;
 using Microsoft.AspNetCore.Hosting;

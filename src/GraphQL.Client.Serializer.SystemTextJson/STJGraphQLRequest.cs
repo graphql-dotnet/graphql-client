@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Dahomey.Json.Attributes;
 
 namespace GraphQL.Client.Serializer.SystemTextJson {
 	public class STJGraphQLRequest: GraphQLRequest {

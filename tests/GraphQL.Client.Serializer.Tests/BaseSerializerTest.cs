@@ -3,6 +3,7 @@ using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.LocalExecution;
+using GraphQL.Client.Serializer.Tests.TestData;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
@@ -13,12 +14,21 @@ namespace GraphQL.Client.Serializer.Tests
 {
     public abstract class BaseSerializerTest
     {
+	    public IGraphQLWebsocketJsonSerializer Serializer { get; }
 	    public IGraphQLClient ChatClient { get; }
 	    public IGraphQLClient StarWarsClient { get; }
 
 		protected BaseSerializerTest(IGraphQLWebsocketJsonSerializer serializer) {
+			Serializer = serializer;
 			ChatClient = GraphQLLocalExecutionClient.New(Common.GetChatSchema(), serializer);
 			StarWarsClient = GraphQLLocalExecutionClient.New(Common.GetStarWarsSchema(), serializer);
+		}
+
+		[Theory]
+		[ClassData(typeof(SerializeToStringTestData))]
+		public void SerializeToStringTest(string expectedJson, GraphQLRequest request) {
+			var json = Serializer.SerializeToString(request);
+			json.Should().BeEquivalentTo(expectedJson);
 		}
 
 		[Fact]

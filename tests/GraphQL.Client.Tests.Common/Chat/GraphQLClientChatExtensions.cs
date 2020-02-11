@@ -4,20 +4,23 @@ using GraphQL.Client.Abstractions;
 
 namespace GraphQL.Client.Tests.Common.Chat {
 	public static class GraphQLClientChatExtensions {
+		public const string AddMessageQuery =
+@"mutation($input: MessageInputType){
+  addMessage(message: $input){
+    content
+  }
+}";
+
 		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this IGraphQLClient client, string message) {
-			var graphQLRequest = new GraphQLRequest(
-				@"mutation($input: MessageInputType){
-				  addMessage(message: $input){
-				    content
-				  }
-				}",
-				new {
-					input = new {
-						fromId = "2",
-						content = message,
-						sentAt = DateTime.Now
-					}
-				});
+			var variables = new AddMessageVariables {
+				Input = new AddMessageVariables.AddMessageInput {
+					FromId = "2",
+					Content = message,
+					SentAt = DateTime.Now
+				}
+			};
+
+			var graphQLRequest = new GraphQLRequest(AddMessageQuery, variables);
 			return client.SendMutationAsync<AddMessageMutationResult>(graphQLRequest);
 		}
 
