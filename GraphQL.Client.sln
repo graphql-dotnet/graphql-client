@@ -58,9 +58,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Abstractions
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client", "src\GraphQL.Client\GraphQL.Client.csproj", "{ED3541C9-D2B2-4D06-A464-38E404A3919A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Abstractions.Websocket", "src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj", "{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Abstractions.Websocket", "src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj", "{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Serializer.Newtonsoft", "src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj", "{11F28E78-ADE4-4153-B97C-56136EB7BD5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.LocalExecution", "src\GraphQL.Client.LocalExecution\GraphQL.Client.LocalExecution.csproj", "{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,6 +110,10 @@ Global
 		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,6 +129,7 @@ Global
 		{ED3541C9-D2B2-4D06-A464-38E404A3919A} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{4D581CE1-523D-46BF-BAA5-F7D79A1B7654} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{11F28E78-ADE4-4153-B97C-56136EB7BD5B} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}

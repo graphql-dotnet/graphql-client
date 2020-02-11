@@ -31,11 +31,6 @@ namespace GraphQL.Client.Abstractions {
 		/// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occuring within the sequence</param>
 		/// <returns>an observable stream for the specified subscription</returns>
 		IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
-
-		/// <summary>
-		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
-		/// </summary>
-		IObservable<Exception> WebSocketReceiveErrors { get; }
 	}
 
 }
