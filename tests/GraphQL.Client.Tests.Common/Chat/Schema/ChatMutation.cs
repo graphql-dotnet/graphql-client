@@ -1,6 +1,6 @@
 using GraphQL.Types;
 
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class ChatMutation : ObjectGraphType<object> {
 		public ChatMutation(IChat chat) {
 			Field<MessageType>("addMessage",

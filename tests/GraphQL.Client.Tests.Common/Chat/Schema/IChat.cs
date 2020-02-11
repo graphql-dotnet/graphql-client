@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public interface IChat {
 		ConcurrentStack<Message> AllMessages { get; }
 

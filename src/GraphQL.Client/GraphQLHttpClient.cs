@@ -40,21 +40,21 @@ namespace GraphQL.Client.Http {
 			configure(Options);
 			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-			JsonSerializer.EnsureAssigned();
+			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
 			Options = options;
 			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-			JsonSerializer.EnsureAssigned();
+			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
 			this.HttpClient = httpClient;
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-			JsonSerializer.EnsureAssigned();
+			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {

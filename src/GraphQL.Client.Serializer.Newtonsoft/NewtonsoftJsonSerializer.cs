@@ -15,13 +15,18 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 	    public NewtonsoftJsonSerializer()
 	    {
 			Options = new NewtonsoftJsonSerializerOptions();
-	    }
+		}
+		public NewtonsoftJsonSerializer(Action<NewtonsoftJsonSerializerOptions> configure) {
+			Options = new NewtonsoftJsonSerializerOptions();
+			configure(Options);
+		}
 
-	    public NewtonsoftJsonSerializer(NewtonsoftJsonSerializerOptions options) {
+		public NewtonsoftJsonSerializer(NewtonsoftJsonSerializerOptions options) {
 		    Options = options;
 	    }
 
-	    public string SerializeToString(GraphQLRequest request) {
+
+		public string SerializeToString(GraphQLRequest request) {
 		    return JsonConvert.SerializeObject(request, Options.JsonSerializerSettings);
 		}
 

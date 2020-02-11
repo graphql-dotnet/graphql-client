@@ -1,6 +1,6 @@
 using System;
 
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class Message {
 		public MessageFrom From { get; set; }
 

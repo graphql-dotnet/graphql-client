@@ -1,4 +1,4 @@
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class MessageFrom {
 		public string Id { get; set; }
 

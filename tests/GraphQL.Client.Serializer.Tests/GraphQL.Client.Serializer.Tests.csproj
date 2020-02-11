@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
+    <ProjectReference Include="..\..\src\GraphQL.Client.LocalExecution\GraphQL.Client.LocalExecution.csproj" />
+    <ProjectReference Include="..\..\src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj" />
+    <ProjectReference Include="..\GraphQL.Client.Tests.Common\GraphQL.Client.Tests.Common.csproj" />
+  </ItemGroup>
+
+</Project>

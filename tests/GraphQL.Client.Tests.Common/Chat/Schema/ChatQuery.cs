@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using GraphQL;
 using GraphQL.Types;
 
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class ChatQuery : ObjectGraphType {
 
 		public static readonly Dictionary<string, object> TestExtensions = new Dictionary<string, object> {

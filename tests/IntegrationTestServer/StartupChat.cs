@@ -1,5 +1,6 @@
+using GraphQL.Client.Tests.Common;
+using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Server;
-using IntegrationTestServer.ChatSchema;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,18 +11,12 @@ namespace IntegrationTestServer {
 		public StartupChat(IConfiguration configuration, IWebHostEnvironment environment): base(configuration, environment) { }
 
 		public override void ConfigureGraphQLSchemaServices(IServiceCollection services) {
-			services.AddSingleton<IChat, Chat>();
-			services.AddSingleton<ChatSchema.ChatSchema>();
-			services.AddSingleton<ChatQuery>();
-			services.AddSingleton<ChatMutation>();
-			services.AddSingleton<ChatSubscriptions>();
-			services.AddSingleton<MessageType>();
-			services.AddSingleton<MessageInputType>();
+			services.AddChatSchema();
 		}
 
 		public override void ConfigureGraphQLSchema(IApplicationBuilder app) {
-			app.UseGraphQLWebSockets<ChatSchema.ChatSchema>("/graphql");
-			app.UseGraphQL<ChatSchema.ChatSchema>("/graphql");
+			app.UseGraphQLWebSockets<ChatSchema>("/graphql");
+			app.UseGraphQL<ChatSchema>("/graphql");
 		}
 	}
 }

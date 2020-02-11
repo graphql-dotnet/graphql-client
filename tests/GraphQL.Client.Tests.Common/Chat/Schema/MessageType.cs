@@ -1,6 +1,6 @@
 using GraphQL.Types;
 
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class MessageType : ObjectGraphType<Message> {
 		public MessageType() {
 			Field(o => o.Content);

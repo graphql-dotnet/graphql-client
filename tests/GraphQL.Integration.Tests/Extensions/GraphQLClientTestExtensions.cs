@@ -2,9 +2,12 @@ using System;
 using System.Threading.Tasks;
 using GraphQL.Client;
 using GraphQL.Client.Http;
+using GraphQL.Client.Tests.Common.Chat;
 
 namespace GraphQL.Integration.Tests.Extensions {
 	public static class GraphQLClientTestExtensions {
+		
+
 		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this GraphQLHttpClient client, string message) {
 			var graphQLRequest = new GraphQLRequest(
 				@"mutation($input: MessageInputType){
@@ -12,13 +15,11 @@ namespace GraphQL.Integration.Tests.Extensions {
 				    content
 				  }
 				}",
-				new {
-					input = new {
-						fromId = "2",
-						content = message,
-						sentAt = DateTime.Now
-					}
-				});
+				new AddMessageVariables { Input = {
+					FromId = "2",
+					Content = message,
+					SentAt = DateTime.Now
+				}});
 			return client.SendMutationAsync<AddMessageMutationResult>(graphQLRequest);
 		}
 

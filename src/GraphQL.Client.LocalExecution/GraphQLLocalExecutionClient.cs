@@ -16,8 +16,16 @@ using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.LocalExecution
 {
-    public class GraphQLLocalExecutionClient<TSchema>: IGraphQLClient where TSchema: ISchema
-    {
+	public static class GraphQLLocalExecutionClient {
+		public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema) where TSchema : ISchema
+			=> new GraphQLLocalExecutionClient<TSchema>(schema);
+
+		public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, IGraphQLJsonSerializer serializer) where TSchema : ISchema
+			=> new GraphQLLocalExecutionClient<TSchema>(schema, serializer);
+	}
+
+
+	public class GraphQLLocalExecutionClient<TSchema>: IGraphQLClient where TSchema: ISchema {
 
 	    private static readonly JsonSerializerSettings VariablesSerializerSettings = new JsonSerializerSettings {
 		    Formatting = Formatting.Indented,

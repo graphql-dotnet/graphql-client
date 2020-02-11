@@ -2,13 +2,12 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Security.Claims;
-using GraphQL;
 using GraphQL.Resolvers;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
 using GraphQL.Subscription;
 using GraphQL.Types;
 
-namespace IntegrationTestServer.ChatSchema {
+namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class ChatSubscriptions : ObjectGraphType<object> {
 		private readonly IChat _chat;
 
