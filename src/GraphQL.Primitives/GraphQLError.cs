@@ -32,7 +32,7 @@ namespace GraphQL {
 		/// The extensions of the error
 		/// </summary> 
 		[DataMember(Name = "extensions")]
-		public ExtensionsType? Extensions { get; set; }
+		public GraphQLExtensionsType? Extensions { get; set; }
 
 		/// <summary>
 		/// Returns a value that indicates whether this instance is equal to a specified object
@@ -101,10 +101,6 @@ namespace GraphQL {
 		public static bool operator !=(GraphQLError? left, GraphQLError? right) =>
 			!EqualityComparer<GraphQLError?>.Default.Equals(left, right);
 
-		/// <summary>
-		/// The GraphQL extensions type. Create a custom json converter for this class to customize your serializers behaviour
-		/// </summary>
-		public class ExtensionsType : Dictionary<string, object?> { }
 	}
 
 }

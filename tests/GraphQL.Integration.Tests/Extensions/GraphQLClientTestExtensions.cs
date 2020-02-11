@@ -9,17 +9,21 @@ namespace GraphQL.Integration.Tests.Extensions {
 		
 
 		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this GraphQLHttpClient client, string message) {
+			var variables = new AddMessageVariables {
+				Input = new AddMessageVariables.AddMessageInput{
+					FromId = "2",
+					Content = message,
+					SentAt = DateTime.Now
+				}
+			};
+
 			var graphQLRequest = new GraphQLRequest(
 				@"mutation($input: MessageInputType){
 				  addMessage(message: $input){
 				    content
 				  }
 				}",
-				new AddMessageVariables { Input = {
-					FromId = "2",
-					Content = message,
-					SentAt = DateTime.Now
-				}});
+				variables);
 			return client.SendMutationAsync<AddMessageMutationResult>(graphQLRequest);
 		}
 

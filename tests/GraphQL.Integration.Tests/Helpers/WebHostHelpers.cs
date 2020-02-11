@@ -1,6 +1,7 @@
 using System;
 using GraphQL.Client;
 using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,8 @@ namespace GraphQL.Integration.Tests.Helpers
 		public static GraphQLHttpClient GetGraphQLClient(int port, bool requestsViaWebsocket = false)
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions {
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
-				UseWebSocketForQueriesAndMutations = requestsViaWebsocket
+				UseWebSocketForQueriesAndMutations = requestsViaWebsocket,
+				JsonSerializer = new NewtonsoftJsonSerializer()
 			});
 		
 		public static TestServerSetup SetupTest<TStartup>(bool requestsViaWebsocket = false) where TStartup : class

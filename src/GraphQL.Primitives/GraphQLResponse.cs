@@ -14,7 +14,7 @@ namespace GraphQL {
 		public GraphQLError[]? Errors { get; set; }
 
 		[DataMember(Name = "extensions")]
-		public ExtensionsType? Extensions { get; set; }
+		public GraphQLExtensionsType? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
@@ -54,10 +54,6 @@ namespace GraphQL {
 
 		public static bool operator !=(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => !(response1 == response2);
 
-		/// <summary>
-		/// The GraphQL extensions type. Create a custom json converter for this class to customize your serializers behaviour
-		/// </summary>
-		public class ExtensionsType : Dictionary<string, object?> { }
 	}
 
 

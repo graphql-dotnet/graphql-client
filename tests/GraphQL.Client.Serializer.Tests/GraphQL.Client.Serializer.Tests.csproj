@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
     <ProjectReference Include="..\..\src\GraphQL.Client.LocalExecution\GraphQL.Client.LocalExecution.csproj" />
     <ProjectReference Include="..\..\src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj" />
+    <ProjectReference Include="..\..\src\GraphQL.Client.Serializer.SystemTextJson\GraphQL.Client.Serializer.SystemTextJson.csproj" />
     <ProjectReference Include="..\GraphQL.Client.Tests.Common\GraphQL.Client.Tests.Common.csproj" />
   </ItemGroup>
 
