@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions.Websocket
 {
@@ -9,7 +10,7 @@ namespace GraphQL.Client.Abstractions.Websocket
     public interface IGraphQLWebsocketJsonSerializer: IGraphQLJsonSerializer {
 	    byte[] SerializeToBytes(GraphQLWebSocketRequest request);
 
-	    WebsocketResponseWrapper DeserializeToWebsocketResponseWrapper(Stream stream);
+	    Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream);
 	    GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes);
 
 	}

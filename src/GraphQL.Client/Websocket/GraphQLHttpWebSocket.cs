@@ -223,7 +223,7 @@ namespace GraphQL.Client.Http.Websocket {
 					ms.Seek(0, SeekOrigin.Begin);
 
 					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text) {
-						var response = _options.JsonSerializer.DeserializeToWebsocketResponseWrapper(ms);
+						var response = await _options.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
 						response.MessageBytes = ms.ToArray();
 						return response;
 					}

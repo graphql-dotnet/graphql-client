@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../src.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
 	  <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
