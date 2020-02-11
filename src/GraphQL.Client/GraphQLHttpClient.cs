@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -39,24 +40,27 @@ namespace GraphQL.Client.Http {
 			configure(Options);
 			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			EnsureSerializerAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
 			Options = options;
 			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			EnsureSerializerAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
 			this.HttpClient = httpClient;
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			EnsureSerializerAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {
 			Options = options;
-			Options.JsonSerializer = serializer;
-			this.HttpClient = httpClient;
+			Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
 
@@ -110,6 +114,22 @@ namespace GraphQL.Client.Http {
 		public Task InitializeWebsocketConnection() => graphQlHttpWebSocket.InitializeWebSocket();
 
 		#region Private Methods
+
+		private void EnsureSerializerAssigned() {
+			// return if a serializer was assigned
+			if (JsonSerializer != null) return;
+
+			// else try to find one in the assembly and assign that
+			var type = typeof(IGraphQLWebsocketJsonSerializer);
+			var serializerType = AppDomain.CurrentDomain
+				.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.FirstOrDefault(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract);
+			if(serializerType == null)
+				throw new InvalidOperationException($"no implementation of \"{type}\" found");
+
+			Options.JsonSerializer = (IGraphQLWebsocketJsonSerializer) Activator.CreateInstance(serializerType);
+		}
 
 		private async Task<GraphQLResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			var preprocessedRequest = await Options.PreprocessRequest(request, this);

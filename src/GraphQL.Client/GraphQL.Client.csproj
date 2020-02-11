@@ -35,6 +35,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
+	  <ProjectReference Include="..\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj" />
 	</ItemGroup>
 
 </Project>
