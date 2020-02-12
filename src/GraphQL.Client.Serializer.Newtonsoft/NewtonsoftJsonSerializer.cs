@@ -33,7 +33,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 		}
 
 		public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request) {
-			var json = JsonConvert.SerializeObject(request, Options.JsonSerializerSettings);
+			var json = JsonConvert.SerializeObject(new GraphQLWebSocketRequest(request), Options.JsonSerializerSettings);
 			return Encoding.UTF8.GetBytes(json);
 		}
 

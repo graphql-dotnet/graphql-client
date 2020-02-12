@@ -31,6 +31,14 @@ namespace GraphQL.Client.Serializer.Tests {
 			json.Should().Be(expectedJson.RemoveWhitespace());
 		}
 
+		[Theory]
+		[ClassData(typeof(SerializeToBytesTestData))]
+		public void SerializeToBytesTest(string expectedJson, GraphQLWebSocketRequest request) {
+			var json = Encoding.UTF8.GetString(Serializer.SerializeToBytes(request)).RemoveWhitespace();
+			json.Should().Be(expectedJson.RemoveWhitespace());
+		}
+
+
 		[Fact]
 		public async void WorksWithoutCamelCaseNamingStrategy() {
 

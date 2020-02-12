@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
@@ -29,6 +31,13 @@ namespace GraphQL.Client.Serializer.Tests
 		[ClassData(typeof(SerializeToStringTestData))]
 		public void SerializeToStringTest(string expectedJson, GraphQLRequest request) {
 			var json = Serializer.SerializeToString(request).RemoveWhitespace();
+			json.Should().BeEquivalentTo(expectedJson.RemoveWhitespace());
+		}
+
+		[Theory]
+		[ClassData(typeof(SerializeToBytesTestData))]
+		public void SerializeToBytesTest(string expectedJson, GraphQLWebSocketRequest request) {
+			var json = Encoding.UTF8.GetString(Serializer.SerializeToBytes(request)).RemoveWhitespace();
 			json.Should().BeEquivalentTo(expectedJson.RemoveWhitespace());
 		}
 
