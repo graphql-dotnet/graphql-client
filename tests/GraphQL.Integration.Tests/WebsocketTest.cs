@@ -11,6 +11,7 @@ using IntegrationTestServer;
 using Microsoft.AspNetCore.Hosting;
 using Xunit;
 using Xunit.Abstractions;
+using FluentAssertions;
 
 namespace GraphQL.Integration.Tests {
 	public class WebsocketTest {
@@ -78,26 +79,24 @@ namespace GraphQL.Integration.Tests {
 				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
-				var tester = observable.SubscribeTester();
-				const string message1 = "Hello World";
+				using (var tester = observable.Monitor()) {
+					const string message1 = "Hello World";
 
-				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
-				Assert.Equal(message1, response.Data.AddMessage.Content);
+					var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
+					response.Data.AddMessage.Content.Should().Be(message1);
+					tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(3))
+						.Which.Data.MessageAdded.Content.Should().Be(message1);
 
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message1, gqlResponse.Data.MessageAdded.Content);
-				});
+					const string message2 = "lorem ipsum dolor si amet";
+					response = await client.AddMessageAsync(message2).ConfigureAwait(false);
+					response.Data.AddMessage.Content.Should().Be(message2);
+					tester.Should().HaveReceivedPayload()
+						.Which.Data.MessageAdded.Content.Should().Be(message2);
 
-				const string message2 = "lorem ipsum dolor si amet";
-				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
-				Assert.Equal(message2, response.Data.AddMessage.Content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message2, gqlResponse.Data.MessageAdded.Content);
-				});
-
-				// disposing the client should throw a TaskCanceledException on the subscription
-				client.Dispose();
-				tester.ShouldHaveCompleted();
+					// disposing the client should throw a TaskCanceledException on the subscription
+					client.Dispose();
+					tester.Should().HaveCompleted();
+				}
 			}
 		}
 
@@ -120,21 +119,19 @@ namespace GraphQL.Integration.Tests {
 				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
 
 				Debug.WriteLine("subscribing...");
-				var tester = observable.SubscribeTester();
+				var tester = observable.Monitor();
 
 				const string message1 = "Hello World";
 				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
-				Assert.Equal(message1, response.Data.AddMessage.Content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message1, gqlResponse.Data.MessageAdded.Content);
-				});
+				response.Data.AddMessage.Content.Should().Be(message1);
+				tester.Should().HaveReceivedPayload()
+					.Which.Data.MessageAdded.Content.Should().Be(message1);
 
 				const string message2 = "How are you?";
 				response = await client.AddMessageAsync(message2).ConfigureAwait(false);
-				Assert.Equal(message2, response.Data.AddMessage.Content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message2, gqlResponse.Data.MessageAdded.Content);
-				});
+				response.Data.AddMessage.Content.Should().Be(message2);
+				tester.Should().HaveReceivedPayload()
+					.Which.Data.MessageAdded.Content.Should().Be(message2);
 
 				Debug.WriteLine("disposing subscription...");
 				tester.Dispose();
@@ -142,20 +139,19 @@ namespace GraphQL.Integration.Tests {
 				await client.InitializeWebsocketConnection();
 
 				Debug.WriteLine("creating new subscription...");
-				tester = observable.SubscribeTester();
-				tester.ShouldHaveReceivedUpdate(
-					gqlResponse => { Assert.Equal(message2, gqlResponse.Data.MessageAdded.Content); },
-					TimeSpan.FromSeconds(10));
+				tester = observable.Monitor();
+				tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10))
+					.Which.Data.MessageAdded.Content.Should().Be(message2);
+
 				const string message3 = "lorem ipsum dolor si amet";
 				response = await client.AddMessageAsync(message3).ConfigureAwait(false);
-				Assert.Equal(message3, response.Data.AddMessage.Content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message3, gqlResponse.Data.MessageAdded.Content);
-				});
+				response.Data.AddMessage.Content.Should().Be(message3);
+				tester.Should().HaveReceivedPayload()
+					.Which.Data.MessageAdded.Content.Should().Be(message3);
 
 				// disposing the client should complete the subscription
 				client.Dispose();
-				tester.ShouldHaveCompleted();
+				tester.Should().HaveCompleted();
 			}
 		}
 
@@ -193,39 +189,36 @@ namespace GraphQL.Integration.Tests {
 				IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> observable2 = client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(SubscriptionRequest2, callbackTester2.Callback);
 
 				Debug.WriteLine("subscribing...");
-				var tester = observable1.SubscribeTester();
-				var tester2 = observable2.SubscribeTester();
+				var tester = observable1.Monitor();
+				var tester2 = observable2.Monitor();
 
 				const string message1 = "Hello World";
 				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
-				Assert.Equal(message1, response.Data.AddMessage.Content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message1, gqlResponse.Data.MessageAdded.Content);
-				});
+				response.Data.AddMessage.Content.Should().Be(message1);
+				tester.Should().HaveReceivedPayload()
+					.Which.Data.MessageAdded.Content.Should().Be(message1);
 
 				await Task.Delay(500); // ToDo: can be removed after https://github.com/graphql-dotnet/server/pull/199 was merged and released
 
 				var joinResponse = await client.JoinDeveloperUser().ConfigureAwait(false);
-				Assert.Equal("developer", joinResponse.Data.Join.DisplayName);
+				joinResponse.Data.Join.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
 
-				tester2.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal("1", gqlResponse.Data.UserJoined.Id);
-					Assert.Equal("developer", gqlResponse.Data.UserJoined.DisplayName);
-				});
+				var payload = tester2.Should().HaveReceivedPayload().Subject;
+				payload.Data.UserJoined.Id.Should().Be("1", "because that's the id we sent with our mutation request");
+				payload.Data.UserJoined.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
 
 				Debug.WriteLine("disposing subscription...");
 				tester2.Dispose();
 
 				const string message3 = "lorem ipsum dolor si amet";
 				response = await client.AddMessageAsync(message3).ConfigureAwait(false);
-				Assert.Equal(message3, response.Data.AddMessage.Content);
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Equal(message3, gqlResponse.Data.MessageAdded.Content);
-				});
+				response.Data.AddMessage.Content.Should().Be(message3);
+				tester.Should().HaveReceivedPayload()
+					.Which.Data.MessageAdded.Content.Should().Be(message3);
 
 				// disposing the client should complete the subscription
 				client.Dispose();
-				tester.ShouldHaveCompleted();
+				tester.Should().HaveCompleted();
 			}
 		}
 
@@ -241,15 +234,13 @@ namespace GraphQL.Integration.Tests {
 			IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Callback);
 
 			Debug.WriteLine("subscribing...");
-			var tester = observable.SubscribeTester();
+			var tester = observable.Monitor();
 			const string message1 = "Hello World";
 
 			var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
-			Assert.Equal(message1, response.Data.AddMessage.Content);
-
-			tester.ShouldHaveReceivedUpdate(gqlResponse => {
-				Assert.Equal(message1, gqlResponse.Data.MessageAdded.Content);
-			});
+			response.Data.AddMessage.Content.Should().Be(message1);
+			tester.Should().HaveReceivedPayload()
+				.Which.Data.MessageAdded.Content.Should().Be(message1);
 
 			Debug.WriteLine("stopping web host...");
 			await server.StopAsync(CancellationToken.None).ConfigureAwait(false);
@@ -268,7 +259,7 @@ namespace GraphQL.Integration.Tests {
 
 			// disposing the client should complete the subscription
 			client.Dispose();
-			tester.ShouldHaveCompleted(TimeSpan.FromSeconds(5));
+			tester.Should().HaveCompleted(TimeSpan.FromSeconds(5));
 			server.Dispose();
 		}
 
@@ -289,13 +280,12 @@ namespace GraphQL.Integration.Tests {
 					);
 
 				Debug.WriteLine("subscribing...");
-				var tester = observable.SubscribeTester();
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Single(gqlResponse.Errors);
-				});
-				tester.ShouldHaveCompleted();
-
-				client.Dispose();
+				using (var tester = observable.Monitor()) {
+					tester.Should().HaveReceivedPayload()
+						.Which.Errors.Should().ContainSingle();
+					tester.Should().HaveCompleted();
+					client.Dispose();
+				}
 			}
 		}
 
@@ -319,13 +309,12 @@ namespace GraphQL.Integration.Tests {
 				);
 
 				Debug.WriteLine("subscribing...");
-				var tester = observable.SubscribeTester();
-				tester.ShouldHaveReceivedUpdate(gqlResponse => {
-					Assert.Single(gqlResponse.Errors);
-				});
-				tester.ShouldHaveCompleted();
-
-				client.Dispose();
+				using (var tester = observable.Monitor()) {
+					tester.Should().HaveReceivedPayload()
+						.Which.Errors.Should().ContainSingle();
+					tester.Should().HaveCompleted();
+					client.Dispose();
+				}
 			}
 		}
 	}

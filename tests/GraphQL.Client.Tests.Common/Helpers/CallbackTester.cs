@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using Xunit;
+using FluentAssertions;
 
 namespace GraphQL.Client.Tests.Common.Helpers {
 	public class CallbackTester<T> {
@@ -32,8 +32,8 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// <param name="assertPayload">action to assert the contents of the payload</param>
 		public void CallbackShouldHaveBeenInvoked(Action<T> assertPayload = null, TimeSpan? timeout = null) {
 			try {
-				if (!_callbackInvoked.Wait(timeout ?? Timeout))
-					Assert.True(false, $"callback not invoked within {(timeout ?? Timeout).TotalSeconds} s!");
+				_callbackInvoked.Wait(timeout ?? Timeout).Should().BeTrue("because the callback method should have been invoked (timeout: {0} s)",
+					(timeout ?? Timeout).TotalSeconds);
 
 				assertPayload?.Invoke(LastPayload);
 			}
@@ -49,8 +49,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		public void CallbackShouldNotHaveBeenInvoked(TimeSpan? timeout = null) {
 			if (!timeout.HasValue) timeout = TimeSpan.FromMilliseconds(100);
 			try {
-				if (_callbackInvoked.Wait(timeout.Value))
-					Assert.True(false, "callback was inadvertently invoked pushed!");
+				_callbackInvoked.Wait(timeout.Value).Should().BeFalse("because the callback method should not have been invoked");
 			}
 			finally {
 				Reset();

@@ -8,6 +8,6 @@ namespace GraphQL.Client.Serializer.Tests {
 
 	public class NewtonsoftSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTest {
 		public NewtonsoftSerializeNoCamelCaseTest()
-			: base(new NewtonsoftJsonSerializer(options => options.JsonSerializerSettings = new JsonSerializerSettings())) { }
+			: base(new NewtonsoftJsonSerializer(new JsonSerializerSettings())) { }
 	}
 }

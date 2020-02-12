@@ -1,39 +1,44 @@
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.Serializer.Newtonsoft
 {
     public class NewtonsoftJsonSerializer: IGraphQLWebsocketJsonSerializer
     {
-	    public NewtonsoftJsonSerializerOptions Options { get; }
+		public static JsonSerializerSettings DefaultJsonSerializerSettings => new JsonSerializerSettings {
+			ContractResolver = new CamelCasePropertyNamesContractResolver { IgnoreIsSpecifiedMembers = true },
+			MissingMemberHandling = MissingMemberHandling.Ignore
+		};
 
-	    public NewtonsoftJsonSerializer() : this(new NewtonsoftJsonSerializerOptions()) { }
+		public JsonSerializerSettings JsonSerializerSettings { get; }
 
-		public NewtonsoftJsonSerializer(Action<NewtonsoftJsonSerializerOptions> configure) : this(configure.New()) { }
+	    public NewtonsoftJsonSerializer() : this(DefaultJsonSerializerSettings) { }
 
-		public NewtonsoftJsonSerializer(NewtonsoftJsonSerializerOptions options) {
-		    Options = options;
+		public NewtonsoftJsonSerializer(Action<JsonSerializerSettings> configure) : this(configure.AndReturn(DefaultJsonSerializerSettings)) { }
+
+		public NewtonsoftJsonSerializer(JsonSerializerSettings jsonSerializerSettings) {
+		    JsonSerializerSettings = jsonSerializerSettings;
 		    ConfigureMandatorySerializerOptions();
 		}
 
 		private void ConfigureMandatorySerializerOptions() {
 			// deserialize extensions to Dictionary<string, object>
-			Options.JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
+			JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
 		}
 
 		public string SerializeToString(GraphQL.GraphQLRequest request) {
-		    return JsonConvert.SerializeObject(new GraphQLRequest(request), Options.JsonSerializerSettings);
+		    return JsonConvert.SerializeObject(new GraphQLRequest(request), JsonSerializerSettings);
 		}
 
 		public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request) {
-			var json = JsonConvert.SerializeObject(new GraphQLWebSocketRequest(request), Options.JsonSerializerSettings);
+			var json = JsonConvert.SerializeObject(new GraphQLWebSocketRequest(request), JsonSerializerSettings);
 			return Encoding.UTF8.GetBytes(json);
 		}
 
@@ -43,7 +48,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 
 		public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) {
 			return JsonConvert.DeserializeObject<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(Encoding.UTF8.GetString(bytes),
-				Options.JsonSerializerSettings);
+				JsonSerializerSettings);
 		}
 
 		public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) {
@@ -54,7 +59,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 		private Task<T> DeserializeFromUtf8Stream<T>(Stream stream) {
 			using StreamReader sr = new StreamReader(stream);
 			using JsonReader reader = new JsonTextReader(sr);
-			JsonSerializer serializer = JsonSerializer.Create(Options.JsonSerializerSettings);
+			JsonSerializer serializer = JsonSerializer.Create(JsonSerializerSettings);
 			return Task.FromResult(serializer.Deserialize<T>(reader));
 		}
 

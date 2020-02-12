@@ -1,27 +1,31 @@
 using System;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Threading;
-using Xunit;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using FluentAssertions.Primitives;
 
 namespace GraphQL.Client.Tests.Common.Helpers {
-	public class ObservableTester<T> : IDisposable {
-		private readonly IDisposable _subscription;
-		private ManualResetEventSlim _updateReceived { get; } = new ManualResetEventSlim();
-		private ManualResetEventSlim _completed { get; } = new ManualResetEventSlim();
-		private ManualResetEventSlim _error { get; } = new ManualResetEventSlim();
+	public class ObservableTester<TPayload> : IDisposable {
+		private readonly IDisposable subscription;
+		private readonly ManualResetEventSlim updateReceived = new ManualResetEventSlim();
+		private readonly ManualResetEventSlim completed = new ManualResetEventSlim();
+		private readonly ManualResetEventSlim error = new ManualResetEventSlim();
 
 		/// <summary>
 		/// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
 		/// </summary>
-		public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(3);
+		public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);
 
 		/// <summary>
 		/// Indicates that an update has been received since the last <see cref="_reset"/>
 		/// </summary>
-		public bool UpdateReceived => _updateReceived.IsSet;
+		public bool UpdateReceived => updateReceived.IsSet;
 		/// <summary>
 		/// The last payload which was received.
 		/// </summary>
-		public T LastPayload { get; private set; }
+		public TPayload LastPayload { get; private set; }
 
 		public Exception Error { get; private set; }
 
@@ -29,101 +33,104 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// Creates a new <see cref="ObservableTester{T}"/> which subscribes to the supplied <see cref="IObservable{T}"/>
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
-		public ObservableTester(IObservable<T> observable) {
-			_subscription = observable.Subscribe(
+		public ObservableTester(IObservable<TPayload> observable) {
+			subscription = observable.ObserveOn(TaskPoolScheduler.Default).Subscribe(
 				obj => {
 					LastPayload = obj;
-					_updateReceived.Set();
+					updateReceived.Set();
 				},
 				ex => {
 					Error = ex;
-					_error.Set();
+					error.Set();
 				},
-				() => _completed.Set()
+				() => completed.Set()
 			);
-		}
-
-		/// <summary>
-		/// Asserts that a new update has been pushed to the <see cref="IObservable{T}"/> within the configured <see cref="Timeout"/> since the last <see cref="_reset"/>.
-		/// If supplied, the <paramref name="assertPayload"/> action is executed on the submitted payload.
-		/// </summary>
-		/// <param name="assertPayload">action to assert the contents of the payload</param>
-		public void ShouldHaveReceivedUpdate(Action<T> assertPayload = null, TimeSpan? timeout = null) {
-			try {
-				if (!_updateReceived.Wait(timeout ?? Timeout))
-					Assert.True(false, $"no update received within {(timeout ?? Timeout).TotalSeconds} s!");
-
-				assertPayload?.Invoke(LastPayload);
-			}
-			finally {
-				_reset();
-			}
-		}
-
-		/// <summary>
-		/// Asserts that no new update has been pushed within the given <paramref name="millisecondsTimeout"/> since the last <see cref="_reset"/>
-		/// </summary>
-		/// <param name="millisecondsTimeout">the time in ms in which no new update must be pushed to the <see cref="IObservable{T}"/>. defaults to 100</param>
-		public void ShouldNotHaveReceivedUpdate(TimeSpan? timeout = null) {
-			if (!timeout.HasValue) timeout = TimeSpan.FromMilliseconds(100);
-			try {
-				if (_updateReceived.Wait(timeout.Value))
-					Assert.True(false, "update was inadvertently pushed!");
-			}
-			finally {
-				_reset();
-			}
-		}
-
-		/// <summary>
-		/// Asserts that the subscription has completed within the configured <see cref="Timeout"/> since the last <see cref="_reset"/>
-		/// </summary>
-		public void ShouldHaveCompleted(TimeSpan? timeout = null) {
-			try {
-				if (!_completed.Wait(timeout ?? Timeout))
-					Assert.True(false, $"subscription did not complete within {(timeout ?? Timeout).TotalSeconds} s!");
-			}
-			finally {
-				_reset();
-			}
-		}
-
-		/// <summary>
-		/// Asserts that the subscription has completed within the configured <see cref="Timeout"/> since the last <see cref="_reset"/>
-		/// </summary>
-		public void ShouldHaveThrownError(Action<Exception> assertError = null, TimeSpan? timeout = null) {
-			try {
-				if (!_error.Wait(timeout ?? Timeout))
-					Assert.True(false, $"subscription did not throw an error within {(timeout ?? Timeout).TotalSeconds} s!");
-
-				assertError?.Invoke(Error);
-			}
-			finally {
-				_reset();
-			}
 		}
 
 		/// <summary>
 		/// Resets the tester class. Should be called before triggering the potential update
 		/// </summary>
-		private void _reset() {
-			//if (_completed.IsSet)
-			//	throw new InvalidOperationException(
-			//		"the subscription sequence has completed. this tester instance cannot be reused");
-
-			LastPayload = default(T);
-			_updateReceived.Reset();
+		private void Reset() {
+			updateReceived.Reset();
 		}
 
 		/// <inheritdoc />
 		public void Dispose() {
-			_subscription?.Dispose();
+			subscription?.Dispose();
+		}
+
+		public SubscriptionAssertions<TPayload> Should() {
+			return new SubscriptionAssertions<TPayload>(this);
+		}
+
+		public class SubscriptionAssertions<TPayload> : ReferenceTypeAssertions<ObservableTester<TPayload>, SubscriptionAssertions<TPayload>> {
+			public SubscriptionAssertions(ObservableTester<TPayload> tester) {
+				Subject = tester;
+			}
+
+			protected override string Identifier => "Subscription";
+
+			public AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload> HaveReceivedPayload(TimeSpan timeout,
+				string because = "", params object[] becauseArgs) {
+				Execute.Assertion
+					.BecauseOf(because, becauseArgs)
+					.Given(() => Subject.updateReceived.Wait(timeout))
+					.ForCondition(isSet => isSet)
+					.FailWith("Expected {context:Subscription} to receive new payload{reason}, but did not receive an update within {0}", timeout);
+
+				Subject.updateReceived.Reset();
+				return new AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload>(this, Subject.LastPayload);
+			}
+			public AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload> HaveReceivedPayload(string because = "", params object[] becauseArgs)
+				=> HaveReceivedPayload(Subject.Timeout, because, becauseArgs);
+
+			public AndConstraint<SubscriptionAssertions<TPayload>> NotHaveReceivedPayload(TimeSpan timeout,
+				string because = "", params object[] becauseArgs) {
+				Execute.Assertion
+					.BecauseOf(because, becauseArgs)
+					.Given(() => Subject.updateReceived.Wait(timeout))
+					.ForCondition(isSet => !isSet)
+					.FailWith("Expected {context:Subscription} to not receive a new payload{reason}, but did receive an update: {0}", Subject.LastPayload);
+
+				Subject.updateReceived.Reset();
+				return new AndConstraint<SubscriptionAssertions<TPayload>>(this);
+			}
+			public AndConstraint<SubscriptionAssertions<TPayload>> NotHaveReceivedPayload(string because = "", params object[] becauseArgs)
+				=> NotHaveReceivedPayload(TimeSpan.FromMilliseconds(100), because, becauseArgs);
+
+			public AndWhichConstraint<SubscriptionAssertions<TPayload>, Exception> HaveReceivedError(TimeSpan timeout,
+				string because = "", params object[] becauseArgs) {
+				Execute.Assertion
+					.BecauseOf(because, becauseArgs)
+					.Given(() => Subject.error.Wait(timeout))
+					.ForCondition(isSet => isSet)
+					.FailWith("Expected {context:Subscription} to fail{reason}, but did not receive an error within {0}", timeout);
+
+				return new AndWhichConstraint<SubscriptionAssertions<TPayload>, Exception>(this, Subject.Error);
+			}
+			public AndWhichConstraint<SubscriptionAssertions<TPayload>, Exception> HaveReceivedError(string because = "", params object[] becauseArgs)
+				=> HaveReceivedError(Subject.Timeout, because, becauseArgs);
+
+
+			public AndConstraint<SubscriptionAssertions<TPayload>> HaveCompleted(TimeSpan timeout,
+				string because = "", params object[] becauseArgs) {
+				Execute.Assertion
+					.BecauseOf(because, becauseArgs)
+					.Given(() => Subject.completed.Wait(timeout))
+					.ForCondition(isSet => isSet)
+					.FailWith("Expected {context:Subscription} to complete{reason}, but did not complete within {0}", timeout);
+
+				return new AndConstraint<SubscriptionAssertions<TPayload>>(this);
+			}
+			public AndConstraint<SubscriptionAssertions<TPayload>> HaveCompleted(string because = "", params object[] becauseArgs)
+				=> HaveCompleted(Subject.Timeout, because, becauseArgs);
 		}
 	}
 
 	public static class ObservableExtensions {
-		public static ObservableTester<T> SubscribeTester<T>(this IObservable<T> observable) {
+		public static ObservableTester<T> Monitor<T>(this IObservable<T> observable) {
 			return new ObservableTester<T>(observable);
 		}
 	}
+
 }

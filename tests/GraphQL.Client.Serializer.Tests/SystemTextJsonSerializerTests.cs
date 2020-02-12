@@ -9,6 +9,6 @@ namespace GraphQL.Client.Serializer.Tests {
 
 	public class SystemTextJsonSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTest {
 		public SystemTextJsonSerializeNoCamelCaseTest()
-			: base(new SystemTextJsonSerializer(options => options.JsonSerializerOptions = new JsonSerializerOptions().SetupExtensions())) { }
+			: base(new SystemTextJsonSerializer(new JsonSerializerOptions().SetupExtensions())) { }
 	}
 }

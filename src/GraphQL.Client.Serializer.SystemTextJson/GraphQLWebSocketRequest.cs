@@ -17,7 +17,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson {
 		public GraphQLWebSocketRequest(Abstractions.Websocket.GraphQLWebSocketRequest other) {
 			Id = other.Id;
 			Type = other.Type;
-			Payload = new GraphQLRequest(other.Payload);
+			Payload = other.Payload != null ? new GraphQLRequest(other.Payload) : null; // create serializer-specific type;
 		}
 	}
 }
