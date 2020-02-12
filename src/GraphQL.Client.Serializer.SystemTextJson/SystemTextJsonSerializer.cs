@@ -14,16 +14,19 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 	    public SystemTextJsonSerializer()
 	    {
 			Options = new SystemTextJsonSerializerOptions();
-	    }
+			Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
+		}
 	    public SystemTextJsonSerializer(Action<SystemTextJsonSerializerOptions> configure) {
 		    var options = new SystemTextJsonSerializerOptions();
 		    configure(options);
 		    Options = options;
-	    }
+		    Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
+		}
 
 		public SystemTextJsonSerializer(SystemTextJsonSerializerOptions options) {
 		    Options = options;
-	    }
+		    Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
+		}
 
 	    public string SerializeToString(GraphQLRequest request) {
 		    return JsonSerializer.Serialize(new STJGraphQLRequest(request), Options.JsonSerializerOptions);

@@ -43,15 +43,9 @@ namespace GraphQL.Client.Serializer.Tests
 			response.Errors[0].Extensions.Should().NotBeNull();
 			response.Errors[0].Extensions.Should().ContainKey("data");
 
-			AssertGraphQlErrorDataExtensions(response.Errors[0].Extensions["data"], ChatQuery.TestExtensions);
+			response.Errors[0].Extensions["data"].Should().BeEquivalentTo(ChatQuery.TestExtensions);
 		}
 
-		/// <summary>
-		/// serializer-specific assertion of the <see cref="GraphQLError.Extensions"/> field
-		/// </summary>
-		/// <param name="dataField">the field with key "data" from <see cref="GraphQLError.Extensions"/></param>
-		/// <param name="expectedContent"><see cref="ChatQuery.TestExtensions"/></param>
-		protected abstract void AssertGraphQlErrorDataExtensions(object dataField, IDictionary<string, object> expectedContent);
 
 		[Theory]
 		[ClassData(typeof(StarWarsHumans))]

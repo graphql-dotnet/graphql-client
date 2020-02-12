@@ -8,7 +8,7 @@ namespace GraphQL.Client.Tests.Common.Chat {
 @"mutation($input: MessageInputType){
   addMessage(message: $input){
     content
-  }
+  }  
 }";
 
 		public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this IGraphQLClient client, string message) {
