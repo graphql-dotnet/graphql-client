@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace GraphQL.Integration.Tests.Helpers {
+namespace GraphQL.Client.Tests.Common.Helpers {
 	public static class NetworkHelpers {
 		public static int GetFreeTcpPortNumber() {
 			var l = new TcpListener(IPAddress.Loopback, 0);

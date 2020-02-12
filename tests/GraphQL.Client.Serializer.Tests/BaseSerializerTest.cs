@@ -7,6 +7,7 @@ using GraphQL.Client.Serializer.Tests.TestData;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
+using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Client.Tests.Common.StarWars;
 using Xunit;
 
@@ -27,8 +28,8 @@ namespace GraphQL.Client.Serializer.Tests
 		[Theory]
 		[ClassData(typeof(SerializeToStringTestData))]
 		public void SerializeToStringTest(string expectedJson, GraphQLRequest request) {
-			var json = Serializer.SerializeToString(request);
-			json.Should().BeEquivalentTo(expectedJson);
+			var json = Serializer.SerializeToString(request).RemoveWhitespace();
+			json.Should().BeEquivalentTo(expectedJson.RemoveWhitespace());
 		}
 
 		[Fact]

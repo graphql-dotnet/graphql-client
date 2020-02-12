@@ -2,6 +2,7 @@ using System;
 using GraphQL.Client;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL.Client.Tests.Common.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
