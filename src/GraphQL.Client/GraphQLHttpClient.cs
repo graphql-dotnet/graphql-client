@@ -28,41 +28,39 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public GraphQLHttpClientOptions Options { get; }
 
-		/// <inheritdoc />
+		/// <summary>
+		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
+		/// </summary>
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
+
+
+		#region Constructors
 
 		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
 
 		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint) { }
 
-		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) {
-			Options = new GraphQLHttpClientOptions();
-			configure(Options);
-			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
-		}
+		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) : this(configure.New()) { }
 
-		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
-			Options = options;
-			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
-		}
+		public GraphQLHttpClient(GraphQLHttpClientOptions options) : this(options, new HttpClient(options.HttpMessageHandler)) { }
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
-			this.HttpClient = httpClient;
+			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
 		}
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {
-			Options = options;
+			Options = options ?? throw new ArgumentNullException(nameof(options));
 			Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
+
+		#endregion
+
+		#region IGraphQLClient
 
 		/// <inheritdoc />
 		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
@@ -106,6 +104,8 @@ namespace GraphQL.Client.Http {
 			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
+
+		#endregion
 
 		/// <summary>
 		/// explicitly opens the websocket connection. Will be closed again on disposing the last subscription

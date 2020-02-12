@@ -1,8 +1,10 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using Newtonsoft.Json;
 
@@ -12,23 +14,19 @@ namespace GraphQL.Client.Serializer.Newtonsoft
     {
 	    public NewtonsoftJsonSerializerOptions Options { get; }
 
-	    public NewtonsoftJsonSerializer()
-	    {
-			Options = new NewtonsoftJsonSerializerOptions();
-			Options.JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
-		}
-		public NewtonsoftJsonSerializer(Action<NewtonsoftJsonSerializerOptions> configure) {
-			var options = new NewtonsoftJsonSerializerOptions();
-			configure(options);
-			Options = options;
-			Options.JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
-		}
+	    public NewtonsoftJsonSerializer() : this(new NewtonsoftJsonSerializerOptions()) { }
+
+		public NewtonsoftJsonSerializer(Action<NewtonsoftJsonSerializerOptions> configure) : this(configure.New()) { }
 
 		public NewtonsoftJsonSerializer(NewtonsoftJsonSerializerOptions options) {
 		    Options = options;
-		    Options.JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
+		    ConfigureMandatorySerializerOptions();
 		}
 
+		private void ConfigureMandatorySerializerOptions() {
+			// deserialize extensions to Dictionary<string, object>
+			Options.JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
+		}
 
 		public string SerializeToString(GraphQLRequest request) {
 		    return JsonConvert.SerializeObject(request, Options.JsonSerializerSettings);

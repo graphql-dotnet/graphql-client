@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Serializer.SystemTextJson
@@ -11,21 +12,20 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     {
 	    public SystemTextJsonSerializerOptions Options { get; }
 
-	    public SystemTextJsonSerializer()
-	    {
-			Options = new SystemTextJsonSerializerOptions();
-			Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
-		}
-	    public SystemTextJsonSerializer(Action<SystemTextJsonSerializerOptions> configure) {
-		    var options = new SystemTextJsonSerializerOptions();
-		    configure(options);
-		    Options = options;
-		    Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
-		}
+	    public SystemTextJsonSerializer() : this(new SystemTextJsonSerializerOptions()) { }
+
+	    public SystemTextJsonSerializer(Action<SystemTextJsonSerializerOptions> configure) : this(configure.New()) { }
 
 		public SystemTextJsonSerializer(SystemTextJsonSerializerOptions options) {
 		    Options = options;
-		    Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
+		    ConfigureMandatorySerializerOptions();
+		}
+
+		private void ConfigureMandatorySerializerOptions() {
+			// deserialize extensions to Dictionary<string, object>
+			Options.JsonSerializerOptions.Converters.Insert(0, new GraphQLExtensionsConverter());
+			// allow the JSON field "data" to match the property "Data" even without JsonNamingPolicy.CamelCase
+			Options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 		}
 
 	    public string SerializeToString(GraphQLRequest request) {

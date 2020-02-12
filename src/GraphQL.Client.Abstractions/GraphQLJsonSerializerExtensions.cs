@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace GraphQL.Client.Abstractions {
@@ -19,6 +20,12 @@ namespace GraphQL.Client.Abstractions {
 			}
 
 			return jsonSerializer;
+		}
+
+		public static TOptions New<TOptions>(this Action<TOptions> configure) {
+			var options = Activator.CreateInstance<TOptions>();
+			configure(options);
+			return options;
 		}
 	}
 }
