@@ -1,5 +1,6 @@
 using System;
 using GraphQL.Client;
+using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Client.Tests.Common.Helpers;
@@ -33,19 +34,20 @@ namespace GraphQL.Integration.Tests.Helpers
 		}
 
 
-		public static GraphQLHttpClient GetGraphQLClient(int port, bool requestsViaWebsocket = false)
+		public static GraphQLHttpClient GetGraphQLClient(int port, bool requestsViaWebsocket = false, IGraphQLWebsocketJsonSerializer serializer = null)
 			=> new GraphQLHttpClient(new GraphQLHttpClientOptions {
 				EndPoint = new Uri($"http://localhost:{port}/graphql"),
 				UseWebSocketForQueriesAndMutations = requestsViaWebsocket,
-				JsonSerializer = new NewtonsoftJsonSerializer()
+				JsonSerializer = serializer ?? new NewtonsoftJsonSerializer()
 			});
 		
-		public static TestServerSetup SetupTest<TStartup>(bool requestsViaWebsocket = false) where TStartup : class
+		public static TestServerSetup SetupTest<TStartup>(bool requestsViaWebsocket = false, IGraphQLWebsocketJsonSerializer serializer = null)
+			where TStartup : class
 		{
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			return new TestServerSetup {
 				Server = CreateServer<TStartup>(port),
-				Client = GetGraphQLClient(port)
+				Client = GetGraphQLClient(port, requestsViaWebsocket, serializer)
 			};
 		}
 	}
