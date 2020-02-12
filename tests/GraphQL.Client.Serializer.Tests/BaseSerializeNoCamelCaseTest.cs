@@ -28,7 +28,7 @@ namespace GraphQL.Client.Serializer.Tests {
 		[ClassData(typeof(SerializeToStringTestData))]
 		public void SerializeToStringTest(string expectedJson, GraphQLRequest request) {
 			var json = Serializer.SerializeToString(request).RemoveWhitespace();
-			json.Should().BeEquivalentTo(expectedJson.RemoveWhitespace());
+			json.Should().Be(expectedJson.RemoveWhitespace());
 		}
 
 		[Fact]

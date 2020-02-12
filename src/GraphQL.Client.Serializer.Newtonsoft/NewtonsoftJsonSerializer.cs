@@ -28,11 +28,11 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 			Options.JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
 		}
 
-		public string SerializeToString(GraphQLRequest request) {
-		    return JsonConvert.SerializeObject(request, Options.JsonSerializerSettings);
+		public string SerializeToString(GraphQL.GraphQLRequest request) {
+		    return JsonConvert.SerializeObject(new GraphQLRequest(request), Options.JsonSerializerSettings);
 		}
 
-		public byte[] SerializeToBytes(GraphQLWebSocketRequest request) {
+		public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request) {
 			var json = JsonConvert.SerializeObject(request, Options.JsonSerializerSettings);
 			return Encoding.UTF8.GetBytes(json);
 		}

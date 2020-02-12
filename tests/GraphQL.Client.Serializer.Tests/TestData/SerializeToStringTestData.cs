@@ -10,8 +10,8 @@ namespace GraphQL.Client.Serializer.Tests.TestData {
 				new GraphQLRequest("simple query string")
 			};
 			yield return new object[] {
-				"{\"query\":\"simplequerystring\",\"operationName\":null,\"variables\":{\"camelCaseProperty\":\"test\",\"pascalCaseProperty\":\"test\"}}",
-				new GraphQLRequest("simple query string", new { camelCaseProperty = "test", PascalCaseProperty = "test"})
+				"{\"query\":\"simplequerystring\",\"operationName\":null,\"variables\":{\"camelCaseProperty\":\"camelCase\",\"PascalCaseProperty\":\"PascalCase\"}}",
+				new GraphQLRequest("simple query string", new { camelCaseProperty = "camelCase", PascalCaseProperty = "PascalCase"})
 			};
 		}
 

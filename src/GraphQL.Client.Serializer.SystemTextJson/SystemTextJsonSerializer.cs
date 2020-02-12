@@ -28,16 +28,16 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 			Options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 		}
 
-	    public string SerializeToString(GraphQLRequest request) {
-		    return JsonSerializer.Serialize(new STJGraphQLRequest(request), Options.JsonSerializerOptions);
+	    public string SerializeToString(GraphQL.GraphQLRequest request) {
+		    return JsonSerializer.Serialize(new GraphQLRequest(request), Options.JsonSerializerOptions);
 	    }
 
 	    public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) {
 		    return JsonSerializer.DeserializeAsync<GraphQLResponse<TResponse>>(stream, Options.JsonSerializerOptions, cancellationToken).AsTask();
 	    }
 
-	    public byte[] SerializeToBytes(GraphQLWebSocketRequest request) {
-		    return JsonSerializer.SerializeToUtf8Bytes(new STJGraphQLWebSocketRequest(request), Options.JsonSerializerOptions);
+	    public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request) {
+		    return JsonSerializer.SerializeToUtf8Bytes(new GraphQLWebSocketRequest(request), Options.JsonSerializerOptions);
 	    }
 
 	    public Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {

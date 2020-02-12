@@ -1,8 +1,7 @@
 using System.Text.Json.Serialization;
-using Dahomey.Json.Attributes;
 
 namespace GraphQL.Client.Serializer.SystemTextJson {
-	public class STJGraphQLRequest: GraphQLRequest {
+	public class GraphQLRequest: GraphQL.GraphQLRequest {
 		[JsonPropertyName(QueryKey)]
 		public override string Query { get; set; }
 		[JsonPropertyName(OperationNameKey)]
@@ -10,9 +9,9 @@ namespace GraphQL.Client.Serializer.SystemTextJson {
 		[JsonPropertyName(VariablesKey)]
 		public override object? Variables { get; set; }
 
-		public STJGraphQLRequest() { }
+		public GraphQLRequest() { }
 
-		public STJGraphQLRequest(GraphQLRequest other) {
+		public GraphQLRequest(GraphQL.GraphQLRequest other) {
 			Query = other.Query;
 			OperationName = other.OperationName;
 			Variables = other.Variables;

@@ -1,24 +1,23 @@
 using System.Text.Json.Serialization;
-using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Serializer.SystemTextJson {
-	public class STJGraphQLWebSocketRequest: GraphQLWebSocketRequest {
+	public class GraphQLWebSocketRequest: Abstractions.Websocket.GraphQLWebSocketRequest {
 
 		[JsonPropertyName(IdKey)]
 		public override string Id { get; set; }
 		[JsonPropertyName(TypeKey)]
 		public override string Type { get; set; }
 		[JsonPropertyName(PayloadKey)]
-		public override GraphQLRequest Payload { get; set; }
+		public override GraphQL.GraphQLRequest Payload { get; set; }
 
-		public STJGraphQLWebSocketRequest()
+		public GraphQLWebSocketRequest()
 		{
 		}
 
-		public STJGraphQLWebSocketRequest(GraphQLWebSocketRequest other) {
+		public GraphQLWebSocketRequest(Abstractions.Websocket.GraphQLWebSocketRequest other) {
 			Id = other.Id;
 			Type = other.Type;
-			Payload = new STJGraphQLRequest(other.Payload);
+			Payload = new GraphQLRequest(other.Payload);
 		}
 	}
 }
