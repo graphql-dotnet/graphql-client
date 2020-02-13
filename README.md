@@ -45,7 +45,7 @@ var heroAndFriendsRequest = new GraphQLRequest {
 
 ### Execute Query/Mutation:
 ```csharp
-var graphQLClient = new GraphQLClient("https://swapi.apis.guru/");
+var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/");
 
 public class HeroAndFriendsResponse {
     public Hero Hero {get; set;}
