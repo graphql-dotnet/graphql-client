@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using GraphQL.Client.Abstractions;
+using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Integration.Tests.Helpers;
@@ -11,21 +13,24 @@ using IntegrationTestServer;
 using Microsoft.AspNetCore.Hosting;
 using Xunit;
 using Xunit.Abstractions;
-using FluentAssertions;
-using GraphQL.Client.Abstractions.Websocket;
 
-namespace GraphQL.Integration.Tests {
-	public class WebsocketTest {
-		private readonly ITestOutputHelper output;
-		private static IWebHost CreateServer(int port) => WebHostHelpers.CreateServer<StartupChat>(port);
+namespace GraphQL.Integration.Tests.WebsocketTests {
+	public abstract class Base {
+		protected readonly ITestOutputHelper output;
+		protected readonly IGraphQLWebsocketJsonSerializer serializer;
+		protected IWebHost CreateServer(int port) => WebHostHelpers.CreateServer<StartupChat>(port);
 
-		public WebsocketTest(ITestOutputHelper output) {
+		public Base(ITestOutputHelper output, IGraphQLWebsocketJsonSerializer serializer) {
+			this.output = output;
+			this.serializer = serializer;
+		}
+
+		public Base(ITestOutputHelper output) {
 			this.output = output;
 		}
 		
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void AssertTestingHarness(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void AssertTestingHarness() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = WebHostHelpers.GetGraphQLClient(port, serializer: serializer);
@@ -38,9 +43,8 @@ namespace GraphQL.Integration.Tests {
 		}
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanSendRequestViaWebsocket(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanSendRequestViaWebsocket() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = WebHostHelpers.GetGraphQLClient(port, true, serializer);
@@ -51,10 +55,8 @@ namespace GraphQL.Integration.Tests {
 			}
 		}
 
-
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanHandleRequestErrorViaWebsocket(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanHandleRequestErrorViaWebsocket() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = WebHostHelpers.GetGraphQLClient(port, true, serializer);
@@ -74,9 +76,8 @@ namespace GraphQL.Integration.Tests {
 		private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest(SubscriptionQuery);
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanCreateObservableSubscription(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanCreateObservableSubscription() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = WebHostHelpers.GetGraphQLClient(port, serializer: serializer);
@@ -116,9 +117,8 @@ namespace GraphQL.Integration.Tests {
 		}
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanReconnectWithSameObservable(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanReconnectWithSameObservable() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = WebHostHelpers.GetGraphQLClient(port, serializer: serializer);
@@ -185,9 +185,8 @@ namespace GraphQL.Integration.Tests {
 		private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest(SubscriptionQuery2);
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanConnectTwoSubscriptionsSimultaneously(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanConnectTwoSubscriptionsSimultaneously() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			var callbackTester = new CallbackTester<Exception>();
 			var callbackTester2 = new CallbackTester<Exception>();
@@ -234,9 +233,8 @@ namespace GraphQL.Integration.Tests {
 		}
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanHandleConnectionTimeout(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanHandleConnectionTimeout() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			var server = CreateServer(port);
 			var callbackTester = new CallbackTester<Exception>();
@@ -277,9 +275,8 @@ namespace GraphQL.Integration.Tests {
 		}
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanHandleSubscriptionError(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanHandleSubscriptionError() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 				var client = WebHostHelpers.GetGraphQLClient(port, serializer: serializer);
@@ -305,9 +302,8 @@ namespace GraphQL.Integration.Tests {
 		}
 
 
-		[Theory]
-		[ClassData(typeof(AvailableJsonSerializers<IGraphQLWebsocketJsonSerializer>))]
-		public async void CanHandleQueryErrorInSubscription(IGraphQLWebsocketJsonSerializer serializer) {
+		[Fact]
+		public async void CanHandleQueryErrorInSubscription() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			using (CreateServer(port)) {
 

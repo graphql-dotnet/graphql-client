@@ -1,19 +1,25 @@
 using System.Net.Http;
-using System.Text.Json;
 using GraphQL.Client.Abstractions;
+using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Client.Tests.Common.StarWars;
 using GraphQL.Integration.Tests.Helpers;
 using IntegrationTestServer;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace GraphQL.Integration.Tests {
-	public class QueryAndMutationTests {
+namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
-		private static TestServerSetup SetupTest(bool requestsViaWebsocket = false) => WebHostHelpers.SetupTest<StartupStarWars>(requestsViaWebsocket);
-		
+	public abstract class Base {
+
+		protected IGraphQLWebsocketJsonSerializer serializer;
+
+		private TestServerSetup SetupTest(bool requestsViaWebsocket = false) => WebHostHelpers.SetupTest<StartupStarWars>(requestsViaWebsocket, serializer);
+
+		protected Base(IGraphQLWebsocketJsonSerializer serializer) {
+			this.serializer = serializer;
+		}
+
 		[Theory]
 		[ClassData(typeof(StarWarsHumans))]
 		public async void QueryTheory(int id, string name) {
