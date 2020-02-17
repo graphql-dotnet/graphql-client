@@ -17,22 +17,23 @@ namespace GraphQL.Client.Http.Websocket {
 		private readonly GraphQLHttpClientOptions options;
 		private readonly ArraySegment<byte> buffer;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-		private Subject<WebsocketResponseWrapper> responseSubject;
 		private readonly Subject<GraphQLWebSocketRequest> requestSubject = new Subject<GraphQLWebSocketRequest>();
 		private readonly Subject<Exception> exceptionSubject = new Subject<Exception>();
 		private readonly IDisposable requestSubscription;
 
-		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
-		public IObservable<Exception> ReceiveErrors => exceptionSubject.AsObservable();
-		public IObservable<WebsocketResponseWrapper> ResponseStream { get; }
+		private int connectionAttempt = 0;
+		private Subject<WebsocketResponseWrapper> responseSubject;
 
 #if NETFRAMEWORK
 		private WebSocket clientWebSocket = null;
 #else
 		private ClientWebSocket clientWebSocket = null;
 #endif
-		private int connectionAttempt = 0;
+
+
+		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
+		public IObservable<Exception> ReceiveErrors => exceptionSubject.AsObservable();
+		public IObservable<WebsocketResponseWrapper> ResponseStream { get; }
 
 		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options) {
 			this.webSocketUri = webSocketUri;
@@ -74,8 +75,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 		#endregion
 
-		public Task InitializeWebSocketTask { get; private set; } = Task.CompletedTask;
-
+		private Task initializeWebSocketTask = Task.CompletedTask;
 		private readonly object initializeLock = new object();
 		
 		public Task InitializeWebSocket() {
@@ -85,10 +85,10 @@ namespace GraphQL.Client.Http.Websocket {
 
 			lock (initializeLock) {
 				// if an initialization task is already running, return that
-				if (InitializeWebSocketTask != null &&
-				   !InitializeWebSocketTask.IsFaulted &&
-				   !InitializeWebSocketTask.IsCompleted)
-					return InitializeWebSocketTask;
+				if (initializeWebSocketTask != null &&
+				   !initializeWebSocketTask.IsFaulted &&
+				   !initializeWebSocketTask.IsCompleted)
+					return initializeWebSocketTask;
 
 				// if the websocket is open, return a completed task
 				if (clientWebSocket != null && clientWebSocket.State == WebSocketState.Open)
@@ -122,9 +122,38 @@ namespace GraphQL.Client.Http.Websocket {
 				clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)options.HttpMessageHandler).ClientCertificates;
 				clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)options.HttpMessageHandler).UseDefaultCredentials;
 #endif
-				return InitializeWebSocketTask = _connectAsync(cancellationTokenSource.Token);
+				return initializeWebSocketTask = _connectAsync(cancellationTokenSource.Token);
 			}
 		}
+
+		private async Task _connectAsync(CancellationToken token) {
+			try {
+				await _backOff().ConfigureAwait(false);
+				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
+				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
+				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
+				connectionAttempt = 1;
+			}
+			catch (Exception e) {
+				exceptionSubject.OnNext(e);
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// delay the next connection attempt using <see cref="GraphQLHttpClientOptions.BackOffStrategy"/>
+		/// </summary>
+		/// <returns></returns>
+		private Task _backOff() {
+			connectionAttempt++;
+
+			if (connectionAttempt == 1) return Task.CompletedTask;
+
+			var delay = options.BackOffStrategy?.Invoke(connectionAttempt - 1) ?? TimeSpan.FromSeconds(5);
+			Debug.WriteLine($"connection attempt #{connectionAttempt}, backing off for {delay.TotalSeconds} s");
+			return Task.Delay(delay);
+		}
+
 
 		private IObservable<WebsocketResponseWrapper> _createResponseStream() {
 			return Observable.Create<WebsocketResponseWrapper>(_createResultStream)
@@ -135,10 +164,16 @@ namespace GraphQL.Client.Http.Websocket {
 
 		private async Task<IDisposable> _createResultStream(IObserver<WebsocketResponseWrapper> observer, CancellationToken token) {
 			if (responseSubject == null || responseSubject.IsDisposed) {
+				// create new response subject
 				responseSubject = new Subject<WebsocketResponseWrapper>();
-				var observable = await _getReceiveResultStream().ConfigureAwait(false);
-				observable.Subscribe(responseSubject);
 
+				// initialize and connect websocket
+				await InitializeWebSocket().ConfigureAwait(false);
+
+				// loop the receive task and subscribe the created subject to the results 
+				Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat().Subscribe(responseSubject);
+
+				// dispose the subject on any error or completion (will be recreated) 
 				responseSubject.Subscribe(_ => { }, ex => {
 					exceptionSubject.OnNext(ex);
 					responseSubject?.Dispose();
@@ -159,35 +194,6 @@ namespace GraphQL.Client.Http.Websocket {
 			);
 		}
 
-		private async Task<IObservable<WebsocketResponseWrapper>> _getReceiveResultStream() {
-			await InitializeWebSocket().ConfigureAwait(false);
-			return Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat();
-		}
-
-		private async Task _connectAsync(CancellationToken token) {
-			try {
-				await _backOff().ConfigureAwait(false);
-				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
-				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
-				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
-				connectionAttempt = 1;
-			}
-			catch (Exception e) {
-				exceptionSubject.OnNext(e);
-				throw;
-			}
-		}
-		
-		private Task _backOff() {
-			connectionAttempt++;
-
-			if (connectionAttempt == 1) return Task.CompletedTask;
-
-			var delay = options.BackOffStrategy?.Invoke(connectionAttempt - 1) ?? TimeSpan.FromSeconds(5);
-			Debug.WriteLine($"connection attempt #{connectionAttempt}, backing off for {delay.TotalSeconds} s");
-			return Task.Delay(delay);
-		}
-
 		private Task<WebsocketResponseWrapper> receiveAsyncTask = null;
 		private readonly object receiveTaskLocker = new object();
 		/// <summary>
@@ -205,6 +211,10 @@ namespace GraphQL.Client.Http.Websocket {
 			return receiveAsyncTask;
 		}
 
+		/// <summary>
+		/// read a single message from the websocket
+		/// </summary>
+		/// <returns></returns>
 		private async Task<WebsocketResponseWrapper> _receiveResultAsync() {
 			try {
 				Debug.WriteLine($"receiving data on websocket {clientWebSocket.GetHashCode()} ...");
