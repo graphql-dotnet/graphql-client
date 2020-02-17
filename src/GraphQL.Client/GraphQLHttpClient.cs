@@ -51,7 +51,7 @@ namespace GraphQL.Client.Http {
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
 			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
 			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
 		}
 
@@ -59,7 +59,7 @@ namespace GraphQL.Client.Http {
 			Options = options ?? throw new ArgumentNullException(nameof(options));
 			Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
 		}
 
 		#endregion

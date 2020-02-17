@@ -14,7 +14,7 @@ using GraphQL.Client.Abstractions.Websocket;
 namespace GraphQL.Client.Http.Websocket {
 	internal class GraphQLHttpWebSocket : IDisposable {
 		private readonly Uri webSocketUri;
-		private readonly GraphQLHttpClientOptions options;
+		private readonly GraphQLHttpClient client;
 		private readonly ArraySegment<byte> buffer;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 		private readonly Subject<GraphQLWebSocketRequest> requestSubject = new Subject<GraphQLWebSocketRequest>();
@@ -25,6 +25,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 		private int connectionAttempt = 0;
 		private Subject<WebsocketResponseWrapper> responseSubject;
+		private GraphQLHttpClientOptions Options => client.Options;
 
 #if NETFRAMEWORK
 		private WebSocket clientWebSocket = null;
@@ -39,9 +40,9 @@ namespace GraphQL.Client.Http.Websocket {
 
 		public IObservable<WebsocketResponseWrapper> ResponseStream { get; }
 
-		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options) {
+		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client) {
 			this.webSocketUri = webSocketUri;
-			this.options = options;
+			this.client = client;
 			buffer = new ArraySegment<byte>(new byte[8192]);
 			ResponseStream = _createResponseStream();
 
@@ -64,7 +65,7 @@ namespace GraphQL.Client.Http.Websocket {
 				}
 
 				await InitializeWebSocket().ConfigureAwait(false);
-				var requestBytes = options.JsonSerializer.SerializeToBytes(request);
+				var requestBytes = Options.JsonSerializer.SerializeToBytes(request);
 				await this.clientWebSocket.SendAsync(
 					new ArraySegment<byte>(requestBytes),
 					WebSocketMessageType.Text,
@@ -109,13 +110,13 @@ namespace GraphQL.Client.Http.Websocket {
 				switch (clientWebSocket) {
 					case ClientWebSocket nativeWebSocket:
 						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
-						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)options.HttpMessageHandler).ClientCertificates;
-						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)options.HttpMessageHandler).UseDefaultCredentials;
+						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
 						break;
 					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
 						managedWebSocket.Options.AddSubProtocol("graphql-ws");
-						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)options.HttpMessageHandler).ClientCertificates;
-						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)options.HttpMessageHandler).UseDefaultCredentials;
+						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
 						break;
 					default:
 						throw new NotSupportedException($"unknown websocket type {clientWebSocket.GetType().Name}");
@@ -123,8 +124,8 @@ namespace GraphQL.Client.Http.Websocket {
 #else
 				clientWebSocket = new ClientWebSocket();
 				clientWebSocket.Options.AddSubProtocol("graphql-ws");
-				clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)options.HttpMessageHandler).ClientCertificates;
-				clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)options.HttpMessageHandler).UseDefaultCredentials;
+				clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+				clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
 #endif
 				return initializeWebSocketTask = _connectAsync(cancellationTokenSource.Token);
 			}
@@ -136,7 +137,9 @@ namespace GraphQL.Client.Http.Websocket {
 				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
 				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
 				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connected);
-				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
+				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}, invoking Options.OnWebsocketConnected()");
+				await (Options.OnWebsocketConnected?.Invoke(client) ?? Task.CompletedTask);
+				Debug.WriteLine($"invoking Options.OnWebsocketConnected() on websocket {clientWebSocket.GetHashCode()}");
 				connectionAttempt = 1;
 			}
 			catch (Exception e) {
@@ -155,7 +158,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 			if (connectionAttempt == 1) return Task.CompletedTask;
 
-			var delay = options.BackOffStrategy?.Invoke(connectionAttempt - 1) ?? TimeSpan.FromSeconds(5);
+			var delay = Options.BackOffStrategy?.Invoke(connectionAttempt - 1) ?? TimeSpan.FromSeconds(5);
 			Debug.WriteLine($"connection attempt #{connectionAttempt}, backing off for {delay.TotalSeconds} s");
 			return Task.Delay(delay);
 		}
@@ -240,7 +243,7 @@ namespace GraphQL.Client.Http.Websocket {
 					ms.Seek(0, SeekOrigin.Begin);
 
 					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text) {
-						var response = await options.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+						var response = await Options.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
 						response.MessageBytes = ms.ToArray();
 						return response;
 					}
