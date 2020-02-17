@@ -90,7 +90,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 		public Task InitializeWebSocket() {
 			// do not attempt to initialize if cancellation is requested
-			if (_disposed != null)
+			if (Completion != null)
 				throw new OperationCanceledException();
 
 			lock (_initializeLock) {
@@ -254,20 +254,28 @@ namespace GraphQL.Client.Http.Websocket {
 			await this.clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", cancellationToken).ConfigureAwait(false);
 		}
 
-#endregion
+		#endregion
 
-#region IDisposable
+		#region IDisposable
+		public void Dispose() => Complete();
 
-		private Task _disposed;
-		private object _disposedLocker = new object();
-		public void Dispose() {
-			// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
-			lock (_disposedLocker) {
-				if (_disposed == null) _disposed = DisposeAsync();
+		/// <summary>
+		/// Cancels the current operation, closes the websocket connection and disposes of internal resources.
+		/// </summary>
+		public void Complete() {
+			lock (completedLocker) {
+				if (Completion == null) Completion = CompleteAsync();
 			}
 		}
 
-		private async Task DisposeAsync() {
+		/// <summary>
+		/// Task to await the completion (a.k.a. disposal) of this websocket.
+		/// </summary> 
+		/// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
+		public Task Completion { get; private set; }
+
+		private readonly object completedLocker = new object();
+		private async Task CompleteAsync() {
 			Debug.WriteLine($"disposing websocket {clientWebSocket.GetHashCode()}...");
 			if (!_cancellationTokenSource.IsCancellationRequested)
 				_cancellationTokenSource.Cancel();
