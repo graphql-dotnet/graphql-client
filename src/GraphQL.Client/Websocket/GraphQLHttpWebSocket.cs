@@ -21,7 +21,7 @@ namespace GraphQL.Client.Http.Websocket {
 		private Subject<WebsocketResponseWrapper> _responseSubject;
 		private readonly Subject<GraphQLWebSocketRequest> _requestSubject = new Subject<GraphQLWebSocketRequest>();
 		private readonly Subject<Exception> _exceptionSubject = new Subject<Exception>();
-		private IDisposable _requestSubscription;
+		private readonly IDisposable _requestSubscription;
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
 
@@ -272,6 +272,7 @@ namespace GraphQL.Client.Http.Websocket {
 			if (!_cancellationTokenSource.IsCancellationRequested)
 				_cancellationTokenSource.Cancel();
 			await _closeAsync().ConfigureAwait(false);
+			_requestSubscription?.Dispose();
 			clientWebSocket?.Dispose();
 			_cancellationTokenSource.Dispose();
 			Debug.WriteLine($"websocket {clientWebSocket.GetHashCode()} disposed");
