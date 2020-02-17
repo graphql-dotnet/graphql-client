@@ -19,6 +19,8 @@ namespace GraphQL.Client.Http.Websocket {
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 		private readonly Subject<GraphQLWebSocketRequest> requestSubject = new Subject<GraphQLWebSocketRequest>();
 		private readonly Subject<Exception> exceptionSubject = new Subject<Exception>();
+		private readonly BehaviorSubject<GraphQLWebsocketConnectionState> stateSubject =
+			new BehaviorSubject<GraphQLWebsocketConnectionState>(GraphQLWebsocketConnectionState.Disconnected);
 		private readonly IDisposable requestSubscription;
 
 		private int connectionAttempt = 0;
@@ -33,6 +35,8 @@ namespace GraphQL.Client.Http.Websocket {
 
 		public WebSocketState WebSocketState => clientWebSocket?.State ?? WebSocketState.None;
 		public IObservable<Exception> ReceiveErrors => exceptionSubject.AsObservable();
+		public IObservable<GraphQLWebsocketConnectionState> ConnectionState => stateSubject.DistinctUntilChanged();
+
 		public IObservable<WebsocketResponseWrapper> ResponseStream { get; }
 
 		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClientOptions options) {
@@ -95,8 +99,8 @@ namespace GraphQL.Client.Http.Websocket {
 					return Task.CompletedTask;
 
 				// else (re-)create websocket and connect
-				//_responseStreamConnection?.Dispose();
 				clientWebSocket?.Dispose();
+				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
 
 #if NETFRAMEWORK
 				// fix websocket not supported on win 7 using
@@ -131,10 +135,12 @@ namespace GraphQL.Client.Http.Websocket {
 				await _backOff().ConfigureAwait(false);
 				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
 				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
+				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connected);
 				Debug.WriteLine($"connection established on websocket {clientWebSocket.GetHashCode()}");
 				connectionAttempt = 1;
 			}
 			catch (Exception e) {
+				stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
 				exceptionSubject.OnNext(e);
 				throw;
 			}
@@ -178,10 +184,12 @@ namespace GraphQL.Client.Http.Websocket {
 					exceptionSubject.OnNext(ex);
 					responseSubject?.Dispose();
 					responseSubject = null;
+					stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
 				},
 				() => {
 					responseSubject?.Dispose();
 					responseSubject = null;
+					stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
 				});
 			}
 
@@ -261,6 +269,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 			Debug.WriteLine($"closing websocket {clientWebSocket.GetHashCode()}");
 			await this.clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", cancellationToken).ConfigureAwait(false);
+			stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
 		}
 
 		#region IDisposable

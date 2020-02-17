@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -33,6 +32,11 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
 
+		/// <summary>
+		/// the websocket connection state
+		/// </summary>
+		public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState =>
+			graphQlHttpWebSocket.ConnectionState;
 
 		#region Constructors
 
