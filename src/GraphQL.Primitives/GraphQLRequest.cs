@@ -8,29 +8,29 @@ namespace GraphQL {
 	/// A GraphQL request
 	/// </summary>
 	public class GraphQLRequest : IEquatable<GraphQLRequest?> {
+		public const string OperationNameKey = "operationName";
+		public const string QueryKey = "query";
+		public const string VariablesKey = "variables";
 
 		/// <summary>
 		/// The Query
 		/// </summary>
-		/// 
-		[DataMember(Name = "query")]
-		public string Query { get; set; }
+		[DataMember(Name = QueryKey)]
+		public virtual string Query { get; set; }
 
 		/// <summary>
 		/// The name of the Operation
 		/// </summary>
-		[DataMember(Name = "operationName")]
-		public string? OperationName { get; set; }
+		[DataMember(Name = OperationNameKey)]
+		public virtual string? OperationName { get; set; }
 
 		/// <summary>
 		/// Represents the request variables
 		/// </summary>
-		[DataMember(Name = "variables")]
+		[DataMember(Name = VariablesKey)]
 		public virtual object? Variables { get; set; }
 
-
-		public GraphQLRequest() {
-		}
+		public GraphQLRequest() { }
 
 		public GraphQLRequest(string query, object? variables = null, string? operationName = null) {
 			Query = query;

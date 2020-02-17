@@ -58,6 +58,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Abstractions
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client", "src\GraphQL.Client\GraphQL.Client.csproj", "{ED3541C9-D2B2-4D06-A464-38E404A3919A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Abstractions.Websocket", "src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj", "{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Serializer.Newtonsoft", "src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj", "{11F28E78-ADE4-4153-B97C-56136EB7BD5B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.LocalExecution", "src\GraphQL.Client.LocalExecution\GraphQL.Client.LocalExecution.csproj", "{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Serializer.Tests", "tests\GraphQL.Client.Serializer.Tests\GraphQL.Client.Serializer.Tests.csproj", "{CA842D18-FC4A-4281-B1FF-080FA91887B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Tests.Common", "tests\GraphQL.Client.Tests.Common\GraphQL.Client.Tests.Common.csproj", "{0D307BAD-27AE-4A5D-8764-4AA2620B01E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Serializer.SystemTextJson", "src\GraphQL.Client.Serializer.SystemTextJson\GraphQL.Client.Serializer.SystemTextJson.csproj", "{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +108,30 @@ Global
 		{ED3541C9-D2B2-4D06-A464-38E404A3919A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED3541C9-D2B2-4D06-A464-38E404A3919A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED3541C9-D2B2-4D06-A464-38E404A3919A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D581CE1-523D-46BF-BAA5-F7D79A1B7654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11F28E78-ADE4-4153-B97C-56136EB7BD5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA842D18-FC4A-4281-B1FF-080FA91887B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA842D18-FC4A-4281-B1FF-080FA91887B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA842D18-FC4A-4281-B1FF-080FA91887B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA842D18-FC4A-4281-B1FF-080FA91887B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +145,12 @@ Global
 		{C68C26EB-7659-402A-93D1-E6E248DA5427} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{76E622F6-7CDD-4B1F-AD06-FFABF37C55E5} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{ED3541C9-D2B2-4D06-A464-38E404A3919A} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{4D581CE1-523D-46BF-BAA5-F7D79A1B7654} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{11F28E78-ADE4-4153-B97C-56136EB7BD5B} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{2BEC821C-E405-43CB-9BC9-A6BB0322F6C2} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
+		{CA842D18-FC4A-4281-B1FF-080FA91887B8} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}

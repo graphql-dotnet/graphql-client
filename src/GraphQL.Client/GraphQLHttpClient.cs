@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
+using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http {
@@ -14,6 +16,7 @@ namespace GraphQL.Client.Http {
 		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
 		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 		private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
+		private IGraphQLWebsocketJsonSerializer JsonSerializer => Options.JsonSerializer;
 
 		/// <summary>
 		/// the instance of <see cref="HttpClient"/> which is used internally
@@ -25,31 +28,39 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public GraphQLHttpClientOptions Options { get; }
 
-		/// <inheritdoc />
+		/// <summary>
+		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
+		/// </summary>
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
+
+
+		#region Constructors
 
 		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
 
 		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint) { }
 
-		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) {
-			Options = new GraphQLHttpClientOptions();
-			configure(Options);
-			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-		}
+		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) : this(configure.New()) { }
 
-		public GraphQLHttpClient(GraphQLHttpClientOptions options) {
-			Options = options;
-			this.HttpClient = new HttpClient(Options.HttpMessageHandler);
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
-		}
+		public GraphQLHttpClient(GraphQLHttpClientOptions options) : this(options, new HttpClient(options.HttpMessageHandler)) { }
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
-			this.HttpClient = httpClient;
+			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
+		}
+
+		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {
+			Options = options ?? throw new ArgumentNullException(nameof(options));
+			Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
 		}
+
+		#endregion
+
+		#region IGraphQLClient
 
 		/// <inheritdoc />
 		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
@@ -94,6 +105,8 @@ namespace GraphQL.Client.Http {
 			return observable;
 		}
 
+		#endregion
+
 		/// <summary>
 		/// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
 		/// </summary>
@@ -111,12 +124,12 @@ namespace GraphQL.Client.Http {
 			}
 
 			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			return await bodyStream.DeserializeFromJsonAsync<GraphQLHttpResponse<TResponse>>(Options, cancellationToken);
+			return await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
 		}
 
 		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
 			var message = new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
-				Content = new StringContent(request.SerializeToJson(Options), Encoding.UTF8, Options.MediaType)
+				Content = new StringContent(JsonSerializer.SerializeToString(request), Encoding.UTF8, Options.MediaType)
 			};
 
 			if (request is GraphQLHttpRequest httpRequest)

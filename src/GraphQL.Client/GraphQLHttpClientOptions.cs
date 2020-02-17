@@ -2,8 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http {
 
@@ -18,11 +17,9 @@ namespace GraphQL.Client.Http {
 		public Uri EndPoint { get; set; }
 
 		/// <summary>
-		/// The <see cref="JsonSerializerSettings"/> that is going to be used
+		/// the json serializer
 		/// </summary>
-		public JsonSerializerSettings JsonSerializerSettings { get; set; } = new JsonSerializerSettings {
-			ContractResolver = new CamelCasePropertyNamesContractResolver()
-		};
+		public IGraphQLWebsocketJsonSerializer JsonSerializer { get; set; }
 
 		/// <summary>
 		/// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used

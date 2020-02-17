@@ -14,7 +14,7 @@ namespace GraphQL {
 		public GraphQLError[]? Errors { get; set; }
 
 		[DataMember(Name = "extensions")]
-		public IDictionary<string, object?>? Extensions { get; set; }
+		public GraphQLExtensionsType? Extensions { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
 
@@ -29,7 +29,6 @@ namespace GraphQL {
 				else if (this.Errors != null && other.Errors == null) { return false; }
 				else if (this.Errors == null && other.Errors != null) { return false; }
 			}
-			if (!EqualityComparer<IDictionary<string, object?>?>.Default.Equals(this.Extensions, other.Extensions)) { return false; }
 			return true;
 		}
 
@@ -46,7 +45,6 @@ namespace GraphQL {
 						hashCode = (hashCode * 397) ^ 0;
 					}
 				}
-				hashCode = (hashCode * 397) ^ EqualityComparer<IDictionary<string, object?>?>.Default.GetHashCode(this.Extensions);
 				return hashCode;
 			}
 		}
