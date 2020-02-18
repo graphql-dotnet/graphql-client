@@ -139,9 +139,9 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
 		[Fact]
 		public async void PreprocessHttpRequestMessageIsCalled() {
-			var callbackTester = new CallbackTester<HttpRequestMessage>();
+			var callbackTester = new CallbackMonitor<HttpRequestMessage>();
 			var graphQLRequest = new GraphQLHttpRequest($"{{ human(id: \"1\") {{ name }} }}") {
-				PreprocessHttpRequestMessage = callbackTester.Callback
+				PreprocessHttpRequestMessage = callbackTester.Invoke
 			};
 
 			using (var setup = SetupTest()) {
