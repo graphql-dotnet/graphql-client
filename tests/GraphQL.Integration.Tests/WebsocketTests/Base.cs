@@ -313,7 +313,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 
 				Debug.WriteLine("subscribing...");
 				using (var tester = observable.Monitor()) {
-					tester.Should().HaveReceivedPayload()
+					tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(3))
 						.Which.Errors.Should().ContainSingle();
 					tester.Should().HaveCompleted();
 					client.Dispose();
