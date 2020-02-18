@@ -101,7 +101,6 @@ namespace GraphQL.Client.Http.Websocket {
 
 				// else (re-)create websocket and connect
 				clientWebSocket?.Dispose();
-				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
 
 #if NETFRAMEWORK
 				// fix websocket not supported on win 7 using
@@ -134,6 +133,7 @@ namespace GraphQL.Client.Http.Websocket {
 		private async Task _connectAsync(CancellationToken token) {
 			try {
 				await _backOff().ConfigureAwait(false);
+				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
 				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
 				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
 				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connected);

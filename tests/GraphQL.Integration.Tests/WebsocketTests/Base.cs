@@ -237,9 +237,16 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
 			var server = CreateServer(port);
 			var errorMonitor = new CallbackMonitor<Exception>();
+			var reconnectBlocker = new ManualResetEventSlim(false);
 
 			var client = WebHostHelpers.GetGraphQLClient(port, serializer: Serializer);
 			var callbackMonitor = client.ConfigureMonitorForOnWebsocketConnected();
+			// configure back-off strategy to allow it to be controlled from within the unit test
+			client.Options.BackOffStrategy = i => {
+				reconnectBlocker.Wait();
+				return TimeSpan.Zero;
+			};
+
 			var statusMonitor = client.WebsocketConnectionState.Monitor();
 			statusMonitor.Should().HaveReceivedPayload().Which.Should()
 				.Be(GraphQLWebsocketConnectionState.Disconnected);
@@ -272,6 +279,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				.Be(GraphQLWebsocketConnectionState.Disconnected);
 
 			server = CreateServer(port);
+			reconnectBlocker.Set();
 			statusMonitor.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10)).Which.Should()
 				.Be(GraphQLWebsocketConnectionState.Connecting);
 			statusMonitor.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10)).Which.Should()
