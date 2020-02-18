@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -33,6 +32,11 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
 
+		/// <summary>
+		/// the websocket connection state
+		/// </summary>
+		public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState =>
+			graphQlHttpWebSocket.ConnectionState;
 
 		#region Constructors
 
@@ -47,7 +51,7 @@ namespace GraphQL.Client.Http {
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
 			Options = options;
 			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
 			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
 		}
 
@@ -55,7 +59,7 @@ namespace GraphQL.Client.Http {
 			Options = options ?? throw new ArgumentNullException(nameof(options));
 			Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), Options);
+			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
 		}
 
 		#endregion
