@@ -1,5 +1,8 @@
 name: Branch workflow
-on: []
+on:
+  push:
+    branches-ignore:
+      - **
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo
