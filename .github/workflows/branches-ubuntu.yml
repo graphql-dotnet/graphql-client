@@ -5,6 +5,8 @@ on:
       - develop
       - 'release/**'
       - 'releases/**'
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo
