@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
@@ -247,49 +247,55 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				return TimeSpan.Zero;
 			};
 
-			var statusMonitor = client.WebsocketConnectionState.Monitor();
-			statusMonitor.Should().HaveReceivedPayload().Which.Should()
-				.Be(GraphQLWebsocketConnectionState.Disconnected);
+			var websocketStates = new ConcurrentQueue<GraphQLWebsocketConnectionState>();
 
-			Debug.WriteLine("creating subscription stream");
-			IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable = client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, errorMonitor.Invoke);
+			using (client.WebsocketConnectionState.Subscribe(websocketStates.Enqueue)) {
+				websocketStates.Should().ContainSingle(state => state == GraphQLWebsocketConnectionState.Disconnected);
 
-			Debug.WriteLine("subscribing...");
-			var tester = observable.Monitor();
-			statusMonitor.Should().HaveReceivedPayload().Which.Should()
-				.Be(GraphQLWebsocketConnectionState.Connecting);
-			statusMonitor.Should().HaveReceivedPayload().Which.Should()
-				.Be(GraphQLWebsocketConnectionState.Connected);
-			callbackMonitor.Should().HaveBeenInvokedWithPayload();
-			const string message1 = "Hello World";
+				Debug.WriteLine("creating subscription stream");
+				IObservable<GraphQLResponse<MessageAddedSubscriptionResult>> observable =
+					client.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest,
+						errorMonitor.Invoke);
 
-			var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
-			response.Data.AddMessage.Content.Should().Be(message1);
-			tester.Should().HaveReceivedPayload()
-				.Which.Data.MessageAdded.Content.Should().Be(message1);
+				Debug.WriteLine("subscribing...");
+				var tester = observable.Monitor();
+				callbackMonitor.Should().HaveBeenInvokedWithPayload();
 
-			Debug.WriteLine("stopping web host...");
-			await server.StopAsync(CancellationToken.None).ConfigureAwait(false);
-			server.Dispose();
-			Debug.WriteLine("web host stopped...");
+				websocketStates.Should().ContainInOrder(
+					GraphQLWebsocketConnectionState.Disconnected,
+					GraphQLWebsocketConnectionState.Connecting,
+					GraphQLWebsocketConnectionState.Connected);
+				// clear the collection so the next tests on the collection work as expected
+				websocketStates.Clear();
 
-			errorMonitor.Should().HaveBeenInvokedWithPayload(TimeSpan.FromSeconds(10))
-				.Which.Should().BeOfType<WebSocketException>();
-			statusMonitor.Should().HaveReceivedPayload().Which.Should()
-				.Be(GraphQLWebsocketConnectionState.Disconnected);
+				const string message1 = "Hello World";
+				var response = await client.AddMessageAsync(message1).ConfigureAwait(false);
+				response.Data.AddMessage.Content.Should().Be(message1);
+				tester.Should().HaveReceivedPayload()
+					.Which.Data.MessageAdded.Content.Should().Be(message1);
 
-			server = CreateServer(port);
-			reconnectBlocker.Set();
-			statusMonitor.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10)).Which.Should()
-				.Be(GraphQLWebsocketConnectionState.Connecting);
-			statusMonitor.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10)).Which.Should()
-				.Be(GraphQLWebsocketConnectionState.Connected);
-			callbackMonitor.Should().HaveBeenInvokedWithPayload();
+				Debug.WriteLine("stopping web host...");
+				await server.StopAsync(CancellationToken.None).ConfigureAwait(false);
+				server.Dispose();
+				Debug.WriteLine("web host stopped...");
 
-			// disposing the client should complete the subscription
-			client.Dispose();
-			tester.Should().HaveCompleted(TimeSpan.FromSeconds(5));
-			server.Dispose();
+				errorMonitor.Should().HaveBeenInvokedWithPayload(TimeSpan.FromSeconds(10))
+					.Which.Should().BeOfType<WebSocketException>();
+				websocketStates.Should().Contain(GraphQLWebsocketConnectionState.Disconnected);
+
+				server = CreateServer(port);
+				reconnectBlocker.Set();
+				callbackMonitor.Should().HaveBeenInvokedWithPayload();
+				websocketStates.Should().ContainInOrder(
+					GraphQLWebsocketConnectionState.Disconnected,
+					GraphQLWebsocketConnectionState.Connecting,
+					GraphQLWebsocketConnectionState.Connected);
+
+				// disposing the client should complete the subscription
+				client.Dispose();
+				tester.Should().HaveCompleted(TimeSpan.FromSeconds(5));
+				server.Dispose();
+			}
 		}
 
 
