@@ -49,7 +49,7 @@ jobs:
     - name: Inject version info into environment
       run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
     - name: Build solution
-      run: dotnet build -c Release
+      run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet build -c Release
     - name: Create NuGet packages
       run: dotnet pack -c Release --no-build -o nupkg 
     - name: Upload nuget packages
@@ -77,4 +77,4 @@ jobs:
     - name: Inject version info into environment
       run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
     - name: Run tests
-      run: dotnet test -c Release
+      run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet test -c Release
