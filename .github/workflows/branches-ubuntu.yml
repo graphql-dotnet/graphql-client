@@ -86,4 +86,4 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Publish the package to GPR
-      run: for p in ./nupkg/*.nupkg; do dotnet nuget push $p -k ${{secrets.GITHUB_TOKEN}} --skip-duplicate; done
+      run: cd ./nupkg && dotnet nuget push *.nupkg -k ${{secrets.GITHUB_TOKEN}} --skip-duplicate
