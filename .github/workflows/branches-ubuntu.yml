@@ -80,11 +80,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: nupkg
-        path: ./
     - uses: actions/setup-dotnet@v1
       with:
         source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Publish the package to GPR
-      run: dotnet nuget push *.nupkg -k ${{secrets.GITHUB_TOKEN}} --skip-duplicate
+      run: for pkg in ./nupkg/*.nupkg; do dotnet nuget push *.nupkg -k ${{secrets.GITHUB_TOKEN}} --skip-duplicate; done
