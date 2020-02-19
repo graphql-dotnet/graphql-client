@@ -35,6 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{C421
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{05CAF9B2-981E-40C0-AE31-5FA56E351F12}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\branches-ubuntu.yml = .github\workflows\branches-ubuntu.yml
 		.github\workflows\branches.yml = .github\workflows\branches.yml
 		.github\workflows\main.yml = .github\workflows\main.yml
 	EndProjectSection
