@@ -16,10 +16,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    # - name: Setup dotnet environment
-    #   uses: actions/setup-dotnet@master
-    #   with:
-    #     dotnet-version: '3.1.100'
     - name: Restore dotnet tools
       run: dotnet tool restore
     - name: Fetch complete repository 
@@ -39,10 +35,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    # - name: Setup dotnet environment
-    #   uses: actions/setup-dotnet@master
-    #   with:
-    #     dotnet-version: '3.1.100'
     - name: Download version info file
       uses: actions/download-artifact@v1
       with:
@@ -67,10 +59,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    # - name: Setup dotnet environment
-    #   uses: actions/setup-dotnet@master
-    #   with:
-    #     dotnet-version: '3.1.100'
     - name: Download version info file
       uses: actions/download-artifact@v1
       with:
