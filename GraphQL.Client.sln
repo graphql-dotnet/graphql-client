@@ -32,9 +32,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Server.Test", "tests\GraphQL.Server.Test\GraphQL.Server.Test.csproj", "{E95A1258-F666-4D4E-9101-E0C46F6A3CB3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{C42106CF-F685-4F29-BC18-A70616BD68A0}"
-	ProjectSection(SolutionItems) = preProject
-		.github\FUNDING.yml = .github\FUNDING.yml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{05CAF9B2-981E-40C0-AE31-5FA56E351F12}"
 	ProjectSection(SolutionItems) = preProject
@@ -68,7 +65,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Serializer.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Tests.Common", "tests\GraphQL.Client.Tests.Common\GraphQL.Client.Tests.Common.csproj", "{0D307BAD-27AE-4A5D-8764-4AA2620B01E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Serializer.SystemTextJson", "src\GraphQL.Client.Serializer.SystemTextJson\GraphQL.Client.Serializer.SystemTextJson.csproj", "{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Serializer.SystemTextJson", "src\GraphQL.Client.Serializer.SystemTextJson\GraphQL.Client.Serializer.SystemTextJson.csproj", "{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,6 +135,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{05CAF9B2-981E-40C0-AE31-5FA56E351F12} = {C42106CF-F685-4F29-BC18-A70616BD68A0}
 		{95D78D57-3232-491D-BAD6-F373D76EA34D} = {D61415CA-D822-43DD-9AE7-993B8B60E855}
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{C212983F-67DB-44EB-BFB0-5DA75A86DF55} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
