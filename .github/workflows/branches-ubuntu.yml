@@ -68,3 +68,22 @@ jobs:
       run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
     - name: Run tests
       run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet test -c Release
+
+  publish:
+    name: Publish
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download nuget packages
+      uses: actions/download-artifact@v1
+      with:
+        name: nupkg
+    - uses: actions/setup-dotnet@v1
+      with:
+        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    - name: Publish the package to GPR
+      run: dotnet nuget push ./nupkg/*.nupkg -k ${{secrets.GITHUB_TOKEN}}
