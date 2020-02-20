@@ -86,4 +86,8 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Publish the package to GPR
-      run: cd ./nupkg && dotnet nuget push *.nupkg -k ${{secrets.GITHUB_TOKEN}} --skip-duplicate
+      run: |
+           for f in ./nupkg/*.nupkg
+           do
+             curl -vX PUT -u "graphql-dotnet:${{ secrets.GHPackagesToken }}" -F package=@$f https://nuget.pkg.github.com/graphql-dotnet/
+           done
