@@ -83,10 +83,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: nupkg
-    - uses: actions/setup-dotnet@v1
-      with:
-        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    - name: Publish the package to GPR
-      run: for p in ./nupkg/*.nupkg; do dotnet nuget push $p -k ${{secrets.GITHUB_TOKEN}} --skip-duplicate; done
+    - name: Publish the package to GPR    
+    # using workaround with CURL because of non-functioning upload via dotnet nuget (https://stackoverflow.com/a/58943251)
+      run: |
+           for f in ./nupkg/*.nupkg
+           do
+             curl -vX PUT -u "graphql-dotnet:${{secrets.GITHUB_TOKEN}}" -F package=@$f https://nuget.pkg.github.com/graphql-dotnet/
+           done
