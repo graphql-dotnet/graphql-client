@@ -1,13 +1,8 @@
-name: Main workflow
-on: 
+name: Branch workflow
+on:
   push:
-    branches:
-      - develop
-      - 'release/**'
-      - 'releases/**'
-    tags:        
-      - v*
-      - V*
+    branches-ignore:
+      - '**'
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo
@@ -27,8 +22,6 @@ jobs:
       run: git fetch
     - name: Generate version info from git history
       run: dotnet dotnet-gitversion /output json | Out-File gitversion.json; Get-Content gitversion.json
-      env:
-        IGNORE_NORMALISATION_GIT_HEAD_MOVE: 1
     - name: Upload version info file
       uses: actions/upload-artifact@v1
       with:
@@ -83,21 +76,3 @@ jobs:
       run: Get-Content gitversion.json | ConvertFrom-Json | ForEach-Object { foreach ($item in $_.PSObject.properties) { "::set-env name=GitVersion_$($item.Name)::$($item.Value)" } }
     - name: Run tests
       run: dotnet test -c Release -p:ParallelizeTestCollections=false
-
-  publish:
-    name: Publish
-    needs: [test]
-    runs-on: windows-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Download nuget packages
-      uses: actions/download-artifact@v1
-      with:
-        name: nupkg
-    - name: Setup Nuget.exe
-      uses: warrenbuckley/Setup-Nuget@v1
-    - name: Configure package source
-      run: nuget sources Add -Name "GPR" -Source https://nuget.pkg.github.com/graphql-dotnet/index.json -UserName graphql-dotnet -Password ${{secrets.GITHUB_TOKEN}}
-    - name: push packages
-      run: nuget push .\nupkg\*.nupkg -SkipDuplicate -Source "GPR"

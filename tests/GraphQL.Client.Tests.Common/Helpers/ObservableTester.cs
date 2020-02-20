@@ -7,7 +7,7 @@ using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
 namespace GraphQL.Client.Tests.Common.Helpers {
-	public class ObservableTester<TPayload> : IDisposable {
+	public class ObservableTester<TSubscriptionPayload> : IDisposable {
 		private readonly IDisposable subscription;
 		private readonly ManualResetEventSlim updateReceived = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim completed = new ManualResetEventSlim();
@@ -25,7 +25,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// <summary>
 		/// The last payload which was received.
 		/// </summary>
-		public TPayload LastPayload { get; private set; }
+		public TSubscriptionPayload LastPayload { get; private set; }
 
 		public Exception Error { get; private set; }
 
@@ -33,7 +33,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// Creates a new <see cref="ObservableTester{T}"/> which subscribes to the supplied <see cref="IObservable{T}"/>
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
-		public ObservableTester(IObservable<TPayload> observable) {
+		public ObservableTester(IObservable<TSubscriptionPayload> observable) {
 			subscription = observable.ObserveOn(TaskPoolScheduler.Default).Subscribe(
 				obj => {
 					LastPayload = obj;
@@ -59,8 +59,8 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 			subscription?.Dispose();
 		}
 
-		public SubscriptionAssertions<TPayload> Should() {
-			return new SubscriptionAssertions<TPayload>(this);
+		public SubscriptionAssertions<TSubscriptionPayload> Should() {
+			return new SubscriptionAssertions<TSubscriptionPayload>(this);
 		}
 
 		public class SubscriptionAssertions<TPayload> : ReferenceTypeAssertions<ObservableTester<TPayload>, SubscriptionAssertions<TPayload>> {
