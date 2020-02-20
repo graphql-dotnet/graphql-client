@@ -89,5 +89,5 @@ jobs:
       run: |
            for f in ./nupkg/*.nupkg
            do
-             curl -vX PUT -u "graphql-dotnet:${{ secrets.GHPackagesToken }}" -F package=@$f https://nuget.pkg.github.com/graphql-dotnet/
+             curl -vX PUT -u "graphql-dotnet:${{secrets.GITHUB_TOKEN}}" -F package=@$f https://nuget.pkg.github.com/graphql-dotnet/
            done
