@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
 using Newtonsoft.Json;
 
@@ -18,20 +19,15 @@ namespace GraphQL.Client.Http {
 			var json = JsonConvert.SerializeObject(request, options.JsonSerializerSettings);
 			return Encoding.UTF8.GetBytes(json);
 		}
-		public static byte[] SerializeToBytes(this GraphQLWebSocketRequest request,
-			GraphQLHttpClientOptions options) {
-			var json = JsonConvert.SerializeObject(request, options.JsonSerializerSettings);
-			return Encoding.UTF8.GetBytes(json);
-		}
 
 		public static TGraphQLResponse DeserializeFromJson<TGraphQLResponse>(this string jsonString,
 			GraphQLHttpClientOptions options) {
 			return JsonConvert.DeserializeObject<TGraphQLResponse>(jsonString, options.JsonSerializerSettings);
 		}
 
-		public static TObject DeserializeFromBytes<TObject>(this byte[] utf8bytes,
+		public static TObject DeserializeFromBytes<TObject>(this byte[] utf8Bytes,
 			GraphQLHttpClientOptions options) {
-			return JsonConvert.DeserializeObject<TObject>(Encoding.UTF8.GetString(utf8bytes), options.JsonSerializerSettings);
+			return JsonConvert.DeserializeObject<TObject>(Encoding.UTF8.GetString(utf8Bytes), options.JsonSerializerSettings);
 		}
 
 

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../src.props" />
+
+	<PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+	  <LangVersion>8.0</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	<ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
+	</ItemGroup>
+
+</Project>

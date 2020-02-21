@@ -1,0 +1,70 @@
+name: Branch workflow (Ubuntu)
+on: 
+  push:
+    branches-ignore:
+      - develop
+      - 'release/**'
+      - 'releases/**'
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+jobs:
+  generateVersionInfo:  
+    name: GenerateVersionInfo
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Restore dotnet tools
+      run: dotnet tool restore
+    - name: Fetch complete repository 
+      run: git fetch
+    - name: Generate version info from git history
+      run: dotnet gitversion /output json > gitversion.json
+    - name: Upload version info file
+      uses: actions/upload-artifact@v1
+      with:
+        name: gitversion
+        path: gitversion.json
+
+  build:
+    name: Build
+    needs: generateVersionInfo
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download version info file
+      uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+        path: ./
+    - name: Inject version info into environment
+      run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
+    - name: Build solution
+      run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet build -c Release
+    - name: Create NuGet packages
+      run: dotnet pack -c Release --no-build -o nupkg 
+    - name: Upload nuget packages
+      uses: actions/upload-artifact@v1
+      with:
+        name: nupkg
+        path: nupkg
+
+  test:
+    name: Test
+    needs: [build, generateVersionInfo]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download version info file
+      uses: actions/download-artifact@v1
+      with:
+        name: gitversion
+        path: ./
+    - name: Inject version info into environment
+      run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
+    - name: Run tests
+      run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet test -c Release

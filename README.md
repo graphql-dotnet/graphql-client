@@ -43,9 +43,11 @@ var heroAndFriendsRequest = new GraphQLRequest {
 };
 ```
 
+Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data! If you really need to send a *list of bytes* with a `byte[]` as a source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
+
 ### Execute Query/Mutation:
 ```csharp
-var graphQLClient = new GraphQLClient("https://swapi.apis.guru/");
+var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/");
 
 public class HeroAndFriendsResponse {
     public Hero Hero {get; set;}
@@ -61,6 +63,8 @@ var graphQLResponse = await graphQLClient.SendQueryAsync<HeroAndFriendsResponse>
 
 var heroName = graphQLResponse.Data.Hero.Name;
 ```
+
+
 
 ### Use Subscriptions
 
