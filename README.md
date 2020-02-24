@@ -16,66 +16,76 @@ The Library will try to follow the following standards and documents:
 ```csharp
 var heroRequest = new GraphQLRequest {
     Query = @"
-	{
-		hero {
-			name
-		}
-	}"
+    {
+        hero {
+            name
+        }
+    }"
 };
 ```
 
 #### OperationName and Variables Request:
+
 ```csharp
-var heroAndFriendsRequest = new GraphQLRequest {
+var personAndFilmsRequest = new GraphQLRequest {
     Query =@"
-	query HeroNameAndFriends($episode: Episode) {
-		hero(episode: $episode) {
-			name
-			friends {
-				name
-			}
-		}
-	}",
-	OperationName = "HeroNameAndFriends",
-	Variables = new {
-		episode = "JEDI"
-	}
+    query PersonAndFilms($id: ID) {
+        person(id: $id) {
+            name
+            filmConnection {
+                films {
+                    title
+                }
+            }
+        }
+    }",
+    OperationName = "PersonAndFilms",
+    Variables = new {
+        id = "cGVvcGxlOjE="
+    }
 };
 ```
 
 Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data! If you really need to send a *list of bytes* with a `byte[]` as a source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
 
 ### Execute Query/Mutation:
+
 ```csharp
 var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/");
 
-public class HeroAndFriendsResponse {
-    public Hero Hero {get; set;}
+public class PersonAndFilmsResponse {
+    public PersonContent Person { get; set; }
 
-    public class Hero {
-        public string Name {get; set;}
+    public class PersonContent {
+        public string Name { get; set; }
+        public FilmConnectionContent FilmConnection { get; set; }
 
-        public List<Hero> Friends {get; set;}
+        public class FilmConnectionContent {
+            public List<FilmContent> Films { get; set; }
+
+            public class FilmContent {
+                public string Title { get; set; }
+            }
+        }
     }
 }
 
-var graphQLResponse = await graphQLClient.SendQueryAsync<HeroAndFriendsResponse>(heroAndFriendsRequest);
+var graphQLResponse = await graphQLClient.SendQueryAsync<PersonAndFilmsResponse>(personAndFilmsRequest);
 
-var heroName = graphQLResponse.Data.Hero.Name;
+var personName = graphQLResponse.Data.Person.Name;
 ```
-
 
 
 ### Use Subscriptions
 
 ```csharp
 public class UserJoinedSubscriptionResult {
-	public ChatUser UserJoined { get; set; }
+    public ChatUser UserJoined { get; set; }
 
-	public class ChatUser {
-		public string DisplayName { get; set; }
-		public string Id { get; set; }
-	}
+    public class ChatUser {
+        public string DisplayName { get; set; }
+        public string Id { get; set; }
+    }
 }
 ```
 
@@ -84,21 +94,21 @@ public class UserJoinedSubscriptionResult {
 ```csharp
 var userJoinedRequest = new GraphQLRequest {
     Query = @"
-	subscription {
-		userJoined{
-			displayName
-			id
-		}
-	}"
+    subscription {
+        userJoined{
+            displayName
+            id
+        }
+    }"
 };
 
 IObservable<GraphQLResponse<UserJoinedSubscriptionResult>> subscriptionStream 
-	= client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(userJoinedRequest);
+    = client.CreateSubscriptionStream<UserJoinedSubscriptionResult>(userJoinedRequest);
 
 var subscription = subscriptionStream.Subscribe(response => 
-	{
-		Console.WriteLine($"user '{response.Data.UserJoined.DisplayName}' joined")
-	});
+    {
+        Console.WriteLine($"user '{response.Data.UserJoined.DisplayName}' joined")
+    });
 ```
 
 #### End Subscription

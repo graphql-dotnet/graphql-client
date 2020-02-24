@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
+using GraphQL.Client.Serializer.Newtonsoft;
 
 namespace GraphQL.Client.Http {
 
@@ -48,12 +49,7 @@ namespace GraphQL.Client.Http {
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options) : this(options, new HttpClient(options.HttpMessageHandler)) { }
 
-		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) {
-			Options = options;
-			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
-			Options.JsonSerializer = JsonSerializer.EnsureAssigned();
-		}
+		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) : this(options, httpClient, new NewtonsoftJsonSerializer()) { }
 
 		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {
 			Options = options ?? throw new ArgumentNullException(nameof(options));
