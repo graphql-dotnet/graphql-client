@@ -1,4 +1,8 @@
+using System;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
@@ -153,6 +157,23 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				});
 				Assert.Null(response.Errors);
 				Assert.Equal("Luke", response.Data.Human.Name);
+			}
+		}
+
+		[Fact]
+		public void PostRequestCanBeCancelled() {
+			var graphQLRequest = new GraphQLRequest(@"
+				query Long {
+					longRunning
+				}");
+
+			using (var setup = WebHostHelpers.SetupTest<StartupChat>(false, serializer)) {
+				var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+
+				Func<Task> requestTask = () => setup.Client.SendQueryAsync(graphQLRequest, () => new {longRunning = string.Empty}, cts.Token);
+				Action timeMeasurement = () => requestTask.Should().Throw<TaskCanceledException>();
+
+				timeMeasurement.ExecutionTime().Should().BeCloseTo(TimeSpan.FromSeconds(2), TimeSpan.FromMilliseconds(200));
 			}
 		}
 	}
