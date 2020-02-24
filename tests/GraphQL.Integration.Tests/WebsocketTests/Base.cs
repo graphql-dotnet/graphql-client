@@ -52,14 +52,14 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 		}
 
 		[Fact]
-		public void PostRequestCanBeCancelled() {
+		public void WebsocketRequestCanBeCancelled() {
 			var graphQLRequest = new GraphQLRequest(@"
 				query Long {
 					longRunning
 				}");
 
 			using (var setup = WebHostHelpers.SetupTest<StartupChat>(true, Serializer)) {
-				var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+				var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
 
 				Func<Task> requestTask = () => setup.Client.SendQueryAsync(graphQLRequest, () => new { longRunning = string.Empty }, cts.Token);
 				Action timeMeasurement = () => requestTask.Should().Throw<TaskCanceledException>();

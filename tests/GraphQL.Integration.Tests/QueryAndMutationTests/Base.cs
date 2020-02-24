@@ -168,7 +168,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				}");
 
 			using (var setup = WebHostHelpers.SetupTest<StartupChat>(false, serializer)) {
-				var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+				var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
 
 				Func<Task> requestTask = () => setup.Client.SendQueryAsync(graphQLRequest, () => new {longRunning = string.Empty}, cts.Token);
 				Action timeMeasurement = () => requestTask.Should().Throw<TaskCanceledException>();
