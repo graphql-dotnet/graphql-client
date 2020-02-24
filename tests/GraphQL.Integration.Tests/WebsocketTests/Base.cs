@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
@@ -38,7 +39,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			}
 		}
 
-
 		[Fact]
 		public async void CanSendRequestViaWebsocket() {
 			var port = NetworkHelpers.GetFreeTcpPortNumber();
@@ -48,6 +48,23 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				var response = await client.AddMessageAsync(message).ConfigureAwait(false);
 
 				Assert.Equal(message, response.Data.AddMessage.Content);
+			}
+		}
+
+		[Fact]
+		public void WebsocketRequestCanBeCancelled() {
+			var graphQLRequest = new GraphQLRequest(@"
+				query Long {
+					longRunning
+				}");
+
+			using (var setup = WebHostHelpers.SetupTest<StartupChat>(true, Serializer)) {
+				var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+
+				Func<Task> requestTask = () => setup.Client.SendQueryAsync(graphQLRequest, () => new { longRunning = string.Empty }, cts.Token);
+				Action timeMeasurement = () => requestTask.Should().Throw<TaskCanceledException>();
+
+				timeMeasurement.ExecutionTime().Should().BeCloseTo(TimeSpan.FromSeconds(2), TimeSpan.FromMilliseconds(200));
 			}
 		}
 
