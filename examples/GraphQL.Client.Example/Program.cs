@@ -10,7 +10,6 @@ namespace GraphQL.Client.Http.Examples {
 
 		public static async Task Main(string[] args) {
 
-			var serializer = new NewtonsoftJsonSerializer();
 			using var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/");
 
 			var personAndFilmsRequest = new GraphQLRequest {
