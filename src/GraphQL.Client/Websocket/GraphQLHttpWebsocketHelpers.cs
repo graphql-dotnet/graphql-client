@@ -58,8 +58,14 @@ namespace GraphQL.Client.Http.Websocket {
 										o.OnCompleted();
 									}
 								},
-								o.OnError,
-								o.OnCompleted)
+								e => {
+									Debug.WriteLine($"response stream for subscription {startRequest.Id} failed: {e}");
+									o.OnError(e);
+								},
+								() => {
+									Debug.WriteLine($"response stream for subscription {startRequest.Id} completed");
+									o.OnCompleted();
+								})
 					);
 
 					try {

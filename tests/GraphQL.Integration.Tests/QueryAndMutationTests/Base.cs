@@ -1,41 +1,41 @@
-using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using GraphQL.Client.Abstractions;
-using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
+using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Client.Tests.Common.StarWars;
 using GraphQL.Integration.Tests.Helpers;
-using IntegrationTestServer;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
 	public abstract class Base {
 
-		protected IGraphQLWebsocketJsonSerializer serializer;
+		protected IntegrationServerTestFixture Fixture;
+		protected GraphQLHttpClient StarWarsClient;
+		protected GraphQLHttpClient ChatClient;
 
-		private TestServerSetup SetupTest(bool requestsViaWebsocket = false) => WebHostHelpers.SetupTest<StartupStarWars>(requestsViaWebsocket, serializer);
-
-		protected Base(IGraphQLWebsocketJsonSerializer serializer) {
-			this.serializer = serializer;
+		protected Base(IntegrationServerTestFixture fixture) {
+			Fixture = fixture;
+			StarWarsClient = Fixture.GetStarWarsClient();
+			ChatClient = Fixture.GetChatClient();
 		}
-
+		
 		[Theory]
 		[ClassData(typeof(StarWarsHumans))]
 		public async void QueryTheory(int id, string name) {
 			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
 
-			using (var setup = SetupTest()) {
-				var response = await setup.Client.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty }})
-					.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty }})
+				.ConfigureAwait(false);
 
-				Assert.Null(response.Errors);
-				Assert.Equal(name, response.Data.Human.Name);
-			}
+			Assert.Null(response.Errors);
+			Assert.Equal(name, response.Data.Human.Name);
 		}
 
 		[Theory]
@@ -43,13 +43,11 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 		public async void QueryWithDynamicReturnTypeTheory(int id, string name) {
 			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
 
-			using (var setup = SetupTest()) {
-				var response = await setup.Client.SendQueryAsync<dynamic>(graphQLRequest)
-					.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync<dynamic>(graphQLRequest)
+				.ConfigureAwait(false);
 
-				Assert.Null(response.Errors);
-				Assert.Equal(name, response.Data.human.name.ToString());
-			}
+			Assert.Null(response.Errors);
+			Assert.Equal(name, response.Data.human.name.ToString());
 		}
 
 		[Theory]
@@ -63,13 +61,11 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				}",
 				new {id = id.ToString()});
 
-			using (var setup = SetupTest()) {
-				var response = await setup.Client.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-					.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
+				.ConfigureAwait(false);
 
-				Assert.Null(response.Errors);
-				Assert.Equal(name, response.Data.Human.Name);
-			}
+			Assert.Null(response.Errors);
+			Assert.Equal(name, response.Data.Human.Name);
 		}
 
 		[Theory]
@@ -90,13 +86,11 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				new { id = id.ToString() },
 				"Human");
 
-			using (var setup = SetupTest()) {
-				var response = await setup.Client.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-					.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
+				.ConfigureAwait(false);
 
-				Assert.Null(response.Errors);
-				Assert.Equal(name, response.Data.Human.Name);
-			}
+			Assert.Null(response.Errors);
+			Assert.Equal(name, response.Data.Human.Name);
 		}
 
 		[Fact]
@@ -118,27 +112,25 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 					}
 				}");
 
-			using (var setup = SetupTest()) {
-				var mutationResponse = await setup.Client.SendMutationAsync(mutationRequest, () => new {
-						createHuman = new {
-							Id = "",
-							Name = "",
-							HomePlanet = ""
-						}
-					})
-					.ConfigureAwait(false);
+			var mutationResponse = await StarWarsClient.SendMutationAsync(mutationRequest, () => new {
+					createHuman = new {
+						Id = "",
+						Name = "",
+						HomePlanet = ""
+					}
+				})
+				.ConfigureAwait(false);
 
-				Assert.Null(mutationResponse.Errors);
-				Assert.Equal("Han Solo", mutationResponse.Data.createHuman.Name);
-				Assert.Equal("Corellia", mutationResponse.Data.createHuman.HomePlanet);
+			Assert.Null(mutationResponse.Errors);
+			Assert.Equal("Han Solo", mutationResponse.Data.createHuman.Name);
+			Assert.Equal("Corellia", mutationResponse.Data.createHuman.HomePlanet);
 
-				queryRequest.Variables = new {id = mutationResponse.Data.createHuman.Id};
-				var queryResponse = await setup.Client.SendQueryAsync(queryRequest, () => new { Human = new { Name = string.Empty } })
-					.ConfigureAwait(false);
-				
-				Assert.Null(queryResponse.Errors);
-				Assert.Equal("Han Solo", queryResponse.Data.Human.Name);
-			}
+			queryRequest.Variables = new {id = mutationResponse.Data.createHuman.Id};
+			var queryResponse = await StarWarsClient.SendQueryAsync(queryRequest, () => new { Human = new { Name = string.Empty } })
+				.ConfigureAwait(false);
+			
+			Assert.Null(queryResponse.Errors);
+			Assert.Equal("Han Solo", queryResponse.Data.Human.Name);
 		}
 
 		[Fact]
@@ -148,16 +140,14 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				PreprocessHttpRequestMessage = callbackTester.Invoke
 			};
 
-			using (var setup = SetupTest()) {
-				var defaultHeaders = setup.Client.HttpClient.DefaultRequestHeaders;
-				var response = await setup.Client.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-					.ConfigureAwait(false);
-				callbackTester.CallbackShouldHaveBeenInvoked(message => {
-					Assert.Equal(defaultHeaders, message.Headers);
-				});
-				Assert.Null(response.Errors);
-				Assert.Equal("Luke", response.Data.Human.Name);
-			}
+			var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
+				.ConfigureAwait(false);
+			callbackTester.CallbackShouldHaveBeenInvoked(message => {
+				Assert.Equal(defaultHeaders, message.Headers);
+			});
+			Assert.Null(response.Errors);
+			Assert.Equal("Luke", response.Data.Human.Name);
 		}
 
 		[Fact]
@@ -167,15 +157,37 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 					longRunning
 				}");
 
-			using (var setup = WebHostHelpers.SetupTest<StartupChat>(false, serializer)) {
-				var cancellationTimeout = TimeSpan.FromSeconds(1);
-				var cts = new CancellationTokenSource(cancellationTimeout);
+			var chatQuery = Fixture.Server.Services.GetService<ChatQuery>();
+			var cts = new CancellationTokenSource();
 
-				Func<Task> requestTask = () => setup.Client.SendQueryAsync(graphQLRequest, () => new {longRunning = string.Empty}, cts.Token);
-				Action timeMeasurement = () => requestTask.Should().Throw<TaskCanceledException>();
+			var request =
+				ConcurrentTaskWrapper.New(() => ChatClient.SendQueryAsync(graphQLRequest, () => new { longRunning = string.Empty }, cts.Token));
 
-				timeMeasurement.ExecutionTime().Should().BeCloseTo(cancellationTimeout, TimeSpan.FromMilliseconds(50));
-			}
+			// Test regular request
+			// start request
+			request.Start();
+			// wait until the query has reached the server
+			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
+			// unblock the query
+			chatQuery.LongRunningQueryBlocker.Set();
+			// check execution time
+			request.Invoking().ExecutionTime().Should().BeLessThan(100.Milliseconds());
+			request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
+
+			// reset stuff
+			chatQuery.LongRunningQueryBlocker.Reset();
+			request.Clear();
+
+			// cancellation test
+			request.Start();
+			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
+			cts.Cancel();
+			FluentActions.Awaiting(() => request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled"))
+				.ExecutionTime().Should().BeLessThan(100.Milliseconds());
+
+			// let the server finish its query
+			chatQuery.LongRunningQueryBlocker.Set();
 		}
+
 	}
 }

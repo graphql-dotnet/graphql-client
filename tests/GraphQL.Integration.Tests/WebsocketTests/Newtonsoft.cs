@@ -1,10 +1,11 @@
 using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL.Integration.Tests.Helpers;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace GraphQL.Integration.Tests.WebsocketTests {
-	public class Newtonsoft: Base {
-		public Newtonsoft(ITestOutputHelper output) : base(output, new NewtonsoftJsonSerializer())
-		{
-		}
+	public class Newtonsoft: Base, IClassFixture<NewtonsoftIntegrationServerTestFixture> {
+		public Newtonsoft(ITestOutputHelper output, NewtonsoftIntegrationServerTestFixture fixture) : base(output, fixture)
+		{ }
 	}
 }

@@ -18,20 +18,25 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	}
 
 	public class Chat : IChat {
-		private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
+		private readonly RollingReplaySubject<Message> _messageStream = new RollingReplaySubject<Message>();
 		private readonly ISubject<MessageFrom> _userJoined = new Subject<MessageFrom>();
 
 		public Chat() {
+			Reset();
+		}
+
+		public void Reset() {
 			AllMessages = new ConcurrentStack<Message>();
 			Users = new ConcurrentDictionary<string, string> {
 				["1"] = "developer",
 				["2"] = "tester"
 			};
+			_messageStream.Clear();
 		}
 
-		public ConcurrentDictionary<string, string> Users { get; set; }
+		public ConcurrentDictionary<string, string> Users { get; private set; }
 
-		public ConcurrentStack<Message> AllMessages { get; }
+		public ConcurrentStack<Message> AllMessages { get; private set; }
 
 		public Message AddMessage(ReceivedMessage message) {
 			if (!Users.TryGetValue(message.FromId, out var displayName)) {
@@ -89,5 +94,44 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 	public class User {
 		public string Id { get; set; }
 		public string Name { get; set; }
+	}
+
+	public class RollingReplaySubject<T> : ISubject<T> {
+		private readonly ReplaySubject<IObservable<T>> _subjects;
+		private readonly IObservable<T> _concatenatedSubjects;
+		private ISubject<T> _currentSubject;
+
+		public RollingReplaySubject() {
+			_subjects = new ReplaySubject<IObservable<T>>(1);
+			_concatenatedSubjects = _subjects.Concat();
+			_currentSubject = new ReplaySubject<T>();
+			_subjects.OnNext(_currentSubject);
+		}
+
+		public void Clear() {
+			_currentSubject.OnCompleted();
+			_currentSubject = new ReplaySubject<T>();
+			_subjects.OnNext(_currentSubject);
+		}
+
+		public void OnNext(T value) {
+			_currentSubject.OnNext(value);
+		}
+
+		public void OnError(Exception error) {
+			_currentSubject.OnError(error);
+		}
+
+		public void OnCompleted() {
+			_currentSubject.OnCompleted();
+			_subjects.OnCompleted();
+			// a quick way to make the current ReplaySubject unreachable
+			// except to in-flight observers, and not hold up collection
+			_currentSubject = new Subject<T>();
+		}
+
+		public IDisposable Subscribe(IObserver<T> observer) {
+			return _concatenatedSubjects.Subscribe(observer);
+		}
 	}
 }

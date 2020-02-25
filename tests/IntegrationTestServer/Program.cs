@@ -10,7 +10,7 @@ namespace IntegrationTestServer {
 
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
-				.UseStartup<StartupStarWars>()
+				.UseStartup<Startup>()
 				.ConfigureLogging((ctx, logging) => logging.SetMinimumLevel(LogLevel.Debug));
 	}
 }

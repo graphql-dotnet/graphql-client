@@ -1,8 +1,11 @@
 using GraphQL;
+using GraphQL.Client.Tests.Common;
+using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
-using GraphQL.Server.Ui.Voyager;
 using GraphQL.Server.Ui.Playground;
+using GraphQL.StarWars;
+using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -11,8 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace IntegrationTestServer {
-	public abstract class Startup {
-		protected Startup(IConfiguration configuration, IWebHostEnvironment environment) {
+	public class Startup {
+		public Startup(IConfiguration configuration, IWebHostEnvironment environment) {
 			Configuration = configuration;
 			Environment = environment;
 		}
@@ -29,18 +32,14 @@ namespace IntegrationTestServer {
 			});
 
 			services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
-
-			ConfigureGraphQLSchemaServices(services);
-			
+			services.AddChatSchema();
+			services.AddStarWarsSchema();
 			services.AddGraphQL(options => {
 				options.EnableMetrics = true;
 				options.ExposeExceptions = Environment.IsDevelopment();
 			})
 				.AddWebSockets();
 		}
-
-		public abstract void ConfigureGraphQLSchemaServices(IServiceCollection services);
-
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
@@ -50,21 +49,23 @@ namespace IntegrationTestServer {
 
 			app.UseWebSockets();
 
-			ConfigureGraphQLSchema(app);
+			ConfigureGraphQLSchema<ChatSchema>(app, Common.ChatEndpoint);
+			ConfigureGraphQLSchema<StarWarsSchema>(app, Common.StarWarsEndpoint);
 
 			app.UseGraphiQLServer(new GraphiQLOptions {
 				GraphiQLPath = "/ui/graphiql",
-				GraphQLEndPoint = "/graphql"
-			});
-			app.UseGraphQLVoyager(new GraphQLVoyagerOptions() {
-				GraphQLEndPoint = "/graphql",
-				Path = "/ui/voyager"
+				GraphQLEndPoint = Common.StarWarsEndpoint
 			});
 			app.UseGraphQLPlayground(new GraphQLPlaygroundOptions {
-				Path = "/ui/playground"
+				Path = "/ui/playground",
+				GraphQLEndPoint = Common.ChatEndpoint
 			});
 		}
 
-		public abstract void ConfigureGraphQLSchema(IApplicationBuilder app);
+		private void ConfigureGraphQLSchema<TSchema>(IApplicationBuilder app, string endpoint) where TSchema: Schema
+		{
+			app.UseGraphQLWebSockets<TSchema>(endpoint);
+			app.UseGraphQL<TSchema>(endpoint);
+		}
 	}
 }
