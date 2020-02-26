@@ -14,7 +14,7 @@ using Xunit;
 
 namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
-	public abstract class Base {
+	public abstract class Base: IAsyncLifetime {
 
 		protected IntegrationServerTestFixture Fixture;
 		protected GraphQLHttpClient StarWarsClient;
@@ -22,17 +22,25 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
 		protected Base(IntegrationServerTestFixture fixture) {
 			Fixture = fixture;
+		}
+
+		public async Task InitializeAsync() {
+			await Fixture.CreateServer();
 			StarWarsClient = Fixture.GetStarWarsClient();
 			ChatClient = Fixture.GetChatClient();
 		}
-		
+
+		public Task DisposeAsync() {
+			ChatClient?.Dispose();
+			StarWarsClient?.Dispose();
+			return Task.CompletedTask;
+		}
+
 		[Theory]
 		[ClassData(typeof(StarWarsHumans))]
 		public async void QueryTheory(int id, string name) {
 			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
-
-			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty }})
-				.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty }});
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.Human.Name);
@@ -43,8 +51,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 		public async void QueryWithDynamicReturnTypeTheory(int id, string name) {
 			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
 
-			var response = await StarWarsClient.SendQueryAsync<dynamic>(graphQLRequest)
-				.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync<dynamic>(graphQLRequest);
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.human.name.ToString());
@@ -61,8 +68,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				}",
 				new {id = id.ToString()});
 
-			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-				.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.Human.Name);
@@ -86,8 +92,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 				new { id = id.ToString() },
 				"Human");
 
-			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-				.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.Human.Name);
@@ -118,16 +123,14 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 						Name = "",
 						HomePlanet = ""
 					}
-				})
-				.ConfigureAwait(false);
+				});
 
 			Assert.Null(mutationResponse.Errors);
 			Assert.Equal("Han Solo", mutationResponse.Data.createHuman.Name);
 			Assert.Equal("Corellia", mutationResponse.Data.createHuman.HomePlanet);
 
 			queryRequest.Variables = new {id = mutationResponse.Data.createHuman.Id};
-			var queryResponse = await StarWarsClient.SendQueryAsync(queryRequest, () => new { Human = new { Name = string.Empty } })
-				.ConfigureAwait(false);
+			var queryResponse = await StarWarsClient.SendQueryAsync(queryRequest, () => new { Human = new { Name = string.Empty } });
 			
 			Assert.Null(queryResponse.Errors);
 			Assert.Equal("Han Solo", queryResponse.Data.Human.Name);
@@ -141,8 +144,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 			};
 
 			var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
-			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-				.ConfigureAwait(false);
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
 			callbackTester.CallbackShouldHaveBeenInvoked(message => {
 				Assert.Equal(defaultHeaders, message.Headers);
 			});

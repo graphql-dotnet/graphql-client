@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -14,6 +15,7 @@ using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Integration.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -29,9 +31,12 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 		}
 
 		public async Task InitializeAsync() {
+			await Fixture.CreateServer();
 			Fixture.Server.Services.GetService<Chat>().Reset();
-			ChatClient = Fixture.GetChatClient(true);
-			Output.WriteLine($"ChatClient: {ChatClient.GetHashCode()}");
+			if (ChatClient == null) {
+				ChatClient = Fixture.GetChatClient(true);
+				Output.WriteLine($"ChatClient: {ChatClient.GetHashCode()}");
+			}
 		}
 
 		public Task DisposeAsync() {
@@ -43,7 +48,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 		public async void CanSendRequestViaWebsocket() {
 			await ChatClient.InitializeWebsocketConnection();
 			const string message = "some random testing message";
-			var response = await ChatClient.AddMessageAsync(message).ConfigureAwait(false);
+			var response = await ChatClient.AddMessageAsync(message);
 			response.Data.AddMessage.Content.Should().Be(message);
 		}
 
@@ -90,7 +95,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 		[Fact]
 		public async void CanHandleRequestErrorViaWebsocket() {
 			await ChatClient.InitializeWebsocketConnection();
-			var response = await ChatClient.SendQueryAsync<object>("this query is formatted quite badly").ConfigureAwait(false);
+			var response = await ChatClient.SendQueryAsync<object>("this query is formatted quite badly");
 			response.Errors.Should().ContainSingle("because the query is invalid");
 		}
 
@@ -117,13 +122,13 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			using var tester = observable.Monitor();
 			const string message1 = "Hello World";
 
-			var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(false);
+			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
 			tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(3))
 				.Which.Data.MessageAdded.Content.Should().Be(message1);
 
 			const string message2 = "lorem ipsum dolor si amet";
-			response = await ChatClient.AddMessageAsync(message2).ConfigureAwait(false);
+			response = await ChatClient.AddMessageAsync(message2);
 			response.Data.AddMessage.Content.Should().Be(message2);
 			tester.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message2);
@@ -154,13 +159,13 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			callbackMonitor.Should().HaveBeenInvokedWithPayload();
 
 			const string message1 = "Hello World";
-			var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(false);
+			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
-			tester.Should().HaveReceivedPayload(3.Seconds())
+			tester.Should().HaveReceivedPayload(10.Seconds())
 				.Which.Data.MessageAdded.Content.Should().Be(message1);
 
 			const string message2 = "How are you?";
-			response = await ChatClient.AddMessageAsync(message2).ConfigureAwait(false);
+			response = await ChatClient.AddMessageAsync(message2);
 			response.Data.AddMessage.Content.Should().Be(message2);
 			tester.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message2);
@@ -174,7 +179,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				.Which.Data.MessageAdded.Content.Should().Be(message2);
 
 			const string message3 = "lorem ipsum dolor si amet";
-			response = await ChatClient.AddMessageAsync(message3).ConfigureAwait(false);
+			response = await ChatClient.AddMessageAsync(message3);
 			response.Data.AddMessage.Content.Should().Be(message3);
 			tester2.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message3);
@@ -225,12 +230,12 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			var tester2 = observable2.Monitor();
 
 			const string message1 = "Hello World";
-			var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(false);
+			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
 			tester.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message1);
 			
-			var joinResponse = await ChatClient.JoinDeveloperUser().ConfigureAwait(false);
+			var joinResponse = await ChatClient.JoinDeveloperUser();
 			joinResponse.Data.Join.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
 
 			var payload = tester2.Should().HaveReceivedPayload().Subject;
@@ -241,7 +246,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			tester2.Dispose();
 
 			const string message3 = "lorem ipsum dolor si amet";
-			response = await ChatClient.AddMessageAsync(message3).ConfigureAwait(false);
+			response = await ChatClient.AddMessageAsync(message3);
 			response.Data.AddMessage.Content.Should().Be(message3);
 			tester.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message3);
@@ -284,9 +289,9 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				websocketStates.Clear();
 
 				const string message1 = "Hello World";
-				var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(false);
+				var response = await ChatClient.AddMessageAsync(message1);
 				response.Data.AddMessage.Content.Should().Be(message1);
-				tester.Should().HaveReceivedPayload()
+				tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10))
 					.Which.Data.MessageAdded.Content.Should().Be(message1);
 
 				Debug.WriteLine("stopping web host...");
@@ -297,9 +302,9 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 					.Which.Should().BeOfType<WebSocketException>();
 				websocketStates.Should().Contain(GraphQLWebsocketConnectionState.Disconnected);
 
-				Fixture.CreateServer();
+				await InitializeAsync();
 				reconnectBlocker.Set();
-				callbackMonitor.Should().HaveBeenInvokedWithPayload();
+				callbackMonitor.Should().HaveBeenInvokedWithPayload(TimeSpan.FromSeconds(10));
 				websocketStates.Should().ContainInOrder(
 					GraphQLWebsocketConnectionState.Disconnected,
 					GraphQLWebsocketConnectionState.Connecting,

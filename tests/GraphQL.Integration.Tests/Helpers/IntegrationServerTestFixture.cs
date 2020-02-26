@@ -17,13 +17,11 @@ namespace GraphQL.Integration.Tests.Helpers {
 		public IntegrationServerTestFixture()
 		{
 			Port = NetworkHelpers.GetFreeTcpPortNumber();
-			CreateServer();
 		}
 
-		public void CreateServer() {
-			if(Server != null)
-				throw new InvalidOperationException("server is already created");
-			Server = WebHostHelpers.CreateServer(Port);
+		public async Task CreateServer() {
+			if (Server != null) return;
+			Server = await WebHostHelpers.CreateServer(Port);
 		}
 
 		public async Task ShutdownServer() {

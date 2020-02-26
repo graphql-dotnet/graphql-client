@@ -1,6 +1,6 @@
 using System;
 using System.Reactive.Disposables;
-using GraphQL.Client;
+using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
@@ -9,13 +9,15 @@ using GraphQL.Client.Tests.Common.Helpers;
 using IntegrationTestServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Integration.Tests.Helpers
 {
 	public static class WebHostHelpers
 	{
-		public static IWebHost CreateServer(int port)
+		public static async Task<IWebHost> CreateServer(int port)
 		{
 			var configBuilder = new ConfigurationBuilder();
 			configBuilder.AddInMemoryCollection();
@@ -31,8 +33,10 @@ namespace GraphQL.Integration.Tests.Helpers
 				.UseStartup<Startup>()
 				.Build();
 
-			host.Start();
-
+			var tcs = new TaskCompletionSource<bool>();
+			host.Services.GetService<IHostApplicationLifetime>().ApplicationStarted.Register(() => tcs.TrySetResult(true));
+			await host.StartAsync();
+			await tcs.Task;
 			return host;
 		}
 		
