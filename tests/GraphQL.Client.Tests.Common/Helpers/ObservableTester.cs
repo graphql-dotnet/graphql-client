@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
@@ -9,6 +10,7 @@ using FluentAssertions.Primitives;
 namespace GraphQL.Client.Tests.Common.Helpers {
 	public class ObservableTester<TSubscriptionPayload> : IDisposable {
 		private readonly IDisposable subscription;
+		private readonly EventLoopScheduler scheduler;
 		private readonly ManualResetEventSlim updateReceived = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim completed = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim error = new ManualResetEventSlim();
@@ -34,12 +36,15 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
 		public ObservableTester(IObservable<TSubscriptionPayload> observable) {
-			subscription = observable.ObserveOn(TaskPoolScheduler.Default).Subscribe(
+			scheduler = new EventLoopScheduler();
+			subscription = observable.SubscribeOn(Scheduler.CurrentThread).ObserveOn(scheduler).Subscribe(
 				obj => {
+					Debug.WriteLine($"observable tester {GetHashCode()}: payload received");
 					LastPayload = obj;
 					updateReceived.Set();
 				},
 				ex => {
+					Debug.WriteLine($"observable tester {GetHashCode()} error received: {ex}");
 					Error = ex;
 					error.Set();
 				},
@@ -57,6 +62,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// <inheritdoc />
 		public void Dispose() {
 			subscription?.Dispose();
+			scheduler?.Dispose();
 		}
 
 		public SubscriptionAssertions<TSubscriptionPayload> Should() {

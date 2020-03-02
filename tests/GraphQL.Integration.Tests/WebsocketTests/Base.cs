@@ -15,7 +15,6 @@ using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Integration.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -30,12 +29,20 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			this.Fixture = fixture;
 		}
 
+		protected static ReceivedMessage InitialMessage = new ReceivedMessage {
+			Content = "initial message",
+			SentAt = DateTime.Now,
+			FromId = "1"
+		};
+
 		public async Task InitializeAsync() {
 			await Fixture.CreateServer();
-			Fixture.Server.Services.GetService<Chat>().Reset();
+			// make sure the buffer always contains the same message
+			Fixture.Server.Services.GetService<Chat>().AddMessage(InitialMessage);
+
 			if (ChatClient == null) {
+				// then create the chat client
 				ChatClient = Fixture.GetChatClient(true);
-				Output.WriteLine($"ChatClient: {ChatClient.GetHashCode()}");
 			}
 		}
 
@@ -120,18 +127,17 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 
 			Debug.WriteLine("subscribing...");
 			using var tester = observable.Monitor();
-			const string message1 = "Hello World";
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
+			const string message1 = "Hello World";
 			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
-			tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(3))
-				.Which.Data.MessageAdded.Content.Should().Be(message1);
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
 
 			const string message2 = "lorem ipsum dolor si amet";
 			response = await ChatClient.AddMessageAsync(message2);
 			response.Data.AddMessage.Content.Should().Be(message2);
-			tester.Should().HaveReceivedPayload()
-				.Which.Data.MessageAdded.Content.Should().Be(message2);
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
 
 			// disposing the client should throw a TaskCanceledException on the subscription
 			ChatClient.Dispose();
@@ -157,32 +163,32 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			Debug.WriteLine("subscribing...");
 			var tester = observable.Monitor();
 			callbackMonitor.Should().HaveBeenInvokedWithPayload();
+			await ChatClient.InitializeWebsocketConnection();
+			Debug.WriteLine("websocket connection initialized");
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
 			const string message1 = "Hello World";
+			Debug.WriteLine($"adding message {message1}");
 			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
-			tester.Should().HaveReceivedPayload(10.Seconds())
-				.Which.Data.MessageAdded.Content.Should().Be(message1);
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
 
 			const string message2 = "How are you?";
 			response = await ChatClient.AddMessageAsync(message2);
 			response.Data.AddMessage.Content.Should().Be(message2);
-			tester.Should().HaveReceivedPayload()
-				.Which.Data.MessageAdded.Content.Should().Be(message2);
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
 
 			Debug.WriteLine("disposing subscription...");
 			tester.Dispose(); // does not close the websocket connection
 
 			Debug.WriteLine("creating new subscription...");
 			var tester2 = observable.Monitor();
-			tester2.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10))
-				.Which.Data.MessageAdded.Content.Should().Be(message2);
+			tester2.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
 
 			const string message3 = "lorem ipsum dolor si amet";
 			response = await ChatClient.AddMessageAsync(message3);
 			response.Data.AddMessage.Content.Should().Be(message3);
-			tester2.Should().HaveReceivedPayload()
-				.Which.Data.MessageAdded.Content.Should().Be(message3);
+			tester2.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message3);
 
 			// disposing the client should complete the subscription
 			ChatClient.Dispose();
@@ -229,6 +235,8 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			var tester = observable1.Monitor();
 			var tester2 = observable2.Monitor();
 
+			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+
 			const string message1 = "Hello World";
 			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
@@ -265,7 +273,9 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			var callbackMonitor = ChatClient.ConfigureMonitorForOnWebsocketConnected();
 			// configure back-off strategy to allow it to be controlled from within the unit test
 			ChatClient.Options.BackOffStrategy = i => {
+				Debug.WriteLine("back-off strategy: waiting on reconnect blocker");
 				reconnectBlocker.Wait();
+				Debug.WriteLine("back-off strategy: reconnecting...");
 				return TimeSpan.Zero;
 			};
 
@@ -288,23 +298,28 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				// clear the collection so the next tests on the collection work as expected
 				websocketStates.Clear();
 
+				tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+
 				const string message1 = "Hello World";
 				var response = await ChatClient.AddMessageAsync(message1);
 				response.Data.AddMessage.Content.Should().Be(message1);
-				tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(10))
-					.Which.Data.MessageAdded.Content.Should().Be(message1);
+				tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
 
 				Debug.WriteLine("stopping web host...");
 				await Fixture.ShutdownServer();
-				Debug.WriteLine("web host stopped...");
+				Debug.WriteLine("web host stopped");
 
-				errorMonitor.Should().HaveBeenInvokedWithPayload(TimeSpan.FromSeconds(10))
+				errorMonitor.Should().HaveBeenInvokedWithPayload(10.Seconds())
 					.Which.Should().BeOfType<WebSocketException>();
 				websocketStates.Should().Contain(GraphQLWebsocketConnectionState.Disconnected);
-
+				
+				Debug.WriteLine("restarting web host...");
 				await InitializeAsync();
+				Debug.WriteLine("web host started");
 				reconnectBlocker.Set();
-				callbackMonitor.Should().HaveBeenInvokedWithPayload(TimeSpan.FromSeconds(10));
+				callbackMonitor.Should().HaveBeenInvokedWithPayload(3.Seconds());
+				tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+
 				websocketStates.Should().ContainInOrder(
 					GraphQLWebsocketConnectionState.Disconnected,
 					GraphQLWebsocketConnectionState.Connecting,
@@ -312,7 +327,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 
 				// disposing the client should complete the subscription
 				ChatClient.Dispose();
-				tester.Should().HaveCompleted(TimeSpan.FromSeconds(5));
+				tester.Should().HaveCompleted(5.Seconds());
 			}
 		}
 
