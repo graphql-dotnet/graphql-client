@@ -133,9 +133,10 @@ namespace GraphQL.Client.Http.Websocket {
 						}
 
 						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
-						return cancellationToken.IsCancellationRequested
-							? Observable.Empty<Tuple<GraphQLResponse<TResponse>, Exception>>()
-							: Observable.Throw<Tuple<GraphQLResponse<TResponse>, Exception>>(e);
+						if (cancellationToken.IsCancellationRequested)
+							return Observable.Empty<Tuple<GraphQLResponse<TResponse>, Exception>>();
+						else
+							return Observable.Throw<Tuple<GraphQLResponse<TResponse>, Exception>>(e);
 					}
 					catch (Exception exception) {
 						// wrap all other exceptions to be propagated behind retry

@@ -179,6 +179,7 @@ namespace GraphQL.Client.Http.Websocket {
 			if (responseSubject == null || responseSubject.IsDisposed) {
 				// create new response subject
 				responseSubject = new Subject<WebsocketResponseWrapper>();
+				Debug.WriteLine($"creating new response stream {responseSubject.GetHashCode()}");
 
 				// initialize and connect websocket
 				await InitializeWebSocket().ConfigureAwait(false);

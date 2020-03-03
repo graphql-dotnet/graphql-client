@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -10,7 +8,6 @@ using FluentAssertions.Primitives;
 namespace GraphQL.Client.Tests.Common.Helpers {
 	public class ObservableTester<TSubscriptionPayload> : IDisposable {
 		private readonly IDisposable subscription;
-		private readonly EventLoopScheduler scheduler;
 		private readonly ManualResetEventSlim updateReceived = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim completed = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim error = new ManualResetEventSlim();
@@ -36,8 +33,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
 		public ObservableTester(IObservable<TSubscriptionPayload> observable) {
-			scheduler = new EventLoopScheduler();
-			subscription = observable.SubscribeOn(Scheduler.CurrentThread).ObserveOn(scheduler).Subscribe(
+			subscription = observable.Subscribe(
 				obj => {
 					Debug.WriteLine($"observable tester {GetHashCode()}: payload received");
 					LastPayload = obj;
@@ -48,8 +44,10 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 					Error = ex;
 					error.Set();
 				},
-				() => completed.Set()
-			);
+				() => {
+					Debug.WriteLine($"observable tester {GetHashCode()}: completed");
+					completed.Set();
+				});
 		}
 
 		/// <summary>
@@ -62,7 +60,6 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// <inheritdoc />
 		public void Dispose() {
 			subscription?.Dispose();
-			scheduler?.Dispose();
 		}
 
 		public SubscriptionAssertions<TSubscriptionPayload> Should() {
@@ -130,6 +127,19 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 			}
 			public AndConstraint<SubscriptionAssertions<TPayload>> HaveCompleted(string because = "", params object[] becauseArgs)
 				=> HaveCompleted(Subject.Timeout, because, becauseArgs);
+
+			public AndConstraint<SubscriptionAssertions<TPayload>> NotHaveCompleted(TimeSpan timeout,
+				string because = "", params object[] becauseArgs) {
+				Execute.Assertion
+					.BecauseOf(because, becauseArgs)
+					.Given(() => Subject.completed.Wait(timeout))
+					.ForCondition(isSet => !isSet)
+					.FailWith("Expected {context:Subscription} not to complete within {0}{reason}, but it did!", timeout);
+
+				return new AndConstraint<SubscriptionAssertions<TPayload>>(this);
+			}
+			public AndConstraint<SubscriptionAssertions<TPayload>> NotHaveCompleted(string because = "", params object[] becauseArgs)
+				=> NotHaveCompleted(Subject.Timeout, because, becauseArgs);
 		}
 	}
 

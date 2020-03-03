@@ -81,7 +81,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			// unblock the query
 			chatQuery.LongRunningQueryBlocker.Set();
 			// check execution time
-			request.Invoking().ExecutionTime().Should().BeLessThan(100.Milliseconds());
+			request.Invoking().ExecutionTime().Should().BeLessThan(500.Milliseconds());
 			request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
 
 			// reset stuff
@@ -93,7 +93,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
 			cts.Cancel();
 			FluentActions.Awaiting(() => request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled"))
-				.ExecutionTime().Should().BeLessThan(100.Milliseconds());
+				.ExecutionTime().Should().BeLessThan(500.Milliseconds());
 
 			// let the server finish its query
 			chatQuery.LongRunningQueryBlocker.Set();
@@ -312,12 +312,12 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				errorMonitor.Should().HaveBeenInvokedWithPayload(10.Seconds())
 					.Which.Should().BeOfType<WebSocketException>();
 				websocketStates.Should().Contain(GraphQLWebsocketConnectionState.Disconnected);
-				
+
 				Debug.WriteLine("restarting web host...");
 				await InitializeAsync();
 				Debug.WriteLine("web host started");
 				reconnectBlocker.Set();
-				callbackMonitor.Should().HaveBeenInvokedWithPayload(3.Seconds());
+				callbackMonitor.Should().HaveBeenInvokedWithPayload(10.Seconds());
 				tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
 				websocketStates.Should().ContainInOrder(
