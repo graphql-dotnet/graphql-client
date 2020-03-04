@@ -173,7 +173,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 			// unblock the query
 			chatQuery.LongRunningQueryBlocker.Set();
 			// check execution time
-			request.Invoking().ExecutionTime().Should().BeLessThan(100.Milliseconds());
+			request.Invoking().ExecutionTime().Should().BeLessThan(500.Milliseconds());
 			request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
 
 			// reset stuff
@@ -185,7 +185,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
 			cts.Cancel();
 			FluentActions.Awaiting(() => request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled"))
-				.ExecutionTime().Should().BeLessThan(100.Milliseconds());
+				.ExecutionTime().Should().BeLessThan(500.Milliseconds());
 
 			// let the server finish its query
 			chatQuery.LongRunningQueryBlocker.Set();
