@@ -169,7 +169,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 			// start request
 			request.Start();
 			// wait until the query has reached the server
-			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
+			chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
 			// unblock the query
 			chatQuery.LongRunningQueryBlocker.Set();
 			// check execution time
@@ -182,7 +182,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
 			// cancellation test
 			request.Start();
-			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
+			chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
 			cts.Cancel();
 			FluentActions.Awaiting(() => request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled"))
 				.ExecutionTime().Should().BeLessThan(500.Milliseconds());

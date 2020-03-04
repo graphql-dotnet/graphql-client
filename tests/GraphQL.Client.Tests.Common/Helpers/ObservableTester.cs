@@ -17,7 +17,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// <summary>
 		/// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
 		/// </summary>
-		public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);
+		public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(3);
 
 		/// <summary>
 		/// Indicates that an update has been received since the last <see cref="_reset"/>
