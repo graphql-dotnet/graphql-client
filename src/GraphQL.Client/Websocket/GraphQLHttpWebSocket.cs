@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -23,9 +24,11 @@ namespace GraphQL.Client.Http.Websocket {
 		private readonly BehaviorSubject<GraphQLWebsocketConnectionState> stateSubject =
 			new BehaviorSubject<GraphQLWebsocketConnectionState>(GraphQLWebsocketConnectionState.Disconnected);
 		private readonly IDisposable requestSubscription;
+		private readonly EventLoopScheduler receiveLoopScheduler = new EventLoopScheduler();
+		private readonly EventLoopScheduler sendLoopScheduler = new EventLoopScheduler();
 
 		private int connectionAttempt = 0;
-		private Subject<WebsocketResponseWrapper> responseSubject;
+		private Subject<WebsocketMessageWrapper> incomingMessagesSubject;
 		private GraphQLHttpClientOptions Options => client.Options;
 
 #if NETFRAMEWORK
@@ -39,27 +42,28 @@ namespace GraphQL.Client.Http.Websocket {
 		public IObservable<Exception> ReceiveErrors => exceptionSubject.AsObservable();
 		public IObservable<GraphQLWebsocketConnectionState> ConnectionState => stateSubject.DistinctUntilChanged();
 
-		public IObservable<WebsocketResponseWrapper> ResponseStream { get; }
+		public IObservable<WebsocketMessageWrapper> ResponseStream { get; }
 
 		public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client) {
 			cancellationToken = cancellationTokenSource.Token;
 			this.webSocketUri = webSocketUri;
 			this.client = client;
 			buffer = new ArraySegment<byte>(new byte[8192]);
-			ResponseStream = _createResponseStream();
+			ResponseStream = GetMessageStream();
 
-			requestSubscription = requestSubject.Select(request => Observable.FromAsync(() => _sendWebSocketRequest(request))).Concat().Subscribe();
+			requestSubscription = requestSubject
+				.ObserveOn(sendLoopScheduler)
+				.Subscribe(async request => await SendWebSocketRequest(request));
 		}
-
-
+		
 		#region Send requests
 
-		public Task SendWebSocketRequest(GraphQLWebSocketRequest request) {
+		public Task QueueWebSocketRequest(GraphQLWebSocketRequest request) {
 			requestSubject.OnNext(request);
 			return request.SendTask();
 		}
 
-		private async Task _sendWebSocketRequest(GraphQLWebSocketRequest request) {
+		private async Task SendWebSocketRequest(GraphQLWebSocketRequest request) {
 			try {
 				if (cancellationToken.IsCancellationRequested) {
 					request.SendCanceled();
@@ -128,13 +132,13 @@ namespace GraphQL.Client.Http.Websocket {
 				clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 				clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
 #endif
-				return initializeWebSocketTask = _connectAsync(cancellationToken);
+				return initializeWebSocketTask = ConnectAsync(cancellationToken);
 			}
 		}
 
-		private async Task _connectAsync(CancellationToken token) {
+		private async Task ConnectAsync(CancellationToken token) {
 			try {
-				await _backOff().ConfigureAwait(false);
+				await BackOff().ConfigureAwait(false);
 				stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
 				Debug.WriteLine($"opening websocket {clientWebSocket.GetHashCode()}");
 				await clientWebSocket.ConnectAsync(webSocketUri, token).ConfigureAwait(false);
@@ -155,74 +159,79 @@ namespace GraphQL.Client.Http.Websocket {
 		/// delay the next connection attempt using <see cref="GraphQLHttpClientOptions.BackOffStrategy"/>
 		/// </summary>
 		/// <returns></returns>
-		private Task _backOff() {
+		private Task BackOff() {
 			connectionAttempt++;
 
 			if (connectionAttempt == 1) return Task.CompletedTask;
 
 			var delay = Options.BackOffStrategy?.Invoke(connectionAttempt - 1) ?? TimeSpan.FromSeconds(5);
 			Debug.WriteLine($"connection attempt #{connectionAttempt}, backing off for {delay.TotalSeconds} s");
-			return Task.Delay(delay);
+			return Task.Delay(delay, cancellationToken);
 		}
 
 
-		private IObservable<WebsocketResponseWrapper> _createResponseStream() {
-			return Observable.Create<WebsocketResponseWrapper>(_createResultStream)
+		private IObservable<WebsocketMessageWrapper> GetMessageStream() {
+			return Observable.Create<WebsocketMessageWrapper>(CreateMessageStream)
 				// complete sequence on OperationCanceledException, this is triggered by the cancellation token on disposal
-				.Catch<WebsocketResponseWrapper, OperationCanceledException>(exception =>
-					Observable.Empty<WebsocketResponseWrapper>());
+				.Catch<WebsocketMessageWrapper, OperationCanceledException>(exception =>
+					Observable.Empty<WebsocketMessageWrapper>());
 		}
 
-		private async Task<IDisposable> _createResultStream(IObserver<WebsocketResponseWrapper> observer, CancellationToken token) {
-			cancellationToken.ThrowIfCancellationRequested();
+		private async Task<IDisposable> CreateMessageStream(IObserver<WebsocketMessageWrapper> observer, CancellationToken token) {
+			var cts = CancellationTokenSource.CreateLinkedTokenSource(token, cancellationToken);
+			cts.Token.ThrowIfCancellationRequested();
 
-			if (responseSubject == null || responseSubject.IsDisposed) {
+			if (incomingMessagesSubject == null || incomingMessagesSubject.IsDisposed) {
 				// create new response subject
-				responseSubject = new Subject<WebsocketResponseWrapper>();
-				Debug.WriteLine($"creating new response stream {responseSubject.GetHashCode()}");
+				incomingMessagesSubject = new Subject<WebsocketMessageWrapper>();
+				Debug.WriteLine($"creating new incoming message stream {incomingMessagesSubject.GetHashCode()}");
 
 				// initialize and connect websocket
 				await InitializeWebSocket().ConfigureAwait(false);
 
 				// loop the receive task and subscribe the created subject to the results 
-				Observable.Defer(() => _getReceiveTask().ToObservable()).Repeat().Subscribe(responseSubject);
+				Observable
+					.Defer(() => GetReceiveTask().ToObservable())
+					.Repeat()
+					.SubscribeOn(receiveLoopScheduler)
+					.Subscribe(incomingMessagesSubject);
 
 				// dispose the subject on any error or completion (will be recreated) 
-				responseSubject.Subscribe(_ => { }, ex => {
+				incomingMessagesSubject.Subscribe(_ => { }, ex => {
 					exceptionSubject.OnNext(ex);
-					responseSubject?.Dispose();
-					responseSubject = null;
+					incomingMessagesSubject?.Dispose();
+					incomingMessagesSubject = null;
 					stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
 				},
 				() => {
-					responseSubject?.Dispose();
-					responseSubject = null;
+					incomingMessagesSubject?.Dispose();
+					incomingMessagesSubject = null;
 					stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
 				});
 			}
 
 			return new CompositeDisposable
 			(
-				responseSubject.Subscribe(observer),
+				incomingMessagesSubject.Subscribe(observer),
 				Disposable.Create(() => {
-					Debug.WriteLine($"response stream {responseSubject.GetHashCode()} disposed");
+					Debug.WriteLine($"incoming message stream {incomingMessagesSubject.GetHashCode()} disposed");
 				})
 			);
 		}
 
-		private Task<WebsocketResponseWrapper> receiveAsyncTask = null;
+		private Task<WebsocketMessageWrapper> receiveAsyncTask = null;
 		private readonly object receiveTaskLocker = new object();
 		/// <summary>
 		/// wrapper method to pick up the existing request task if already running
 		/// </summary>
 		/// <returns></returns>
-		private Task<WebsocketResponseWrapper> _getReceiveTask() {
+		private Task<WebsocketMessageWrapper> GetReceiveTask() {
 			lock (receiveTaskLocker) {
 				cancellationToken.ThrowIfCancellationRequested();
 				if (receiveAsyncTask == null ||
 					receiveAsyncTask.IsFaulted ||
 					receiveAsyncTask.IsCompleted)
-					receiveAsyncTask = _receiveResultAsync();
+					receiveAsyncTask = ReceiveWebsocketMessagesAsync();
 			}
 
 			return receiveAsyncTask;
@@ -232,9 +241,9 @@ namespace GraphQL.Client.Http.Websocket {
 		/// read a single message from the websocket
 		/// </summary>
 		/// <returns></returns>
-		private async Task<WebsocketResponseWrapper> _receiveResultAsync() {
+		private async Task<WebsocketMessageWrapper> ReceiveWebsocketMessagesAsync() {
 			try {
-				Debug.WriteLine($"receiving data on websocket {clientWebSocket.GetHashCode()} ...");
+				Debug.WriteLine($"waiting for data on websocket {clientWebSocket.GetHashCode()} ...");
 
 				using (var ms = new MemoryStream()) {
 					WebSocketReceiveResult webSocketReceiveResult = null;
@@ -251,6 +260,7 @@ namespace GraphQL.Client.Http.Websocket {
 					if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text) {
 						var response = await Options.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
 						response.MessageBytes = ms.ToArray();
+						Debug.WriteLine($"{response.MessageBytes.Length} bytes received on websocket {clientWebSocket.GetHashCode()} ...");
 						return response;
 					}
 					else {
@@ -264,7 +274,7 @@ namespace GraphQL.Client.Http.Websocket {
 			}
 		}
 
-		private async Task _closeAsync() {
+		private async Task CloseAsync() {
 			if (clientWebSocket == null)
 				return;
 
@@ -304,12 +314,15 @@ namespace GraphQL.Client.Http.Websocket {
 			Debug.WriteLine($"disposing websocket {clientWebSocket.GetHashCode()}...");
 			if (!cancellationTokenSource.IsCancellationRequested)
 				cancellationTokenSource.Cancel();
-			await _closeAsync().ConfigureAwait(false);
+			await CloseAsync().ConfigureAwait(false);
 			requestSubscription?.Dispose();
 			clientWebSocket?.Dispose();
 
-			responseSubject?.OnCompleted();
-			responseSubject?.Dispose();
+			incomingMessagesSubject?.OnCompleted();
+			incomingMessagesSubject?.Dispose();
+
+			sendLoopScheduler?.Dispose();
+			receiveLoopScheduler?.Dispose();
 
 			stateSubject?.OnCompleted();
 			stateSubject?.Dispose();

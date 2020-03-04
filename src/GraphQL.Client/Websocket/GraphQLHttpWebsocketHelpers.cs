@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
@@ -85,7 +86,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 							try {
 								Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
-								await graphQlHttpWebSocket.SendWebSocketRequest(closeRequest).ConfigureAwait(false);
+								await graphQlHttpWebSocket.QueueWebSocketRequest(closeRequest).ConfigureAwait(false);
 							}
 							// do not break on disposing
 							catch (OperationCanceledException) { }
@@ -95,7 +96,7 @@ namespace GraphQL.Client.Http.Websocket {
 					// send connection init
 					Debug.WriteLine($"sending connection init on subscription {startRequest.Id}");
 					try {
-						await graphQlHttpWebSocket.SendWebSocketRequest(initRequest).ConfigureAwait(false);
+						await graphQlHttpWebSocket.QueueWebSocketRequest(initRequest).ConfigureAwait(false);
 					}
 					catch (Exception e) {
 						Console.WriteLine(e);
@@ -105,7 +106,7 @@ namespace GraphQL.Client.Http.Websocket {
 					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
 					// send subscription request
 					try {
-						await graphQlHttpWebSocket.SendWebSocketRequest(startRequest).ConfigureAwait(false);
+						await graphQlHttpWebSocket.QueueWebSocketRequest(startRequest).ConfigureAwait(false);
 					}
 					catch (Exception e) {
 						Console.WriteLine(e);
@@ -198,7 +199,7 @@ namespace GraphQL.Client.Http.Websocket {
 					Debug.WriteLine($"submitting request {websocketRequest.Id}");
 					// send request
 					try {
-						await graphQlHttpWebSocket.SendWebSocketRequest(websocketRequest).ConfigureAwait(false);
+						await graphQlHttpWebSocket.QueueWebSocketRequest(websocketRequest).ConfigureAwait(false);
 					}
 					catch (Exception e) {
 						Console.WriteLine(e);
@@ -210,7 +211,7 @@ namespace GraphQL.Client.Http.Websocket {
 			// complete sequence on OperationCanceledException, this is triggered by the cancellation token
 			.Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
 				Observable.Empty<GraphQLResponse<TResponse>>())
-			.FirstOrDefaultAsync()
+			.FirstAsync()
 			.ToTask(cancellationToken);
 		}
 	}

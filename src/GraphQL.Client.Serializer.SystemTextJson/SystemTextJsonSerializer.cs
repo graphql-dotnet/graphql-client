@@ -45,8 +45,8 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 		    return JsonSerializer.SerializeToUtf8Bytes(new GraphQLWebSocketRequest(request), Options);
 	    }
 
-	    public Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
-		    return JsonSerializer.DeserializeAsync<WebsocketResponseWrapper>(stream, Options).AsTask();
+	    public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
+		    return JsonSerializer.DeserializeAsync<WebsocketMessageWrapper>(stream, Options).AsTask();
 		}
 
 	    public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) {

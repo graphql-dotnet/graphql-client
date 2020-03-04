@@ -317,7 +317,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 				await InitializeAsync();
 				Debug.WriteLine("web host started");
 				reconnectBlocker.Set();
-				callbackMonitor.Should().HaveBeenInvokedWithPayload(10.Seconds());
+				callbackMonitor.Should().HaveBeenInvokedWithPayload(3.Seconds());
 				tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
 				websocketStates.Should().ContainInOrder(

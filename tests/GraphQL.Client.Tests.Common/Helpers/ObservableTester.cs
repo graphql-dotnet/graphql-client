@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -33,7 +35,7 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
 		public ObservableTester(IObservable<TSubscriptionPayload> observable) {
-			subscription = observable.Subscribe(
+			subscription = observable.SubscribeOn(Scheduler.Default).Subscribe(
 				obj => {
 					Debug.WriteLine($"observable tester {GetHashCode()}: payload received");
 					LastPayload = obj;
