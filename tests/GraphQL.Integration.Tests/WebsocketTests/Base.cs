@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -77,11 +76,11 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			// start request
 			request.Start();
 			// wait until the query has reached the server
-			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
+			chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
 			// unblock the query
 			chatQuery.LongRunningQueryBlocker.Set();
 			// check execution time
-			request.Invoking().ExecutionTime().Should().BeLessThan(500.Milliseconds());
+			request.Invoking().ExecutionTime().Should().BeLessThan(1000.Milliseconds());
 			request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
 
 			// reset stuff
@@ -90,10 +89,10 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 
 			// cancellation test
 			request.Start();
-			chatQuery.WaitingOnQueryBlocker.Wait(500).Should().BeTrue("because the request should have reached the server by then");
+			chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
 			cts.Cancel();
 			FluentActions.Awaiting(() => request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled"))
-				.ExecutionTime().Should().BeLessThan(500.Milliseconds());
+				.ExecutionTime().Should().BeLessThan(1000.Milliseconds());
 
 			// let the server finish its query
 			chatQuery.LongRunningQueryBlocker.Set();
