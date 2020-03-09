@@ -80,7 +80,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			// unblock the query
 			chatQuery.LongRunningQueryBlocker.Set();
 			// check execution time
-			request.Invoking().ExecutionTime().Should().BeLessThan(1000.Milliseconds());
 			request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
 
 			// reset stuff
@@ -91,8 +90,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			request.Start();
 			chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
 			cts.Cancel();
-			FluentActions.Awaiting(() => request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled"))
-				.ExecutionTime().Should().BeLessThan(1000.Milliseconds());
+			request.Invoking().Should().Throw<TaskCanceledException>("because the request was cancelled");
 
 			// let the server finish its query
 			chatQuery.LongRunningQueryBlocker.Set();
