@@ -502,7 +502,7 @@ namespace GraphQL.Client.Http.Websocket {
 				if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text) {
 					var response = await Options.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
 					response.MessageBytes = ms.ToArray();
-					Debug.WriteLine($"{response.MessageBytes.Length} bytes received on websocket {clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
+					Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
 					return response;
 				}
 				else {

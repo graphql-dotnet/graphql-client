@@ -233,36 +233,38 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			var observable2 = ChatClient.CreateSubscriptionStream<UserJoinedSubscriptionResult>(SubscriptionRequest2, callbackTester2.Invoke);
 
 			Debug.WriteLine("subscribing...");
-			var tester = observable1.Monitor();
-			var tester2 = observable2.Monitor();
+			var messagesMonitor = observable1.Monitor();
+			var joinedMonitor = observable2.Monitor();
 
-			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+			messagesMonitor.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
 			const string message1 = "Hello World";
 			var response = await ChatClient.AddMessageAsync(message1);
 			response.Data.AddMessage.Content.Should().Be(message1);
-			tester.Should().HaveReceivedPayload()
+			messagesMonitor.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message1);
+			joinedMonitor.Should().NotHaveReceivedPayload();
 			
 			var joinResponse = await ChatClient.JoinDeveloperUser();
 			joinResponse.Data.Join.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
 
-			var payload = tester2.Should().HaveReceivedPayload().Subject;
+			var payload = joinedMonitor.Should().HaveReceivedPayload().Subject;
 			payload.Data.UserJoined.Id.Should().Be("1", "because that's the id we sent with our mutation request");
 			payload.Data.UserJoined.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
+			messagesMonitor.Should().NotHaveReceivedPayload();
 
 			Debug.WriteLine("disposing subscription...");
-			tester2.Dispose();
+			joinedMonitor.Dispose();
 
 			const string message3 = "lorem ipsum dolor si amet";
 			response = await ChatClient.AddMessageAsync(message3);
 			response.Data.AddMessage.Content.Should().Be(message3);
-			tester.Should().HaveReceivedPayload()
+			messagesMonitor.Should().HaveReceivedPayload()
 				.Which.Data.MessageAdded.Content.Should().Be(message3);
 
 			// disposing the client should complete the subscription
 			ChatClient.Dispose();
-			tester.Should().HaveCompleted();
+			messagesMonitor.Should().HaveCompleted();
 		}
 
 
