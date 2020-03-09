@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GraphQL.Client.Serializer.Newtonsoft;
 using Newtonsoft.Json;
 

@@ -8,7 +8,7 @@ namespace GraphQL.Client.Abstractions.Websocket {
 	/// <summary>
 	/// A Subscription Request
 	/// </summary>
-	public class GraphQLWebSocketRequest : IEquatable<GraphQLWebSocketRequest> {
+	public class GraphQLWebSocketRequest : Dictionary<string, object>, IEquatable<GraphQLWebSocketRequest> {
 		public const string IdKey = "id";
 		public const string TypeKey = "type";
 		public const string PayloadKey = "payload";
@@ -16,20 +16,26 @@ namespace GraphQL.Client.Abstractions.Websocket {
 		/// <summary>
 		/// The Identifier of the Response
 		/// </summary>
-		[DataMember(Name = IdKey)]
-		public virtual string Id { get; set; }
+		public string Id {
+			get => ContainsKey(IdKey) ? (string)this[IdKey] : null;
+			set => this[IdKey] = value;
+		}
 
 		/// <summary>
 		/// The Type of the Request
 		/// </summary>
-		[DataMember(Name = TypeKey)]
-		public virtual string Type { get; set; }
+		public string Type {
+			get => ContainsKey(TypeKey) ? (string)this[TypeKey] : null;
+			set => this[TypeKey] = value;
+		}
 
 		/// <summary>
 		/// The payload of the websocket request
 		/// </summary>
-		[DataMember(Name = PayloadKey)]
-		public virtual GraphQLRequest Payload { get; set; }
+		public GraphQLRequest Payload {
+			get => ContainsKey(PayloadKey) ? (GraphQLRequest) this[PayloadKey] : null;
+			set => this[PayloadKey] = value;
+		}
 
 		private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 

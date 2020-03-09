@@ -75,8 +75,7 @@ namespace GraphQL.Client.Serializer.Tests
 				new { id = id.ToString() },
 				"Human");
 
-			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-				;
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.Human.Name);

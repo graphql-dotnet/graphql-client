@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Dahomey.Json;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 
@@ -13,8 +12,8 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     {
 	    public static JsonSerializerOptions DefaultJsonSerializerOptions => new JsonSerializerOptions {
 		    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-	    }.SetupExtensions();
-
+	    }.SetupImmutableConverter();
+		
 		public JsonSerializerOptions Options { get; }
 
 	    public SystemTextJsonSerializer() : this(DefaultJsonSerializerOptions) { }
@@ -34,7 +33,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 		}
 
 	    public string SerializeToString(GraphQL.GraphQLRequest request) {
-		    return JsonSerializer.Serialize(new GraphQLRequest(request), Options);
+		    return JsonSerializer.Serialize(request, Options);
 	    }
 
 	    public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) {
@@ -42,7 +41,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 	    }
 
 	    public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request) {
-		    return JsonSerializer.SerializeToUtf8Bytes(new GraphQLWebSocketRequest(request), Options);
+		    return JsonSerializer.SerializeToUtf8Bytes(request, Options);
 	    }
 
 	    public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {

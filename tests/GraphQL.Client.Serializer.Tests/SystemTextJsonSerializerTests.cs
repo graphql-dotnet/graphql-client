@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Dahomey.Json;
 using GraphQL.Client.Serializer.SystemTextJson;
 
 namespace GraphQL.Client.Serializer.Tests {
@@ -9,6 +8,6 @@ namespace GraphQL.Client.Serializer.Tests {
 
 	public class SystemTextJsonSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTest {
 		public SystemTextJsonSerializeNoCamelCaseTest()
-			: base(new SystemTextJsonSerializer(new JsonSerializerOptions().SetupExtensions())) { }
+			: base(new SystemTextJsonSerializer(new JsonSerializerOptions().SetupImmutableConverter())) { }
 	}
 }
