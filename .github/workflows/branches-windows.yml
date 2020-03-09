@@ -1,8 +1,10 @@
 name: Branch workflow
-on:
+on: 
   push:
     branches-ignore:
-      - '**'
+      - develop
+      - 'release/**'
+      - 'releases/**'
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo
