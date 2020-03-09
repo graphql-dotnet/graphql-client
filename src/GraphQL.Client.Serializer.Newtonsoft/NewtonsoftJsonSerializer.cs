@@ -42,8 +42,8 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 			return Encoding.UTF8.GetBytes(json);
 		}
 
-		public Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
-			return DeserializeFromUtf8Stream<WebsocketResponseWrapper>(stream);
+		public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
+			return DeserializeFromUtf8Stream<WebsocketMessageWrapper>(stream);
 		}
 
 		public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) {

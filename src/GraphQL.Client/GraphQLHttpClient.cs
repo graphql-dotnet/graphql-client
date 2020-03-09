@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -65,7 +66,7 @@ namespace GraphQL.Client.Http {
 		/// <inheritdoc />
 		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.SendRequest<TResponse>(request, this, cancellationToken)
+				? this.graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken)
 				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 
@@ -84,7 +85,7 @@ namespace GraphQL.Client.Http {
 			if (subscriptionStreams.ContainsKey(key))
 				return (IObservable<GraphQLResponse<TResponse>>)subscriptionStreams[key];
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, this, cancellationToken: cancellationTokenSource.Token);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
 
 			subscriptionStreams.TryAdd(key, observable);
 			return observable;
@@ -100,7 +101,7 @@ namespace GraphQL.Client.Http {
 			if (subscriptionStreams.ContainsKey(key))
 				return (IObservable<GraphQLResponse<TResponse>>)subscriptionStreams[key];
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, this, exceptionHandler, cancellationTokenSource.Token);
+			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
 			subscriptionStreams.TryAdd(key, observable);
 			return observable;
 		}
@@ -164,9 +165,10 @@ namespace GraphQL.Client.Http {
 
 		private void _dispose() {
 			disposed = true;
+			Debug.WriteLine($"disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
+			cancellationTokenSource.Cancel();
 			this.HttpClient.Dispose();
 			this.graphQlHttpWebSocket.Dispose();
-			cancellationTokenSource.Cancel();
 			cancellationTokenSource.Dispose();
 		}
 

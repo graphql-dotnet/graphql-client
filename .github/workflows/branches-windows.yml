@@ -1,5 +1,5 @@
 name: Branch workflow
-on:
+on: 
   push:
     branches-ignore:
       - '**'

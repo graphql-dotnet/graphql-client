@@ -5,9 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Client.Tests.Common
 {
-    public static class Common
-    {
-	    public static StarWarsSchema GetStarWarsSchema() {
+    public static class Common {
+	    public const string StarWarsEndpoint = "/graphql/starwars";
+	    public const string ChatEndpoint = "/graphql/chat";
+
+		public static StarWarsSchema GetStarWarsSchema() {
 			var services = new ServiceCollection();
 			services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
 			services.AddStarWarsSchema();
@@ -33,7 +35,9 @@ namespace GraphQL.Client.Tests.Common
 		}
 		
 	    public static void AddChatSchema(this IServiceCollection services) {
-		    services.AddSingleton<IChat, Chat.Schema.Chat>();
+		    var chat = new Chat.Schema.Chat();
+		    services.AddSingleton(chat);
+		    services.AddSingleton<IChat>(chat);
 			services.AddSingleton<ChatSchema>();
 		    services.AddSingleton<ChatQuery>();
 		    services.AddSingleton<ChatMutation>();

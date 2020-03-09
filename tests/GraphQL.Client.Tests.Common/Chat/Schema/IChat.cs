@@ -16,10 +16,10 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 
 		Message AddMessage(ReceivedMessage message);
 	}
-
+	
 	public class Chat : IChat {
-		private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
-		private readonly ISubject<MessageFrom> _userJoined = new Subject<MessageFrom>();
+		private readonly ISubject<Message> messageStream = new ReplaySubject<Message>(1);
+		private readonly ISubject<MessageFrom> userJoined = new Subject<MessageFrom>();
 
 		public Chat() {
 			AllMessages = new ConcurrentStack<Message>();
@@ -29,9 +29,9 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 			};
 		}
 
-		public ConcurrentDictionary<string, string> Users { get; set; }
+		public ConcurrentDictionary<string, string> Users { get; private set; }
 
-		public ConcurrentStack<Message> AllMessages { get; }
+		public ConcurrentStack<Message> AllMessages { get; private set; }
 
 		public Message AddMessage(ReceivedMessage message) {
 			if (!Users.TryGetValue(message.FromId, out var displayName)) {
@@ -50,7 +50,7 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 
 		public Message AddMessage(Message message) {
 			AllMessages.Push(message);
-			_messageStream.OnNext(message);
+			messageStream.OnNext(message);
 			return message;
 		}
 
@@ -64,12 +64,12 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 				DisplayName = displayName
 			};
 
-			_userJoined.OnNext(joinedUser);
+			userJoined.OnNext(joinedUser);
 			return joinedUser;
 		}
 
 		public IObservable<Message> Messages(string user) {
-			return _messageStream
+			return messageStream
 				.Select(message => {
 					message.Sub = user;
 					return message;
@@ -78,11 +78,11 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 		}
 
 		public void AddError(Exception exception) {
-			_messageStream.OnError(exception);
+			messageStream.OnError(exception);
 		}
 
 		public IObservable<MessageFrom> UserJoined() {
-			return _userJoined.AsObservable();
+			return userJoined.AsObservable();
 		}
 	}
 
