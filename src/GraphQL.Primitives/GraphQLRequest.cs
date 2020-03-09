@@ -7,7 +7,7 @@ namespace GraphQL {
 	/// <summary>
 	/// A GraphQL request
 	/// </summary>
-	public class GraphQLRequest : IEquatable<GraphQLRequest?> {
+	public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequest?> {
 		public const string OperationNameKey = "operationName";
 		public const string QueryKey = "query";
 		public const string VariablesKey = "variables";
@@ -15,20 +15,26 @@ namespace GraphQL {
 		/// <summary>
 		/// The Query
 		/// </summary>
-		[DataMember(Name = QueryKey)]
-		public virtual string Query { get; set; }
+		public string Query {
+			get => ContainsKey(QueryKey) ? (string) this[QueryKey] : null;
+			set => this[QueryKey] = value;
+		}
 
 		/// <summary>
 		/// The name of the Operation
 		/// </summary>
-		[DataMember(Name = OperationNameKey)]
-		public virtual string? OperationName { get; set; }
+		public string? OperationName {
+			get => ContainsKey(OperationNameKey) ? (string)this[OperationNameKey] : null;
+			set => this[OperationNameKey] = value;
+		}
 
 		/// <summary>
 		/// Represents the request variables
 		/// </summary>
-		[DataMember(Name = VariablesKey)]
-		public virtual object? Variables { get; set; }
+		public object? Variables {
+			get => ContainsKey(VariablesKey) ? this[VariablesKey] : null;
+			set => this[VariablesKey] = value;
+		}
 
 		public GraphQLRequest() { }
 
