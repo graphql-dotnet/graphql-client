@@ -284,6 +284,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 			using (ChatClient.WebsocketConnectionState.Subscribe(websocketStates.Enqueue)) {
 				websocketStates.Should().ContainSingle(state => state == GraphQLWebsocketConnectionState.Disconnected);
 
+				Debug.WriteLine($"Test method thread id: {Thread.CurrentThread.ManagedThreadId}");
 				Debug.WriteLine("creating subscription stream");
 				var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, errorMonitor.Invoke);
 

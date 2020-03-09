@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Net.WebSockets;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace GraphQL.Client.Http.Websocket {
 			CancellationToken cancellationToken = default) {
 			return Observable.Defer(() =>
 				Observable.Create<GraphQLResponse<TResponse>>(async observer => {
+					Debug.WriteLine($"Create observable thread id: {Thread.CurrentThread.ManagedThreadId}");
 					await client.Options.PreprocessRequest(request, client);
 					var startRequest = new GraphQLWebSocketRequest {
 						Id = Guid.NewGuid().ToString("N"),
@@ -47,7 +49,7 @@ namespace GraphQL.Client.Http.Websocket {
 									}
 
 									// post the GraphQLResponse to the stream (even if a GraphQL error occurred)
-									Debug.WriteLine($"received payload on subscription {startRequest.Id}");
+									Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
 									var typedResponse =
 										client.Options.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
 											response.MessageBytes);
@@ -71,7 +73,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 					try {
 						// initialize websocket (completes immediately if socket is already open)
-						await graphQlHttpWebSocket.InitializeWebSocket().ConfigureAwait(false);
+						await graphQlHttpWebSocket.InitializeWebSocket();
 					}
 					catch (Exception e) {
 						// subscribe observer to failed observable
@@ -86,7 +88,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 							try {
 								Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
-								await graphQlHttpWebSocket.QueueWebSocketRequest(closeRequest).ConfigureAwait(false);
+								await graphQlHttpWebSocket.QueueWebSocketRequest(closeRequest);
 							}
 							// do not break on disposing
 							catch (OperationCanceledException) { }
@@ -96,7 +98,7 @@ namespace GraphQL.Client.Http.Websocket {
 					// send connection init
 					Debug.WriteLine($"sending connection init on subscription {startRequest.Id}");
 					try {
-						await graphQlHttpWebSocket.QueueWebSocketRequest(initRequest).ConfigureAwait(false);
+						await graphQlHttpWebSocket.QueueWebSocketRequest(initRequest);
 					}
 					catch (Exception e) {
 						Console.WriteLine(e);
@@ -106,7 +108,7 @@ namespace GraphQL.Client.Http.Websocket {
 					Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
 					// send subscription request
 					try {
-						await graphQlHttpWebSocket.QueueWebSocketRequest(startRequest).ConfigureAwait(false);
+						await graphQlHttpWebSocket.QueueWebSocketRequest(startRequest);
 					}
 					catch (Exception e) {
 						Console.WriteLine(e);
@@ -136,8 +138,10 @@ namespace GraphQL.Client.Http.Websocket {
 						// throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
 						if (cancellationToken.IsCancellationRequested)
 							return Observable.Empty<Tuple<GraphQLResponse<TResponse>, Exception>>();
-						else
+						else {
+							Debug.WriteLine($"Catch handler thread id: {Thread.CurrentThread.ManagedThreadId}");
 							return Observable.Throw<Tuple<GraphQLResponse<TResponse>, Exception>>(e);
+						}
 					}
 					catch (Exception exception) {
 						// wrap all other exceptions to be propagated behind retry
@@ -148,6 +152,7 @@ namespace GraphQL.Client.Http.Websocket {
 				.Retry()
 				// unwrap and push results or throw wrapped exceptions
 				.SelectMany(t => {
+					Debug.WriteLine($"unwrap exception thread id: {Thread.CurrentThread.ManagedThreadId}");
 					// if the result contains an exception, throw it on the observable
 					if (t.Item2 != null)
 						return Observable.Throw<GraphQLResponse<TResponse>>(t.Item2);
@@ -185,7 +190,7 @@ namespace GraphQL.Client.Http.Websocket {
 
 					try {
 						// intialize websocket (completes immediately if socket is already open)
-						await graphQlHttpWebSocket.InitializeWebSocket().ConfigureAwait(false);
+						await graphQlHttpWebSocket.InitializeWebSocket();
 					}
 					catch (Exception e) {
 						// subscribe observer to failed observable
@@ -199,7 +204,7 @@ namespace GraphQL.Client.Http.Websocket {
 					Debug.WriteLine($"submitting request {websocketRequest.Id}");
 					// send request
 					try {
-						await graphQlHttpWebSocket.QueueWebSocketRequest(websocketRequest).ConfigureAwait(false);
+						await graphQlHttpWebSocket.QueueWebSocketRequest(websocketRequest);
 					}
 					catch (Exception e) {
 						Console.WriteLine(e);

@@ -13,6 +13,8 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		private readonly ManualResetEventSlim updateReceived = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim completed = new ManualResetEventSlim();
 		private readonly ManualResetEventSlim error = new ManualResetEventSlim();
+		private readonly EventLoopScheduler subscriptionScheduler = new EventLoopScheduler();
+		private readonly EventLoopScheduler observeScheduler = new EventLoopScheduler();
 
 		/// <summary>
 		/// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
@@ -35,7 +37,13 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// </summary>
 		/// <param name="observable">the <see cref="IObservable{T}"/> under test</param>
 		public ObservableTester(IObservable<TSubscriptionPayload> observable) {
-			subscription = observable.SubscribeOn(Scheduler.Default).Subscribe(
+			subscriptionScheduler.Schedule(() =>
+				Debug.WriteLine($"Subscription scheduler thread id: {Thread.CurrentThread.ManagedThreadId}"));
+
+			observeScheduler.Schedule(() =>
+				Debug.WriteLine($"Observe scheduler thread id: {Thread.CurrentThread.ManagedThreadId}"));
+
+			subscription = observable.SubscribeOn(subscriptionScheduler).ObserveOn(observeScheduler).Subscribe(
 				obj => {
 					Debug.WriteLine($"observable tester {GetHashCode()}: payload received");
 					LastPayload = obj;
@@ -62,6 +70,8 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 		/// <inheritdoc />
 		public void Dispose() {
 			subscription?.Dispose();
+			subscriptionScheduler.Dispose();
+			observeScheduler.Dispose();
 		}
 
 		public SubscriptionAssertions<TSubscriptionPayload> Should() {

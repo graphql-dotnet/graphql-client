@@ -46,7 +46,7 @@ namespace GraphQL.Client.Serializer.Tests
 
 			var response = await ChatClient.SendQueryAsync(new GraphQLRequest("query { extensionsTest }"),
 					() => new { extensionsTest = "" })
-				.ConfigureAwait(false);
+				;
 
 			response.Errors.Should().NotBeNull();
 			response.Errors.Should().ContainSingle();
@@ -76,7 +76,7 @@ namespace GraphQL.Client.Serializer.Tests
 				"Human");
 
 			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } })
-				.ConfigureAwait(false);
+				;
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.Human.Name);
@@ -85,7 +85,7 @@ namespace GraphQL.Client.Serializer.Tests
 		[Fact]
 		public async void CanDoSerializationWithPredefinedTypes() {
 				const string message = "some random testing message";
-				var response = await ChatClient.AddMessageAsync(message).ConfigureAwait(false);
+				var response = await ChatClient.AddMessageAsync(message);
 
 				Assert.Equal(message, response.Data.AddMessage.Content);
 		}

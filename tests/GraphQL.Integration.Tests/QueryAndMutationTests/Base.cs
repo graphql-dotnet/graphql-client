@@ -145,9 +145,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
 			var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
 			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
-			callbackTester.CallbackShouldHaveBeenInvoked(message => {
-				Assert.Equal(defaultHeaders, message.Headers);
-			});
+			callbackTester.Should().HaveBeenInvokedWithPayload().Which.Headers.Should().BeEquivalentTo(defaultHeaders);
 			Assert.Null(response.Errors);
 			Assert.Equal("Luke", response.Data.Human.Name);
 		}

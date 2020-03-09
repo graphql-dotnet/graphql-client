@@ -76,11 +76,11 @@ namespace GraphQL.Client.LocalExecution
 	    #region Private Methods
 
 	    private async Task<GraphQLResponse<TResponse>> ExecuteQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken) {
-		    var executionResult = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
-		    return await ExecutionResultToGraphQLResponse<TResponse>(executionResult, cancellationToken).ConfigureAwait(false);
+		    var executionResult = await ExecuteAsync(request, cancellationToken);
+		    return await ExecutionResultToGraphQLResponse<TResponse>(executionResult, cancellationToken);
 	    }
 	    private async Task<IObservable<GraphQLResponse<TResponse>>> ExecuteSubscriptionAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-		    var result = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+		    var result = await ExecuteAsync(request, cancellationToken);
 		    return ((SubscriptionExecutionResult)result).Streams?.Values.SingleOrDefault()?
 			    .SelectMany(executionResult => Observable.FromAsync(token => ExecutionResultToGraphQLResponse<TResponse>(executionResult, token)));
 	    }
@@ -100,7 +100,7 @@ namespace GraphQL.Client.LocalExecution
 			    options.Query = request.Query;
 			    options.Inputs = inputs;
 			    options.CancellationToken = cancellationToken;
-		    }).ConfigureAwait(false);
+		    });
 
 		    return result;
 	    }
