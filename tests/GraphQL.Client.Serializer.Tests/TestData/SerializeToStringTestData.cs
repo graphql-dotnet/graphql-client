@@ -13,6 +13,10 @@ namespace GraphQL.Client.Serializer.Tests.TestData {
 				"{\"query\":\"simplequerystring\",\"variables\":{\"camelCaseProperty\":\"camelCase\",\"PascalCaseProperty\":\"PascalCase\"},\"operationName\":null}",
 				new GraphQLRequest("simple query string", new { camelCaseProperty = "camelCase", PascalCaseProperty = "PascalCase"})
 			};
+			yield return new object[] {
+				"{\"query\":\"simplequerystring\",\"variables\":null,\"operationName\":null,\"authentication\":\"an-authentication-token\"}",
+				new GraphQLRequest("simple query string"){{"authentication", "an-authentication-token"}}
+			};
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() {

@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Dahomey.Json;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 
@@ -13,7 +12,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     {
 	    public static JsonSerializerOptions DefaultJsonSerializerOptions => new JsonSerializerOptions {
 		    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-	    }.SetupDahomeyExtensions();
+	    }.SetupImmutableConverter();
 		
 		public JsonSerializerOptions Options { get; }
 

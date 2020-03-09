@@ -11,10 +11,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Dahomey.Json" Version="1.6.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
 	</ItemGroup>
 
