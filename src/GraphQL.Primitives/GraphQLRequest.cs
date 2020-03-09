@@ -64,9 +64,7 @@ namespace GraphQL {
 		public virtual bool Equals(GraphQLRequest? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return Query == other.Query
-				   && OperationName == other.OperationName
-				   && EqualityComparer<object>.Default.Equals(Variables, other.Variables);
+			return EqualityComparer<Dictionary<string,object>>.Default.Equals(this, other);
 		}
 
 		/// <summary>
