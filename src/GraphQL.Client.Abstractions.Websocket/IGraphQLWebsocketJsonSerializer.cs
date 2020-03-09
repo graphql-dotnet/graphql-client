@@ -10,7 +10,7 @@ namespace GraphQL.Client.Abstractions.Websocket
     public interface IGraphQLWebsocketJsonSerializer: IGraphQLJsonSerializer {
 	    byte[] SerializeToBytes(GraphQLWebSocketRequest request);
 
-	    Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream);
+	    Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream);
 	    GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes);
 
 	}

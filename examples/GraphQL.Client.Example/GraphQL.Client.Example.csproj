@@ -7,12 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
-		<ProjectReference Include="..\..\tests\GraphQL.Server.Test\GraphQL.Server.Test.csproj" />
 	</ItemGroup>
 
 </Project>

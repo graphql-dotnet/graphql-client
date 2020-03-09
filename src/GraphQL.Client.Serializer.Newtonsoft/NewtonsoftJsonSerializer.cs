@@ -34,16 +34,16 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 		}
 
 		public string SerializeToString(GraphQL.GraphQLRequest request) {
-		    return JsonConvert.SerializeObject(new GraphQLRequest(request), JsonSerializerSettings);
+		    return JsonConvert.SerializeObject(request, JsonSerializerSettings);
 		}
 
 		public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request) {
-			var json = JsonConvert.SerializeObject(new GraphQLWebSocketRequest(request), JsonSerializerSettings);
+			var json = JsonConvert.SerializeObject(request, JsonSerializerSettings);
 			return Encoding.UTF8.GetBytes(json);
 		}
 
-		public Task<WebsocketResponseWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
-			return DeserializeFromUtf8Stream<WebsocketResponseWrapper>(stream);
+		public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) {
+			return DeserializeFromUtf8Stream<WebsocketMessageWrapper>(stream);
 		}
 
 		public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) {

@@ -1,9 +1,10 @@
-using GraphQL.Client.Serializer.SystemTextJson;
+using GraphQL.Integration.Tests.Helpers;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace GraphQL.Integration.Tests.WebsocketTests {
-	public class SystemTextJson: Base {
-		public SystemTextJson(ITestOutputHelper output) : base(output, new SystemTextJsonSerializer())
+	public class SystemTextJson: Base, IClassFixture<SystemTextJsonIntegrationServerTestFixture> {
+		public SystemTextJson(ITestOutputHelper output, SystemTextJsonIntegrationServerTestFixture fixture) : base(output, fixture)
 		{
 		}
 	}

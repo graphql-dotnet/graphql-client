@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using GraphQL.Types;
 
 namespace GraphQL.Client.Tests.Common.Chat.Schema {
@@ -9,6 +11,12 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 			{"extension1", "hello world"},
 			{"another extension", 4711}
 		};
+
+		// properties for unit testing
+
+		public readonly ManualResetEventSlim LongRunningQueryBlocker = new ManualResetEventSlim();
+		public readonly ManualResetEventSlim WaitingOnQueryBlocker = new ManualResetEventSlim();
+
 
 		public ChatQuery(IChat chat) {
 			Name = "ChatQuery";
@@ -20,6 +28,15 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema {
 				.Resolve(context => {
 					context.Errors.Add(new ExecutionError("this error contains extension fields", TestExtensions));
 					return null;
+				});
+
+			Field<StringGraphType>()
+				.Name("longRunning")
+				.Resolve(context => {
+					WaitingOnQueryBlocker.Set();
+					LongRunningQueryBlocker.Wait();
+					WaitingOnQueryBlocker.Reset();
+					return "finally returned";
 				});
 		}
 	}
