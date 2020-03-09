@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace GraphQL {
@@ -64,7 +65,7 @@ namespace GraphQL {
 		public virtual bool Equals(GraphQLRequest? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return EqualityComparer<Dictionary<string,object>>.Default.Equals(this, other);
+			return this.Count == other.Count && !this.Except(other).Any();
 		}
 
 		/// <summary>
