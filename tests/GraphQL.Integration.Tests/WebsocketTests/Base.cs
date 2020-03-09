@@ -169,24 +169,25 @@ namespace GraphQL.Integration.Tests.WebsocketTests {
 
 			const string message1 = "Hello World";
 			Debug.WriteLine($"adding message {message1}");
-			var response = await ChatClient.AddMessageAsync(message1);
+			var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(true);
 			response.Data.AddMessage.Content.Should().Be(message1);
 			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
 
 			const string message2 = "How are you?";
-			response = await ChatClient.AddMessageAsync(message2);
+			response = await ChatClient.AddMessageAsync(message2).ConfigureAwait(true);
 			response.Data.AddMessage.Content.Should().Be(message2);
 			tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
 
 			Debug.WriteLine("disposing subscription...");
 			tester.Dispose(); // does not close the websocket connection
 
-			Debug.WriteLine("creating new subscription...");
+			Debug.WriteLine($"creating new subscription from thread {Thread.CurrentThread.ManagedThreadId} ...");
 			var tester2 = observable.Monitor();
+			Debug.WriteLine($"waiting for payload on {Thread.CurrentThread.ManagedThreadId} ...");
 			tester2.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
 
 			const string message3 = "lorem ipsum dolor si amet";
-			response = await ChatClient.AddMessageAsync(message3);
+			response = await ChatClient.AddMessageAsync(message3).ConfigureAwait(true);
 			response.Data.AddMessage.Content.Should().Be(message3);
 			tester2.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message3);
 

@@ -89,7 +89,12 @@ namespace GraphQL.Client.Tests.Common.Helpers {
 				string because = "", params object[] becauseArgs) {
 				Execute.Assertion
 					.BecauseOf(because, becauseArgs)
-					.Given(() => Subject.updateReceived.Wait(timeout))
+					.Given(() => {
+						var isSet = Subject.updateReceived.Wait(timeout);
+						if(!isSet)
+							Debug.WriteLine($"waiting for payload on thread {Thread.CurrentThread.ManagedThreadId} timed out!");
+						return isSet;
+					})
 					.ForCondition(isSet => isSet)
 					.FailWith("Expected {context:Subscription} to receive new payload{reason}, but did not receive an update within {0}", timeout);
 
