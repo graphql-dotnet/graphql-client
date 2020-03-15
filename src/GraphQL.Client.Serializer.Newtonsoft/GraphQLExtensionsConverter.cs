@@ -24,43 +24,33 @@ namespace GraphQL.Client.Serializer.Newtonsoft {
 		}
 
 		private object ReadToken(JToken? token) {
-			switch (token.Type) {
-				case JTokenType.Undefined:
-				case JTokenType.None:
-					return null;
-				case JTokenType.Object:
-					return ReadDictionary<Dictionary<string, object>>(token);
-				case JTokenType.Array:
-					return ReadArray(token);
-				case JTokenType.Integer:
-					return token.Value<int>();
-				case JTokenType.Float:
-					return token.Value<double>();
-				case JTokenType.Raw:
-				case JTokenType.String:
-				case JTokenType.Uri:
-					return token.Value<string>();
-				case JTokenType.Boolean:
-					return token.Value<bool>();
-				case JTokenType.Date:
-					return token.Value<DateTime>();
-				case JTokenType.Bytes:
-					return token.Value<byte[]>();
-				case JTokenType.Guid:
-					return token.Value<Guid>();
-				case JTokenType.TimeSpan:
-					return token.Value<TimeSpan>();
-				case JTokenType.Constructor:
-				case JTokenType.Property:
-				case JTokenType.Comment:
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+			return token.Type switch {
+				JTokenType.Undefined => null,
+				JTokenType.None => null,
+				JTokenType.Null => null,
+				JTokenType.Object => ReadDictionary<Dictionary<string, object>>(token),
+				JTokenType.Array => ReadArray(token),
+				JTokenType.Integer => token.Value<int>(),
+				JTokenType.Float => token.Value<double>(),
+				JTokenType.Raw => token.Value<string>(),
+				JTokenType.String => token.Value<string>(),
+				JTokenType.Uri => token.Value<string>(),
+				JTokenType.Boolean => token.Value<bool>(),
+				JTokenType.Date => token.Value<DateTime>(),
+				JTokenType.Bytes => token.Value<byte[]>(),
+				JTokenType.Guid => token.Value<Guid>(),
+				JTokenType.TimeSpan => token.Value<TimeSpan>(),
+				JTokenType.Constructor => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON constructor"),
+				JTokenType.Property => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON property"),
+				JTokenType.Comment => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON comment"),
+				_ => throw new ArgumentOutOfRangeException(nameof(token.Type))
+			};
 		}
 
 		private TDictionary ReadDictionary<TDictionary>(JToken element) where TDictionary : Dictionary<string, object> {
 			var result = Activator.CreateInstance<TDictionary>();
 			foreach (var property in ((JObject)element).Properties()) {
+				if (IsUnsupportedJTokenType(property.Value.Type)) continue;
 				result[property.Name] = ReadToken(property.Value);
 			}
 			return result;
@@ -68,8 +58,13 @@ namespace GraphQL.Client.Serializer.Newtonsoft {
 
 		private IEnumerable<object> ReadArray(JToken element) {
 			foreach (var item in element.Values()) {
+				if (IsUnsupportedJTokenType(item.Type)) continue;
 				yield return ReadToken(item);
 			}
+		}
+
+		private bool IsUnsupportedJTokenType(JTokenType type) {
+			return type == JTokenType.Constructor || type == JTokenType.Property || type == JTokenType.Comment;
 		}
 	}
 }

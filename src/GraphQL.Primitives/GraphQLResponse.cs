@@ -22,13 +22,19 @@ namespace GraphQL {
 			if (other == null) { return false; }
 			if (ReferenceEquals(this, other)) { return true; }
 			if (!EqualityComparer<T>.Default.Equals(this.Data, other.Data)) { return false; }
-			{
-				if (this.Errors != null && other.Errors != null) {
-					if (!Enumerable.SequenceEqual(this.Errors, other.Errors)) { return false; }
-				}
-				else if (this.Errors != null && other.Errors == null) { return false; }
-				else if (this.Errors == null && other.Errors != null) { return false; }
+
+			if (this.Errors != null && other.Errors != null) {
+				if (!Enumerable.SequenceEqual(this.Errors, other.Errors)) { return false; }
 			}
+			else if (this.Errors != null && other.Errors == null) { return false; }
+			else if (this.Errors == null && other.Errors != null) { return false; }
+
+			if (this.Extensions!= null && other.Extensions != null) {
+				if (!Enumerable.SequenceEqual(this.Extensions, other.Extensions)) { return false; }
+			}
+			else if (this.Extensions != null && other.Extensions == null) { return false; }
+			else if (this.Extensions == null && other.Extensions != null) { return false; }
+
 			return true;
 		}
 
@@ -39,6 +45,15 @@ namespace GraphQL {
 					if (this.Errors != null) {
 						foreach (var element in this.Errors) {
 							hashCode = (hashCode * 397) ^ EqualityComparer<GraphQLError?>.Default.GetHashCode(element);
+						}
+					}
+					else {
+						hashCode = (hashCode * 397) ^ 0;
+					}
+
+					if (this.Extensions != null) {
+						foreach (var element in this.Extensions) {
+							hashCode = (hashCode * 397) ^ EqualityComparer<KeyValuePair<string,object>>.Default.GetHashCode(element);
 						}
 					}
 					else {

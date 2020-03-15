@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
@@ -39,6 +41,26 @@ namespace GraphQL.Client.Serializer.Tests
 		public void SerializeToBytesTest(string expectedJson, GraphQLWebSocketRequest request) {
 			var json = Encoding.UTF8.GetString(Serializer.SerializeToBytes(request)).RemoveWhitespace();
 			json.Should().BeEquivalentTo(expectedJson.RemoveWhitespace());
+		}
+
+		[Theory]
+		[ClassData(typeof(DeserializeResponseTestData))]
+		public async void DeserializeFromUtf8StreamTest(string json, GraphQLResponse<object> expectedResponse) {
+			var jsonBytes = Encoding.UTF8.GetBytes(json);
+			await using var ms = new MemoryStream(jsonBytes);
+			var response = await Serializer.DeserializeFromUtf8StreamAsync<GraphQLResponse<object>>(ms, CancellationToken.None);
+
+			response.Data.Should().BeEquivalentTo(expectedResponse.Data);
+			response.Errors.Should().Equal(expectedResponse.Errors);
+
+			if (expectedResponse.Extensions == null)
+				response.Extensions.Should().BeNull();
+			else {
+				foreach (var element in expectedResponse.Extensions) {
+					response.Extensions.Should().ContainKey(element.Key);
+					response.Extensions[element.Key].Should().BeEquivalentTo(element.Value);
+				}
+			}
 		}
 
 		[Fact]
