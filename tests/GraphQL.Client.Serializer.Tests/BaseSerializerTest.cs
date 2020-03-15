@@ -49,14 +49,18 @@ namespace GraphQL.Client.Serializer.Tests
 			var jsonBytes = Encoding.UTF8.GetBytes(json);
 			await using var ms = new MemoryStream(jsonBytes);
 			var response = await Serializer.DeserializeFromUtf8StreamAsync<GraphQLResponse<object>>(ms, CancellationToken.None);
-			
-			response.Should().BeEquivalentTo(expectedResponse, options => {
-				options.ComparingByMembers<GraphQLExtensionsType>();
-				options.ComparingByMembers<Dictionary<string, object>>();
-				options.ComparingByMembers<KeyValuePair<string, object>>();
-				options.AllowingInfiniteRecursion();
-				return options;
-			});
+
+			response.Data.Should().BeEquivalentTo(expectedResponse.Data);
+			response.Errors.Should().Equal(expectedResponse.Errors);
+
+			if (expectedResponse.Extensions == null)
+				response.Extensions.Should().BeNull();
+			else {
+				foreach (var element in expectedResponse.Extensions) {
+					response.Extensions.Should().ContainKey(element.Key);
+					response.Extensions[element.Key].Should().BeEquivalentTo(element.Value);
+				}
+			}
 		}
 
 		[Fact]
