@@ -31,7 +31,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
         }
 
         // deserialize extensions to Dictionary<string, object>
-        private void ConfigureMandatorySerializerOptions() => JsonSerializerSettings.Converters.Insert(0, new GraphQLExtensionsConverter());
+        private void ConfigureMandatorySerializerOptions() => JsonSerializerSettings.Converters.Insert(0, new MapConverter());
 
         public string SerializeToString(GraphQLRequest request) => JsonConvert.SerializeObject(request, JsonSerializerSettings);
 

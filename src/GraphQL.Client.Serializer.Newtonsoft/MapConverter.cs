@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client.Serializer.Newtonsoft
 {
-    public class GraphQLExtensionsConverter : JsonConverter<GraphQLExtensionsType>
+    public class MapConverter : JsonConverter<Map>
     {
-        public override void WriteJson(JsonWriter writer, GraphQLExtensionsType value, JsonSerializer serializer) =>
+        public override void WriteJson(JsonWriter writer, Map value, JsonSerializer serializer) =>
             throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
 
-        public override GraphQLExtensionsType ReadJson(JsonReader reader, Type objectType, GraphQLExtensionsType existingValue,
+        public override Map ReadJson(JsonReader reader, Type objectType, Map existingValue,
             bool hasExistingValue, JsonSerializer serializer)
         {
             var rootToken = JToken.ReadFrom(reader);
             if (rootToken is JObject)
             {
-                return ReadDictionary<GraphQLExtensionsType>(rootToken);
+                return ReadDictionary<Map>(rootToken);
             }
             else
                 throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");

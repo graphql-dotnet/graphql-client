@@ -34,7 +34,7 @@ namespace GraphQL
         /// The extensions of the error
         /// </summary> 
         [DataMember(Name = "extensions")]
-        public GraphQLExtensionsType? Extensions { get; set; }
+        public Map? Extensions { get; set; }
 
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified object
