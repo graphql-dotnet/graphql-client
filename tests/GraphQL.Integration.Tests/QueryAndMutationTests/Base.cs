@@ -1,3 +1,5 @@
+using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,6 +46,25 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests {
 
 			Assert.Null(response.Errors);
 			Assert.Equal(name, response.Data.Human.Name);
+		}
+
+		[Theory]
+		[ClassData(typeof(StarWarsHumans))]
+		public async void QueryAsHttpResponseTheory(int id, string name) {
+			var graphQLRequest = new GraphQLRequest($"{{ human(id: \"{id}\") {{ name }} }}");
+			var responseType = new {Human = new {Name = string.Empty}};
+			var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => responseType );
+
+			FluentActions.Invoking(() => response.AsGraphQLHttpResponse()).Should()
+				.NotThrow("because the returned object is a GraphQLHttpResponse");
+
+			var httpResponse = response.AsGraphQLHttpResponse();
+
+			httpResponse.Errors.Should().BeNull();
+			httpResponse.Data.Human.Name.Should().Be(name);
+
+			httpResponse.StatusCode.Should().BeEquivalentTo(HttpStatusCode.OK);
+			httpResponse.ResponseHeaders.Date.Should().BeCloseTo(DateTimeOffset.Now, TimeSpan.FromMinutes(1));
 		}
 
 		[Theory]

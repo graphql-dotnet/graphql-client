@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,10 +65,11 @@ namespace GraphQL.Client.Http {
 		#region IGraphQLClient
 
 		/// <inheritdoc />
-		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken)
-				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
+		public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+			if (Options.UseWebSocketForQueriesAndMutations)
+				return await this.graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
+
+			return await this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 
 		/// <inheritdoc />
@@ -113,10 +115,10 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		/// <returns></returns>
 		public Task InitializeWebsocketConnection() => graphQlHttpWebSocket.InitializeWebSocket();
-
+		
 		#region Private Methods
 
-		private async Task<GraphQLResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
+		private async Task<GraphQLHttpResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
 			var preprocessedRequest = await Options.PreprocessRequest(request, this);
 			using var httpRequestMessage = this.GenerateHttpRequestMessage(preprocessedRequest);
 			using var httpResponseMessage = await this.HttpClient.SendAsync(httpRequestMessage, cancellationToken);
@@ -125,7 +127,8 @@ namespace GraphQL.Client.Http {
 			}
 
 			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
+			var response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
+			return response.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
 		}
 
 		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
