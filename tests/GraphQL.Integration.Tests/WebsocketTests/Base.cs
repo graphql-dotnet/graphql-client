@@ -27,8 +27,8 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 
         protected Base(ITestOutputHelper output, IntegrationServerTestFixture fixture)
         {
-            this.Output = output;
-            this.Fixture = fixture;
+            Output = output;
+            Fixture = fixture;
         }
 
         protected static ReceivedMessage InitialMessage = new ReceivedMessage
@@ -113,14 +113,14 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             response.Errors.Should().ContainSingle("because the query is invalid");
         }
 
-        private const string SubscriptionQuery = @"
+        private const string SUBSCRIPTION_QUERY = @"
 			subscription {
 			  messageAdded{
 			    content
 			  }
 			}";
 
-        private readonly GraphQLRequest SubscriptionRequest = new GraphQLRequest(SubscriptionQuery);
+        private readonly GraphQLRequest _subscriptionRequest = new GraphQLRequest(SUBSCRIPTION_QUERY);
 
 
         [Fact]
@@ -131,7 +131,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             callbackMonitor.Should().HaveBeenInvokedWithPayload();
 
             Debug.WriteLine("creating subscription stream");
-            var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
+            var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest);
 
             Debug.WriteLine("subscribing...");
             using var tester = observable.Monitor();
@@ -169,7 +169,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var callbackMonitor = ChatClient.ConfigureMonitorForOnWebsocketConnected();
 
             Debug.WriteLine("creating subscription stream");
-            var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest);
+            var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest);
 
             Debug.WriteLine("subscribing...");
             var tester = observable.Monitor();
@@ -208,7 +208,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             tester2.Dispose();
         }
 
-        private const string SubscriptionQuery2 = @"
+        private const string SUBSCRIPTION_QUERY2 = @"
 			subscription {
 			  userJoined{
 				displayName
@@ -228,7 +228,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 
         }
 
-        private readonly GraphQLRequest SubscriptionRequest2 = new GraphQLRequest(SubscriptionQuery2);
+        private readonly GraphQLRequest _subscriptionRequest2 = new GraphQLRequest(SUBSCRIPTION_QUERY2);
 
 
         [Fact]
@@ -243,8 +243,8 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             callbackMonitor.Should().HaveBeenInvokedWithPayload();
 
             Debug.WriteLine("creating subscription stream");
-            var observable1 = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, callbackTester.Invoke);
-            var observable2 = ChatClient.CreateSubscriptionStream<UserJoinedSubscriptionResult>(SubscriptionRequest2, callbackTester2.Invoke);
+            var observable1 = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest, callbackTester.Invoke);
+            var observable2 = ChatClient.CreateSubscriptionStream<UserJoinedSubscriptionResult>(_subscriptionRequest2, callbackTester2.Invoke);
 
             Debug.WriteLine("subscribing...");
             var messagesMonitor = observable1.Monitor();
@@ -306,7 +306,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 
                 Debug.WriteLine($"Test method thread id: {Thread.CurrentThread.ManagedThreadId}");
                 Debug.WriteLine("creating subscription stream");
-                var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(SubscriptionRequest, errorMonitor.Invoke);
+                var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest, errorMonitor.Invoke);
 
                 Debug.WriteLine("subscribing...");
                 var tester = observable.Monitor();

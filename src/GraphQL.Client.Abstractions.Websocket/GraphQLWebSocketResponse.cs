@@ -21,7 +21,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         public string Type { get; set; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj) => this.Equals(obj as GraphQLWebSocketResponse);
+        public override bool Equals(object obj) => Equals(obj as GraphQLWebSocketResponse);
 
         /// <inheritdoc />
         public bool Equals(GraphQLWebSocketResponse other)
@@ -36,12 +36,12 @@ namespace GraphQL.Client.Abstractions.Websocket
                 return true;
             }
 
-            if (!Equals(this.Id, other.Id))
+            if (!Equals(Id, other.Id))
             {
                 return false;
             }
 
-            if (!Equals(this.Type, other.Type))
+            if (!Equals(Type, other.Type))
             {
                 return false;
             }
@@ -53,8 +53,8 @@ namespace GraphQL.Client.Abstractions.Websocket
         public override int GetHashCode()
         {
             var hashCode = 9958074;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Id);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Type);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Id);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
             return hashCode;
         }
 
@@ -74,7 +74,7 @@ namespace GraphQL.Client.Abstractions.Websocket
 
         public bool Equals(GraphQLWebSocketResponse<TPayload>? other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
@@ -83,11 +83,11 @@ namespace GraphQL.Client.Abstractions.Websocket
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
                 return false;
             return Equals((GraphQLWebSocketResponse<TPayload>)obj);
         }

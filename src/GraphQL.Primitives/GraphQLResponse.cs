@@ -18,7 +18,7 @@ namespace GraphQL
         [DataMember(Name = "extensions")]
         public GraphQLExtensionsType? Extensions { get; set; }
 
-        public override bool Equals(object? obj) => this.Equals(obj as GraphQLResponse<T>);
+        public override bool Equals(object? obj) => Equals(obj as GraphQLResponse<T>);
 
         public bool Equals(GraphQLResponse<T>? other)
         {
@@ -26,27 +26,27 @@ namespace GraphQL
             { return false; }
             if (ReferenceEquals(this, other))
             { return true; }
-            if (!EqualityComparer<T>.Default.Equals(this.Data, other.Data))
+            if (!EqualityComparer<T>.Default.Equals(Data, other.Data))
             { return false; }
 
-            if (this.Errors != null && other.Errors != null)
+            if (Errors != null && other.Errors != null)
             {
-                if (!Enumerable.SequenceEqual(this.Errors, other.Errors))
+                if (!Enumerable.SequenceEqual(Errors, other.Errors))
                 { return false; }
             }
-            else if (this.Errors != null && other.Errors == null)
+            else if (Errors != null && other.Errors == null)
             { return false; }
-            else if (this.Errors == null && other.Errors != null)
+            else if (Errors == null && other.Errors != null)
             { return false; }
 
-            if (this.Extensions != null && other.Extensions != null)
+            if (Extensions != null && other.Extensions != null)
             {
-                if (!Enumerable.SequenceEqual(this.Extensions, other.Extensions))
+                if (!Enumerable.SequenceEqual(Extensions, other.Extensions))
                 { return false; }
             }
-            else if (this.Extensions != null && other.Extensions == null)
+            else if (Extensions != null && other.Extensions == null)
             { return false; }
-            else if (this.Extensions == null && other.Extensions != null)
+            else if (Extensions == null && other.Extensions != null)
             { return false; }
 
             return true;
@@ -56,11 +56,11 @@ namespace GraphQL
         {
             unchecked
             {
-                var hashCode = EqualityComparer<T>.Default.GetHashCode(this.Data);
+                var hashCode = EqualityComparer<T>.Default.GetHashCode(Data);
                 {
-                    if (this.Errors != null)
+                    if (Errors != null)
                     {
-                        foreach (var element in this.Errors)
+                        foreach (var element in Errors)
                         {
                             hashCode = (hashCode * 397) ^ EqualityComparer<GraphQLError?>.Default.GetHashCode(element);
                         }
@@ -70,9 +70,9 @@ namespace GraphQL
                         hashCode = (hashCode * 397) ^ 0;
                     }
 
-                    if (this.Extensions != null)
+                    if (Extensions != null)
                     {
-                        foreach (var element in this.Extensions)
+                        foreach (var element in Extensions)
                         {
                             hashCode = (hashCode * 397) ^ EqualityComparer<KeyValuePair<string, object>>.Default.GetHashCode(element);
                         }

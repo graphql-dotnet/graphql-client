@@ -25,7 +25,7 @@ namespace GraphQL
         /// </summary>
         /// <param name="obj">The object to compare with this instance</param>
         /// <returns>true if obj is an instance of <see cref="GraphQLLocation"/> and equals the value of the instance; otherwise, false</returns>
-        public override bool Equals(object obj) => this.Equals(obj as GraphQLLocation);
+        public override bool Equals(object obj) => Equals(obj as GraphQLLocation);
 
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified object
@@ -38,15 +38,15 @@ namespace GraphQL
             { return false; }
             if (ReferenceEquals(this, other))
             { return true; }
-            return EqualityComparer<uint>.Default.Equals(this.Column, other.Column) &&
-                EqualityComparer<uint>.Default.Equals(this.Line, other.Line);
+            return EqualityComparer<uint>.Default.Equals(Column, other.Column) &&
+                EqualityComparer<uint>.Default.Equals(Line, other.Line);
         }
 
         /// <summary>
-        /// <inheritdoc cref="Object.GetHashCode"/>
+        /// <inheritdoc cref="object.GetHashCode"/>
         /// </summary>
         public override int GetHashCode() =>
-            this.Column.GetHashCode() ^ this.Line.GetHashCode();
+            Column.GetHashCode() ^ Line.GetHashCode();
 
         /// <summary>
         /// Tests whether two specified <see cref="GraphQLLocation"/> instances are equivalent

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions.Websocket
@@ -11,17 +10,17 @@ namespace GraphQL.Client.Abstractions.Websocket
     /// </summary>
     public class GraphQLWebSocketRequest : Dictionary<string, object>, IEquatable<GraphQLWebSocketRequest>
     {
-        public const string IdKey = "id";
-        public const string TypeKey = "type";
-        public const string PayloadKey = "payload";
+        public const string ID_KEY = "id";
+        public const string TYPE_KEY = "type";
+        public const string PAYLOAD_KEY = "payload";
 
         /// <summary>
         /// The Identifier of the Response
         /// </summary>
         public string Id
         {
-            get => ContainsKey(IdKey) ? (string)this[IdKey] : null;
-            set => this[IdKey] = value;
+            get => ContainsKey(ID_KEY) ? (string)this[ID_KEY] : null;
+            set => this[ID_KEY] = value;
         }
 
         /// <summary>
@@ -29,8 +28,8 @@ namespace GraphQL.Client.Abstractions.Websocket
         /// </summary>
         public string Type
         {
-            get => ContainsKey(TypeKey) ? (string)this[TypeKey] : null;
-            set => this[TypeKey] = value;
+            get => ContainsKey(TYPE_KEY) ? (string)this[TYPE_KEY] : null;
+            set => this[TYPE_KEY] = value;
         }
 
         /// <summary>
@@ -38,11 +37,11 @@ namespace GraphQL.Client.Abstractions.Websocket
         /// </summary>
         public GraphQLRequest Payload
         {
-            get => ContainsKey(PayloadKey) ? (GraphQLRequest)this[PayloadKey] : null;
-            set => this[PayloadKey] = value;
+            get => ContainsKey(PAYLOAD_KEY) ? (GraphQLRequest)this[PAYLOAD_KEY] : null;
+            set => this[PAYLOAD_KEY] = value;
         }
 
-        private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
+        private readonly TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 
         /// <summary>
         /// Task used to await the actual send operation and to convey potential exceptions
@@ -67,7 +66,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         public void SendCanceled() => _tcs.SetCanceled();
 
         /// <inheritdoc />
-        public override bool Equals(object obj) => this.Equals(obj as GraphQLWebSocketRequest);
+        public override bool Equals(object obj) => Equals(obj as GraphQLWebSocketRequest);
 
         /// <inheritdoc />
         public bool Equals(GraphQLWebSocketRequest other)
@@ -80,15 +79,15 @@ namespace GraphQL.Client.Abstractions.Websocket
             {
                 return true;
             }
-            if (!Equals(this.Id, other.Id))
+            if (!Equals(Id, other.Id))
             {
                 return false;
             }
-            if (!Equals(this.Type, other.Type))
+            if (!Equals(Type, other.Type))
             {
                 return false;
             }
-            if (!Equals(this.Payload, other.Payload))
+            if (!Equals(Payload, other.Payload))
             {
                 return false;
             }
@@ -99,9 +98,9 @@ namespace GraphQL.Client.Abstractions.Websocket
         public override int GetHashCode()
         {
             var hashCode = 9958074;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Id);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(this.Type);
-            hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(this.Payload);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Id);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
+            hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Payload);
             return hashCode;
         }
 

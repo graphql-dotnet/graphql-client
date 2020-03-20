@@ -42,7 +42,7 @@ namespace GraphQL
         /// <param name="obj">The object to compare with this instance</param>
         /// <returns>true if obj is an instance of <see cref="GraphQLError"/> and equals the value of the instance; otherwise, false</returns>
         public override bool Equals(object? obj) =>
-            this.Equals(obj as GraphQLError);
+            Equals(obj as GraphQLError);
 
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified object
@@ -56,46 +56,46 @@ namespace GraphQL
             if (ReferenceEquals(this, other))
             { return true; }
             {
-                if (this.Locations != null && other.Locations != null)
+                if (Locations != null && other.Locations != null)
                 {
-                    if (!this.Locations.SequenceEqual(other.Locations))
+                    if (!Locations.SequenceEqual(other.Locations))
                     { return false; }
                 }
-                else if (this.Locations != null && other.Locations == null)
+                else if (Locations != null && other.Locations == null)
                 { return false; }
-                else if (this.Locations == null && other.Locations != null)
+                else if (Locations == null && other.Locations != null)
                 { return false; }
             }
-            if (!EqualityComparer<string>.Default.Equals(this.Message, other.Message))
+            if (!EqualityComparer<string>.Default.Equals(Message, other.Message))
             { return false; }
             {
-                if (this.Path != null && other.Path != null)
+                if (Path != null && other.Path != null)
                 {
-                    if (!this.Path.SequenceEqual(other.Path))
+                    if (!Path.SequenceEqual(other.Path))
                     { return false; }
                 }
-                else if (this.Path != null && other.Path == null)
+                else if (Path != null && other.Path == null)
                 { return false; }
-                else if (this.Path == null && other.Path != null)
+                else if (Path == null && other.Path != null)
                 { return false; }
             }
             return true;
         }
 
         /// <summary>
-        /// <inheritdoc cref="Object.GetHashCode"/>
+        /// <inheritdoc cref="object.GetHashCode"/>
         /// </summary>
         public override int GetHashCode()
         {
             var hashCode = 0;
-            if (this.Locations != null)
+            if (Locations != null)
             {
-                hashCode = hashCode ^ EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(this.Locations);
+                hashCode ^= EqualityComparer<GraphQLLocation[]>.Default.GetHashCode(Locations);
             }
-            hashCode = hashCode ^ EqualityComparer<string>.Default.GetHashCode(this.Message);
-            if (this.Path != null)
+            hashCode ^= EqualityComparer<string>.Default.GetHashCode(Message);
+            if (Path != null)
             {
-                hashCode = hashCode ^ EqualityComparer<dynamic>.Default.GetHashCode(this.Path);
+                hashCode ^= EqualityComparer<dynamic>.Default.GetHashCode(Path);
             }
             return hashCode;
         }

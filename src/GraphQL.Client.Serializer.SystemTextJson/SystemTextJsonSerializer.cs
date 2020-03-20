@@ -35,31 +35,16 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             Options.PropertyNameCaseInsensitive = true;
         }
 
-        public string SerializeToString(GraphQL.GraphQLRequest request)
-        {
-            return JsonSerializer.Serialize(request, Options);
-        }
+        public string SerializeToString(GraphQLRequest request) => JsonSerializer.Serialize(request, Options);
 
-        public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken)
-        {
-            return JsonSerializer.DeserializeAsync<GraphQLResponse<TResponse>>(stream, Options, cancellationToken).AsTask();
-        }
+        public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) => JsonSerializer.DeserializeAsync<GraphQLResponse<TResponse>>(stream, Options, cancellationToken).AsTask();
 
-        public byte[] SerializeToBytes(Abstractions.Websocket.GraphQLWebSocketRequest request)
-        {
-            return JsonSerializer.SerializeToUtf8Bytes(request, Options);
-        }
+        public byte[] SerializeToBytes(GraphQLWebSocketRequest request) => JsonSerializer.SerializeToUtf8Bytes(request, Options);
 
-        public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream)
-        {
-            return JsonSerializer.DeserializeAsync<WebsocketMessageWrapper>(stream, Options).AsTask();
-        }
+        public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) => JsonSerializer.DeserializeAsync<WebsocketMessageWrapper>(stream, Options).AsTask();
 
-        public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes)
-        {
-            return JsonSerializer.Deserialize<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(new ReadOnlySpan<byte>(bytes),
+        public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) =>
+            JsonSerializer.Deserialize<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(new ReadOnlySpan<byte>(bytes),
                 Options);
-        }
-
     }
 }

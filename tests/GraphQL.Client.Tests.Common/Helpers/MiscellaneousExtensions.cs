@@ -6,12 +6,10 @@ namespace GraphQL.Client.Tests.Common.Helpers
 {
     public static class MiscellaneousExtensions
     {
-        public static string RemoveWhitespace(this string input)
-        {
-            return new string(input.ToCharArray()
+        public static string RemoveWhitespace(this string input) =>
+            new string(input.ToCharArray()
                 .Where(c => !char.IsWhiteSpace(c))
                 .ToArray());
-        }
 
         public static CallbackMonitor<GraphQLHttpClient> ConfigureMonitorForOnWebsocketConnected(
             this GraphQLHttpClient client)

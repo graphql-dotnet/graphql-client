@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
@@ -8,7 +7,6 @@ using GraphQL.Client.LocalExecution;
 using GraphQL.Client.Serializer.Tests.TestData;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Helpers;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace GraphQL.Client.Serializer.Tests

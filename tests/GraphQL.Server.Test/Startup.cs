@@ -16,7 +16,7 @@ namespace GraphQL.Server.Test
 
         public Startup(IConfiguration configuration)
         {
-            this.Configuration = configuration;
+            Configuration = configuration;
         }
 
         public void Configure(IApplicationBuilder app)

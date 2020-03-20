@@ -6,7 +6,7 @@ namespace GraphQL.Client.Tests.Common.Chat
 {
     public static class GraphQLClientChatExtensions
     {
-        public const string AddMessageQuery =
+        public const string ADD_MESSAGE_QUERY =
 @"mutation($input: MessageInputType){
   addMessage(message: $input){
     content
@@ -25,7 +25,7 @@ namespace GraphQL.Client.Tests.Common.Chat
                 }
             };
 
-            var graphQLRequest = new GraphQLRequest(AddMessageQuery, variables);
+            var graphQLRequest = new GraphQLRequest(ADD_MESSAGE_QUERY, variables);
             return client.SendMutationAsync<AddMessageMutationResult>(graphQLRequest);
         }
 

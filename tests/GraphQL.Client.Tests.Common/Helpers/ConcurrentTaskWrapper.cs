@@ -6,60 +6,51 @@ namespace GraphQL.Client.Tests.Common.Helpers
 
     public class ConcurrentTaskWrapper
     {
-        public static ConcurrentTaskWrapper<TResult> New<TResult>(Func<Task<TResult>> createTask)
-        {
-            return new ConcurrentTaskWrapper<TResult>(createTask);
-        }
+        public static ConcurrentTaskWrapper<TResult> New<TResult>(Func<Task<TResult>> createTask) => new ConcurrentTaskWrapper<TResult>(createTask);
 
-        private readonly Func<Task> createTask;
-        private Task internalTask = null;
+        private readonly Func<Task> _createTask;
+        private Task _internalTask = null;
 
         public ConcurrentTaskWrapper(Func<Task> createTask)
         {
-            this.createTask = createTask;
+            _createTask = createTask;
         }
 
         public Task Invoke()
         {
-            if (internalTask != null)
-                return internalTask;
+            if (_internalTask != null)
+                return _internalTask;
 
-            return internalTask = createTask();
+            return _internalTask = _createTask();
         }
     }
 
     public class ConcurrentTaskWrapper<TResult>
     {
-        private readonly Func<Task<TResult>> createTask;
-        private Task<TResult> internalTask = null;
+        private readonly Func<Task<TResult>> _createTask;
+        private Task<TResult> _internalTask = null;
 
         public ConcurrentTaskWrapper(Func<Task<TResult>> createTask)
         {
-            this.createTask = createTask;
+            _createTask = createTask;
         }
 
         public Task<TResult> Invoke()
         {
-            if (internalTask != null)
-                return internalTask;
+            if (_internalTask != null)
+                return _internalTask;
 
-            return internalTask = createTask();
+            return _internalTask = _createTask();
         }
 
         public void Start()
         {
-            if (internalTask == null)
-                internalTask = createTask();
+            if (_internalTask == null)
+                _internalTask = _createTask();
         }
 
-        public Func<Task<TResult>> Invoking()
-        {
-            return Invoke;
-        }
+        public Func<Task<TResult>> Invoking() => Invoke;
 
-        public void Clear()
-        {
-            internalTask = null;
-        }
+        public void Clear() => _internalTask = null;
     }
 }

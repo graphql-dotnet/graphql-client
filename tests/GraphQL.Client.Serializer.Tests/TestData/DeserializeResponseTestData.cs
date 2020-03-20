@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GraphQL.Client.Serializer.Tests.TestData
 {
@@ -41,10 +39,6 @@ namespace GraphQL.Client.Serializer.Tests.TestData
             };
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

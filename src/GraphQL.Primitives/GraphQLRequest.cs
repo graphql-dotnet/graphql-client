@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace GraphQL
 {
@@ -11,17 +10,17 @@ namespace GraphQL
     /// </summary>
     public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequest?>
     {
-        public const string OperationNameKey = "operationName";
-        public const string QueryKey = "query";
-        public const string VariablesKey = "variables";
+        public const string OPERATION_NAME_KEY = "operationName";
+        public const string QUERY_KEY = "query";
+        public const string VARIABLES_KEY = "variables";
 
         /// <summary>
         /// The Query
         /// </summary>
         public string Query
         {
-            get => ContainsKey(QueryKey) ? (string)this[QueryKey] : null;
-            set => this[QueryKey] = value;
+            get => ContainsKey(QUERY_KEY) ? (string)this[QUERY_KEY] : null;
+            set => this[QUERY_KEY] = value;
         }
 
         /// <summary>
@@ -29,8 +28,8 @@ namespace GraphQL
         /// </summary>
         public string? OperationName
         {
-            get => ContainsKey(OperationNameKey) ? (string)this[OperationNameKey] : null;
-            set => this[OperationNameKey] = value;
+            get => ContainsKey(OPERATION_NAME_KEY) ? (string)this[OPERATION_NAME_KEY] : null;
+            set => this[OPERATION_NAME_KEY] = value;
         }
 
         /// <summary>
@@ -38,8 +37,8 @@ namespace GraphQL
         /// </summary>
         public object? Variables
         {
-            get => ContainsKey(VariablesKey) ? this[VariablesKey] : null;
-            set => this[VariablesKey] = value;
+            get => ContainsKey(VARIABLES_KEY) ? this[VARIABLES_KEY] : null;
+            set => this[VARIABLES_KEY] = value;
         }
 
         public GraphQLRequest() { }
@@ -58,11 +57,11 @@ namespace GraphQL
         /// <returns>true if obj is an instance of <see cref="GraphQLRequest"/> and equals the value of the instance; otherwise, false</returns>
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
                 return false;
             return Equals((GraphQLRequest)obj);
         }
@@ -74,15 +73,15 @@ namespace GraphQL
         /// <returns>true if obj is an instance of <see cref="GraphQLRequest"/> and equals the value of the instance; otherwise, false</returns>
         public virtual bool Equals(GraphQLRequest? other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-            return this.Count == other.Count && !this.Except(other).Any();
+            return Count == other.Count && !this.Except(other).Any();
         }
 
         /// <summary>
-        /// <inheritdoc cref="Object.GetHashCode"/>
+        /// <inheritdoc cref="object.GetHashCode"/>
         /// </summary>
         public override int GetHashCode()
         {

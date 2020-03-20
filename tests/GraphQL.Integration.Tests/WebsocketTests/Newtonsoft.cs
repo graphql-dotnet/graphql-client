@@ -1,4 +1,3 @@
-using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Integration.Tests.Helpers;
 using Xunit;
 using Xunit.Abstractions;

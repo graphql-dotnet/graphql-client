@@ -1,5 +1,4 @@
 using System;
-using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
@@ -25,10 +24,7 @@ namespace GraphQL.Integration.Tests.Helpers
             config["server.urls"] = $"http://localhost:{port}";
 
             var host = new WebHostBuilder()
-                .ConfigureLogging((ctx, logging) =>
-                {
-                    logging.AddDebug();
-                })
+                .ConfigureLogging((ctx, logging) => logging.AddDebug())
                 .UseConfiguration(config)
                 .UseKestrel()
                 .UseStartup<Startup>()
@@ -54,28 +50,22 @@ namespace GraphQL.Integration.Tests.Helpers
     {
         public TestServerSetup(IGraphQLWebsocketJsonSerializer serializer)
         {
-            this.serializer = serializer;
+            Serializer = serializer;
             Port = NetworkHelpers.GetFreeTcpPortNumber();
         }
 
         public int Port { get; }
         public IWebHost Server { get; set; }
-        public IGraphQLWebsocketJsonSerializer serializer { get; set; }
+        public IGraphQLWebsocketJsonSerializer Serializer { get; set; }
 
         public GraphQLHttpClient GetStarWarsClient(bool requestsViaWebsocket = false)
-            => GetGraphQLClient(Common.StarWarsEndpoint, requestsViaWebsocket);
+            => GetGraphQLClient(Common.STAR_WARS_ENDPOINT, requestsViaWebsocket);
 
         public GraphQLHttpClient GetChatClient(bool requestsViaWebsocket = false)
-            => GetGraphQLClient(Common.ChatEndpoint, requestsViaWebsocket);
+            => GetGraphQLClient(Common.CHAT_ENDPOINT, requestsViaWebsocket);
 
-        private GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false)
-        {
-            return WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket);
-        }
+        private GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false) => WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket);
 
-        public void Dispose()
-        {
-            Server?.Dispose();
-        }
+        public void Dispose() => Server?.Dispose();
     }
 }

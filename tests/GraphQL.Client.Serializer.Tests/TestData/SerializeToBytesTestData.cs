@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using GraphQL.Client.Abstractions.Websocket;
-using GraphQL.Client.Tests.Common.Chat;
 
 namespace GraphQL.Client.Serializer.Tests.TestData
 {
@@ -28,9 +27,6 @@ namespace GraphQL.Client.Serializer.Tests.TestData
             };
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -8,7 +8,7 @@ namespace GraphQL.Server.Test.GraphQL
 
         public TestSchema()
         {
-            this.Query = new TestQuery();
+            Query = new TestQuery();
             //this.Mutation = new TestMutation();
             //this.Subscription = new TestSubscription();
         }

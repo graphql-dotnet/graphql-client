@@ -20,9 +20,6 @@ namespace GraphQL.Client.Tests.Common.Helpers
                 .GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

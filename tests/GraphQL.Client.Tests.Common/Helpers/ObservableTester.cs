@@ -11,11 +11,11 @@ namespace GraphQL.Client.Tests.Common.Helpers
 {
     public class ObservableTester<TSubscriptionPayload> : IDisposable
     {
-        private readonly IDisposable subscription;
-        private readonly ManualResetEventSlim updateReceived = new ManualResetEventSlim();
-        private readonly ManualResetEventSlim completed = new ManualResetEventSlim();
-        private readonly ManualResetEventSlim error = new ManualResetEventSlim();
-        private readonly EventLoopScheduler observeScheduler = new EventLoopScheduler();
+        private readonly IDisposable _subscription;
+        private readonly ManualResetEventSlim _updateReceived = new ManualResetEventSlim();
+        private readonly ManualResetEventSlim _completed = new ManualResetEventSlim();
+        private readonly ManualResetEventSlim _error = new ManualResetEventSlim();
+        private readonly EventLoopScheduler _observeScheduler = new EventLoopScheduler();
 
         /// <summary>
         /// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
@@ -25,7 +25,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         /// <summary>
         /// Indicates that an update has been received since the last <see cref="_reset"/>
         /// </summary>
-        public bool UpdateReceived => updateReceived.IsSet;
+        public bool UpdateReceived => _updateReceived.IsSet;
         /// <summary>
         /// The last payload which was received.
         /// </summary>
@@ -40,48 +40,42 @@ namespace GraphQL.Client.Tests.Common.Helpers
         public ObservableTester(IObservable<TSubscriptionPayload> observable)
         {
 
-            observeScheduler.Schedule(() =>
+            _observeScheduler.Schedule(() =>
                 Debug.WriteLine($"Observe scheduler thread id: {Thread.CurrentThread.ManagedThreadId}"));
 
-            subscription = observable.ObserveOn(observeScheduler).Subscribe(
+            _subscription = observable.ObserveOn(_observeScheduler).Subscribe(
                 obj =>
                 {
                     Debug.WriteLine($"observable tester {GetHashCode()}: payload received");
                     LastPayload = obj;
-                    updateReceived.Set();
+                    _updateReceived.Set();
                 },
                 ex =>
                 {
                     Debug.WriteLine($"observable tester {GetHashCode()} error received: {ex}");
                     Error = ex;
-                    error.Set();
+                    _error.Set();
                 },
                 () =>
                 {
                     Debug.WriteLine($"observable tester {GetHashCode()}: completed");
-                    completed.Set();
+                    _completed.Set();
                 });
         }
 
         /// <summary>
         /// Resets the tester class. Should be called before triggering the potential update
         /// </summary>
-        private void Reset()
-        {
-            updateReceived.Reset();
-        }
+        private void Reset() => _updateReceived.Reset();
 
         /// <inheritdoc />
         public void Dispose()
         {
-            subscription?.Dispose();
-            observeScheduler.Dispose();
+            _subscription?.Dispose();
+            _observeScheduler.Dispose();
         }
 
-        public SubscriptionAssertions<TSubscriptionPayload> Should()
-        {
-            return new SubscriptionAssertions<TSubscriptionPayload>(this);
-        }
+        public SubscriptionAssertions<TSubscriptionPayload> Should() => new SubscriptionAssertions<TSubscriptionPayload>(this);
 
         public class SubscriptionAssertions<TPayload> : ReferenceTypeAssertions<ObservableTester<TPayload>, SubscriptionAssertions<TPayload>>
         {
@@ -99,7 +93,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
                     .BecauseOf(because, becauseArgs)
                     .Given(() =>
                     {
-                        var isSet = Subject.updateReceived.Wait(timeout);
+                        var isSet = Subject._updateReceived.Wait(timeout);
                         if (!isSet)
                             Debug.WriteLine($"waiting for payload on thread {Thread.CurrentThread.ManagedThreadId} timed out!");
                         return isSet;
@@ -107,7 +101,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
                     .ForCondition(isSet => isSet)
                     .FailWith("Expected {context:Subscription} to receive new payload{reason}, but did not receive an update within {0}", timeout);
 
-                Subject.updateReceived.Reset();
+                Subject._updateReceived.Reset();
                 return new AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload>(this, Subject.LastPayload);
             }
             public AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload> HaveReceivedPayload(string because = "", params object[] becauseArgs)
@@ -118,11 +112,11 @@ namespace GraphQL.Client.Tests.Common.Helpers
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .Given(() => Subject.updateReceived.Wait(timeout))
+                    .Given(() => Subject._updateReceived.Wait(timeout))
                     .ForCondition(isSet => !isSet)
                     .FailWith("Expected {context:Subscription} to not receive a new payload{reason}, but did receive an update: {0}", Subject.LastPayload);
 
-                Subject.updateReceived.Reset();
+                Subject._updateReceived.Reset();
                 return new AndConstraint<SubscriptionAssertions<TPayload>>(this);
             }
             public AndConstraint<SubscriptionAssertions<TPayload>> NotHaveReceivedPayload(string because = "", params object[] becauseArgs)
@@ -133,7 +127,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .Given(() => Subject.error.Wait(timeout))
+                    .Given(() => Subject._error.Wait(timeout))
                     .ForCondition(isSet => isSet)
                     .FailWith("Expected {context:Subscription} to fail{reason}, but did not receive an error within {0}", timeout);
 
@@ -148,7 +142,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .Given(() => Subject.completed.Wait(timeout))
+                    .Given(() => Subject._completed.Wait(timeout))
                     .ForCondition(isSet => isSet)
                     .FailWith("Expected {context:Subscription} to complete{reason}, but did not complete within {0}", timeout);
 
@@ -162,7 +156,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .Given(() => Subject.completed.Wait(timeout))
+                    .Given(() => Subject._completed.Wait(timeout))
                     .ForCondition(isSet => !isSet)
                     .FailWith("Expected {context:Subscription} not to complete within {0}{reason}, but it did!", timeout);
 
@@ -175,10 +169,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
 
     public static class ObservableExtensions
     {
-        public static ObservableTester<T> Monitor<T>(this IObservable<T> observable)
-        {
-            return new ObservableTester<T>(observable);
-        }
+        public static ObservableTester<T> Monitor<T>(this IObservable<T> observable) => new ObservableTester<T>(observable);
     }
 
 }

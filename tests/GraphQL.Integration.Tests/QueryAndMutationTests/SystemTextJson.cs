@@ -1,4 +1,3 @@
-using GraphQL.Client.Serializer.SystemTextJson;
 using GraphQL.Integration.Tests.Helpers;
 using Xunit;
 

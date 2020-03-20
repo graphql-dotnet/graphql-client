@@ -29,7 +29,7 @@ namespace GraphQL.Client.LocalExecution
     public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema : ISchema
     {
 
-        private static readonly JsonSerializerSettings VariablesSerializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _variablesSerializerSettings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
             DateTimeZoneHandling = DateTimeZoneHandling.Local,
@@ -44,7 +44,7 @@ namespace GraphQL.Client.LocalExecution
         public IGraphQLJsonSerializer Serializer { get; }
 
 
-        private readonly DocumentExecuter documentExecuter;
+        private readonly DocumentExecuter _documentExecuter;
 
         public GraphQLLocalExecutionClient(TSchema schema)
         {
@@ -52,7 +52,7 @@ namespace GraphQL.Client.LocalExecution
             Schema = schema;
             if (!Schema.Initialized)
                 Schema.Initialize();
-            documentExecuter = new DocumentExecuter();
+            _documentExecuter = new DocumentExecuter();
         }
 
         public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer) : this(schema)
@@ -68,13 +68,11 @@ namespace GraphQL.Client.LocalExecution
         public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
             => ExecuteQueryAsync<TResponse>(request, cancellationToken);
 
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
-        {
-            return Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) =>
+            Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
                 .Concat()
                 .Publish()
                 .RefCount();
-        }
 
         public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request,
             Action<Exception> exceptionHandler)
@@ -100,11 +98,11 @@ namespace GraphQL.Client.LocalExecution
 
             var deserializedRequest = JsonConvert.DeserializeObject<GraphQLRequest>(serializedRequest);
             var inputs = deserializedRequest.Variables != null
-                ? (JObject.FromObject(request.Variables, JsonSerializer.Create(VariablesSerializerSettings)) as JObject)
+                ? (JObject.FromObject(request.Variables, JsonSerializer.Create(_variablesSerializerSettings)) as JObject)
                 .ToInputs()
                 : null;
 
-            var result = await documentExecuter.ExecuteAsync(options =>
+            var result = await _documentExecuter.ExecuteAsync(options =>
             {
                 options.Schema = Schema;
                 options.OperationName = request.OperationName;
@@ -119,7 +117,7 @@ namespace GraphQL.Client.LocalExecution
         private Task<GraphQLResponse<TResponse>> ExecutionResultToGraphQLResponse<TResponse>(ExecutionResult executionResult, CancellationToken cancellationToken = default)
         {
             // serialize result into utf8 byte stream
-            var resultStream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(executionResult, VariablesSerializerSettings)));
+            var resultStream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(executionResult, _variablesSerializerSettings)));
             // deserialize using the provided serializer
             return Serializer.DeserializeFromUtf8StreamAsync<TResponse>(resultStream, cancellationToken);
         }

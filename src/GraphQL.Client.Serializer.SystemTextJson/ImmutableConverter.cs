@@ -117,10 +117,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             JsonSerializer.Serialize(writer, value, strippedOptions);
         }
 
-        private static PropertyInfo[] GetProperties(IReflect typeToConvert)
-        {
-            return typeToConvert.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        }
+        private static PropertyInfo[] GetProperties(IReflect typeToConvert) => typeToConvert.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
         private static IReadOnlyDictionary<string, PropertyInfo> GetNamedProperties(JsonSerializerOptions options, IEnumerable<PropertyInfo> properties)
         {
@@ -151,10 +148,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             return options.PropertyNameCaseInsensitive ? convertedName.ToLowerInvariant() : convertedName;
         }
 
-        private static string NormalizeName(string name, JsonSerializerOptions options)
-        {
-            return options.PropertyNameCaseInsensitive ? name.ToLowerInvariant() : name;
-        }
+        private static string NormalizeName(string name, JsonSerializerOptions options) => options.PropertyNameCaseInsensitive ? name.ToLowerInvariant() : name;
     }
 
     internal static class NameOfPropertyAndParameter
@@ -187,13 +181,11 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     internal static class TypeExtensions
     {
         // copied from https://github.com/dahomey-technologies/Dahomey.Json/blob/master/src/Dahomey.Json/Util/TypeExtensions.cs
-        public static bool IsAnonymous(this Type type)
-        {
-            return type.Namespace == null
-                   && type.IsSealed
-                   && type.BaseType == typeof(object)
-                   && !type.IsPublic
-                   && type.IsDefined(typeof(CompilerGeneratedAttribute), false);
-        }
+        public static bool IsAnonymous(this Type type) =>
+            type.Namespace == null
+            && type.IsSealed
+            && type.BaseType == typeof(object)
+            && !type.IsPublic
+            && type.IsDefined(typeof(CompilerGeneratedAttribute), false);
     }
 }

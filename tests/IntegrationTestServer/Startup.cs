@@ -56,18 +56,18 @@ namespace IntegrationTestServer
 
             app.UseWebSockets();
 
-            ConfigureGraphQLSchema<ChatSchema>(app, Common.ChatEndpoint);
-            ConfigureGraphQLSchema<StarWarsSchema>(app, Common.StarWarsEndpoint);
+            ConfigureGraphQLSchema<ChatSchema>(app, Common.CHAT_ENDPOINT);
+            ConfigureGraphQLSchema<StarWarsSchema>(app, Common.STAR_WARS_ENDPOINT);
 
             app.UseGraphiQLServer(new GraphiQLOptions
             {
                 GraphiQLPath = "/ui/graphiql",
-                GraphQLEndPoint = Common.StarWarsEndpoint
+                GraphQLEndPoint = Common.STAR_WARS_ENDPOINT
             });
             app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
             {
                 Path = "/ui/playground",
-                GraphQLEndPoint = Common.ChatEndpoint
+                GraphQLEndPoint = Common.CHAT_ENDPOINT
             });
         }
 

@@ -11,9 +11,6 @@ namespace GraphQL.Client.Tests.Common.StarWars
             yield return new object[] { 2, "Vader" };
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

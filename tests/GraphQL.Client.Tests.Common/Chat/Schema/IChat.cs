@@ -21,8 +21,8 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
 
     public class Chat : IChat
     {
-        private readonly ISubject<Message> messageStream = new ReplaySubject<Message>(1);
-        private readonly ISubject<MessageFrom> userJoined = new Subject<MessageFrom>();
+        private readonly ISubject<Message> _messageStream = new ReplaySubject<Message>(1);
+        private readonly ISubject<MessageFrom> _userJoined = new Subject<MessageFrom>();
 
         public Chat()
         {
@@ -60,7 +60,7 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
         public Message AddMessage(Message message)
         {
             AllMessages.Push(message);
-            messageStream.OnNext(message);
+            _messageStream.OnNext(message);
             return message;
         }
 
@@ -77,30 +77,22 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
                 DisplayName = displayName
             };
 
-            userJoined.OnNext(joinedUser);
+            _userJoined.OnNext(joinedUser);
             return joinedUser;
         }
 
-        public IObservable<Message> Messages(string user)
-        {
-            return messageStream
+        public IObservable<Message> Messages(string user) =>
+            _messageStream
                 .Select(message =>
                 {
                     message.Sub = user;
                     return message;
                 })
                 .AsObservable();
-        }
 
-        public void AddError(Exception exception)
-        {
-            messageStream.OnError(exception);
-        }
+        public void AddError(Exception exception) => _messageStream.OnError(exception);
 
-        public IObservable<MessageFrom> UserJoined()
-        {
-            return userJoined.AsObservable();
-        }
+        public IObservable<MessageFrom> UserJoined() => _userJoined.AsObservable();
     }
 
     public class User

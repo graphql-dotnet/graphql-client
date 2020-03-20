@@ -22,10 +22,7 @@ namespace GraphQL.Client.Http
 
     public static class GraphQLResponseExtensions
     {
-        public static GraphQLHttpResponse<T> ToGraphQLHttpResponse<T>(this GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode)
-        {
-            return new GraphQLHttpResponse<T>(response, responseHeaders, statusCode);
-        }
+        public static GraphQLHttpResponse<T> ToGraphQLHttpResponse<T>(this GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode) => new GraphQLHttpResponse<T>(response, responseHeaders, statusCode);
 
         /// <summary>
         /// Casts <paramref name="response"/> to <see cref="GraphQLHttpResponse{T}"/>. Throws ig the cast fails.
@@ -34,9 +31,6 @@ namespace GraphQL.Client.Http
         /// <param name="response"></param>
         /// <exception cref="InvalidCastException"><paramref name="response"/> is not a <see cref="GraphQLHttpResponse{T}"/></exception>
         /// <returns></returns>
-        public static GraphQLHttpResponse<T> AsGraphQLHttpResponse<T>(this GraphQLResponse<T> response)
-        {
-            return (GraphQLHttpResponse<T>)response;
-        }
+        public static GraphQLHttpResponse<T> AsGraphQLHttpResponse<T>(this GraphQLResponse<T> response) => (GraphQLHttpResponse<T>)response;
     }
 }

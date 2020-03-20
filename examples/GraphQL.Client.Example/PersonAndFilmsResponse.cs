@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace GraphQL.Client.Http.Examples
+namespace GraphQL.Client.Example
 {
     public class PersonAndFilmsResponse
     {

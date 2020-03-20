@@ -39,10 +39,10 @@ namespace GraphQL.Integration.Tests.Helpers
         }
 
         public GraphQLHttpClient GetStarWarsClient(bool requestsViaWebsocket = false)
-            => GetGraphQLClient(Common.StarWarsEndpoint, requestsViaWebsocket);
+            => GetGraphQLClient(Common.STAR_WARS_ENDPOINT, requestsViaWebsocket);
 
         public GraphQLHttpClient GetChatClient(bool requestsViaWebsocket = false)
-            => GetGraphQLClient(Common.ChatEndpoint, requestsViaWebsocket);
+            => GetGraphQLClient(Common.CHAT_ENDPOINT, requestsViaWebsocket);
 
         private GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false)
         {

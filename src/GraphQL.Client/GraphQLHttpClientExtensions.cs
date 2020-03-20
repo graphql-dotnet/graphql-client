@@ -18,19 +18,20 @@ namespace GraphQL.Client.Http
         /// <param name="webSocketExceptionHandler">an external handler for all <see cref="WebSocketException"/>s occuring within the sequence</param>
         /// <returns>an observable stream for the specified subscription</returns>
         public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this IGraphQLClient client,
-            GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler)
-        {
-            return client.CreateSubscriptionStream<TResponse>(request, e =>
+            GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) =>
+            client.CreateSubscriptionStream<TResponse>(request, e =>
             {
                 if (e is WebSocketException webSocketException)
                     webSocketExceptionHandler(webSocketException);
                 else
                     throw e;
             });
-        }
 
         public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType, Action<WebSocketException> webSocketExceptionHandler)
-            => client.CreateSubscriptionStream<TResponse>(request, webSocketExceptionHandler);
+        {
+            _ = defineResponseType;
+            return client.CreateSubscriptionStream<TResponse>(request, webSocketExceptionHandler);
+        }
     }
 }

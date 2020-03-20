@@ -21,7 +21,7 @@ namespace GraphQL.Client.Http
         /// <param name="httpResponseMessage">The unexpected <see cref="System.Net.Http.HttpResponseMessage"/></param>
         public GraphQLHttpException(HttpResponseMessage httpResponseMessage) : base($"Unexpected {nameof(System.Net.Http.HttpResponseMessage)} with code: {httpResponseMessage?.StatusCode}")
         {
-            this.HttpResponseMessage = httpResponseMessage ?? throw new ArgumentNullException(nameof(httpResponseMessage));
+            HttpResponseMessage = httpResponseMessage ?? throw new ArgumentNullException(nameof(httpResponseMessage));
         }
 
     }

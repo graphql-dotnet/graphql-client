@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -10,11 +7,9 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 {
     public class GraphQLExtensionsConverter : JsonConverter<GraphQLExtensionsType>
     {
-        public override void WriteJson(JsonWriter writer, GraphQLExtensionsType value, JsonSerializer serializer)
-        {
+        public override void WriteJson(JsonWriter writer, GraphQLExtensionsType value, JsonSerializer serializer) =>
             throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
-        }
 
         public override GraphQLExtensionsType ReadJson(JsonReader reader, Type objectType, GraphQLExtensionsType existingValue,
             bool hasExistingValue, JsonSerializer serializer)
@@ -28,9 +23,8 @@ namespace GraphQL.Client.Serializer.Newtonsoft
                 throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
         }
 
-        private object ReadToken(JToken? token)
-        {
-            return token.Type switch
+        private object ReadToken(JToken? token) =>
+            token.Type switch
             {
                 JTokenType.Undefined => null,
                 JTokenType.None => null,
@@ -52,7 +46,6 @@ namespace GraphQL.Client.Serializer.Newtonsoft
                 JTokenType.Comment => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON comment"),
                 _ => throw new ArgumentOutOfRangeException(nameof(token.Type))
             };
-        }
 
         private TDictionary ReadDictionary<TDictionary>(JToken element) where TDictionary : Dictionary<string, object>
         {
@@ -76,9 +69,6 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             }
         }
 
-        private bool IsUnsupportedJTokenType(JTokenType type)
-        {
-            return type == JTokenType.Constructor || type == JTokenType.Property || type == JTokenType.Comment;
-        }
+        private bool IsUnsupportedJTokenType(JTokenType type) => type == JTokenType.Constructor || type == JTokenType.Property || type == JTokenType.Comment;
     }
 }

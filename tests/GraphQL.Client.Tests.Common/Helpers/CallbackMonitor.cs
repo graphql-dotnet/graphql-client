@@ -9,7 +9,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
 {
     public class CallbackMonitor<T>
     {
-        private readonly ManualResetEventSlim callbackInvoked = new ManualResetEventSlim();
+        private readonly ManualResetEventSlim _callbackInvoked = new ManualResetEventSlim();
 
         /// <summary>
         /// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
@@ -19,7 +19,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         /// <summary>
         /// Indicates that an update has been received since the last <see cref="Reset"/>
         /// </summary>
-        public bool CallbackInvoked => callbackInvoked.IsSet;
+        public bool CallbackInvoked => _callbackInvoked.IsSet;
         /// <summary>
         /// The last payload which was received.
         /// </summary>
@@ -29,7 +29,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         {
             LastPayload = param;
             Debug.WriteLine($"CallbackMonitor invoke handler thread id: {Thread.CurrentThread.ManagedThreadId}");
-            callbackInvoked.Set();
+            _callbackInvoked.Set();
         }
 
         /// <summary>
@@ -38,13 +38,10 @@ namespace GraphQL.Client.Tests.Common.Helpers
         public void Reset()
         {
             LastPayload = default(T);
-            callbackInvoked.Reset();
+            _callbackInvoked.Reset();
         }
 
-        public CallbackAssertions<T> Should()
-        {
-            return new CallbackAssertions<T>(this);
-        }
+        public CallbackAssertions<T> Should() => new CallbackAssertions<T>(this);
 
         public class CallbackAssertions<TPayload> : ReferenceTypeAssertions<CallbackMonitor<TPayload>, CallbackAssertions<TPayload>>
         {
@@ -63,12 +60,12 @@ namespace GraphQL.Client.Tests.Common.Helpers
                     .Given(() =>
                     {
                         Debug.WriteLine($"HaveBeenInvokedWithPayload thread id: {Thread.CurrentThread.ManagedThreadId}");
-                        return Subject.callbackInvoked.Wait(timeout);
+                        return Subject._callbackInvoked.Wait(timeout);
                     })
                     .ForCondition(isSet => isSet)
                     .FailWith("Expected {context:callback} to be invoked{reason}, but did not receive a call within {0}", timeout);
 
-                Subject.callbackInvoked.Reset();
+                Subject._callbackInvoked.Reset();
                 return new AndWhichConstraint<CallbackAssertions<TPayload>, TPayload>(this, Subject.LastPayload);
             }
             public AndWhichConstraint<CallbackAssertions<TPayload>, TPayload> HaveBeenInvokedWithPayload(string because = "", params object[] becauseArgs)
@@ -84,11 +81,11 @@ namespace GraphQL.Client.Tests.Common.Helpers
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .Given(() => Subject.callbackInvoked.Wait(timeout))
+                    .Given(() => Subject._callbackInvoked.Wait(timeout))
                     .ForCondition(isSet => !isSet)
                     .FailWith("Expected {context:callback} to not be invoked{reason}, but did receive a call: {0}", Subject.LastPayload);
 
-                Subject.callbackInvoked.Reset();
+                Subject._callbackInvoked.Reset();
                 return new AndConstraint<CallbackAssertions<TPayload>>(this);
             }
             public AndConstraint<CallbackAssertions<TPayload>> NotHaveBeenInvoked(string because = "", params object[] becauseArgs)

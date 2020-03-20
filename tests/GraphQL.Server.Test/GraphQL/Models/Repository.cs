@@ -18,12 +18,12 @@ namespace GraphQL.Server.Test.GraphQL.Models
 
         public RepositoryGraphType()
         {
-            this.Name = nameof(Repository);
-            this.Field(expression => expression.DatabaseId);
-            this.Field<NonNullGraphType<IdGraphType>>("id");
-            this.Field(expression => expression.Name);
+            Name = nameof(Repository);
+            Field(expression => expression.DatabaseId);
+            Field<NonNullGraphType<IdGraphType>>("id");
+            Field(expression => expression.Name);
             //this.Field(expression => expression.Owner);
-            this.Field<NonNullGraphType<UriGraphType>>("url");
+            Field<NonNullGraphType<UriGraphType>>("url");
         }
 
     }

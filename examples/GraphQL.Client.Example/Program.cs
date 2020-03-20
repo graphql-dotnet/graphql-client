@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL.Client.Http;
 
-namespace GraphQL.Client.Http.Examples
+namespace GraphQL.Client.Example
 {
 
     public class Program
@@ -12,7 +12,7 @@ namespace GraphQL.Client.Http.Examples
 
         public static async Task Main(string[] args)
         {
-
+            _ = args;
             using var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/");
 
             var personAndFilmsRequest = new GraphQLRequest
