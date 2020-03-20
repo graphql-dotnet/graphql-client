@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
-using GraphQL.Client.Serializer.Newtonsoft;
 
 namespace GraphQL.Client.Http
 {
