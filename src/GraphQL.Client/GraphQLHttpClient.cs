@@ -66,11 +66,10 @@ namespace GraphQL.Client.Http {
 
 		/// <inheritdoc />
 		public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			if(Options.UseWebSocketForQueriesAndMutations)
+			if (Options.UseWebSocketForQueriesAndMutations)
 				return await this.graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
-			
-			var response = await this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
-			return response.Response;
+
+			return await this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
 		}
 
 		/// <inheritdoc />
@@ -116,47 +115,7 @@ namespace GraphQL.Client.Http {
 		/// </summary>
 		/// <returns></returns>
 		public Task InitializeWebsocketConnection() => graphQlHttpWebSocket.InitializeWebSocket();
-
-		/// <summary>
-		/// Sends a query to the GraphQL server and deserializes the response. Provides access to the HTTP response headers. This method will never utilize the websocket connection!
-		/// </summary>
-		/// <typeparam name="TResponse"></typeparam>
-		/// <param name="request"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public Task<GraphQLHttpResponse<TResponse>> SendQueryHttpAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			return this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
-		}
-		/// <inheritdoc cref="SendQueryHttpAsync{TResponse}(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
-		public Task<GraphQLHttpResponse<TResponse>> SendQueryHttpAsync<TResponse>(GraphQLRequest request,
-			Func<TResponse> defineResponseType, CancellationToken cancellationToken = default)
-			=> SendQueryHttpAsync<TResponse>(request, cancellationToken);
-		/// <inheritdoc cref="SendQueryHttpAsync{TResponse}(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
-		public Task<GraphQLHttpResponse<TResponse>> SendQueryHttpAsync<TResponse>(string query, object? variables = null,
-			string? operationName = null, Func<TResponse> defineResponseType = null, CancellationToken cancellationToken = default) {
-			return SendQueryHttpAsync<TResponse>(new GraphQLRequest(query, variables, operationName), cancellationToken: cancellationToken);
-		}
-
-		/// <summary>
-		/// Sends a mutation to the GraphQL server and deserializes the response. Provides access to the HTTP response headers. This method will never utilize the websocket connection!
-		/// </summary>
-		/// <typeparam name="TResponse"></typeparam>
-		/// <param name="request"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public Task<GraphQLHttpResponse<TResponse>> SendMutationHttpAsync<TResponse>(GraphQLRequest request,
-			CancellationToken cancellationToken = default)
-			=> SendQueryHttpAsync<TResponse>(request, cancellationToken);
-		/// <inheritdoc cref="SendMutationHttpAsync{TResponse}(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
-		public Task<GraphQLHttpResponse<TResponse>> SendMutationHttpAsync<TResponse>(GraphQLRequest request,
-			Func<TResponse> defineResponseType, CancellationToken cancellationToken = default)
-			=> SendQueryHttpAsync<TResponse>(request, cancellationToken);
-		/// <inheritdoc cref="SendMutationHttpAsync{TResponse}(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
-		public Task<GraphQLHttpResponse<TResponse>> SendMutationHttpAsync<TResponse>(string query, object? variables = null,
-			string? operationName = null, Func<TResponse> defineResponseType = null, CancellationToken cancellationToken = default) {
-			return SendQueryHttpAsync<TResponse>(new GraphQLRequest(query, variables, operationName), cancellationToken: cancellationToken);
-		}
-
+		
 		#region Private Methods
 
 		private async Task<GraphQLHttpResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
@@ -166,15 +125,10 @@ namespace GraphQL.Client.Http {
 			if (!httpResponseMessage.IsSuccessStatusCode) {
 				throw new GraphQLHttpException(httpResponseMessage);
 			}
-			
-			var response = new GraphQLHttpResponse<TResponse> {
-				ResponseHeaders = httpResponseMessage.Headers,
-				StatusCode = httpResponseMessage.StatusCode
-			};
 
 			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			response.Response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
-			return response;
+			var response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
+			return response.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
 		}
 
 		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
