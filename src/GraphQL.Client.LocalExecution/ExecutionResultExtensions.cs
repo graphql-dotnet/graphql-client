@@ -1,5 +1,7 @@
-﻿namespace GraphQL.Client.LocalExecution {
-	public class ExecutionResultExtensions {
-		
-	}
+namespace GraphQL.Client.LocalExecution
+{
+    public class ExecutionResultExtensions
+    {
+
+    }
 }

@@ -13,59 +13,68 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace IntegrationTestServer {
-	public class Startup {
-		public Startup(IConfiguration configuration, IWebHostEnvironment environment) {
-			Configuration = configuration;
-			Environment = environment;
-		}
+namespace IntegrationTestServer
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+        {
+            Configuration = configuration;
+            Environment = environment;
+        }
 
-		public IConfiguration Configuration { get; }
-		public IWebHostEnvironment Environment { get; }
+        public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
-		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-		public void ConfigureServices(IServiceCollection services) {
-			services.Configure<KestrelServerOptions>(options =>
-			{
-				options.AllowSynchronousIO = true;
-			});
+        // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
 
-			services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
-			services.AddChatSchema();
-			services.AddStarWarsSchema();
-			services.AddGraphQL(options => {
-				options.EnableMetrics = true;
-				options.ExposeExceptions = Environment.IsDevelopment();
-			})
-				.AddWebSockets();
-		}
+            services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
+            services.AddChatSchema();
+            services.AddStarWarsSchema();
+            services.AddGraphQL(options =>
+            {
+                options.EnableMetrics = true;
+                options.ExposeExceptions = Environment.IsDevelopment();
+            })
+                .AddWebSockets();
+        }
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-			if (env.IsDevelopment()) {
-				app.UseDeveloperExceptionPage();
-			}
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
-			app.UseWebSockets();
+            app.UseWebSockets();
 
-			ConfigureGraphQLSchema<ChatSchema>(app, Common.ChatEndpoint);
-			ConfigureGraphQLSchema<StarWarsSchema>(app, Common.StarWarsEndpoint);
+            ConfigureGraphQLSchema<ChatSchema>(app, Common.ChatEndpoint);
+            ConfigureGraphQLSchema<StarWarsSchema>(app, Common.StarWarsEndpoint);
 
-			app.UseGraphiQLServer(new GraphiQLOptions {
-				GraphiQLPath = "/ui/graphiql",
-				GraphQLEndPoint = Common.StarWarsEndpoint
-			});
-			app.UseGraphQLPlayground(new GraphQLPlaygroundOptions {
-				Path = "/ui/playground",
-				GraphQLEndPoint = Common.ChatEndpoint
-			});
-		}
+            app.UseGraphiQLServer(new GraphiQLOptions
+            {
+                GraphiQLPath = "/ui/graphiql",
+                GraphQLEndPoint = Common.StarWarsEndpoint
+            });
+            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
+            {
+                Path = "/ui/playground",
+                GraphQLEndPoint = Common.ChatEndpoint
+            });
+        }
 
-		private void ConfigureGraphQLSchema<TSchema>(IApplicationBuilder app, string endpoint) where TSchema: Schema
-		{
-			app.UseGraphQLWebSockets<TSchema>(endpoint);
-			app.UseGraphQL<TSchema>(endpoint);
-		}
-	}
+        private void ConfigureGraphQLSchema<TSchema>(IApplicationBuilder app, string endpoint) where TSchema : Schema
+        {
+            app.UseGraphQLWebSockets<TSchema>(endpoint);
+            app.UseGraphQL<TSchema>(endpoint);
+        }
+    }
 }
