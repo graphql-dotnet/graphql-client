@@ -10,7 +10,8 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
 
         public static readonly Dictionary<string, object> TestExtensions = new Dictionary<string, object> {
             {"extension1", "hello world"},
-            {"another extension", 4711}
+            {"another extension", 4711},
+            {"long", 19942590700}
         };
 
         // properties for unit testing
