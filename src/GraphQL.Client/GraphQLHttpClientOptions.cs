@@ -2,7 +2,6 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http
 {
@@ -17,11 +16,6 @@ namespace GraphQL.Client.Http
         /// The GraphQL EndPoint to be used
         /// </summary>
         public Uri EndPoint { get; set; }
-
-        /// <summary>
-        /// the json serializer
-        /// </summary>
-        public IGraphQLWebsocketJsonSerializer JsonSerializer { get; set; }
 
         /// <summary>
         /// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used

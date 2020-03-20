@@ -19,7 +19,11 @@ namespace GraphQL.Client.Http
         private readonly GraphQLHttpWebSocket _graphQlHttpWebSocket;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
-        private IGraphQLWebsocketJsonSerializer JsonSerializer => Options.JsonSerializer;
+
+        /// <summary>
+        /// the json serializer
+        /// </summary>
+        public IGraphQLWebsocketJsonSerializer JsonSerializer { get; }
 
         /// <summary>
         /// the instance of <see cref="HttpClient"/> which is used internally
@@ -44,20 +48,18 @@ namespace GraphQL.Client.Http
 
         #region Constructors
 
-        public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
+        public GraphQLHttpClient(string endPoint, IGraphQLWebsocketJsonSerializer serializer) : this(new Uri(endPoint), serializer) { }
 
-        public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint) { }
+        public GraphQLHttpClient(Uri endPoint, IGraphQLWebsocketJsonSerializer serializer) : this(o => o.EndPoint = endPoint, serializer) { }
 
-        public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) : this(configure.New()) { }
+        public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
 
-        public GraphQLHttpClient(GraphQLHttpClientOptions options) : this(options, new HttpClient(options.HttpMessageHandler)) { }
-
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) : this(options, httpClient, new NewtonsoftJsonSerializer()) { }
-
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer)
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(options, serializer, new HttpClient(options.HttpMessageHandler)) { }
+        
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
-            Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
         }
