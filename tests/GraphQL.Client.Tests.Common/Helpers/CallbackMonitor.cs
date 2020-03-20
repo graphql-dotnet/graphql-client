@@ -5,84 +5,91 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
-namespace GraphQL.Client.Tests.Common.Helpers {
-	public class CallbackMonitor<T> {
-		private readonly ManualResetEventSlim callbackInvoked = new ManualResetEventSlim();
+namespace GraphQL.Client.Tests.Common.Helpers
+{
+    public class CallbackMonitor<T>
+    {
+        private readonly ManualResetEventSlim _callbackInvoked = new ManualResetEventSlim();
 
-		/// <summary>
-		/// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
-		/// </summary>
-		public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);
+        /// <summary>
+        /// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
+        /// </summary>
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);
 
-		/// <summary>
-		/// Indicates that an update has been received since the last <see cref="Reset"/>
-		/// </summary>
-		public bool CallbackInvoked => callbackInvoked.IsSet;
-		/// <summary>
-		/// The last payload which was received.
-		/// </summary>
-		public T LastPayload { get; private set; }
+        /// <summary>
+        /// Indicates that an update has been received since the last <see cref="Reset"/>
+        /// </summary>
+        public bool CallbackInvoked => _callbackInvoked.IsSet;
+        /// <summary>
+        /// The last payload which was received.
+        /// </summary>
+        public T LastPayload { get; private set; }
 
-		public void Invoke(T param) {
-			LastPayload = param;
-			Debug.WriteLine($"CallbackMonitor invoke handler thread id: {Thread.CurrentThread.ManagedThreadId}");
-			callbackInvoked.Set();
-		}
-		
-		/// <summary>
-		/// Resets the tester class. Should be called before triggering the potential update
-		/// </summary>
-		public void Reset() {
-			LastPayload = default(T);
-			callbackInvoked.Reset();
-		}
-		
-		public CallbackAssertions<T> Should() {
-			return new CallbackAssertions<T>(this);
-		}
+        public void Invoke(T param)
+        {
+            LastPayload = param;
+            Debug.WriteLine($"CallbackMonitor invoke handler thread id: {Thread.CurrentThread.ManagedThreadId}");
+            _callbackInvoked.Set();
+        }
 
-		public class CallbackAssertions<TPayload> : ReferenceTypeAssertions<CallbackMonitor<TPayload>, CallbackAssertions<TPayload>> {
-			public CallbackAssertions(CallbackMonitor<TPayload> tester) {
-				Subject = tester;
-			}
+        /// <summary>
+        /// Resets the tester class. Should be called before triggering the potential update
+        /// </summary>
+        public void Reset()
+        {
+            LastPayload = default(T);
+            _callbackInvoked.Reset();
+        }
 
-			protected override string Identifier => "callback";
+        public CallbackAssertions<T> Should() => new CallbackAssertions<T>(this);
 
-			public AndWhichConstraint<CallbackAssertions<TPayload>, TPayload> HaveBeenInvokedWithPayload(TimeSpan timeout,
-				string because = "", params object[] becauseArgs) {
-				Execute.Assertion
-					.BecauseOf(because, becauseArgs)
-					.Given(() => {
-						Debug.WriteLine($"HaveBeenInvokedWithPayload thread id: {Thread.CurrentThread.ManagedThreadId}");
-						return Subject.callbackInvoked.Wait(timeout);
-					})
-					.ForCondition(isSet => isSet)
-					.FailWith("Expected {context:callback} to be invoked{reason}, but did not receive a call within {0}", timeout);
+        public class CallbackAssertions<TPayload> : ReferenceTypeAssertions<CallbackMonitor<TPayload>, CallbackAssertions<TPayload>>
+        {
+            public CallbackAssertions(CallbackMonitor<TPayload> tester)
+            {
+                Subject = tester;
+            }
 
-				Subject.callbackInvoked.Reset();
-				return new AndWhichConstraint<CallbackAssertions<TPayload>, TPayload>(this, Subject.LastPayload);
-			}
-			public AndWhichConstraint<CallbackAssertions<TPayload>, TPayload> HaveBeenInvokedWithPayload(string because = "", params object[] becauseArgs)
-				=> HaveBeenInvokedWithPayload(Subject.Timeout, because, becauseArgs);
+            protected override string Identifier => "callback";
 
-			public AndConstraint<CallbackAssertions<TPayload>> HaveBeenInvoked(TimeSpan timeout, string because = "", params object[] becauseArgs)
-				=> HaveBeenInvokedWithPayload(timeout, because, becauseArgs);
-			public AndConstraint<CallbackAssertions<TPayload>> HaveBeenInvoked(string because = "", params object[] becauseArgs)
-				=> HaveBeenInvokedWithPayload(Subject.Timeout, because, becauseArgs);
+            public AndWhichConstraint<CallbackAssertions<TPayload>, TPayload> HaveBeenInvokedWithPayload(TimeSpan timeout,
+                string because = "", params object[] becauseArgs)
+            {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .Given(() =>
+                    {
+                        Debug.WriteLine($"HaveBeenInvokedWithPayload thread id: {Thread.CurrentThread.ManagedThreadId}");
+                        return Subject._callbackInvoked.Wait(timeout);
+                    })
+                    .ForCondition(isSet => isSet)
+                    .FailWith("Expected {context:callback} to be invoked{reason}, but did not receive a call within {0}", timeout);
 
-			public AndConstraint<CallbackAssertions<TPayload>> NotHaveBeenInvoked(TimeSpan timeout,
-				string because = "", params object[] becauseArgs) {
-				Execute.Assertion
-					.BecauseOf(because, becauseArgs)
-					.Given(() => Subject.callbackInvoked.Wait(timeout))
-					.ForCondition(isSet => !isSet)
-					.FailWith("Expected {context:callback} to not be invoked{reason}, but did receive a call: {0}", Subject.LastPayload);
+                Subject._callbackInvoked.Reset();
+                return new AndWhichConstraint<CallbackAssertions<TPayload>, TPayload>(this, Subject.LastPayload);
+            }
+            public AndWhichConstraint<CallbackAssertions<TPayload>, TPayload> HaveBeenInvokedWithPayload(string because = "", params object[] becauseArgs)
+                => HaveBeenInvokedWithPayload(Subject.Timeout, because, becauseArgs);
 
-				Subject.callbackInvoked.Reset();
-				return new AndConstraint<CallbackAssertions<TPayload>>(this);
-			}
-			public AndConstraint<CallbackAssertions<TPayload>> NotHaveBeenInvoked(string because = "", params object[] becauseArgs)
-				=> NotHaveBeenInvoked(TimeSpan.FromMilliseconds(100), because, becauseArgs);
-		}
-	}
+            public AndConstraint<CallbackAssertions<TPayload>> HaveBeenInvoked(TimeSpan timeout, string because = "", params object[] becauseArgs)
+                => HaveBeenInvokedWithPayload(timeout, because, becauseArgs);
+            public AndConstraint<CallbackAssertions<TPayload>> HaveBeenInvoked(string because = "", params object[] becauseArgs)
+                => HaveBeenInvokedWithPayload(Subject.Timeout, because, becauseArgs);
+
+            public AndConstraint<CallbackAssertions<TPayload>> NotHaveBeenInvoked(TimeSpan timeout,
+                string because = "", params object[] becauseArgs)
+            {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .Given(() => Subject._callbackInvoked.Wait(timeout))
+                    .ForCondition(isSet => !isSet)
+                    .FailWith("Expected {context:callback} to not be invoked{reason}, but did receive a call: {0}", Subject.LastPayload);
+
+                Subject._callbackInvoked.Reset();
+                return new AndConstraint<CallbackAssertions<TPayload>>(this);
+            }
+            public AndConstraint<CallbackAssertions<TPayload>> NotHaveBeenInvoked(string because = "", params object[] becauseArgs)
+                => NotHaveBeenInvoked(TimeSpan.FromMilliseconds(100), because, becauseArgs);
+        }
+    }
 }
