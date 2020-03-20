@@ -30,7 +30,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
         private void ConfigureMandatorySerializerOptions()
         {
             // deserialize extensions to Dictionary<string, object>
-            Options.Converters.Insert(0, new GraphQLExtensionsConverter());
+            Options.Converters.Insert(0, new MapConverter());
             // allow the JSON field "data" to match the property "Data" even without JsonNamingPolicy.CamelCase
             Options.PropertyNameCaseInsensitive = true;
         }

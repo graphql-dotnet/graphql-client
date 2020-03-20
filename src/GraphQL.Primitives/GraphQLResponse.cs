@@ -16,7 +16,7 @@ namespace GraphQL
         public GraphQLError[]? Errors { get; set; }
 
         [DataMember(Name = "extensions")]
-        public GraphQLExtensionsType? Extensions { get; set; }
+        public Map? Extensions { get; set; }
 
         public override bool Equals(object? obj) => Equals(obj as GraphQLResponse<T>);
 

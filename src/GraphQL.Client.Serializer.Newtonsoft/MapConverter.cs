@@ -1,49 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GraphQL.Client.Serializer.Newtonsoft
 {
-    public class GraphQLExtensionsConverter : JsonConverter<GraphQLExtensionsType>
+    public class MapConverter : JsonConverter<Map>
     {
-        public override void WriteJson(JsonWriter writer, GraphQLExtensionsType value, JsonSerializer serializer) =>
+        public override void WriteJson(JsonWriter writer, Map value, JsonSerializer serializer) =>
             throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
 
-        public override GraphQLExtensionsType ReadJson(JsonReader reader, Type objectType, GraphQLExtensionsType existingValue,
+        public override Map ReadJson(JsonReader reader, Type objectType, Map existingValue,
             bool hasExistingValue, JsonSerializer serializer)
         {
             var rootToken = JToken.ReadFrom(reader);
             if (rootToken is JObject)
             {
-                return ReadDictionary<GraphQLExtensionsType>(rootToken);
+                return ReadDictionary<Map>(rootToken);
             }
             else
                 throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
         }
 
         private object ReadToken(JToken? token) =>
-            token.Type switch
+            token switch
             {
-                JTokenType.Undefined => null,
-                JTokenType.None => null,
-                JTokenType.Null => null,
-                JTokenType.Object => ReadDictionary<Dictionary<string, object>>(token),
-                JTokenType.Array => ReadArray(token),
-                JTokenType.Integer => token.Value<int>(),
-                JTokenType.Float => token.Value<double>(),
-                JTokenType.Raw => token.Value<string>(),
-                JTokenType.String => token.Value<string>(),
-                JTokenType.Uri => token.Value<string>(),
-                JTokenType.Boolean => token.Value<bool>(),
-                JTokenType.Date => token.Value<DateTime>(),
-                JTokenType.Bytes => token.Value<byte[]>(),
-                JTokenType.Guid => token.Value<Guid>(),
-                JTokenType.TimeSpan => token.Value<TimeSpan>(),
-                JTokenType.Constructor => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON constructor"),
-                JTokenType.Property => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON property"),
-                JTokenType.Comment => throw new ArgumentOutOfRangeException(nameof(token.Type), "cannot deserialize a JSON comment"),
+                JObject jObject => ReadDictionary<Dictionary<string, object>>(jObject),
+                JArray jArray => ReadArray(jArray),
+                JValue jValue => jValue.Value,
+                JConstructor _ => throw new ArgumentOutOfRangeException(nameof(token.Type),
+                    "cannot deserialize a JSON constructor"),
+                JProperty _ => throw new ArgumentOutOfRangeException(nameof(token.Type),
+                    "cannot deserialize a JSON property"),
+                JContainer _ => throw new ArgumentOutOfRangeException(nameof(token.Type),
+                    "cannot deserialize a JSON comment"),
                 _ => throw new ArgumentOutOfRangeException(nameof(token.Type))
             };
 
@@ -68,6 +60,8 @@ namespace GraphQL.Client.Serializer.Newtonsoft
                 yield return ReadToken(item);
             }
         }
+
+        private object ReadNumber(JToken token) => ((JValue) token).Value;
 
         private bool IsUnsupportedJTokenType(JTokenType type) => type == JTokenType.Constructor || type == JTokenType.Property || type == JTokenType.Comment;
     }

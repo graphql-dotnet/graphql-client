@@ -13,9 +13,9 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     /// <remarks>
     /// Taken and modified from GraphQL.SystemTextJson.ObjectDictionaryConverter (GraphQL.NET)
     /// </remarks>
-    public class GraphQLExtensionsConverter : JsonConverter<GraphQLExtensionsType>
+    public class MapConverter : JsonConverter<Map>
     {
-        public override GraphQLExtensionsType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Map Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             using var doc = JsonDocument.ParseValue(ref reader);
 
@@ -24,10 +24,10 @@ namespace GraphQL.Client.Serializer.SystemTextJson
                 throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
             }
 
-            return ReadDictionary<GraphQLExtensionsType>(doc.RootElement);
+            return ReadDictionary<Map>(doc.RootElement);
         }
 
-        public override void Write(Utf8JsonWriter writer, GraphQLExtensionsType value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, Map value, JsonSerializerOptions options)
             => throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
 

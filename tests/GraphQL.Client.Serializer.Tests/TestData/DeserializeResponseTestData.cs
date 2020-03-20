@@ -18,13 +18,13 @@ namespace GraphQL.Client.Serializer.Tests.TestData
                     Errors = new[] {
                         new GraphQLError {
                             Message = "Throttled",
-                            Extensions = new GraphQLExtensionsType {
+                            Extensions = new Map {
                                 {"code", "THROTTLED" },
                                 {"documentation", "https://help.shopify.com/api/graphql-admin-api/graphql-admin-api-rate-limits" }
                             }
                         }
                     },
-                    Extensions = new GraphQLExtensionsType {
+                    Extensions = new Map {
                         {"cost", new Dictionary<string, object> {
                             {"requestedQueryCost", 992},
                             {"actualQueryCost", null},
