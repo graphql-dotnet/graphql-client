@@ -28,8 +28,5 @@
     <ProjectReference Include="..\IntegrationTestServer\IntegrationTestServer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
 
 </Project>
