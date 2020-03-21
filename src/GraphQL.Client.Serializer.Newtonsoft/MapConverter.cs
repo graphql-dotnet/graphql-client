@@ -61,8 +61,6 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             }
         }
 
-        private object ReadNumber(JToken token) => ((JValue) token).Value;
-
         private bool IsUnsupportedJTokenType(JTokenType type) => type == JTokenType.Constructor || type == JTokenType.Property || type == JTokenType.Comment;
     }
 }
