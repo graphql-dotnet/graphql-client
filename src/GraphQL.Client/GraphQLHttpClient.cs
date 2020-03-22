@@ -145,6 +145,11 @@ namespace GraphQL.Client.Http
                 Content = new StringContent(JsonSerializer.SerializeToString(request), Encoding.UTF8, Options.MediaType)
             };
 
+            foreach(var header in Options.Headers)
+            {
+                message.Headers.Add(header.Key, header.Value);
+            }
+
             if (request is GraphQLHttpRequest httpRequest)
                 httpRequest.PreprocessHttpRequestMessage(message);
 
