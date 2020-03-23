@@ -51,7 +51,7 @@ Be careful when using `byte[]` in your variables object, as most JSON serializer
 ### Execute Query/Mutation:
 
 ```csharp
-var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/");
+var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/", new NewtonsoftJsonSerializer());
 
 public class PersonAndFilmsResponse {
     public PersonContent Person { get; set; }

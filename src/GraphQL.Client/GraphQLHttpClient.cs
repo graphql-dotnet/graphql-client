@@ -8,172 +8,190 @@ using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
-using GraphQL.Client.Serializer.Newtonsoft;
 
-namespace GraphQL.Client.Http {
+namespace GraphQL.Client.Http
+{
 
-	public class GraphQLHttpClient : IGraphQLClient {
+    public class GraphQLHttpClient : IGraphQLClient
+    {
 
-		private readonly GraphQLHttpWebSocket graphQlHttpWebSocket;
-		private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-		private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
-		private IGraphQLWebsocketJsonSerializer JsonSerializer => Options.JsonSerializer;
+        private readonly GraphQLHttpWebSocket _graphQlHttpWebSocket;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
 
-		/// <summary>
-		/// the instance of <see cref="HttpClient"/> which is used internally
-		/// </summary>
-		public HttpClient HttpClient { get; }
+        /// <summary>
+        /// the json serializer
+        /// </summary>
+        public IGraphQLWebsocketJsonSerializer JsonSerializer { get; }
 
-		/// <summary>
-		/// The Options	to be used
-		/// </summary>
-		public GraphQLHttpClientOptions Options { get; }
+        /// <summary>
+        /// the instance of <see cref="HttpClient"/> which is used internally
+        /// </summary>
+        public HttpClient HttpClient { get; }
 
-		/// <summary>
-		/// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
-		/// </summary>
-		public IObservable<Exception> WebSocketReceiveErrors => graphQlHttpWebSocket.ReceiveErrors;
+        /// <summary>
+        /// The Options	to be used
+        /// </summary>
+        public GraphQLHttpClientOptions Options { get; }
 
-		/// <summary>
-		/// the websocket connection state
-		/// </summary>
-		public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState =>
-			graphQlHttpWebSocket.ConnectionState;
+        /// <summary>
+        /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
+        /// </summary>
+        public IObservable<Exception> WebSocketReceiveErrors => _graphQlHttpWebSocket.ReceiveErrors;
 
-		#region Constructors
+        /// <summary>
+        /// the websocket connection state
+        /// </summary>
+        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState =>
+            _graphQlHttpWebSocket.ConnectionState;
 
-		public GraphQLHttpClient(string endPoint) : this(new Uri(endPoint)) { }
+        #region Constructors
 
-		public GraphQLHttpClient(Uri endPoint) : this(o => o.EndPoint = endPoint) { }
+        public GraphQLHttpClient(string endPoint, IGraphQLWebsocketJsonSerializer serializer) : this(new Uri(endPoint), serializer) { }
 
-		public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure) : this(configure.New()) { }
+        public GraphQLHttpClient(Uri endPoint, IGraphQLWebsocketJsonSerializer serializer) : this(o => o.EndPoint = endPoint, serializer) { }
 
-		public GraphQLHttpClient(GraphQLHttpClientOptions options) : this(options, new HttpClient(options.HttpMessageHandler)) { }
+        public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
 
-		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient) : this(options, httpClient, new NewtonsoftJsonSerializer()) { }
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(options, serializer, new HttpClient(options.HttpMessageHandler)) { }
+        
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
+        {
+            Options = options ?? throw new ArgumentNullException(nameof(options));
+            JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
+        }
 
-		public GraphQLHttpClient(GraphQLHttpClientOptions options, HttpClient httpClient, IGraphQLWebsocketJsonSerializer serializer) {
-			Options = options ?? throw new ArgumentNullException(nameof(options));
-			Options.JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-			this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			this.graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
-		}
+        #endregion
 
-		#endregion
+        #region IGraphQLClient
 
-		#region IGraphQLClient
+        /// <inheritdoc />
+        public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
+        {
+            if (Options.UseWebSocketForQueriesAndMutations)
+                return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
-		/// <inheritdoc />
-		public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			return Options.UseWebSocketForQueriesAndMutations
-				? this.graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken)
-				: this.SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
-		}
+            return await SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
+        }
 
-		/// <inheritdoc />
-		public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request,
-			CancellationToken cancellationToken = default)
-			=> SendQueryAsync<TResponse>(request, cancellationToken);
+        /// <inheritdoc />
+        public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request,
+            CancellationToken cancellationToken = default)
+            => SendQueryAsync<TResponse>(request, cancellationToken);
 
-		/// <inheritdoc />
-		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) {
-			if (disposed)
-				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+        /// <inheritdoc />
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
+            var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
 
-			if (subscriptionStreams.ContainsKey(key))
-				return (IObservable<GraphQLResponse<TResponse>>)subscriptionStreams[key];
+            if (_subscriptionStreams.ContainsKey(key))
+                return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
+            var observable = _graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
 
-			subscriptionStreams.TryAdd(key, observable);
-			return observable;
-		}
-		
-		/// <inheritdoc />
-		public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler) {
-			if (disposed)
-				throw new ObjectDisposedException(nameof(GraphQLHttpClient));
+            _subscriptionStreams.TryAdd(key, observable);
+            return observable;
+        }
 
-			var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
+        /// <inheritdoc />
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler)
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-			if (subscriptionStreams.ContainsKey(key))
-				return (IObservable<GraphQLResponse<TResponse>>)subscriptionStreams[key];
+            var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
 
-			var observable = graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
-			subscriptionStreams.TryAdd(key, observable);
-			return observable;
-		}
+            if (_subscriptionStreams.ContainsKey(key))
+                return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
 
-		#endregion
+            var observable = _graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
+            _subscriptionStreams.TryAdd(key, observable);
+            return observable;
+        }
 
-		/// <summary>
-		/// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
-		/// </summary>
-		/// <returns></returns>
-		public Task InitializeWebsocketConnection() => graphQlHttpWebSocket.InitializeWebSocket();
+        #endregion
 
-		#region Private Methods
+        /// <summary>
+        /// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
+        /// </summary>
+        /// <returns></returns>
+        public Task InitializeWebsocketConnection() => _graphQlHttpWebSocket.InitializeWebSocket();
 
-		private async Task<GraphQLResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) {
-			var preprocessedRequest = await Options.PreprocessRequest(request, this);
-			using var httpRequestMessage = this.GenerateHttpRequestMessage(preprocessedRequest);
-			using var httpResponseMessage = await this.HttpClient.SendAsync(httpRequestMessage, cancellationToken);
-			if (!httpResponseMessage.IsSuccessStatusCode) {
-				throw new GraphQLHttpException(httpResponseMessage);
-			}
+        #region Private Methods
 
-			var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
-		}
+        private async Task<GraphQLHttpResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
+        {
+            var preprocessedRequest = await Options.PreprocessRequest(request, this);
+            using var httpRequestMessage = GenerateHttpRequestMessage(preprocessedRequest);
+            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, cancellationToken);
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                throw new GraphQLHttpException(httpResponseMessage);
+            }
 
-		private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request) {
-			var message = new HttpRequestMessage(HttpMethod.Post, this.Options.EndPoint) {
-				Content = new StringContent(JsonSerializer.SerializeToString(request), Encoding.UTF8, Options.MediaType)
-			};
+            var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+            var response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
+            return response.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
+        }
 
-			if (request is GraphQLHttpRequest httpRequest)
-				httpRequest.PreprocessHttpRequestMessage(message);
+        private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request)
+        {
+            var message = new HttpRequestMessage(HttpMethod.Post, Options.EndPoint)
+            {
+                Content = new StringContent(JsonSerializer.SerializeToString(request), Encoding.UTF8, Options.MediaType)
+            };
 
-			return message;
-		}
+            if (request is GraphQLHttpRequest httpRequest)
+                httpRequest.PreprocessHttpRequestMessage(message);
 
-		private Uri GetWebSocketUri() {
-			var webSocketSchema = this.Options.EndPoint.Scheme == "https" ? "wss" : "ws";
-			return new Uri($"{webSocketSchema}://{this.Options.EndPoint.Host}:{this.Options.EndPoint.Port}{this.Options.EndPoint.AbsolutePath}");
-		}
+            return message;
+        }
 
-		#endregion
+        private Uri GetWebSocketUri()
+        {
+            var webSocketSchema = Options.EndPoint.Scheme == "https" ? "wss" : "ws";
+            return new Uri($"{webSocketSchema}://{Options.EndPoint.Host}:{Options.EndPoint.Port}{Options.EndPoint.AbsolutePath}");
+        }
+
+        #endregion
 
 
-		#region IDisposable
+        #region IDisposable
 
-		/// <summary>
-		/// Releases unmanaged resources
-		/// </summary>
-		public void Dispose() {
-			lock (disposeLocker) {
-				if (!disposed) {
-					_dispose();
-				}
-			}
-		}
+        /// <summary>
+        /// Releases unmanaged resources
+        /// </summary>
+        public void Dispose()
+        {
+            lock (_disposeLocker)
+            {
+                if (!_disposed)
+                {
+                    _dispose();
+                }
+            }
+        }
 
-		private bool disposed = false;
-		private readonly object disposeLocker = new object();
+        private bool _disposed = false;
+        private readonly object _disposeLocker = new object();
 
-		private void _dispose() {
-			disposed = true;
-			Debug.WriteLine($"disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
-			cancellationTokenSource.Cancel();
-			this.HttpClient.Dispose();
-			this.graphQlHttpWebSocket.Dispose();
-			cancellationTokenSource.Dispose();
-		}
+        private void _dispose()
+        {
+            _disposed = true;
+            Debug.WriteLine($"disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
+            _cancellationTokenSource.Cancel();
+            HttpClient.Dispose();
+            _graphQlHttpWebSocket.Dispose();
+            _cancellationTokenSource.Dispose();
+        }
 
-		#endregion
+        #endregion
 
-	}
+    }
 
 }

@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj" />
 		<ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
 	</ItemGroup>
 
