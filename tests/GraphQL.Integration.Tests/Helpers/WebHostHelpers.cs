@@ -41,9 +41,9 @@ namespace GraphQL.Integration.Tests.Helpers
             => new GraphQLHttpClient(new GraphQLHttpClientOptions
             {
                 EndPoint = new Uri($"http://localhost:{port}{endpoint}"),
-                UseWebSocketForQueriesAndMutations = requestsViaWebsocket,
-                JsonSerializer = serializer ?? new NewtonsoftJsonSerializer()
-            });
+                UseWebSocketForQueriesAndMutations = requestsViaWebsocket
+            },
+                serializer ?? new NewtonsoftJsonSerializer());
     }
 
     public class TestServerSetup : IDisposable

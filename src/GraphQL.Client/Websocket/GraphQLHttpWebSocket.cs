@@ -139,7 +139,7 @@ namespace GraphQL.Client.Http.Websocket
                                         // post the GraphQLResponse to the stream (even if a GraphQL error occurred)
                                         Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
                                         var typedResponse =
-                                            _client.Options.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
+                                            _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
                                                 response.MessageBytes);
                                         o.OnNext(typedResponse.Payload);
 
@@ -296,7 +296,7 @@ namespace GraphQL.Client.Http.Websocket
                         {
                             Debug.WriteLine($"received response for request {websocketRequest.Id}");
                             var typedResponse =
-                                _client.Options.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
+                                _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
                                     response.MessageBytes);
                             return typedResponse.Payload;
                         });
@@ -353,7 +353,7 @@ namespace GraphQL.Client.Http.Websocket
                 }
 
                 await InitializeWebSocket();
-                var requestBytes = Options.JsonSerializer.SerializeToBytes(request);
+                var requestBytes = _client.JsonSerializer.SerializeToBytes(request);
                 await _clientWebSocket.SendAsync(
                     new ArraySegment<byte>(requestBytes),
                     WebSocketMessageType.Text,
@@ -554,7 +554,7 @@ namespace GraphQL.Client.Http.Websocket
 
                 if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
                 {
-                    var response = await Options.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                    var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
                     response.MessageBytes = ms.ToArray();
                     Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
                     return response;
