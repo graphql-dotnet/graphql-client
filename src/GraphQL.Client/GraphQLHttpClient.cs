@@ -58,7 +58,7 @@ namespace GraphQL.Client.Http
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
-            JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
         }

@@ -18,9 +18,6 @@ namespace GraphQL.Client.LocalExecution
 {
     public static class GraphQLLocalExecutionClient
     {
-        public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema) where TSchema : ISchema
-            => new GraphQLLocalExecutionClient<TSchema>(schema);
-
         public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, IGraphQLJsonSerializer serializer) where TSchema : ISchema
             => new GraphQLLocalExecutionClient<TSchema>(schema, serializer);
     }
@@ -46,20 +43,16 @@ namespace GraphQL.Client.LocalExecution
 
         private readonly DocumentExecuter _documentExecuter;
 
-        public GraphQLLocalExecutionClient(TSchema schema)
+        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer)
         {
-            Serializer.EnsureAssigned();
-            Schema = schema;
+            Schema = schema ?? throw new ArgumentNullException(nameof(schema), "no schema configured");
+            Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
+
             if (!Schema.Initialized)
                 Schema.Initialize();
             _documentExecuter = new DocumentExecuter();
         }
-
-        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer) : this(schema)
-        {
-            Serializer = serializer;
-        }
-
+        
         public void Dispose() { }
 
         public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
