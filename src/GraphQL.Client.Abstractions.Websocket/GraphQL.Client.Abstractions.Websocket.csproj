@@ -11,4 +11,11 @@
 	<ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="GitVersionTask" Version="5.2.4">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+
 </Project>

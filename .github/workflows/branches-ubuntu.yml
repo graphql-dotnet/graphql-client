@@ -6,7 +6,8 @@ on:
       - 'release/**'
       - 'releases/**'
 env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true  
+  MSBUILDSINGLELOADCONTEXT: 1
 jobs:
   generateVersionInfo:  
     name: GenerateVersionInfo
