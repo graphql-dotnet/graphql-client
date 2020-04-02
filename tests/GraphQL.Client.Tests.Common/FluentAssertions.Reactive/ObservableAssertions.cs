@@ -45,7 +45,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             Execute.Assertion
                 .ForCondition(notifications.Any())
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {0} to push at least one notification within {1}{reason}, but it did not.", Observer.Subject, timeout);
+                .FailWith("Expected {context} to push at least one notification within {0}{reason}, but it did not.", timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>(this, notifications);
         }
@@ -82,7 +82,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             Execute.Assertion
                 .ForCondition(!anyNotifications)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {0} to not push any notifications{reason}, but it did.", Observer.Subject);
+                .FailWith("Expected {context} to not push any notifications{reason}, but it did.");
             
             return new AndConstraint<ObservableAssertions<TPayload>>(this);
         }
@@ -112,7 +112,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             Execute.Assertion
                 .ForCondition(exception != null)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {0} to fail within {1}{reason}, but it did not.", Observer.Subject, timeout);
+                .FailWith("Expected {context} to fail within {0}{reason}, but it did not.", timeout);
             
             return new AndWhichConstraint<ObservableAssertions<TPayload>, Exception>(this, exception);
         }
@@ -141,7 +141,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             Execute.Assertion
                 .ForCondition(completed)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {0} to complete within {1}{reason}, but it did not.", Observer.Subject, timeout);
+                .FailWith("Expected {context} to complete within {0}{reason}, but it did not.", timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>(this, Observer.RecordedNotifications);
         }
@@ -169,7 +169,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             Execute.Assertion
                 .ForCondition(!completed)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {0} to not complete{reason}, but it did.", Observer.Subject);
+                .FailWith("Expected {context} to not complete{reason}, but it did.");
             
             return new AndConstraint<ObservableAssertions<TPayload>>(this);
         }

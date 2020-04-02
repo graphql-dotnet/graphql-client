@@ -407,11 +407,11 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             );
 
             Debug.WriteLine("subscribing...");
-            using (var tester = observable.Observe())
+            using (var observer = observable.Observe())
             {
-                tester.Should().Push()
+                observer.Should().Push()
                     .GetLastMessage().Errors.Should().ContainSingle();
-                tester.Should().Complete();
+                observer.Should().Complete();
                 ChatClient.Dispose();
             }
         }
