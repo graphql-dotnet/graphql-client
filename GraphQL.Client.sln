@@ -34,8 +34,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{05CAF9B2-981E-40C0-AE31-5FA56E351F12}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\branches-ubuntu.yml = .github\workflows\branches-ubuntu.yml
-		.github\workflows\branches.yml = .github\workflows\branches.yml
-		.github\workflows\main.yml = .github\workflows\main.yml
+		.github\workflows\branches-windows.yml = .github\workflows\branches-windows.yml
+		.github\workflows\main-ubuntu.yml = .github\workflows\main-ubuntu.yml
+		.github\workflows\main-windows.yml = .github\workflows\main-windows.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Primitives", "src\GraphQL.Primitives\GraphQL.Primitives.csproj", "{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6}"
@@ -64,7 +65,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Serializer.S
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{89AD33AB-64F6-4F82-822F-21DF7A10CEC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.Example", "examples\GraphQL.Client.Example\GraphQL.Client.Example.csproj", "{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Example", "examples\GraphQL.Client.Example\GraphQL.Client.Example.csproj", "{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

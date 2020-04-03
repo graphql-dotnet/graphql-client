@@ -15,10 +15,8 @@ using Xunit;
 
 namespace GraphQL.Integration.Tests.QueryAndMutationTests
 {
-
     public abstract class Base : IAsyncLifetime
     {
-
         protected IntegrationServerTestFixture Fixture;
         protected GraphQLHttpClient StarWarsClient;
         protected GraphQLHttpClient ChatClient;
@@ -222,6 +220,5 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests
             // let the server finish its query
             chatQuery.LongRunningQueryBlocker.Set();
         }
-
     }
 }

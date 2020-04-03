@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 
 namespace GraphQL.Client.Serializer.SystemTextJson
 {
-
     /// <summary>
     /// class for converting immutable objects, derived from https://github.com/manne/obviously/blob/master/src/system.text.json/Core/ImmutableConverter.cs
     /// </summary>

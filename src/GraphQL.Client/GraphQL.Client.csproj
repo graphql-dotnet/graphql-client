@@ -2,10 +2,10 @@
 
 	<Import Project="../src.props" />
 
-    <PropertyGroup>
+  <PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-	    <RootNamespace>GraphQL.Client.Http</RootNamespace>
-    </PropertyGroup>
+	  <RootNamespace>GraphQL.Client.Http</RootNamespace>
+  </PropertyGroup>
 
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
 		<DefineConstants>NETSTANDARD</DefineConstants>
@@ -23,7 +23,6 @@
 	  <None Include="GraphQLSerializationExtensions.cs" />
 	</ItemGroup>
 
-
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
@@ -36,8 +35,5 @@
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
 	</ItemGroup>
-
-	
-
 
 </Project>

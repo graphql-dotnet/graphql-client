@@ -2,10 +2,8 @@ using Xunit;
 
 namespace GraphQL.Primitives.Tests
 {
-
     public class GraphQLRequestTest
     {
-
         [Fact]
         public void ConstructorFact()
         {
@@ -47,7 +45,6 @@ namespace GraphQL.Primitives.Tests
             Assert.Equal(graphQLRequest1, graphQLRequest2);
         }
 
-
         [Fact]
         public void Equality4Fact()
         {
@@ -75,8 +72,8 @@ namespace GraphQL.Primitives.Tests
         [Fact]
         public void InEquality2Fact()
         {
-            GraphQLRequest graphQLRequest1 = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName");
-            GraphQLRequest graphQLRequest2 = new GraphQLRequest("{hero{name}}", new { varName = "varValue2" }, "operationName");
+            var graphQLRequest1 = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName");
+            var graphQLRequest2 = new GraphQLRequest("{hero{name}}", new { varName = "varValue2" }, "operationName");
             Assert.NotEqual(graphQLRequest1, graphQLRequest2);
         }
 
@@ -122,8 +119,10 @@ namespace GraphQL.Primitives.Tests
         [Fact]
         public void PropertyQuerySetFact()
         {
-            var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName");
-            graphQLRequest.Query = "{hero{name2}}";
+            var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName")
+            {
+                Query = "{hero{name2}}"
+            };
             Assert.Equal("{hero{name2}}", graphQLRequest.Query);
         }
 
@@ -144,8 +143,10 @@ namespace GraphQL.Primitives.Tests
         [Fact]
         public void PropertyOperationNameSetFact()
         {
-            var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue" }, "operationName1");
-            graphQLRequest.OperationName = "operationName2";
+            var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue" }, "operationName1")
+            {
+                OperationName = "operationName2"
+            };
             Assert.Equal("operationName2", graphQLRequest.OperationName);
         }
 
@@ -166,17 +167,17 @@ namespace GraphQL.Primitives.Tests
         [Fact]
         public void PropertyVariableSetFact()
         {
-            var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName1");
-            graphQLRequest.Variables = new
+            var graphQLRequest = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName1")
             {
-                varName = "varValue2"
+                Variables = new
+                {
+                    varName = "varValue2"
+                }
             };
             Assert.Equal(new
             {
                 varName = "varValue2"
             }, graphQLRequest.Variables);
         }
-
     }
-
 }

@@ -3,13 +3,11 @@ using System.Net.Http;
 
 namespace GraphQL.Client.Http
 {
-
     /// <summary>
     /// An exception thrown on unexpected <see cref="System.Net.Http.HttpResponseMessage"/>
     /// </summary>
     public class GraphQLHttpException : Exception
     {
-
         /// <summary>
         /// The <see cref="System.Net.Http.HttpResponseMessage"/>
         /// </summary>
@@ -23,7 +21,5 @@ namespace GraphQL.Client.Http
         {
             HttpResponseMessage = httpResponseMessage ?? throw new ArgumentNullException(nameof(httpResponseMessage));
         }
-
     }
-
 }

@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace GraphQL
 {
-
     /// <summary>
     /// A GraphQL request
     /// </summary>
@@ -110,6 +109,4 @@ namespace GraphQL
         /// <returns>true if left and right are unequal; otherwise, false</returns>
         public static bool operator !=(GraphQLRequest? left, GraphQLRequest? right) => !(left == right);
     }
-
-
 }

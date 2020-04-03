@@ -5,10 +5,8 @@ using GraphQL.Server.Test.GraphQL.Models;
 
 namespace GraphQL.Server.Test.GraphQL
 {
-
     public static class Storage
     {
-
         public static IQueryable<Repository> Repositories { get; } = new List<Repository>()
             .Append(new Repository
             {
@@ -19,7 +17,5 @@ namespace GraphQL.Server.Test.GraphQL
                 Url = new Uri("https://github.com/graphql-dotnet/graphql-client")
             })
             .AsQueryable();
-
     }
-
 }

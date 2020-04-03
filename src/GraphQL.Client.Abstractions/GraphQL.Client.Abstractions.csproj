@@ -4,7 +4,6 @@
 
 	<PropertyGroup>
 		<Description>Abstractions for GraphQL.Client</Description>
-		<RootNamespace>GraphQL.Client.Abstractions</RootNamespace>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 

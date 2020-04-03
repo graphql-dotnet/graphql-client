@@ -15,7 +15,7 @@ namespace GraphQL.Client.Http
         /// </summary>
         /// <param name="client">the GraphQL client</param>
         /// <param name="request">the GraphQL request for this subscription</param>
-        /// <param name="webSocketExceptionHandler">an external handler for all <see cref="WebSocketException"/>s occuring within the sequence</param>
+        /// <param name="webSocketExceptionHandler">an external handler for all <see cref="WebSocketException"/>s occurring within the sequence</param>
         /// <returns>an observable stream for the specified subscription</returns>
         public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this IGraphQLClient client,
             GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) =>

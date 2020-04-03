@@ -4,7 +4,6 @@ using System.Net.Http.Headers;
 
 namespace GraphQL.Client.Http
 {
-
     public class GraphQLHttpResponse<T> : GraphQLResponse<T>
     {
         public GraphQLHttpResponse(GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode)
@@ -17,6 +16,7 @@ namespace GraphQL.Client.Http
         }
 
         public HttpResponseHeaders ResponseHeaders { get; set; }
+
         public HttpStatusCode StatusCode { get; set; }
     }
 
@@ -25,7 +25,7 @@ namespace GraphQL.Client.Http
         public static GraphQLHttpResponse<T> ToGraphQLHttpResponse<T>(this GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode) => new GraphQLHttpResponse<T>(response, responseHeaders, statusCode);
 
         /// <summary>
-        /// Casts <paramref name="response"/> to <see cref="GraphQLHttpResponse{T}"/>. Throws ig the cast fails.
+        /// Casts <paramref name="response"/> to <see cref="GraphQLHttpResponse{T}"/>. Throws if the cast fails.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="response"></param>

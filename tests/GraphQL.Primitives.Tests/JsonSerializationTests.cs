@@ -7,7 +7,6 @@ namespace GraphQL.Primitives.Tests
 {
     public class JsonSerializationTests
     {
-
         [Fact]
         public void WebSocketResponseDeserialization()
         {
@@ -22,7 +21,6 @@ namespace GraphQL.Primitives.Tests
         public class TestObject
         {
             public string Id { get; set; }
-
         }
 
         public class ExtendedTestObject : TestObject

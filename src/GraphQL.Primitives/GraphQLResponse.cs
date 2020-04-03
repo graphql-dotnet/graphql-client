@@ -5,10 +5,8 @@ using System.Runtime.Serialization;
 
 namespace GraphQL
 {
-
     public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?>
     {
-
         [DataMember(Name = "data")]
         public T Data { get; set; }
 
@@ -86,13 +84,8 @@ namespace GraphQL
             }
         }
 
-
         public static bool operator ==(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => EqualityComparer<GraphQLResponse<T>?>.Default.Equals(response1, response2);
 
         public static bool operator !=(GraphQLResponse<T>? response1, GraphQLResponse<T>? response2) => !(response1 == response2);
-
     }
-
-
-
 }

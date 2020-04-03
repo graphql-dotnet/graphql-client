@@ -55,7 +55,9 @@ namespace GraphQL.Integration.Tests.Helpers
         }
 
         public int Port { get; }
+
         public IWebHost Server { get; set; }
+
         public IGraphQLWebsocketJsonSerializer Serializer { get; set; }
 
         public GraphQLHttpClient GetStarWarsClient(bool requestsViaWebsocket = false)

@@ -20,6 +20,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         /// Indicates that an update has been received since the last <see cref="Reset"/>
         /// </summary>
         public bool CallbackInvoked => _callbackInvoked.IsSet;
+
         /// <summary>
         /// The last payload which was received.
         /// </summary>

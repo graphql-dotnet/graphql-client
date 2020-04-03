@@ -49,7 +49,6 @@ namespace GraphQL.Client.Serializer.Newtonsoft
 
         public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) => DeserializeFromUtf8Stream<GraphQLResponse<TResponse>>(stream);
 
-
         private Task<T> DeserializeFromUtf8Stream<T>(Stream stream)
         {
             using var sr = new StreamReader(stream);
@@ -57,6 +56,5 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             var serializer = JsonSerializer.Create(JsonSerializerSettings);
             return Task.FromResult(serializer.Deserialize<T>(reader));
         }
-
     }
 }

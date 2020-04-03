@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,13 +11,12 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
 
-        public override Map ReadJson(JsonReader reader, Type objectType, Map existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override Map ReadJson(JsonReader reader, Type objectType, Map existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var rootToken = JToken.ReadFrom(reader);
             if (rootToken is JObject)
             {
-                return ReadDictionary<Map>(rootToken);
+                return (Map)ReadDictionary(rootToken, new Map());
             }
             else
                 throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
@@ -27,7 +25,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
         private object ReadToken(JToken? token) =>
             token switch
             {
-                JObject jObject => ReadDictionary<Dictionary<string, object>>(jObject),
+                JObject jObject => ReadDictionary(jObject, new Dictionary<string, object>()),
                 JArray jArray => ReadArray(jArray),
                 JValue jValue => jValue.Value,
                 JConstructor _ => throw new ArgumentOutOfRangeException(nameof(token.Type),
@@ -39,16 +37,15 @@ namespace GraphQL.Client.Serializer.Newtonsoft
                 _ => throw new ArgumentOutOfRangeException(nameof(token.Type))
             };
 
-        private TDictionary ReadDictionary<TDictionary>(JToken element) where TDictionary : Dictionary<string, object>
+        private Dictionary<string, object> ReadDictionary(JToken element, Dictionary<string, object> to)
         {
-            var result = Activator.CreateInstance<TDictionary>();
             foreach (var property in ((JObject)element).Properties())
             {
                 if (IsUnsupportedJTokenType(property.Value.Type))
                     continue;
-                result[property.Name] = ReadToken(property.Value);
+                to[property.Name] = ReadToken(property.Value);
             }
-            return result;
+            return to;
         }
 
         private IEnumerable<object> ReadArray(JToken element)

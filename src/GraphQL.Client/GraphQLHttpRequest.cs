@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 
 namespace GraphQL.Client.Http
 {
-
     public class GraphQLHttpRequest : GraphQLRequest
     {
         public GraphQLHttpRequest()

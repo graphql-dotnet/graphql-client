@@ -7,4 +7,5 @@
 		<RootNamespace>GraphQL</RootNamespace>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
+  
 </Project>

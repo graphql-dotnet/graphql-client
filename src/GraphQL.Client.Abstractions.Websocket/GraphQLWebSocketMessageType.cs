@@ -84,6 +84,5 @@ namespace GraphQL.Client.Abstractions.Websocket
         ///     id: string : operation id
         /// </summary>
         public const string GQL_STOP = "stop"; // Client -> Server
-
     }
 }

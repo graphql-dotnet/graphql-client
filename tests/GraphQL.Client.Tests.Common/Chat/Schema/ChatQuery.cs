@@ -7,7 +7,6 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
 {
     public class ChatQuery : ObjectGraphType
     {
-
         public static readonly Dictionary<string, object> TestExtensions = new Dictionary<string, object> {
             {"extension1", "hello world"},
             {"another extension", 4711},
@@ -18,7 +17,6 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
 
         public readonly ManualResetEventSlim LongRunningQueryBlocker = new ManualResetEventSlim();
         public readonly ManualResetEventSlim WaitingOnQueryBlocker = new ManualResetEventSlim();
-
 
         public ChatQuery(IChat chat)
         {

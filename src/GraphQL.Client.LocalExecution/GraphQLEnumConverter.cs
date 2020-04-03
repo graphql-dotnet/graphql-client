@@ -34,5 +34,4 @@ namespace GraphQL.Client.LocalExecution
             }
         }
     }
-
 }

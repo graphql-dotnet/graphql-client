@@ -1,8 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -27,6 +26,5 @@
     <ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
     <ProjectReference Include="..\IntegrationTestServer\IntegrationTestServer.csproj" />
   </ItemGroup>
-
 
 </Project>

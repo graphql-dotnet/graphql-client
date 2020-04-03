@@ -26,6 +26,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         /// Indicates that an update has been received since the last <see cref="_reset"/>
         /// </summary>
         public bool UpdateReceived => _updateReceived.IsSet;
+
         /// <summary>
         /// The last payload which was received.
         /// </summary>
@@ -171,5 +172,4 @@ namespace GraphQL.Client.Tests.Common.Helpers
     {
         public static ObservableTester<T> Monitor<T>(this IObservable<T> observable) => new ObservableTester<T>(observable);
     }
-
 }

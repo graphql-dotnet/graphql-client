@@ -22,7 +22,5 @@ namespace GraphQL.Client.Tests.Common.Helpers
             };
             return tester;
         }
-
-
     }
 }

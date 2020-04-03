@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Tests.Common.Helpers
 {
-
     public class ConcurrentTaskWrapper
     {
         public static ConcurrentTaskWrapper<TResult> New<TResult>(Func<Task<TResult>> createTask) => new ConcurrentTaskWrapper<TResult>(createTask);

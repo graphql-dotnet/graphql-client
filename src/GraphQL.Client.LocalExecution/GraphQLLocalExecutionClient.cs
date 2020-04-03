@@ -22,10 +22,8 @@ namespace GraphQL.Client.LocalExecution
             => new GraphQLLocalExecutionClient<TSchema>(schema, serializer);
     }
 
-
     public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema : ISchema
     {
-
         private static readonly JsonSerializerSettings _variablesSerializerSettings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
@@ -38,8 +36,8 @@ namespace GraphQL.Client.LocalExecution
         };
 
         public TSchema Schema { get; }
-        public IGraphQLJsonSerializer Serializer { get; }
 
+        public IGraphQLJsonSerializer Serializer { get; }
 
         private readonly DocumentExecuter _documentExecuter;
 

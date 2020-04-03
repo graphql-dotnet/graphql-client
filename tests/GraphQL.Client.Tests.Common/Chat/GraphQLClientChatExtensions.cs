@@ -44,6 +44,5 @@ namespace GraphQL.Client.Tests.Common.Chat
                 });
             return client.SendMutationAsync<JoinDeveloperMutationResult>(graphQLRequest);
         }
-
     }
 }

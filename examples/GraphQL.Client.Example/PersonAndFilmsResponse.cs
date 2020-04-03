@@ -9,6 +9,7 @@ namespace GraphQL.Client.Example
         public class PersonContent
         {
             public string Name { get; set; }
+
             public FilmConnectionContent FilmConnection { get; set; }
 
             public class FilmConnectionContent

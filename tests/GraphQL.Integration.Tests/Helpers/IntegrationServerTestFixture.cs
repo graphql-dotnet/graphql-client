@@ -13,7 +13,9 @@ namespace GraphQL.Integration.Tests.Helpers
     public abstract class IntegrationServerTestFixture
     {
         public int Port { get; private set; }
+
         public IWebHost Server { get; private set; }
+
         public abstract IGraphQLWebsocketJsonSerializer Serializer { get; }
 
         public IntegrationServerTestFixture()

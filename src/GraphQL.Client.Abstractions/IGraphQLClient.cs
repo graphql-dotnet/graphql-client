@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions
 {
-
     public interface IGraphQLClient : IDisposable
     {
-
         Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
 
         Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
@@ -30,9 +28,8 @@ namespace GraphQL.Client.Abstractions
         /// Any exception thrown by <paramref name="exceptionHandler"/> will cause the sequence to fail.
         /// </summary>
         /// <param name="request">the GraphQL request for this subscription</param>
-        /// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occuring within the sequence</param>
+        /// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occurring within the sequence</param>
         /// <returns>an observable stream for the specified subscription</returns>
         IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
     }
-
 }
