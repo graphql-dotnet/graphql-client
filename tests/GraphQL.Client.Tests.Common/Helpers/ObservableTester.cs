@@ -18,12 +18,12 @@ namespace GraphQL.Client.Tests.Common.Helpers
         private readonly EventLoopScheduler _observeScheduler = new EventLoopScheduler();
 
         /// <summary>
-        /// The timeout for SubscriptionAssertions.***Have*** methods. Defaults to 30 seconds.
+        /// The timeout for SubscriptionAssertions.***Have*** methods. Defaults to 3 seconds.
         /// </summary>
-        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(3);
 
         /// <summary>
-        /// Indicates that an update has been received since the last <see cref="Reset()"/>
+        /// Indicates that an update has been received since the last reset of <see cref="_updateReceived"/>
         /// </summary>
         public bool UpdateReceived => _updateReceived.IsSet;
 
@@ -102,9 +102,10 @@ namespace GraphQL.Client.Tests.Common.Helpers
                     .ForCondition(isSet => isSet)
                     .FailWith("Expected {context:Subscription} to receive new payload{reason}, but did not receive an update within {0}", timeout);
 
-                Subject.Reset();
+                Subject._updateReceived.Reset();
                 return new AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload>(this, Subject.LastPayload);
             }
+
             public AndWhichConstraint<SubscriptionAssertions<TPayload>, TPayload> HaveReceivedPayload(string because = "", params object[] becauseArgs)
                 => HaveReceivedPayload(Subject.Timeout, because, becauseArgs);
 
@@ -117,7 +118,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
                     .ForCondition(isSet => !isSet)
                     .FailWith("Expected {context:Subscription} to not receive a new payload{reason}, but did receive an update: {0}", Subject.LastPayload);
 
-                Subject.Reset();
+                Subject._updateReceived.Reset();
                 return new AndConstraint<SubscriptionAssertions<TPayload>>(this);
             }
             public AndConstraint<SubscriptionAssertions<TPayload>> NotHaveReceivedPayload(string because = "", params object[] becauseArgs)
