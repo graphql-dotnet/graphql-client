@@ -1,39 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="../src.props" />
+  <Import Project="../src.props" />
 
   <PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-	  <RootNamespace>GraphQL.Client.Http</RootNamespace>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <RootNamespace>GraphQL.Client.Http</RootNamespace>
   </PropertyGroup>
 
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-		<DefineConstants>NETSTANDARD</DefineConstants>
-	</PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD</DefineConstants>
+  </PropertyGroup>
 
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
-		<DefineConstants>NETFRAMEWORK</DefineConstants>
-	</PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFRAMEWORK</DefineConstants>
+  </PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="GraphQLSerializationExtensions.cs" />
-	</ItemGroup>
+  <ItemGroup>
+    <Compile Remove="GraphQLSerializationExtensions.cs" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <None Include="GraphQLSerializationExtensions.cs" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="GraphQLSerializationExtensions.cs" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
-		<PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
-	</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
-	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
+    <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
+  </ItemGroup>
 
 </Project>

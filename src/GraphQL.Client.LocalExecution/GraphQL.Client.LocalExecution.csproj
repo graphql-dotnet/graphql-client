@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="../src.props" />
+  <Import Project="../src.props" />
 
-	<PropertyGroup>
-		<Description>A GraphQL Client which executes the queries directly on a provided GraphQL schema using graphql-dotnet</Description>
-		<TargetFramework>netstandard2.0</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <Description>A GraphQL Client which executes the queries directly on a provided GraphQL schema using graphql-dotnet</Description>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="GraphQL" Version="2.4.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="System.Reactive.Compatibility" Version="4.3.2" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="2.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Reactive.Compatibility" Version="4.3.2" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
+  </ItemGroup>
 
 </Project>

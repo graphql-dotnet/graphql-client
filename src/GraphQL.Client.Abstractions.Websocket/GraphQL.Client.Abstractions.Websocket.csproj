@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
-	<Import Project="../src.props" />
+  <Import Project="../src.props" />
 
-	<PropertyGroup>
+  <PropertyGroup>
     <Description>Abstractions for the Websocket transport used in GraphQL.Client</Description>
 	  <TargetFramework>netstandard2.0</TargetFramework>
-	</PropertyGroup>
+  </PropertyGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
+  </ItemGroup>
 
 </Project>

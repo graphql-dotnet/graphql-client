@@ -380,8 +380,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests
         [Fact]
         public async void CanHandleQueryErrorInSubscription()
         {
-            var test = new GraphQLRequest("tset", new { test = "blaa" });
-
             var callbackMonitor = ChatClient.ConfigureMonitorForOnWebsocketConnected();
             await ChatClient.InitializeWebsocketConnection();
             callbackMonitor.Should().HaveBeenInvokedWithPayload();

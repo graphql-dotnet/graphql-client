@@ -13,6 +13,7 @@ namespace GraphQL.Primitives.Tests
             var testObject = new ExtendedTestObject { Id = "test", OtherData = "this is some other stuff" };
             var json = JsonSerializer.Serialize(testObject);
             var deserialized = JsonSerializer.Deserialize<TestObject>(json);
+            deserialized.Id.Should().Be("test");
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
             var childObject = (JsonElement)dict["ChildObject"];
             childObject.GetProperty("Id").GetString().Should().Be(testObject.ChildObject.Id);

@@ -12,7 +12,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         private readonly ManualResetEventSlim _callbackInvoked = new ManualResetEventSlim();
 
         /// <summary>
-        /// The timeout for <see cref="ShouldHaveReceivedUpdate"/>. Defaults to 1 s
+        /// The timeout for <see cref="CallbackAssertions{T}.HaveBeenInvokedWithPayload(TimeSpan, string, object[])"/>. Defaults to 1 second.
         /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);
 
@@ -38,7 +38,7 @@ namespace GraphQL.Client.Tests.Common.Helpers
         /// </summary>
         public void Reset()
         {
-            LastPayload = default(T);
+            LastPayload = default;
             _callbackInvoked.Reset();
         }
 
