@@ -75,7 +75,6 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             .Where(r => r.Value.Kind == NotificationKind.OnNext)
             .Select(recorded => recorded.Value.Value);
 
-
         /// <summary>
         /// Clears the recorded notifications on the underlying <see cref="FluentTestObserver{TPayload}"/>
         /// </summary>

@@ -64,7 +64,6 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Push(string because = "", params object[] becauseArgs)
             => Push(1, TimeSpan.FromSeconds(1), because, becauseArgs);
 
-
         /// <summary>
         /// Asserts that the <see cref="FluentTestObserver{TPayload}"/> does not receive any notifications within the specified <paramref name="timeout"/>.<br />
         /// This includes any previously recorded notifications since it has been created or cleared. 
@@ -94,7 +93,6 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public AndConstraint<ObservableAssertions<TPayload>> NotPush(string because = "", params object[] becauseArgs)
             => NotPush(TimeSpan.FromMilliseconds(100), because, becauseArgs);
 
-
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> fails within the specified <paramref name="timeout"/>. 
         /// </summary>
@@ -123,7 +121,6 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public AndWhichConstraint<ObservableAssertions<TPayload>, Exception> Fail(string because = "", params object[] becauseArgs)
             => Fail(TimeSpan.FromSeconds(1), because, becauseArgs);
 
-
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> completes within the specified <paramref name="timeout"/>. 
         /// </summary>
@@ -151,7 +148,6 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         /// </summary>
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Complete(string because = "", params object[] becauseArgs)
             => Complete(TimeSpan.FromSeconds(1), because, becauseArgs);
-
 
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> does not complete within the specified <paramref name="timeout"/>. 
