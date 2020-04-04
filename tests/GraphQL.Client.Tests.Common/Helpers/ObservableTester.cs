@@ -18,9 +18,9 @@ namespace GraphQL.Client.Tests.Common.Helpers
         private readonly EventLoopScheduler _observeScheduler = new EventLoopScheduler();
 
         /// <summary>
-        /// The timeout for SubscriptionAssertions.***Have*** methods. Defaults to 3 seconds.
+        /// The timeout for SubscriptionAssertions.***Have*** methods. Defaults to 30 seconds.
         /// </summary>
-        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(3);
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Indicates that an update has been received since the last <see cref="Reset()"/>
