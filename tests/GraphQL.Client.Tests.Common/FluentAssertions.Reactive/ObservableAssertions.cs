@@ -38,7 +38,10 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>> Push(int numberOfNotifications, TimeSpan timeout,
             string because = "", params object[] becauseArgs)
         {
-            IEnumerable<TPayload> notifications = new List<TPayload>();
+            IList<TPayload> notifications = new List<TPayload>();
+            var assertion = Execute.Assertion
+                .WithExpectation($"Expected {{context}} to push at least {numberOfNotifications} {(numberOfNotifications == 1 ? "notification" : "notifications")}, ")
+                .BecauseOf(because, becauseArgs);
 
             try
             {
@@ -54,17 +57,12 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             }
             catch (Exception e)
             {
-                Execute.Assertion
-                    .BecauseOf(because, becauseArgs)
-                    .FailWith("Expected {context} to push at least {0} notification{1}, but failed with exception {2}.",
-                        numberOfNotifications, numberOfNotifications == 1 ? "" : "s", e);
+                assertion.FailWith("but failed with exception {0}.", e);
             }
-            
-            Execute.Assertion
-                .ForCondition(notifications.Any())
-                .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to push at least {0} notification{1} within {2}{reason}, but it did not.",
-                    numberOfNotifications, numberOfNotifications == 1 ? "" : "s", timeout);
+
+            assertion
+                .ForCondition(notifications.Count < numberOfNotifications)
+                .FailWith("but {0} were received.", numberOfNotifications);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
@@ -73,7 +71,10 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public async Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>> PushAsync(int numberOfNotifications, TimeSpan timeout,
             string because = "", params object[] becauseArgs)
         {
-            IEnumerable<TPayload> notifications = new List<TPayload>();
+            IList<TPayload> notifications = new List<TPayload>();
+            var assertion = Execute.Assertion
+                .WithExpectation($"Expected {{context}} to push at least {numberOfNotifications} {(numberOfNotifications == 1 ? "notification" : "notifications")}, ")
+                .BecauseOf(because, becauseArgs);
 
             try
             {
@@ -88,17 +89,12 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             }
             catch (Exception e)
             {
-                Execute.Assertion
-                    .BecauseOf(because, becauseArgs)
-                    .FailWith("Expected {context} to push at least {0} notification{1}, but failed with exception {2}.",
-                        numberOfNotifications, numberOfNotifications == 1 ? "" : "s", e);
+                assertion.FailWith("but failed with exception {0}.", e);
             }
 
-            Execute.Assertion
-                .ForCondition(notifications.Any())
-                .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to push at least {0} notification{1} within {2}{reason}, but it did not.",
-                    numberOfNotifications, numberOfNotifications == 1 ? "" : "s", timeout);
+            assertion
+                .ForCondition(notifications.Count < numberOfNotifications)
+                .FailWith("but {0} were received.", numberOfNotifications);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
