@@ -68,11 +68,6 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
                     .Catch<TPayload, TimeoutException>(exception => Observable.Empty<TPayload>())
                     .ToList()
                     .ToTask();
-
-                Execute.Assertion
-                    .ForCondition(notifications.Any())
-                    .BecauseOf(because, becauseArgs)
-                    .FailWith("Expected {context} to push at least one notification within {0}{reason}, but it did not.", timeout);
             }
             catch (Exception e)
             {
@@ -80,6 +75,11 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
                     .BecauseOf(because, becauseArgs)
                     .FailWith("Expected {context} to push at least one notification, but failed with exception {1}.", timeout, e);
             }
+            
+            Execute.Assertion
+                .ForCondition(notifications.Any())
+                .BecauseOf(because, becauseArgs)
+                .FailWith("Expected {context} to push at least one notification within {0}{reason}, but it did not.", timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
