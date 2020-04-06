@@ -26,11 +26,15 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         }
 
         protected override string Identifier => "Subscription";
-        
+
         /// <summary>
         /// Asserts that at least <paramref name="numberOfNotifications"/> notifications were pushed to the <see cref="FluentTestObserver{TPayload}"/> within the specified <paramref name="timeout"/>.<br />
-        /// This includes any previously recorded notifications since it has been created or cleared. 
-        /// </summary>
+        /// This includes any previously recorded notifications since it has been created or cleared.
+        /// </summary> 
+        /// <param name="numberOfNotifications">the number of notifications the observer should have recorded by now</param>
+        /// <param name="timeout">the maximum time to wait for the notifications to arrive</param>
+        /// <param name="because"></param>
+        /// <param name="becauseArgs"></param>
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>> Push(int numberOfNotifications, TimeSpan timeout,
             string because = "", params object[] becauseArgs)
         {
@@ -52,13 +56,15 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .FailWith("Expected {context} to push at least one notification, but failed with exception {1}.", timeout, e);
+                    .FailWith("Expected {context} to push at least {0} notification{1}, but failed with exception {2}.",
+                        numberOfNotifications, numberOfNotifications == 1 ? "" : "s", e);
             }
             
             Execute.Assertion
                 .ForCondition(notifications.Any())
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to push at least one notification within {0}{reason}, but it did not.", timeout);
+                .FailWith("Expected {context} to push at least {0} notification{1} within {2}{reason}, but it did not.",
+                    numberOfNotifications, numberOfNotifications == 1 ? "" : "s", timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
@@ -84,13 +90,15 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
-                    .FailWith("Expected {context} to push at least one notification, but failed with exception {1}.", timeout, e);
+                    .FailWith("Expected {context} to push at least {0} notification{1}, but failed with exception {2}.",
+                        numberOfNotifications, numberOfNotifications == 1 ? "" : "s", e);
             }
-            
+
             Execute.Assertion
                 .ForCondition(notifications.Any())
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to push at least one notification within {0}{reason}, but it did not.", timeout);
+                .FailWith("Expected {context} to push at least {0} notification{1} within {2}{reason}, but it did not.",
+                    numberOfNotifications, numberOfNotifications == 1 ? "" : "s", timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
@@ -99,6 +107,9 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         /// Asserts that at least <paramref name="numberOfNotifications"/> notifications are pushed to the <see cref="FluentTestObserver{TPayload}"/> within the next 1 second.<br />
         /// This includes any previously recorded notifications since it has been created or cleared. 
         /// </summary>
+        /// <param name="numberOfNotifications">the number of notifications the observer should have recorded by now</param>
+        /// <param name="because"></param>
+        /// <param name="becauseArgs"></param>
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>> Push(int numberOfNotifications, string because = "", params object[] becauseArgs)
             => Push(numberOfNotifications, TimeSpan.FromSeconds(10), because, becauseArgs);
 
