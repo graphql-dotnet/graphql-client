@@ -65,11 +65,11 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         /// Extracts the last recorded message
         /// </summary>
         public static async Task<TPayload> GetLastMessageAsync<TPayload>(
-            this Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>>
+            this Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>>
                 assertionTask)
         {
             var constraint = await assertionTask;
-            return constraint.GetLastMessage();
+            return constraint.Subject.LastOrDefault();
         }
 
         /// <summary>
