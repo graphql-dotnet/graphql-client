@@ -62,7 +62,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
 
             assertion
                 .ForCondition(notifications.Count < numberOfNotifications)
-                .FailWith("but {0} were received.", notifications.Count);
+                .FailWith("but {0} were received within {1}.", notifications.Count, timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
@@ -94,7 +94,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
 
             assertion
                 .ForCondition(notifications.Count < numberOfNotifications)
-                .FailWith("but {0} were received.", notifications.Count);
+                .FailWith("but {0} were received within {1}.", notifications.Count, timeout);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
