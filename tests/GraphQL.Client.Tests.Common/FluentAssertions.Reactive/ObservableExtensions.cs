@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive;
+using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Reactive.Testing;
@@ -58,7 +59,18 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public static TPayload GetLastMessage<TPayload>(
             this AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>
                 recorderConstraint) =>
-            recorderConstraint.GetMessages().LastOrDefault();
+            recorderConstraint.Subject.GetLastMessage();
+
+        /// <summary>
+        /// Extracts the last recorded message
+        /// </summary>
+        public static async Task<TPayload> GetLastMessageAsync<TPayload>(
+            this Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>>
+                assertionTask)
+        {
+            var constraint = await assertionTask;
+            return constraint.GetLastMessage();
+        }
 
         /// <summary>
         /// Extracts the recorded messages
@@ -68,12 +80,20 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             recorderConstraint) => recorderConstraint.Subject.GetMessages();
 
         /// <summary>
-        /// Extracts the recorded messages from a number od recorded notifications
+        /// Extracts the recorded messages from a number of recorded notifications
         /// </summary>
         public static IEnumerable<TPayload> GetMessages<TPayload>(
             this IEnumerable<Recorded<Notification<TPayload>>> recordedNotifications) => recordedNotifications
             .Where(r => r.Value.Kind == NotificationKind.OnNext)
             .Select(recorded => recorded.Value.Value);
+
+        /// <summary>
+        /// Extracts the recorded messages from a number od recorded notifications
+        /// </summary>
+        public static TPayload GetLastMessage<TPayload>(
+            this IEnumerable<Recorded<Notification<TPayload>>> recordedNotifications) =>
+            recordedNotifications.GetMessages().LastOrDefault();
+
 
         /// <summary>
         /// Clears the recorded notifications on the underlying <see cref="FluentTestObserver{TPayload}"/>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
@@ -50,6 +51,39 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>(this, notifications);
         }
 
+
+        /// <inheritdoc cref="Push(int,TimeSpan,string,object[])"/>
+        public async Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>> PushAsync(int numberOfNotifications, TimeSpan timeout,
+            string because = "", params object[] becauseArgs)
+        {
+            IEnumerable<TPayload> notifications = new List<TPayload>();
+
+            try
+            {
+                notifications = await Observer.RecordedNotificationStream
+                    .Select(r => r.Value)
+                    .Dematerialize()
+                    .Take(numberOfNotifications)
+                    .Timeout(timeout)
+                    .Catch<TPayload, TimeoutException>(exception => Observable.Empty<TPayload>())
+                    .ToList()
+                    .ToTask();
+
+                Execute.Assertion
+                    .ForCondition(notifications.Any())
+                    .BecauseOf(because, becauseArgs)
+                    .FailWith("Expected {context} to push at least one notification within {0}{reason}, but it did not.", timeout);
+            }
+            catch (Exception e)
+            {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .FailWith("Expected {context} to push at least one notification, but failed with exception {1}.", timeout, e);
+            }
+
+            return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
+        }
+
         /// <summary>
         /// Asserts that at least <paramref name="numberOfNotifications"/> notifications are pushed to the <see cref="FluentTestObserver{TPayload}"/> within the next 1 second.<br />
         /// This includes any previously recorded notifications since it has been created or cleared. 
@@ -57,12 +91,21 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Push(int numberOfNotifications, string because = "", params object[] becauseArgs)
             => Push(numberOfNotifications, TimeSpan.FromSeconds(1), because, becauseArgs);
 
+        /// <inheritdoc cref="Push(int,string,object[])"/>
+        public Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>> PushAsync(int numberOfNotifications, string because = "", params object[] becauseArgs)
+            => PushAsync(numberOfNotifications, TimeSpan.FromSeconds(1), because, becauseArgs);
+
         /// <summary>
         /// Asserts that at least 1 notification is pushed to the <see cref="FluentTestObserver{TPayload}"/> within the next 1 second.<br />
         /// This includes any previously recorded notifications since it has been created or cleared. 
         /// </summary>
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Push(string because = "", params object[] becauseArgs)
             => Push(1, TimeSpan.FromSeconds(1), because, becauseArgs);
+
+        /// <inheritdoc cref="Push(string,object[])"/>
+        public Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>> PushAsync(string because = "", params object[] becauseArgs)
+            => PushAsync(1, TimeSpan.FromSeconds(1), because, becauseArgs);
+
 
         /// <summary>
         /// Asserts that the <see cref="FluentTestObserver{TPayload}"/> does not receive any notifications within the specified <paramref name="timeout"/>.<br />
@@ -93,6 +136,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public AndConstraint<ObservableAssertions<TPayload>> NotPush(string because = "", params object[] becauseArgs)
             => NotPush(TimeSpan.FromMilliseconds(100), because, becauseArgs);
 
+
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> fails within the specified <paramref name="timeout"/>. 
         /// </summary>
@@ -115,16 +159,40 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             return new AndWhichConstraint<ObservableAssertions<TPayload>, Exception>(this, exception);
         }
 
+        /// <inheritdoc cref="Fail(TimeSpan,string,object[])"/>
+        public async Task<AndWhichConstraint<ObservableAssertions<TPayload>, Exception>> FailAsync(TimeSpan timeout,
+            string because = "", params object[] becauseArgs)
+        {
+            var exception = await Observer.RecordedNotificationStream
+                .Timeout(timeout)
+                .Catch(Observable.Empty<Recorded<Notification<TPayload>>>())
+                .FirstOrDefaultAsync(recorded => recorded.Value.Kind == NotificationKind.OnError)
+                .Select(recorded => recorded.Value.Exception)
+                .ToTask();
+
+            Execute.Assertion
+                .ForCondition(exception != null)
+                .BecauseOf(because, becauseArgs)
+                .FailWith("Expected {context} to fail within {0}{reason}, but it did not.", timeout);
+
+            return new AndWhichConstraint<ObservableAssertions<TPayload>, Exception>(this, exception);
+        }
+
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> fails within the next 1 second. 
         /// </summary>
         public AndWhichConstraint<ObservableAssertions<TPayload>, Exception> Fail(string because = "", params object[] becauseArgs)
             => Fail(TimeSpan.FromSeconds(1), because, becauseArgs);
 
+        /// <inheritdoc cref="Fail(string,object[])"/>
+        public Task<AndWhichConstraint<ObservableAssertions<TPayload>, Exception>> FailAsync(string because = "", params object[] becauseArgs)
+            => FailAsync(TimeSpan.FromSeconds(1), because, becauseArgs);
+
+
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> completes within the specified <paramref name="timeout"/>. 
         /// </summary>
-        public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Complete(TimeSpan timeout,
+        public AndConstraint<ObservableAssertions<TPayload>> Complete(TimeSpan timeout,
             string because = "", params object[] becauseArgs)
         {
 
@@ -140,14 +208,38 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context} to complete within {0}{reason}, but it did not.", timeout);
 
-            return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>>(this, Observer.RecordedNotifications);
+            return new AndConstraint<ObservableAssertions<TPayload>>(this);
+        }
+
+        /// <inheritdoc cref="Complete(System.TimeSpan,string,object[])"/>
+        public async Task<AndConstraint<ObservableAssertions<TPayload>>> CompleteAsync(TimeSpan timeout,
+            string because = "", params object[] becauseArgs)
+        {
+
+            bool completed = await Observer.RecordedNotificationStream
+                .Any(recorded => recorded.Value.Kind == NotificationKind.OnCompleted)
+                .Timeout(timeout)
+                .Catch(Observable.Return(false))
+                .ToTask();
+
+            Execute.Assertion
+                .ForCondition(completed)
+                .BecauseOf(because, becauseArgs)
+                .FailWith("Expected {context} to complete within {0}{reason}, but it did not.", timeout);
+
+            return new AndConstraint<ObservableAssertions<TPayload>>(this);
         }
 
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> completes within the next 1 second. 
         /// </summary>
-        public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Complete(string because = "", params object[] becauseArgs)
+        public AndConstraint<ObservableAssertions<TPayload>> Complete(string because = "", params object[] becauseArgs)
             => Complete(TimeSpan.FromSeconds(1), because, becauseArgs);
+
+        /// <inheritdoc cref="Complete(string,object[])"/>
+        public Task<AndConstraint<ObservableAssertions<TPayload>>> CompleteAsync(string because = "", params object[] becauseArgs)
+            => CompleteAsync(TimeSpan.FromSeconds(1), because, becauseArgs);
+
 
         /// <summary>
         /// Asserts that the <see cref="IObservable{T}"/> observed by the <see cref="FluentTestObserver{TPayload}"/> does not complete within the specified <paramref name="timeout"/>. 
