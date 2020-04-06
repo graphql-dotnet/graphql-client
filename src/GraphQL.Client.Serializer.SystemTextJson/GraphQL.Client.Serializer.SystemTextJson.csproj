@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="../src.props" />
+
+  <Import Project="../src.props" />
 
   <PropertyGroup>
     <Description>A serializer implementation for GraphQL.Client using System.Text.Json as underlying JSON library</Description>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
-	  <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
@@ -13,13 +13,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Update="GitVersionTask" Version="5.2.4">
-	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
 	</ItemGroup>
 
 </Project>

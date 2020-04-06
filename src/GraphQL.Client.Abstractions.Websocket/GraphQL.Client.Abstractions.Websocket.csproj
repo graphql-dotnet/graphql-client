@@ -4,18 +4,10 @@
 	<PropertyGroup>
     <Description>Abstractions for the Websocket transport used in GraphQL.Client</Description>
 	  <TargetFramework>netstandard2.0</TargetFramework>
-	  <LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 	<ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Update="GitVersionTask" Version="5.2.4">
-	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
 	</ItemGroup>
 
 </Project>

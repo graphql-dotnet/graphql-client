@@ -4,7 +4,6 @@
   <PropertyGroup>
     <Description>A serializer implementation for GraphQL.Client using Newtonsoft.Json as underlying JSON library</Description>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-	  <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,13 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="GitVersionTask" Version="5.2.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>
