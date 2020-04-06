@@ -57,12 +57,12 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             }
             catch (Exception e)
             {
-                assertion.FailWith("but failed with exception {0}.", e);
+                assertion.FailWith("but it failed with exception {0}.", e);
             }
 
             assertion
                 .ForCondition(notifications.Count < numberOfNotifications)
-                .FailWith("but {0} were received.", numberOfNotifications);
+                .FailWith("but {0} were received.", notifications.Count);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
@@ -89,12 +89,12 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
             }
             catch (Exception e)
             {
-                assertion.FailWith("but failed with exception {0}.", e);
+                assertion.FailWith("but it failed with exception {0}.", e);
             }
 
             assertion
                 .ForCondition(notifications.Count < numberOfNotifications)
-                .FailWith("but {0} were received.", numberOfNotifications);
+                .FailWith("but {0} were received.", notifications.Count);
 
             return new AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>(this, notifications);
         }
