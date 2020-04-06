@@ -138,7 +138,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 
             Debug.WriteLine("subscribing...");
             using var observer = observable.Observe();
-            var test = await observer.Should().PushAsync(1);
+            await observer.Should().PushAsync(1);
             observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
             const string message1 = "Hello World";

@@ -89,11 +89,11 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         /// This includes any previously recorded notifications since it has been created or cleared. 
         /// </summary>
         public AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<Recorded<Notification<TPayload>>>> Push(int numberOfNotifications, string because = "", params object[] becauseArgs)
-            => Push(numberOfNotifications, TimeSpan.FromSeconds(1), because, becauseArgs);
+            => Push(numberOfNotifications, TimeSpan.FromSeconds(10), because, becauseArgs);
 
         /// <inheritdoc cref="Push(int,string,object[])"/>
         public Task<AndWhichConstraint<ObservableAssertions<TPayload>, IEnumerable<TPayload>>> PushAsync(int numberOfNotifications, string because = "", params object[] becauseArgs)
-            => PushAsync(numberOfNotifications, TimeSpan.FromSeconds(1), because, becauseArgs);
+            => PushAsync(numberOfNotifications, TimeSpan.FromSeconds(10), because, becauseArgs);
 
         /// <summary>
         /// Asserts that at least 1 notification is pushed to the <see cref="FluentTestObserver{TPayload}"/> within the next 1 second.<br />
