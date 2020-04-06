@@ -261,7 +261,8 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var messagesMonitor = observable1.Observe();
             var joinedMonitor = observable2.Observe();
 
-            messagesMonitor.Should().Push(1).GetLastMessage().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+            await messagesMonitor.Should().PushAsync(1);
+            messagesMonitor.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
             const string message1 = "Hello World";
             var response = await ChatClient.AddMessageAsync(message1);
