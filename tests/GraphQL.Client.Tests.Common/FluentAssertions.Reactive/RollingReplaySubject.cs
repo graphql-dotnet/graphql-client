@@ -45,7 +45,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
 
         public IDisposable Subscribe(IObserver<T> observer) => _concatenatedSubjects.Subscribe(observer);
 
-        public IEnumerable<T> Snapshot()
+        public IEnumerable<T> GetSnapshot()
         {
             var snapshot = new List<T>();
             using (this.Subscribe(item => snapshot.Add(item)))
