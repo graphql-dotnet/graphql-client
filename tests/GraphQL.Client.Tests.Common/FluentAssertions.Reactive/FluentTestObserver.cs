@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -65,7 +66,7 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         {
             Subject = subject;
             _observeScheduler = new EventLoopScheduler();
-            _subscription = new CompositeDisposable(); subject.ObserveOn(_observeScheduler).Subscribe(this);
+            _subscription = subject.ObserveOn(_observeScheduler).Subscribe(this);
         }
 
         /// <summary>
@@ -96,11 +97,8 @@ namespace GraphQL.Client.Tests.Common.FluentAssertions.Reactive
         public void Clear() => _rollingReplaySubject.Clear();
 
         /// <inheritdoc />
-        public void OnNext(TPayload value)
-        {
-            _rollingReplaySubject.OnNext(
-                new Recorded<Notification<TPayload>>(_observeScheduler.Now.UtcTicks, Notification.CreateOnNext(value)));
-        }
+        public void OnNext(TPayload value) =>
+            _rollingReplaySubject.OnNext(new Recorded<Notification<TPayload>>(_observeScheduler.Now.UtcTicks, Notification.CreateOnNext(value)));
 
         /// <inheritdoc />
         public void OnError(Exception exception) =>
