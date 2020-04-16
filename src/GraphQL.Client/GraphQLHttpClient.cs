@@ -129,11 +129,9 @@ namespace GraphQL.Client.Http
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
             using var httpRequestMessage = GenerateHttpRequestMessage(preprocessedRequest);
             using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, cancellationToken);
-            if (!httpResponseMessage.IsSuccessStatusCode)
-            {
-                throw new GraphQLHttpException(httpResponseMessage);
-            }
 
+            httpResponseMessage.EnsureSuccessStatusCode();
+            
             var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
             var response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
             return response.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);

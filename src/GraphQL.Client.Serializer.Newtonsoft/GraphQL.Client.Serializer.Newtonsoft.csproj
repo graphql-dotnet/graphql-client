@@ -4,7 +4,6 @@
   <PropertyGroup>
     <Description>A serializer implementation for GraphQL.Client using Newtonsoft.Json as underlying JSON library</Description>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-	  <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
