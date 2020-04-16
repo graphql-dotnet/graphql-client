@@ -15,16 +15,7 @@
 		<DefineConstants>NETFRAMEWORK</DefineConstants>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="GraphQLSerializationExtensions.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="GraphQLSerializationExtensions.cs" />
-	</ItemGroup>
-
-
-	<ItemGroup>
+  <ItemGroup>
 		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
@@ -36,8 +27,5 @@
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
 	  <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
 	</ItemGroup>
-
-	
-
 
 </Project>

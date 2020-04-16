@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using FluentAssertions.Extensions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
+using GraphQL.Client.Tests.Common.FluentAssertions.Reactive;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Integration.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -134,22 +137,25 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest);
 
             Debug.WriteLine("subscribing...");
-            using var tester = observable.Monitor();
-            tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+            using var observer = observable.Observe();
+            await observer.Should().PushAsync(1);
+            observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
             const string message1 = "Hello World";
             var response = await ChatClient.AddMessageAsync(message1);
             response.Data.AddMessage.Content.Should().Be(message1);
-            tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
+            await observer.Should().PushAsync(2);
+            observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
 
             const string message2 = "lorem ipsum dolor si amet";
             response = await ChatClient.AddMessageAsync(message2);
             response.Data.AddMessage.Content.Should().Be(message2);
-            tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
+            await observer.Should().PushAsync(3);
+            observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message2);
 
             // disposing the client should throw a TaskCanceledException on the subscription
             ChatClient.Dispose();
-            tester.Should().HaveCompleted();
+            await observer.Should().CompleteAsync();
         }
 
         public class MessageAddedSubscriptionResult
@@ -172,40 +178,45 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest);
 
             Debug.WriteLine("subscribing...");
-            var tester = observable.Monitor();
+            var observer = observable.Observe();
             callbackMonitor.Should().HaveBeenInvokedWithPayload();
             await ChatClient.InitializeWebsocketConnection();
             Debug.WriteLine("websocket connection initialized");
-            tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+            await observer.Should().PushAsync(1);
+            observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
             const string message1 = "Hello World";
             Debug.WriteLine($"adding message {message1}");
             var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(true);
             response.Data.AddMessage.Content.Should().Be(message1);
-            tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
+            await observer.Should().PushAsync(2);
+            observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
 
             const string message2 = "How are you?";
             response = await ChatClient.AddMessageAsync(message2).ConfigureAwait(true);
             response.Data.AddMessage.Content.Should().Be(message2);
-            tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
+            await observer.Should().PushAsync(3);
+            observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message2);
 
             Debug.WriteLine("disposing subscription...");
-            tester.Dispose(); // does not close the websocket connection
+            observer.Dispose(); // does not close the websocket connection
 
             Debug.WriteLine($"creating new subscription from thread {Thread.CurrentThread.ManagedThreadId} ...");
-            var tester2 = observable.Monitor();
+            var observer2 = observable.Observe();
             Debug.WriteLine($"waiting for payload on {Thread.CurrentThread.ManagedThreadId} ...");
-            tester2.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message2);
+            await observer2.Should().PushAsync(1);
+            observer2.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message2);
 
             const string message3 = "lorem ipsum dolor si amet";
             response = await ChatClient.AddMessageAsync(message3).ConfigureAwait(true);
             response.Data.AddMessage.Content.Should().Be(message3);
-            tester2.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message3);
+            await observer2.Should().PushAsync(2);
+            observer2.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message3);
 
             // disposing the client should complete the subscription
             ChatClient.Dispose();
-            tester2.Should().HaveCompleted();
-            tester2.Dispose();
+            await observer2.Should().CompleteAsync();
+            observer2.Dispose();
         }
 
         private const string SUBSCRIPTION_QUERY2 = @"
@@ -247,25 +258,35 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var observable2 = ChatClient.CreateSubscriptionStream<UserJoinedSubscriptionResult>(_subscriptionRequest2, callbackTester2.Invoke);
 
             Debug.WriteLine("subscribing...");
-            var messagesMonitor = observable1.Monitor();
-            var joinedMonitor = observable2.Monitor();
+            var messagesMonitor = observable1.Observe();
+            var joinedMonitor = observable2.Observe();
 
-            messagesMonitor.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+            await messagesMonitor.Should().PushAsync(1);
+            messagesMonitor.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
             const string message1 = "Hello World";
             var response = await ChatClient.AddMessageAsync(message1);
             response.Data.AddMessage.Content.Should().Be(message1);
-            messagesMonitor.Should().HaveReceivedPayload()
-                .Which.Data.MessageAdded.Content.Should().Be(message1);
-            joinedMonitor.Should().NotHaveReceivedPayload();
+            await messagesMonitor.Should().PushAsync(2);
+            messagesMonitor.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
+
+            joinedMonitor.Should().NotPush();
+            messagesMonitor.Clear();
+            joinedMonitor.Clear();
 
             var joinResponse = await ChatClient.JoinDeveloperUser();
             joinResponse.Data.Join.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
 
-            var payload = joinedMonitor.Should().HaveReceivedPayload().Subject;
-            payload.Data.UserJoined.Id.Should().Be("1", "because that's the id we sent with our mutation request");
-            payload.Data.UserJoined.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
-            messagesMonitor.Should().NotHaveReceivedPayload();
+            var payload = await joinedMonitor.Should().PushAsync().GetLastMessageAsync();
+            using (new AssertionScope())
+            {
+                payload.Data.UserJoined.Id.Should().Be("1", "because that's the id we sent with our mutation request");
+                payload.Data.UserJoined.DisplayName.Should().Be("developer", "because that's the display name of user \"1\"");
+            }
+
+            messagesMonitor.Should().NotPush();
+            messagesMonitor.Clear();
+            joinedMonitor.Clear();
 
             Debug.WriteLine("disposing subscription...");
             joinedMonitor.Dispose();
@@ -273,12 +294,12 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             const string message3 = "lorem ipsum dolor si amet";
             response = await ChatClient.AddMessageAsync(message3);
             response.Data.AddMessage.Content.Should().Be(message3);
-            messagesMonitor.Should().HaveReceivedPayload()
-                .Which.Data.MessageAdded.Content.Should().Be(message3);
+            var msg = await messagesMonitor.Should().PushAsync().GetLastMessageAsync();
+            msg.Data.MessageAdded.Content.Should().Be(message3);
 
             // disposing the client should complete the subscription
             ChatClient.Dispose();
-            messagesMonitor.Should().HaveCompleted();
+            await messagesMonitor.Should().CompleteAsync();
         }
 
 
@@ -309,7 +330,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
                 var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest, errorMonitor.Invoke);
 
                 Debug.WriteLine("subscribing...");
-                var tester = observable.Monitor();
+                var observer = observable.Observe();
                 callbackMonitor.Should().HaveBeenInvokedWithPayload();
 
                 websocketStates.Should().ContainInOrder(
@@ -319,12 +340,14 @@ namespace GraphQL.Integration.Tests.WebsocketTests
                 // clear the collection so the next tests on the collection work as expected
                 websocketStates.Clear();
 
-                tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+                await observer.Should().PushAsync(1);
+                observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
                 const string message1 = "Hello World";
                 var response = await ChatClient.AddMessageAsync(message1);
                 response.Data.AddMessage.Content.Should().Be(message1);
-                tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(message1);
+                await observer.Should().PushAsync(2);
+                observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
 
                 Debug.WriteLine("stopping web host...");
                 await Fixture.ShutdownServer();
@@ -339,7 +362,8 @@ namespace GraphQL.Integration.Tests.WebsocketTests
                 Debug.WriteLine("web host started");
                 reconnectBlocker.Set();
                 callbackMonitor.Should().HaveBeenInvokedWithPayload(3.Seconds());
-                tester.Should().HaveReceivedPayload().Which.Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
+                await observer.Should().PushAsync(3);
+                observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
                 websocketStates.Should().ContainInOrder(
                     GraphQLWebsocketConnectionState.Disconnected,
@@ -348,7 +372,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 
                 // disposing the client should complete the subscription
                 ChatClient.Dispose();
-                tester.Should().HaveCompleted(5.Seconds());
+                await observer.Should().CompleteAsync(5.Seconds());
             }
         }
 
@@ -360,7 +384,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             await ChatClient.InitializeWebsocketConnection();
             callbackMonitor.Should().HaveBeenInvokedWithPayload();
             Debug.WriteLine("creating subscription stream");
-            IObservable<GraphQLResponse<object>> observable = ChatClient.CreateSubscriptionStream<object>(
+            var observable = ChatClient.CreateSubscriptionStream<object>(
                 new GraphQLRequest(@"
 					subscription {
 					  failImmediately {
@@ -370,16 +394,15 @@ namespace GraphQL.Integration.Tests.WebsocketTests
                 );
 
             Debug.WriteLine("subscribing...");
-            using (var tester = observable.Monitor())
-            {
-                tester.Should().HaveReceivedPayload(TimeSpan.FromSeconds(3))
-                    .Which.Errors.Should().ContainSingle();
-                tester.Should().HaveCompleted();
-                ChatClient.Dispose();
-            }
 
+            using var observer = observable.Observe();
+
+            await observer.Should().PushAsync();
+            observer.RecordedMessages.Last().Errors.Should().ContainSingle();
+
+            await observer.Should().CompleteAsync();
+            ChatClient.Dispose();
         }
-
 
         [Fact]
         public async void CanHandleQueryErrorInSubscription()
@@ -390,7 +413,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             await ChatClient.InitializeWebsocketConnection();
             callbackMonitor.Should().HaveBeenInvokedWithPayload();
             Debug.WriteLine("creating subscription stream");
-            IObservable<GraphQLResponse<object>> observable = ChatClient.CreateSubscriptionStream<object>(
+            var observable = ChatClient.CreateSubscriptionStream<object>(
                 new GraphQLRequest(@"
 					subscription {
 					  fieldDoesNotExist {
@@ -400,13 +423,14 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             );
 
             Debug.WriteLine("subscribing...");
-            using (var tester = observable.Monitor())
-            {
-                tester.Should().HaveReceivedPayload()
-                    .Which.Errors.Should().ContainSingle();
-                tester.Should().HaveCompleted();
-                ChatClient.Dispose();
-            }
+
+            using var observer = observable.Observe();
+
+            await observer.Should().PushAsync();
+            observer.RecordedMessages.Last().Errors.Should().ContainSingle();
+
+            await observer.Should().CompleteAsync();
+            ChatClient.Dispose();
         }
 
     }
