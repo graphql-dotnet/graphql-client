@@ -12,12 +12,18 @@ namespace GraphQL.Client.Http
     public class GraphQLHttpRequestException : Exception
     {
         /// <summary>
-        /// The <see cref="System.Net.Http.HttpResponseMessage"/>
+        /// The returned status code
         /// </summary>
         public HttpStatusCode StatusCode { get; }
 
+        /// <summary>
+        /// the returned response headers
+        /// </summary>
         public HttpResponseHeaders ResponseHeaders { get; }
 
+        /// <summary>
+        /// the returned content
+        /// </summary>
         public string? Content { get; }
 
         /// <summary>
