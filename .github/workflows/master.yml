@@ -1,8 +1,8 @@
-name: Main workflow (Ubuntu)
+name: Master workflow
 on: 
   push:
     branches:
-      - develop
+      - master
       - 'release/**'
       - 'releases/**'
     tags:        
@@ -26,7 +26,7 @@ jobs:
     - name: Fetch complete repository including tags
       run: git fetch --tags --force --prune && git describe
     - name: Generate version info from git history
-      run: dotnet gitversion /output json > gitversion.json
+      run: dotnet gitversion /output json > gitversion.json && cat gitversion.json
     - name: Upload version info file
       uses: actions/upload-artifact@v1
       with:
