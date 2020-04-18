@@ -1,10 +1,11 @@
-name: Branch workflow (Ubuntu)
+name: Branch workflow
 on: 
   push:
     branches-ignore:
-      - develop
+      - master
       - 'release/**'
       - 'releases/**'
+  pull_request:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true  
   MSBUILDSINGLELOADCONTEXT: 1

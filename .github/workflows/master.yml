@@ -1,8 +1,8 @@
-name: Main workflow (Ubuntu)
+name: Master workflow
 on: 
   push:
     branches:
-      - develop
+      - master
       - 'release/**'
       - 'releases/**'
     tags:        
