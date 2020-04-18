@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
@@ -73,7 +73,7 @@ namespace GraphQL.Client.Http
             if (Options.UseWebSocketForQueriesAndMutations)
                 return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
-            return await SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
+            return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -124,35 +124,33 @@ namespace GraphQL.Client.Http
 
         #region Private Methods
 
-        private async Task<GraphQLHttpResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
+        private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
-            using var httpRequestMessage = GenerateHttpRequestMessage(preprocessedRequest);
-            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, cancellationToken);
-
-            httpResponseMessage.EnsureSuccessStatusCode();
             
-            var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-            var response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
-            return response.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
-        }
+            using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
+            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-        private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, Options.EndPoint)
+            var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+
+            if (httpResponseMessage.IsSuccessStatusCode)
             {
-                Content = new StringContent(JsonSerializer.SerializeToString(request), Encoding.UTF8, Options.MediaType)
-            };
+                var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken);
+                return graphQLResponse.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
+            }
 
-            if (request is GraphQLHttpRequest httpRequest)
-                httpRequest.PreprocessHttpRequestMessage(message);
+            // error handling
+            string content = null;
+            if (contentStream != null)
+                using (var sr = new StreamReader(contentStream))
+                    content = await sr.ReadToEndAsync();
 
-            return message;
+            throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }
 
         private Uri GetWebSocketUri()
         {
-            var webSocketSchema = Options.EndPoint.Scheme == "https" ? "wss" : "ws";
+            string webSocketSchema = Options.EndPoint.Scheme == "https" ? "wss" : "ws";
             return new Uri($"{webSocketSchema}://{Options.EndPoint.Host}:{Options.EndPoint.Port}{Options.EndPoint.AbsolutePath}");
         }
 
