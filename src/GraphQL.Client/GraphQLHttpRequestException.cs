@@ -38,5 +38,4 @@ namespace GraphQL.Client.Http
             Content = content;
         }
     }
-
 }
