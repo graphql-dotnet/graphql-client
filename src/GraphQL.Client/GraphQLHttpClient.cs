@@ -127,11 +127,8 @@ namespace GraphQL.Client.Http
         private async Task<GraphQLHttpResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
-
-            if(!(preprocessedRequest is GraphQLHttpRequest graphQLHttpRequest))
-                graphQLHttpRequest = new GraphQLHttpRequest(preprocessedRequest);
-
-            using var httpRequestMessage = graphQLHttpRequest.ToHttpRequestMessage(Options, JsonSerializer);
+            
+            using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
             using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
             var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
