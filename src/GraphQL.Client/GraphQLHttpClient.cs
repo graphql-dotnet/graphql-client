@@ -73,7 +73,7 @@ namespace GraphQL.Client.Http
             if (Options.UseWebSocketForQueriesAndMutations)
                 return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
-            return await SendHttpPostRequestAsync<TResponse>(request, cancellationToken);
+            return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -124,7 +124,7 @@ namespace GraphQL.Client.Http
 
         #region Private Methods
 
-        private async Task<GraphQLHttpResponse<TResponse>> SendHttpPostRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
+        private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
             
