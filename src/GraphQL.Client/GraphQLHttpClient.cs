@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -128,13 +129,23 @@ namespace GraphQL.Client.Http
         {
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
             using var httpRequestMessage = GenerateHttpRequestMessage(preprocessedRequest);
-            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, cancellationToken);
+            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-            httpResponseMessage.EnsureSuccessStatusCode();
-            
-            var bodyStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-            var response = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(bodyStream, cancellationToken);
-            return response.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
+            var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken);
+                return graphQLResponse.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
+            }
+
+            // error handling
+            string content = null;
+            if (contentStream != null)
+                using (var sr = new StreamReader(contentStream))
+                    content = await sr.ReadToEndAsync();
+
+            throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }
 
         private HttpRequestMessage GenerateHttpRequestMessage(GraphQLRequest request)
