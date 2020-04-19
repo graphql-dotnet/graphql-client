@@ -51,7 +51,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             return result;
         }
 
-        private IEnumerable<object> ReadArray(JToken element)
+        private IEnumerable<object> ReadArray(JArray element)
         {
             foreach (var item in (JArray)element)
             {
