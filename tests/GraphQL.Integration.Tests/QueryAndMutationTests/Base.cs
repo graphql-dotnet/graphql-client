@@ -173,7 +173,9 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests
             var callbackTester = new CallbackMonitor<HttpRequestMessage>();
             var graphQLRequest = new GraphQLHttpRequest($"{{ human(id: \"1\") {{ name }} }}")
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 PreprocessHttpRequestMessage = callbackTester.Invoke
+#pragma warning restore CS0618 // Type or member is obsolete
             };
 
             var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
