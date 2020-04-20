@@ -48,9 +48,9 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             return to;
         }
 
-        private IEnumerable<object> ReadArray(JToken element)
+        private IEnumerable<object> ReadArray(JArray element)
         {
-            foreach (var item in element.Values())
+            foreach (var item in element)
             {
                 if (IsUnsupportedJTokenType(item.Type))
                     continue;

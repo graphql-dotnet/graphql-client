@@ -15,18 +15,6 @@
     <DefineConstants>NETFRAMEWORK</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="GraphQLSerializationExtensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="GraphQLSerializationExtensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
     <PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
   </ItemGroup>
