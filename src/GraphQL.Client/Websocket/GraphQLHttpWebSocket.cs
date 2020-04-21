@@ -614,7 +614,8 @@ namespace GraphQL.Client.Http.Websocket
         private readonly object _completedLocker = new object();
         private async Task CompleteAsync()
         {
-            Debug.WriteLine($"disposing websocket {_clientWebSocket.GetHashCode()}...");
+            Debug.WriteLine("disposing GraphQLHttpWebSocket...");
+
             _incomingMessagesConnection?.Dispose();
 
             if (!_internalCancellationTokenSource.IsCancellationRequested)
@@ -634,7 +635,7 @@ namespace GraphQL.Client.Http.Websocket
             _sendLoopScheduler?.Dispose();
             _receiveLoopScheduler?.Dispose();
 
-            Debug.WriteLine($"websocket {_clientWebSocket.GetHashCode()} disposed");
+            Debug.WriteLine("GraphQLHttpWebSocket disposed");
         }
 
         #endregion
