@@ -6,11 +6,12 @@ using System.Runtime.Serialization;
 namespace GraphQL
 {
 
-    public class GraphQLResponse<T> : IEquatable<GraphQLResponse<T>?>
+    public class GraphQLResponse<T> : IGraphQLResponse, IEquatable<GraphQLResponse<T>?>
     {
 
         [DataMember(Name = "data")]
         public T Data { get; set; }
+        object IGraphQLResponse.Data => Data;
 
         [DataMember(Name = "errors")]
         public GraphQLError[]? Errors { get; set; }
