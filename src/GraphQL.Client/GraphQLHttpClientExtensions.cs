@@ -27,7 +27,7 @@ namespace GraphQL.Client.Http
                     throw e;
             });
 
-        /// <inheritdoc cref="CreateSubscriptionStream{TResponse}(GraphQL.Client.Abstractions.IGraphQLClient,GraphQL.GraphQLRequest,System.Action{System.Net.WebSockets.WebSocketException})"/>
+        /// <inheritdoc cref="CreateSubscriptionStream{TResponse}(IGraphQLClient,GraphQLRequest,Action{WebSocketException})"/>
         public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType, Action<WebSocketException> webSocketExceptionHandler)
         {
@@ -35,7 +35,7 @@ namespace GraphQL.Client.Http
             return client.CreateSubscriptionStream<TResponse>(request, webSocketExceptionHandler);
         }
 
-        /// <inheritdoc cref="GraphQLHttpClient.CreateSubscriptionStream{TResponse}(GraphQL.GraphQLRequest)"/>
+        /// <inheritdoc cref="GraphQLHttpClient.CreateSubscriptionStream{TResponse}(GraphQLRequest)"/>
         public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType)
         {
