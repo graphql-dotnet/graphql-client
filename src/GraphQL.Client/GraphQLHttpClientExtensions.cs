@@ -27,11 +27,20 @@ namespace GraphQL.Client.Http
                     throw e;
             });
 
+        /// <inheritdoc cref="CreateSubscriptionStream{TResponse}(IGraphQLClient,GraphQLRequest,Action{WebSocketException})"/>
         public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType, Action<WebSocketException> webSocketExceptionHandler)
         {
             _ = defineResponseType;
             return client.CreateSubscriptionStream<TResponse>(request, webSocketExceptionHandler);
+        }
+
+        /// <inheritdoc cref="GraphQLHttpClient.CreateSubscriptionStream{TResponse}(GraphQLRequest)"/>
+        public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+            this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType)
+        {
+            _ = defineResponseType;
+            return client.CreateSubscriptionStream<TResponse>(request);
         }
     }
 }
