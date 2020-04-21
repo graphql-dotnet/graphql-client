@@ -41,7 +41,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             return result;
         }
 
-        private IEnumerable<object> ReadArray(JsonElement value)
+        private IEnumerable<object?> ReadArray(JsonElement value)
         {
             foreach (var item in value.EnumerateArray())
             {
@@ -49,7 +49,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             }
         }
 
-        private object ReadValue(JsonElement value)
+        private object? ReadValue(JsonElement value)
             => value.ValueKind switch
             {
                 JsonValueKind.Array => ReadArray(value).ToList(),
@@ -65,15 +65,15 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 
         private object ReadNumber(JsonElement value)
         {
-            if (value.TryGetInt32(out var i))
+            if (value.TryGetInt32(out int i))
                 return i;
-            else if (value.TryGetInt64(out var l))
+            else if (value.TryGetInt64(out long l))
                 return l;
             else if (BigInteger.TryParse(value.GetRawText(), out var bi))
                 return bi;
-            else if (value.TryGetDouble(out var d))
+            else if (value.TryGetDouble(out double d))
                 return d;
-            else if (value.TryGetDecimal(out var dd))
+            else if (value.TryGetDecimal(out decimal dd))
                 return dd;
 
             throw new NotImplementedException($"Unexpected Number value. Raw text was: {value.GetRawText()}");
