@@ -7,13 +7,10 @@ using GraphQL.Client.Serializer.Newtonsoft;
 
 namespace GraphQL.Client.Example
 {
-
     public class Program
     {
-
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
-            _ = args;
             using var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/", new NewtonsoftJsonSerializer());
 
             var personAndFilmsRequest = new GraphQLRequest
@@ -49,6 +46,5 @@ namespace GraphQL.Client.Example
             Console.WriteLine("Press any key to quit...");
             Console.ReadKey();
         }
-
     }
 }

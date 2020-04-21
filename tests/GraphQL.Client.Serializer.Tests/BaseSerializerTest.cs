@@ -18,7 +18,9 @@ namespace GraphQL.Client.Serializer.Tests
     public abstract class BaseSerializerTest
     {
         public IGraphQLWebsocketJsonSerializer Serializer { get; }
+
         public IGraphQLClient ChatClient { get; }
+
         public IGraphQLClient StarWarsClient { get; }
 
         protected BaseSerializerTest(IGraphQLWebsocketJsonSerializer serializer)
@@ -82,7 +84,6 @@ namespace GraphQL.Client.Serializer.Tests
 
             response.Errors[0].Extensions["data"].Should().BeEquivalentTo(ChatQuery.TestExtensions);
         }
-
 
         [Theory]
         [ClassData(typeof(StarWarsHumans))]

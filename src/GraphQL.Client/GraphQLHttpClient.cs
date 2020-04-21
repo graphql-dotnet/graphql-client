@@ -11,10 +11,8 @@ using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http
 {
-
     public class GraphQLHttpClient : IGraphQLClient
     {
-
         private readonly GraphQLHttpWebSocket _graphQlHttpWebSocket;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
@@ -42,8 +40,7 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// the websocket connection state
         /// </summary>
-        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState =>
-            _graphQlHttpWebSocket.ConnectionState;
+        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => _graphQlHttpWebSocket.ConnectionState;
 
         #region Constructors
 
@@ -156,7 +153,6 @@ namespace GraphQL.Client.Http
 
         #endregion
 
-
         #region IDisposable
 
         /// <summary>
@@ -168,26 +164,27 @@ namespace GraphQL.Client.Http
             {
                 if (!_disposed)
                 {
-                    _dispose();
+                    _disposed = true;
+                    Dispose(true);
                 }
             }
         }
 
-        private bool _disposed = false;
+        private volatile bool _disposed;
         private readonly object _disposeLocker = new object();
 
-        private void _dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            _disposed = true;
-            Debug.WriteLine($"disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
-            _cancellationTokenSource.Cancel();
-            HttpClient.Dispose();
-            _graphQlHttpWebSocket.Dispose();
-            _cancellationTokenSource.Dispose();
+            if (disposing)
+            {
+                Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
+                _cancellationTokenSource.Cancel();
+                HttpClient.Dispose();
+                _graphQlHttpWebSocket.Dispose();
+                _cancellationTokenSource.Dispose();
+            }
         }
 
         #endregion
-
     }
-
 }

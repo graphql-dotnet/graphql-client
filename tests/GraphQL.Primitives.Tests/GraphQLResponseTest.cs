@@ -2,10 +2,8 @@ using Xunit;
 
 namespace GraphQL.Primitives.Tests
 {
-
     public class GraphQLResponseTest
     {
-
         [Fact]
         public void Constructor1Fact()
         {
@@ -112,7 +110,5 @@ namespace GraphQL.Primitives.Tests
             };
             Assert.True(graphQLResponse1.GetHashCode() == graphQLResponse2.GetHashCode());
         }
-
     }
-
 }

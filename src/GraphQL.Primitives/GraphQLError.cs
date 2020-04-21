@@ -5,13 +5,11 @@ using System.Runtime.Serialization;
 
 namespace GraphQL
 {
-
     /// <summary>
     /// Represents a GraphQL Error of a GraphQL Query
     /// </summary>
     public class GraphQLError : IEquatable<GraphQLError?>
     {
-
         /// <summary>
         /// The locations of the error
         /// </summary>
@@ -41,8 +39,7 @@ namespace GraphQL
         /// </summary>
         /// <param name="obj">The object to compare with this instance</param>
         /// <returns>true if obj is an instance of <see cref="GraphQLError"/> and equals the value of the instance; otherwise, false</returns>
-        public override bool Equals(object? obj) =>
-            Equals(obj as GraphQLError);
+        public override bool Equals(object? obj) => Equals(obj as GraphQLError);
 
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified object
@@ -117,7 +114,5 @@ namespace GraphQL
         /// <returns>true if left and right are unequal; otherwise, false</returns>
         public static bool operator !=(GraphQLError? left, GraphQLError? right) =>
             !EqualityComparer<GraphQLError?>.Default.Equals(left, right);
-
     }
-
 }

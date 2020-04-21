@@ -48,7 +48,6 @@ namespace GraphQL.Client.Http.Websocket
 
         #endregion
 
-
         #region Public properties
 
         /// <summary>
@@ -73,7 +72,6 @@ namespace GraphQL.Client.Http.Websocket
 
         #endregion
 
-
         public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client)
         {
             _internalCancellationToken = _internalCancellationTokenSource.Token;
@@ -88,7 +86,6 @@ namespace GraphQL.Client.Http.Websocket
                 .ObserveOn(_sendLoopScheduler)
                 .Subscribe(async request => await SendWebSocketRequestAsync(request));
         }
-
 
         #region Send requests
 
@@ -492,7 +489,7 @@ namespace GraphQL.Client.Http.Websocket
             Observable.Using(() => new EventLoopScheduler(), scheduler =>
                 Observable.Create<WebsocketMessageWrapper>(async observer =>
                 {
-                    // make sure the websocket ist connected
+                    // make sure the websocket is connected
                     await InitializeWebSocket();
                     // subscribe observer to message stream
                     var subscription = new CompositeDisposable(_incomingMessages.ObserveOn(scheduler).Subscribe(observer))
@@ -593,6 +590,7 @@ namespace GraphQL.Client.Http.Websocket
         }
 
         #region IDisposable
+
         public void Dispose() => Complete();
 
         /// <summary>
@@ -638,6 +636,7 @@ namespace GraphQL.Client.Http.Websocket
 
             Debug.WriteLine($"websocket {_clientWebSocket.GetHashCode()} disposed");
         }
+
         #endregion
     }
 }

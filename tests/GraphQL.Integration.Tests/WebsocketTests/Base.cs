@@ -168,7 +168,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             }
         }
 
-
         [Fact]
         public async void CanReconnectWithSameObservable()
         {
@@ -234,13 +233,13 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             public class UserJoinedContent
             {
                 public string DisplayName { get; set; }
+
                 public string Id { get; set; }
             }
 
         }
 
         private readonly GraphQLRequest _subscriptionRequest2 = new GraphQLRequest(SUBSCRIPTION_QUERY2);
-
 
         [Fact]
         public async void CanConnectTwoSubscriptionsSimultaneously()
@@ -376,7 +375,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             }
         }
 
-
         [Fact]
         public async void CanHandleSubscriptionError()
         {
@@ -407,8 +405,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests
         [Fact]
         public async void CanHandleQueryErrorInSubscription()
         {
-            var test = new GraphQLRequest("tset", new { test = "blaa" });
-
             var callbackMonitor = ChatClient.ConfigureMonitorForOnWebsocketConnected();
             await ChatClient.InitializeWebsocketConnection();
             callbackMonitor.Should().HaveBeenInvokedWithPayload();

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions.Websocket
 {
-
     /// <summary>
     /// A Subscription Request
     /// </summary>
@@ -50,7 +49,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         public Task SendTask() => _tcs.Task;
 
         /// <summary>
-        /// gets called when the send operation for this request has completed sucessfully
+        /// gets called when the send operation for this request has completed successfully
         /// </summary>
         public void SendCompleted() => _tcs.SetResult(true);
 
@@ -109,7 +108,5 @@ namespace GraphQL.Client.Abstractions.Websocket
 
         /// <inheritdoc />
         public static bool operator !=(GraphQLWebSocketRequest request1, GraphQLWebSocketRequest request2) => !(request1 == request2);
-
     }
-
 }

@@ -6,7 +6,6 @@ using GraphQL.Client.Abstractions;
 
 namespace GraphQL.Client.Http
 {
-
     public class GraphQLHttpRequest : GraphQLRequest
     {
         public GraphQLHttpRequest()
@@ -42,7 +41,9 @@ namespace GraphQL.Client.Http
                 Content = new StringContent(serializer.SerializeToString(this), Encoding.UTF8, options.MediaType)
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
             PreprocessHttpRequestMessage(message);
+#pragma warning restore CS0618 // Type or member is obsolete
             return message;
         }
     }

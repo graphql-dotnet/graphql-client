@@ -13,9 +13,10 @@ namespace GraphQL.Client.Serializer.Tests
 {
     public abstract class BaseSerializeNoCamelCaseTest
     {
-
         public IGraphQLWebsocketJsonSerializer Serializer { get; }
+
         public IGraphQLClient ChatClient { get; }
+
         public IGraphQLClient StarWarsClient { get; }
 
         protected BaseSerializeNoCamelCaseTest(IGraphQLWebsocketJsonSerializer serializer)
@@ -40,7 +41,6 @@ namespace GraphQL.Client.Serializer.Tests
             var json = Encoding.UTF8.GetString(Serializer.SerializeToBytes(request)).RemoveWhitespace();
             json.Should().Be(expectedJson.RemoveWhitespace());
         }
-
 
         [Fact]
         public async void WorksWithoutCamelCaseNamingStrategy()

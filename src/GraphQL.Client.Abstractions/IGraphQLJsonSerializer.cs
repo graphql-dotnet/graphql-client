@@ -8,9 +8,6 @@ namespace GraphQL.Client.Abstractions
     {
         string SerializeToString(GraphQLRequest request);
 
-        Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream,
-            CancellationToken cancellationToken);
+        Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken);
     }
-
-
 }

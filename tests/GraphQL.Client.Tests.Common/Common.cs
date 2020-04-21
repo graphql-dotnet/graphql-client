@@ -17,6 +17,7 @@ namespace GraphQL.Client.Tests.Common
             services.AddStarWarsSchema();
             return services.BuildServiceProvider().GetRequiredService<StarWarsSchema>();
         }
+
         public static ChatSchema GetChatSchema()
         {
             var services = new ServiceCollection();

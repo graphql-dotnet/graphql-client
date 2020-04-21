@@ -2,10 +2,8 @@ using Xunit;
 
 namespace GraphQL.Primitives.Tests
 {
-
     public class GraphQLLocationTest
     {
-
         [Fact]
         public void ConstructorFact()
         {
@@ -60,7 +58,5 @@ namespace GraphQL.Primitives.Tests
             var graphQLLocation2 = new GraphQLLocation { Column = 1, Line = 2 };
             Assert.True(graphQLLocation1.GetHashCode() == graphQLLocation2.GetHashCode());
         }
-
     }
-
 }

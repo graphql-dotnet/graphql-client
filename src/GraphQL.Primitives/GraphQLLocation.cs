@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace GraphQL
 {
-
     /// <summary>
     /// Represents a GraphQL Location of a GraphQL Query
     /// </summary>
     public sealed class GraphQLLocation : IEquatable<GraphQLLocation?>
     {
-
         /// <summary>
         /// The Column
         /// </summary>
@@ -65,7 +63,5 @@ namespace GraphQL
         /// <returns>true if left and right are unequal; otherwise, false</returns>
         public static bool operator !=(GraphQLLocation? left, GraphQLLocation? right) =>
             !EqualityComparer<GraphQLLocation?>.Default.Equals(left, right);
-
     }
-
 }

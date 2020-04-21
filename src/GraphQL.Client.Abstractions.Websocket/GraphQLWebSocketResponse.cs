@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace GraphQL.Client.Abstractions.Websocket
 {
-
     /// <summary>
     /// A Subscription Response
     /// </summary>
     public class GraphQLWebSocketResponse : IEquatable<GraphQLWebSocketResponse>
     {
-
         /// <summary>
         /// The Identifier of the Response
         /// </summary>
@@ -65,7 +63,6 @@ namespace GraphQL.Client.Abstractions.Websocket
         /// <inheritdoc />
         public static bool operator !=(GraphQLWebSocketResponse response1, GraphQLWebSocketResponse response2) =>
             !(response1 == response2);
-
     }
 
     public class GraphQLWebSocketResponse<TPayload> : GraphQLWebSocketResponse, IEquatable<GraphQLWebSocketResponse<TPayload>>

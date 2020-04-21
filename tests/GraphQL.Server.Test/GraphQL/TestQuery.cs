@@ -4,10 +4,8 @@ using GraphQL.Types;
 
 namespace GraphQL.Server.Test.GraphQL
 {
-
     public class TestQuery : ObjectGraphType
     {
-
         public TestQuery()
         {
             Field<RepositoryGraphType>("repository", arguments: new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "owner" }, new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }), resolve: context =>
@@ -17,7 +15,5 @@ namespace GraphQL.Server.Test.GraphQL
                 return Storage.Repositories.FirstOrDefault(predicate => predicate.Name == name);
             });
         }
-
     }
-
 }

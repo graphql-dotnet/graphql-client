@@ -12,7 +12,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         byte[] SerializeToBytes(GraphQLWebSocketRequest request);
 
         Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream);
-        GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes);
 
+        GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes);
     }
 }

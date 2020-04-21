@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Http
 {
-
     /// <summary>
     /// The Options that the <see cref="GraphQLHttpClient"/> will use
     /// </summary>
     public class GraphQLHttpClientOptions
     {
-
         /// <summary>
         /// The GraphQL EndPoint to be used
         /// </summary>
