@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -22,11 +23,11 @@ namespace GraphQL.Client.Serializer.Newtonsoft
                 throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
         }
 
-        private object ReadToken(JToken? token) =>
+        private object? ReadToken(JToken? token) =>
             token switch
             {
                 JObject jObject => ReadDictionary(jObject, new Dictionary<string, object>()),
-                JArray jArray => ReadArray(jArray),
+                JArray jArray => ReadArray(jArray).ToList(),
                 JValue jValue => jValue.Value,
                 JConstructor _ => throw new ArgumentOutOfRangeException(nameof(token.Type),
                     "cannot deserialize a JSON constructor"),
@@ -48,7 +49,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft
             return to;
         }
 
-        private IEnumerable<object> ReadArray(JArray element)
+        private IEnumerable<object?> ReadArray(JArray element)
         {
             foreach (var item in element)
             {

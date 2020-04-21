@@ -396,12 +396,13 @@ namespace GraphQL.Client.Http.Websocket
 						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
 						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
-						break;
+                        Options.ConfigureWebsocketOptions(nativeWebSocket.Options);
+                        break;
 					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
 						managedWebSocket.Options.AddSubProtocol("graphql-ws");
 						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
-						break;
+                        break;
 					default:
 						throw new NotSupportedException($"unknown websocket type {_clientWebSocket.GetType().Name}");
 				}
@@ -410,6 +411,7 @@ namespace GraphQL.Client.Http.Websocket
                 _clientWebSocket.Options.AddSubProtocol("graphql-ws");
                 _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
                 _clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
+                Options.ConfigureWebsocketOptions(_clientWebSocket.Options);
 #endif
                 return _initializeWebSocketTask = ConnectAsync(_internalCancellationToken);
             }
@@ -607,7 +609,7 @@ namespace GraphQL.Client.Http.Websocket
         /// Task to await the completion (a.k.a. disposal) of this websocket.
         /// </summary> 
         /// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
-        public Task Completion { get; private set; }
+        public Task? Completion { get; private set; }
 
         private readonly object _completedLocker = new object();
         private async Task CompleteAsync()

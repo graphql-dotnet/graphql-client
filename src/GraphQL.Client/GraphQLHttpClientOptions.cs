@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace GraphQL.Client.Http
@@ -50,5 +51,10 @@ namespace GraphQL.Client.Http
         /// This callback is called after successfully establishing a websocket connection but before any regular request is made. 
         /// </summary>
         public Func<GraphQLHttpClient, Task> OnWebsocketConnected { get; set; } = client => Task.CompletedTask;
+
+        /// <summary>
+        /// Configure additional websocket options (i.e. headers). This will not be invoked on Windows 7 when targeting .NET Framework 4.x. 
+        /// </summary>
+        public Action<ClientWebSocketOptions> ConfigureWebsocketOptions { get; set; } = options => { };
     }
 }
