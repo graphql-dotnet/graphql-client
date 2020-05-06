@@ -51,8 +51,6 @@ Be careful when using `byte[]` in your variables object, as most JSON serializer
 ### Execute Query/Mutation:
 
 ```csharp
-var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/", new NewtonsoftJsonSerializer());
-
 public class PersonAndFilmsResponse {
     public Person Person { get; set; }
 }
@@ -70,11 +68,18 @@ public class Person {
     }
 }
 
+var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/", new NewtonsoftJsonSerializer());
 var graphQLResponse = await graphQLClient.SendQueryAsync<PersonAndFilmsResponse>(personAndFilmsRequest);
 
 var personName = graphQLResponse.Data.Person.Name;
 ```
 
+Using the extension method for anonymously typed responses (namespace `GraphQL.Client.Abstractions`) you could achieve the same result with the following code:
+
+```csharp
+var graphQLResponse = await graphQLClient.SendQueryAsync(personAndFilmsRequest, () => new { person = new Person()} );
+var personName = graphQLResponse.Data.person.Name;
+```
 
 ### Use Subscriptions
 
