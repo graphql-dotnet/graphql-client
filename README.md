@@ -51,25 +51,26 @@ Be careful when using `byte[]` in your variables object, as most JSON serializer
 ### Execute Query/Mutation:
 
 ```csharp
-public class PersonAndFilmsResponse {
-    public Person Person { get; set; }
+public class ResponseType 
+{
+    public PersonType Person { get; set; }
 }
 
-public class Person {
+public class PersonType 
+{
     public string Name { get; set; }
-    public FilmConnectionContent FilmConnection { get; set; }
-
-    public class FilmConnectionContent {
-        public List<FilmContent> Films { get; set; }
-
-        public class FilmContent {
-            public string Title { get; set; }
-        }
-    }
+    public FilmConnectionType FilmConnection { get; set; }    
 }
 
-var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/", new NewtonsoftJsonSerializer());
-var graphQLResponse = await graphQLClient.SendQueryAsync<PersonAndFilmsResponse>(personAndFilmsRequest);
+public class FilmConnectionType {
+    public List<FilmContentType> Films { get; set; }    
+}
+
+public class FilmContentType {
+    public string Title { get; set; }
+}
+
+var graphQLResponse = await graphQLClient.SendQueryAsync<ResponseType>(personAndFilmsRequest);
 
 var personName = graphQLResponse.Data.Person.Name;
 ```
@@ -77,7 +78,7 @@ var personName = graphQLResponse.Data.Person.Name;
 Using the extension method for anonymously typed responses (namespace `GraphQL.Client.Abstractions`) you could achieve the same result with the following code:
 
 ```csharp
-var graphQLResponse = await graphQLClient.SendQueryAsync(personAndFilmsRequest, () => new { person = new Person()} );
+var graphQLResponse = await graphQLClient.SendQueryAsync(personAndFilmsRequest, () => new { person = new PersonType()} );
 var personName = graphQLResponse.Data.person.Name;
 ```
 
