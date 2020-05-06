@@ -54,18 +54,18 @@ Be careful when using `byte[]` in your variables object, as most JSON serializer
 var graphQLClient = new GraphQLHttpClient("https://swapi.apis.guru/", new NewtonsoftJsonSerializer());
 
 public class PersonAndFilmsResponse {
-    public PersonContent Person { get; set; }
+    public Person Person { get; set; }
+}
 
-    public class PersonContent {
-        public string Name { get; set; }
-        public FilmConnectionContent FilmConnection { get; set; }
+public class Person {
+    public string Name { get; set; }
+    public FilmConnectionContent FilmConnection { get; set; }
 
-        public class FilmConnectionContent {
-            public List<FilmContent> Films { get; set; }
+    public class FilmConnectionContent {
+        public List<FilmContent> Films { get; set; }
 
-            public class FilmContent {
-                public string Title { get; set; }
-            }
+        public class FilmContent {
+            public string Title { get; set; }
         }
     }
 }
