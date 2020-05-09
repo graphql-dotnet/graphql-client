@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -117,6 +118,27 @@ namespace GraphQL.Client.Serializer.Tests
             var response = await ChatClient.AddMessageAsync(message);
 
             Assert.Equal(message, response.Data.AddMessage.Content);
+        }
+
+        
+        public class WithNullable
+        {
+            public int? NullableInt { get; set; }
+        }
+
+        [Fact]
+        public void CanSerializeNullableInt()
+        {
+            Action action = () => Serializer.SerializeToString(new GraphQLRequest
+            {
+                Query = "{}",
+                Variables = new WithNullable
+                {
+                    NullableInt = 2
+                }
+            });
+
+            action.Should().NotThrow();
         }
     }
 }
