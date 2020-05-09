@@ -37,8 +37,79 @@ namespace GraphQL.Client.Serializer.Tests.TestData
                     }
                 }
             };
+
+            yield return new object[]
+            {
+                @"{
+                    ""errors"": [
+                        {
+                            ""message"": ""Name for character with ID 1002 could not be fetched."",
+                            ""locations"": [
+                                {
+                                    ""line"": 6,
+                                    ""column"": 7
+                                }
+                            ],
+                            ""path"": [
+                                ""hero"",
+                                ""heroFriends"",
+                                1,
+                                ""name""
+                            ]
+                        }
+                    ],
+                    ""data"": {
+                        ""hero"": {
+                            ""name"": ""R2-D2"",
+                            ""heroFriends"": [
+                                {
+                                    ""id"": ""1000"",
+                                    ""name"": ""Luke Skywalker""
+                                },
+                                {
+                                    ""id"": ""1002"",
+                                    ""name"": null
+                                },
+                                {
+                                    ""id"": ""1003"",
+                                    ""name"": ""Leia Organa""
+                                }
+                            ]
+                        }
+                    }
+                }",
+                NewAnonymouslyTypedGraphQLResponse(new
+                    {
+                        hero = new
+                        {
+                            name = "R2-D2",
+                            heroFriends = new List<Friend>
+                            {
+                                new Friend {Id = "1000", Name = "Luke Skywalker"},
+                                new Friend {Id = "1002", Name = null},
+                                new Friend {Id = "1003", Name = "Leia Organa"}
+                            }
+                        }
+                    },
+                    new[] {
+                        new GraphQLError {
+                            Message = "Name for character with ID 1002 could not be fetched.",
+                            Locations = new [] { new GraphQLLocation{Line = 6, Column = 7 }},
+                            Path = new ErrorPath{"hero", "heroFriends", 1, "name"}
+                        }
+                    })
+            };
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private GraphQLResponse<T> NewAnonymouslyTypedGraphQLResponse<T>(T data, GraphQLError[]? errors = null, Map? extensions = null)
+            => new GraphQLResponse<T> {Data = data, Errors = errors, Extensions = extensions};
+    }
+
+    public class Friend
+    {
+        public string Id { get; set; }
+        public string? Name { get; set; }
     }
 }

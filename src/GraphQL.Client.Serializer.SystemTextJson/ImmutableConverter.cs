@@ -15,6 +15,13 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     {
         public override bool CanConvert(Type typeToConvert)
         {
+            if (typeToConvert.IsPrimitive)
+                return false;
+
+            var nullableUnderlyingType = Nullable.GetUnderlyingType(typeToConvert);
+            if (nullableUnderlyingType != null && nullableUnderlyingType.IsPrimitive)
+                return false;
+
             bool result;
             var constructors = typeToConvert.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             if (constructors.Length != 1)

@@ -26,7 +26,7 @@ namespace GraphQL
         /// The Path of the error
         /// </summary>
         [DataMember(Name = "path")]
-        public object[]? Path { get; set; }
+        public ErrorPath? Path { get; set; }
 
         /// <summary>
         /// The extensions of the error

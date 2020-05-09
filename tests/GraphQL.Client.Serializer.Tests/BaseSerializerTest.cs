@@ -1,8 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.LocalExecution;
@@ -49,14 +53,31 @@ namespace GraphQL.Client.Serializer.Tests
 
         [Theory]
         [ClassData(typeof(DeserializeResponseTestData))]
-        public async void DeserializeFromUtf8StreamTest(string json, GraphQLResponse<object> expectedResponse)
+        public async void DeserializeFromUtf8StreamTest(string json, IGraphQLResponse expectedResponse)
         {
             var jsonBytes = Encoding.UTF8.GetBytes(json);
             await using var ms = new MemoryStream(jsonBytes);
-            var response = await Serializer.DeserializeFromUtf8StreamAsync<GraphQLResponse<object>>(ms, CancellationToken.None);
+            var response = await DeserializeToUnknownType(expectedResponse.Data?.GetType() ?? typeof(object), ms);
+            //var response = await Serializer.DeserializeFromUtf8StreamAsync<object>(ms, CancellationToken.None);
 
-            response.Data.Should().BeEquivalentTo(expectedResponse.Data);
-            response.Errors.Should().Equal(expectedResponse.Errors);
+            response.Data.Should().BeEquivalentTo(expectedResponse.Data, options => options.WithAutoConversion());
+
+            if (expectedResponse.Errors is null)
+                response.Errors.Should().BeNull();
+            else {
+                using (new AssertionScope())
+                {
+                    response.Errors.Should().NotBeNull();
+                    response.Errors.Should().HaveSameCount(expectedResponse.Errors);
+                    for (int i = 0; i < expectedResponse.Errors.Length; i++)
+                    {
+                        response.Errors[i].Message.Should().BeEquivalentTo(expectedResponse.Errors[i].Message);
+                        response.Errors[i].Locations.Should().BeEquivalentTo(expectedResponse.Errors[i].Locations?.ToList());
+                        response.Errors[i].Path.Should().BeEquivalentTo(expectedResponse.Errors[i].Path);
+                        response.Errors[i].Extensions.Should().BeEquivalentTo(expectedResponse.Errors[i].Extensions);
+                    }
+                }
+            }
 
             if (expectedResponse.Extensions == null)
                 response.Extensions.Should().BeNull();
@@ -68,6 +89,17 @@ namespace GraphQL.Client.Serializer.Tests
                     response.Extensions[element.Key].Should().BeEquivalentTo(element.Value);
                 }
             }
+        }
+
+        public async Task<IGraphQLResponse> DeserializeToUnknownType(Type dataType, Stream stream)
+        {
+            MethodInfo mi = Serializer.GetType().GetMethod("DeserializeFromUtf8StreamAsync", BindingFlags.Instance | BindingFlags.Public);
+            MethodInfo mi2 = mi.MakeGenericMethod(dataType);
+            var task = (Task) mi2.Invoke(Serializer, new object[] { stream, CancellationToken.None });
+            await task;
+            var resultProperty = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance);
+            var result = resultProperty.GetValue(task);
+            return (IGraphQLResponse)result;
         }
 
         [Fact]
