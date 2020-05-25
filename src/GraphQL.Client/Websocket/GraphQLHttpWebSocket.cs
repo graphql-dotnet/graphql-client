@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -84,7 +85,8 @@ namespace GraphQL.Client.Http.Websocket
 
             _requestSubscription = _requestSubject
                 .ObserveOn(_sendLoopScheduler)
-                .Subscribe(async request => await SendWebSocketRequestAsync(request));
+                .SelectMany(SendWebSocketRequestAsync)
+                .Subscribe();
         }
 
         #region Send requests
@@ -339,14 +341,14 @@ namespace GraphQL.Client.Http.Websocket
             return request.SendTask();
         }
 
-        private async Task SendWebSocketRequestAsync(GraphQLWebSocketRequest request)
+        private async Task<Unit> SendWebSocketRequestAsync(GraphQLWebSocketRequest request)
         {
             try
             {
                 if (_internalCancellationToken.IsCancellationRequested)
                 {
                     request.SendCanceled();
-                    return;
+                    return Unit.Default;
                 }
 
                 await InitializeWebSocket();
@@ -362,6 +364,7 @@ namespace GraphQL.Client.Http.Websocket
             {
                 request.SendFailed(e);
             }
+            return Unit.Default;
         }
 
         #endregion
