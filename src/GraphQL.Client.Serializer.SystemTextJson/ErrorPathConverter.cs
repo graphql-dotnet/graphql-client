@@ -9,40 +9,43 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     public class ErrorPathConverter : JsonConverter<ErrorPath>
     {
 
-        public override ErrorPath Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            using var doc = JsonDocument.ParseValue(ref reader);
-
-            if (doc?.RootElement == null || doc?.RootElement.ValueKind != JsonValueKind.Array)
-            {
-                throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
-            }
-
-            return new ErrorPath(ReadArray(doc.RootElement));
-        }
+        public override ErrorPath Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            new ErrorPath(ReadArray(ref reader));
 
         public override void Write(Utf8JsonWriter writer, ErrorPath value, JsonSerializerOptions options)
             => throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
         
-        private IEnumerable<object?> ReadArray(JsonElement value)
+        private IEnumerable<object?> ReadArray(ref Utf8JsonReader reader)
         {
-            foreach (var item in value.EnumerateArray())
+            if (reader.TokenType != JsonTokenType.StartArray)
             {
-                yield return ReadValue(item);
+                throw new JsonException("This converter can only parse when the root element is a JSON Array.");
             }
+
+            var array = new List<object?>();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndArray)
+                    break;
+
+                array.Add(ReadValue(ref reader));
+            }
+
+            return array;
         }
 
-        private object? ReadValue(JsonElement value)
-            => value.ValueKind switch
+        private object? ReadValue(ref Utf8JsonReader reader)
+            => reader.TokenType switch
             {
-                JsonValueKind.Number => value.ReadNumber(),
-                JsonValueKind.True => true,
-                JsonValueKind.False => false,
-                JsonValueKind.String => value.GetString(),
-                JsonValueKind.Null => null,
-                JsonValueKind.Undefined => null,
-                _ => throw new InvalidOperationException($"Unexpected value kind: {value.ValueKind}")
+                JsonTokenType.None => null,
+                JsonTokenType.String => reader.GetString(),
+                JsonTokenType.Number => reader.ReadNumber(),
+                JsonTokenType.True => true,
+                JsonTokenType.False => false,
+                JsonTokenType.Null => null,
+                _ => throw new InvalidOperationException($"Unexpected token type: {reader.TokenType}")
             };
     }
 }
