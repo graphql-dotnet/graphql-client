@@ -79,8 +79,11 @@ namespace GraphQL.Client.LocalExecution
         private async Task<IObservable<GraphQLResponse<TResponse>>> ExecuteSubscriptionAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var result = await ExecuteAsync(request, cancellationToken);
-            return ((SubscriptionExecutionResult)result).Streams?.Values.SingleOrDefault()?
-                .SelectMany(executionResult => Observable.FromAsync(token => ExecutionResultToGraphQLResponse<TResponse>(executionResult, token)));
+            var stream = ((SubscriptionExecutionResult)result).Streams?.Values.SingleOrDefault();
+            
+            return stream == null
+                ? Observable.Throw<GraphQLResponse<TResponse>>(new InvalidOperationException("the GraphQL execution did not return an observable"))
+                : stream.SelectMany(executionResult => Observable.FromAsync(token => ExecutionResultToGraphQLResponse<TResponse>(executionResult, token)));
         }
 
         private async Task<ExecutionResult> ExecuteAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
