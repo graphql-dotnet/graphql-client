@@ -15,68 +15,70 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     /// </remarks>
     public class MapConverter : JsonConverter<Map>
     {
-        public override Map Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            using var doc = JsonDocument.ParseValue(ref reader);
-
-            if (doc?.RootElement == null || doc?.RootElement.ValueKind != JsonValueKind.Object)
-            {
-                throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
-            }
-
-            return ReadDictionary<Map>(doc.RootElement);
-        }
+        public override Map Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => ReadDictionary(ref reader, new Map());
 
         public override void Write(Utf8JsonWriter writer, Map value, JsonSerializerOptions options)
             => throw new NotImplementedException(
                 "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
 
-        private TDictionary ReadDictionary<TDictionary>(JsonElement element) where TDictionary : Dictionary<string, object>
+        private static TDictionary ReadDictionary<TDictionary>(ref Utf8JsonReader reader, TDictionary result)
+            where TDictionary : Dictionary<string, object>
         {
-            var result = Activator.CreateInstance<TDictionary>();
-            foreach (var property in element.EnumerateObject())
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException();
+            
+            while (reader.Read())
             {
-                result[property.Name] = ReadValue(property.Value);
+                if (reader.TokenType == JsonTokenType.EndObject)
+                    break;
+
+                if (reader.TokenType != JsonTokenType.PropertyName)
+                    throw new JsonException();
+
+                string key = reader.GetString();
+
+                // move to property value
+                if (!reader.Read())
+                    throw new JsonException();
+
+                result.Add(key, ReadValue(ref reader));
             }
+
             return result;
         }
 
-        private IEnumerable<object?> ReadArray(JsonElement value)
+        private static List<object> ReadArray(ref Utf8JsonReader reader)
         {
-            foreach (var item in value.EnumerateArray())
-            {
-                yield return ReadValue(item);
-            }
-        }
+            if (reader.TokenType != JsonTokenType.StartArray)
+                throw new JsonException();
 
-        private object? ReadValue(JsonElement value)
-            => value.ValueKind switch
+            var result = new List<object>();
+
+            while (reader.Read())
             {
-                JsonValueKind.Array => ReadArray(value).ToList(),
-                JsonValueKind.Object => ReadDictionary<Dictionary<string, object>>(value),
-                JsonValueKind.Number => ReadNumber(value),
-                JsonValueKind.True => true,
-                JsonValueKind.False => false,
-                JsonValueKind.String => value.GetString(),
-                JsonValueKind.Null => null,
-                JsonValueKind.Undefined => null,
-                _ => throw new InvalidOperationException($"Unexpected value kind: {value.ValueKind}")
+                if (reader.TokenType == JsonTokenType.EndArray)
+                    break;
+
+                result.Add(ReadValue(ref reader));
+            }
+
+            return result;
+        }
+        
+        private static object? ReadValue(ref Utf8JsonReader reader)
+            => reader.TokenType switch
+            {
+                JsonTokenType.StartArray => ReadArray(ref reader).ToList(),
+                JsonTokenType.StartObject => ReadDictionary(ref reader, new Dictionary<string, object>()),
+                JsonTokenType.Number => reader.ReadNumber(),
+                JsonTokenType.True => true,
+                JsonTokenType.False => false,
+                JsonTokenType.String => reader.GetString(),
+                JsonTokenType.Null => null,
+                JsonTokenType.None => null,
+                _ => throw new InvalidOperationException($"Unexpected value kind: {reader.TokenType}")
             };
 
-        private object ReadNumber(JsonElement value)
-        {
-            if (value.TryGetInt32(out int i))
-                return i;
-            else if (value.TryGetInt64(out long l))
-                return l;
-            else if (BigInteger.TryParse(value.GetRawText(), out var bi))
-                return bi;
-            else if (value.TryGetDouble(out double d))
-                return d;
-            else if (value.TryGetDecimal(out decimal dd))
-                return dd;
-
-            throw new NotImplementedException($"Unexpected Number value. Raw text was: {value.GetRawText()}");
-        }
+        
     }
 }
