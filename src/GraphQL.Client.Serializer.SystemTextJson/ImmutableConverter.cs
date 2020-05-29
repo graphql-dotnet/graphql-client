@@ -19,7 +19,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
                 return false;
 
             var nullableUnderlyingType = Nullable.GetUnderlyingType(typeToConvert);
-            if (nullableUnderlyingType != null && nullableUnderlyingType.IsPrimitive)
+            if (nullableUnderlyingType != null && nullableUnderlyingType.IsValueType)
                 return false;
 
             bool result;
@@ -40,7 +40,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
                     foreach (var parameter in parameters)
                     {
                         var hasMatchingProperty = properties.Any(p =>
-                            NameOfPropertyAndParameter.Matches(p.Name, parameter.Name, typeToConvert.IsAnonymous()));
+                                                                     NameOfPropertyAndParameter.Matches(p.Name, parameter.Name, typeToConvert.IsAnonymous()));
                         if (!hasMatchingProperty)
                         {
                             result = false;
@@ -90,7 +90,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             {
                 var parameterInfo = parameters[index];
                 var value = valueOfProperty.First(prop =>
-                    NameOfPropertyAndParameter.Matches(prop.Key.Name, parameterInfo.Name, typeToConvert.IsAnonymous())).Value;
+                                                      NameOfPropertyAndParameter.Matches(prop.Key.Name, parameterInfo.Name, typeToConvert.IsAnonymous())).Value;
 
                 parameterValues[index] = value;
             }
@@ -120,6 +120,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
                 if (!(converter is ImmutableConverter))
                     strippedOptions.Converters.Add(converter);
             }
+
             JsonSerializer.Serialize(writer, value, strippedOptions);
         }
 

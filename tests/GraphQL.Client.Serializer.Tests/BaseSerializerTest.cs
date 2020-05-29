@@ -58,13 +58,15 @@ namespace GraphQL.Client.Serializer.Tests
             var jsonBytes = Encoding.UTF8.GetBytes(json);
             await using var ms = new MemoryStream(jsonBytes);
             var response = await DeserializeToUnknownType(expectedResponse.Data?.GetType() ?? typeof(object), ms);
+
             //var response = await Serializer.DeserializeFromUtf8StreamAsync<object>(ms, CancellationToken.None);
 
             response.Data.Should().BeEquivalentTo(expectedResponse.Data, options => options.WithAutoConversion());
 
             if (expectedResponse.Errors is null)
                 response.Errors.Should().BeNull();
-            else {
+            else
+            {
                 using (new AssertionScope())
                 {
                     response.Errors.Should().NotBeNull();
@@ -95,7 +97,7 @@ namespace GraphQL.Client.Serializer.Tests
         {
             MethodInfo mi = Serializer.GetType().GetMethod("DeserializeFromUtf8StreamAsync", BindingFlags.Instance | BindingFlags.Public);
             MethodInfo mi2 = mi.MakeGenericMethod(dataType);
-            var task = (Task) mi2.Invoke(Serializer, new object[] { stream, CancellationToken.None });
+            var task = (Task)mi2.Invoke(Serializer, new object[] { stream, CancellationToken.None });
             await task;
             var resultProperty = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance);
             var result = resultProperty.GetValue(task);
@@ -105,9 +107,8 @@ namespace GraphQL.Client.Serializer.Tests
         [Fact]
         public async void CanDeserializeExtensions()
         {
-
             var response = await ChatClient.SendQueryAsync(new GraphQLRequest("query { extensionsTest }"),
-                    () => new { extensionsTest = "" })
+                                                           () => new { extensionsTest = "" })
                 ;
 
             response.Errors.Should().NotBeNull();
@@ -134,8 +135,8 @@ namespace GraphQL.Client.Serializer.Tests
 				    name
 				  }
 				}",
-                new { id = id.ToString() },
-                "Human");
+                                                    new { id = id.ToString() },
+                                                    "Human");
 
             var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
 
@@ -152,7 +153,6 @@ namespace GraphQL.Client.Serializer.Tests
             Assert.Equal(message, response.Data.AddMessage.Content);
         }
 
-        
         public class WithNullable
         {
             public int? NullableInt { get; set; }
@@ -167,6 +167,26 @@ namespace GraphQL.Client.Serializer.Tests
                 Variables = new WithNullable
                 {
                     NullableInt = 2
+                }
+            });
+
+            action.Should().NotThrow();
+        }
+
+        public class WithNullableStruct
+        {
+            public DateTime? NullableStruct { get; set; }
+        }
+
+        [Fact]
+        public void CanSerializeNullableStruct()
+        {
+            Action action = () => Serializer.SerializeToString(new GraphQLRequest
+            {
+                Query = "{}",
+                Variables = new WithNullableStruct
+                {
+                    NullableStruct = DateTime.Now
                 }
             });
 
