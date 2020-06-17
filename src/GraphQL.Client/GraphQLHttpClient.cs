@@ -15,7 +15,7 @@ namespace GraphQL.Client.Http
 {
     public class GraphQLHttpClient : IGraphQLClient
     {
-        private readonly GraphQLHttpWebSocket _graphQlHttpWebSocket;
+        private readonly GraphQLHttpWebSocket _graphQlHttpWebSocket = null;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
 
@@ -63,7 +63,8 @@ namespace GraphQL.Client.Http
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
-            _graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
+            if (options.UseWebSocketForQueriesAndMutations)
+                _graphQlHttpWebSocket = new GraphQLHttpWebSocket(GetWebSocketUri(), this);
         }
 
         #endregion
@@ -186,7 +187,7 @@ namespace GraphQL.Client.Http
                 Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
                 _cancellationTokenSource.Cancel();
                 HttpClient.Dispose();
-                _graphQlHttpWebSocket.Dispose();
+                _graphQlHttpWebSocket?.Dispose();
                 _cancellationTokenSource.Dispose();
             }
         }
