@@ -188,7 +188,7 @@ namespace GraphQL.Client.Http
                 Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
                 _cancellationTokenSource.Cancel();
                 HttpClient.Dispose();
-                _lazyHttpWebSocket?.Value.Dispose();
+                if(_lazyHttpWebSocket?.HasValue) _lazyHttpWebSocket?.Value.Dispose();
                 _cancellationTokenSource.Dispose();
             }
         }
