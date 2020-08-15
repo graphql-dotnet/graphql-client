@@ -99,6 +99,21 @@ namespace GraphQL.Client.Serializer.Tests.TestData
                         }
                     })
             };
+
+            // add test for github issue #230 : https://github.com/graphql-dotnet/graphql-client/issues/230
+            yield return new object[] {
+                "{\"data\":{\"getMyModelType\":{\"id\":\"foo\",\"title\":\"The best Foo movie!\"}}}",
+                new GraphQLResponse<GetMyModelTypeResponse> {
+                    Data = new GetMyModelTypeResponse
+                    {
+                        getMyModelType = new Movie
+                        {
+                            id = "foo",
+                            title = "The best Foo movie!"
+                        }
+                    },
+                }
+            };
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -111,5 +126,17 @@ namespace GraphQL.Client.Serializer.Tests.TestData
     {
         public string Id { get; set; }
         public string? Name { get; set; }
+    }
+
+    public class GetMyModelTypeResponse
+    {
+        //--- Properties ---
+        public Movie getMyModelType { get; set; }
+    }
+    public class Movie
+    {
+        //--- Properties ---
+        public string id { get; set; }
+        public string title { get; set; }
     }
 }
