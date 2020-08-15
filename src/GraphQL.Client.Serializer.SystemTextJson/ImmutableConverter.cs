@@ -32,21 +32,13 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             {
                 var constructor = constructors[0];
                 var parameters = constructor.GetParameters();
-                var hasParameters = parameters.Length > 0;
-                if (hasParameters)
+
+                if (parameters.Length > 0)
                 {
                     var properties = typeToConvert.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    result = true;
-                    foreach (var parameter in parameters)
-                    {
-                        var hasMatchingProperty = properties.Any(p =>
-                                                                     NameOfPropertyAndParameter.Matches(p.Name, parameter.Name, typeToConvert.IsAnonymous()));
-                        if (!hasMatchingProperty)
-                        {
-                            result = false;
-                            break;
-                        }
-                    }
+                    result = parameters
+                        .Select(parameter => properties.Any(p => NameOfPropertyAndParameter.Matches(p.Name, parameter.Name, typeToConvert.IsAnonymous())))
+                        .All(hasMatchingProperty => hasMatchingProperty);
                 }
                 else
                 {
@@ -69,8 +61,8 @@ namespace GraphQL.Client.Serializer.SystemTextJson
                     break;
                 }
 
-                var jsonPropName = reader.GetString();
-                var normalizedPropName = ConvertAndNormalizeName(jsonPropName, options);
+                string jsonPropName = reader.GetString();
+                string normalizedPropName = ConvertAndNormalizeName(jsonPropName, options);
                 if (!namedPropertiesMapping.TryGetValue(normalizedPropName, out var obProp))
                 {
                     reader.Read();
@@ -86,7 +78,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             var ctor = typeToConvert.GetConstructors(BindingFlags.Public | BindingFlags.Instance).First();
             var parameters = ctor.GetParameters();
             var parameterValues = new object[parameters.Length];
-            for (var index = 0; index < parameters.Length; index++)
+            for (int index = 0; index < parameters.Length; index++)
             {
                 var parameterInfo = parameters[index];
                 var value = valueOfProperty.First(prop =>
@@ -142,7 +134,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
                     name = options.PropertyNamingPolicy?.ConvertName(property.Name) ?? property.Name;
                 }
 
-                var normalizedName = NormalizeName(name, options);
+                string normalizedName = NormalizeName(name, options);
                 result.Add(normalizedName, property);
             }
 
@@ -151,8 +143,8 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 
         private static string ConvertAndNormalizeName(string name, JsonSerializerOptions options)
         {
-            var convertedName = options.PropertyNamingPolicy?.ConvertName(name) ?? name;
-            return options.PropertyNameCaseInsensitive ? convertedName.ToLowerInvariant() : convertedName;
+            string convertedName = options.PropertyNamingPolicy?.ConvertName(name) ?? name;
+            return NormalizeName(convertedName, options);
         }
 
         private static string NormalizeName(string name, JsonSerializerOptions options) => options.PropertyNameCaseInsensitive ? name.ToLowerInvariant() : name;
@@ -162,12 +154,12 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     {
         public static bool Matches(string propertyName, string parameterName, bool anonymousType)
         {
-            if (propertyName is null && parameterName is null)
+            if (string.IsNullOrEmpty(propertyName))
             {
-                return true;
+                return string.IsNullOrEmpty(parameterName);
             }
 
-            if (propertyName is null || parameterName is null)
+            if (string.IsNullOrEmpty(parameterName))
             {
                 return false;
             }
@@ -176,12 +168,10 @@ namespace GraphQL.Client.Serializer.SystemTextJson
             {
                 return propertyName.Equals(parameterName, StringComparison.Ordinal);
             }
-            else
-            {
-                var xRight = propertyName.AsSpan(1);
-                var yRight = parameterName.AsSpan(1);
-                return char.ToLowerInvariant(propertyName[0]).CompareTo(parameterName[0]) == 0 && xRight.Equals(yRight, StringComparison.Ordinal);
-            }
+
+            var xRight = propertyName.AsSpan(1);
+            var yRight = parameterName.AsSpan(1);
+            return char.ToLowerInvariant(propertyName[0]).CompareTo(parameterName[0]) == 0 && xRight.Equals(yRight, StringComparison.Ordinal);
         }
     }
 
