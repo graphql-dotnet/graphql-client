@@ -7,7 +7,7 @@ A GraphQL Client for .NET Standard over HTTP.
 ## Specification:
 The Library will try to follow the following standards and documents:
 
-* [GraphQL Specification](https://facebook.github.io/graphql/June2018)
+* [GraphQL Specification](https://spec.graphql.org/June2018/)
 * [GraphQL HomePage](https://graphql.org/learn)
 
 ## Usage:
