@@ -6,10 +6,18 @@ A GraphQL Client for .NET Standard over HTTP.
 
 ## Specification:
 The Library will try to follow the following standards and documents:
-[GraphQL Specification](https://facebook.github.io/graphql/June2018)
-[GraphQL HomePage](http://graphql.org/learn)
+
+* [GraphQL Specification](https://spec.graphql.org/June2018/)
+* [GraphQL HomePage](https://graphql.org/learn)
 
 ## Usage:
+
+### Create a GraphQLHttpClient
+
+```csharp
+// To use NewtonsoftJsonSerializer, add a reference to NuGet package GraphQL.Client.Serializer.Newtonsoft
+var graphQLClient = new GraphQLHttpClient("https://api.example.com/graphql", new NewtonsoftJsonSerializer());
+```
 
 ### Create a GraphQLRequest:
 #### Simple Request:
@@ -124,9 +132,10 @@ subscription.Dispose();
 ```
 
 ## Useful Links:
-[StarWars Example Server (GitHub)](https://github.com/graphql/swapi-graphql)
-[StarWars Example Server (EndPoint)](https://swapi.apis.guru/)
 
-[GitHub GraphQL API Docs](https://developer.github.com/v4/guides/forming-calls/)
-[GitHub GraphQL Explorer](https://developer.github.com/v4/explorer/)
-[GitHub GraphQL Endpoint](https://api.github.com/graphql)
+* [StarWars Example Server (GitHub)](https://github.com/graphql/swapi-graphql)
+* [StarWars Example Server (EndPoint)](https://swapi.apis.guru/)
+
+* [GitHub GraphQL API Docs](https://developer.github.com/v4/guides/forming-calls/)
+* [GitHub GraphQL Explorer](https://developer.github.com/v4/explorer/)
+* [GitHub GraphQL Endpoint](https://api.github.com/graphql)
