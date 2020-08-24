@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.WebSockets;
@@ -257,8 +258,26 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var observable2 = ChatClient.CreateSubscriptionStream<UserJoinedSubscriptionResult>(_subscriptionRequest2, callbackTester2.Invoke);
 
             Debug.WriteLine("subscribing...");
-            var messagesMonitor = observable1.Observe();
-            var joinedMonitor = observable2.Observe();
+            var blocker = new ManualResetEventSlim(false);
+            FluentTestObserver<GraphQLResponse<MessageAddedSubscriptionResult>> messagesMonitor = null;
+            FluentTestObserver<GraphQLResponse<UserJoinedSubscriptionResult>> joinedMonitor = null;
+
+            var tasks = new List<Task>
+            {
+                Task.Run(() =>
+                {
+                    blocker.Wait();
+                    messagesMonitor = observable1.Observe();
+                }),
+                Task.Run(() =>
+                {
+                    blocker.Wait();
+                    joinedMonitor = observable2.Observe();
+                })
+            };
+
+            blocker.Set();
+            await Task.WhenAll(tasks);
 
             await messagesMonitor.Should().PushAsync(1);
             messagesMonitor.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);

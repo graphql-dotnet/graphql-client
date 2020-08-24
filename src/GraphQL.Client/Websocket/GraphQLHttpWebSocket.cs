@@ -4,7 +4,6 @@ using System.IO;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -30,8 +29,6 @@ namespace GraphQL.Client.Http.Websocket
         private readonly BehaviorSubject<GraphQLWebsocketConnectionState> _stateSubject =
             new BehaviorSubject<GraphQLWebsocketConnectionState>(GraphQLWebsocketConnectionState.Disconnected);
         private readonly IDisposable _requestSubscription;
-        private readonly EventLoopScheduler _receiveLoopScheduler = new EventLoopScheduler();
-        private readonly EventLoopScheduler _sendLoopScheduler = new EventLoopScheduler();
 
         private int _connectionAttempt = 0;
         private IConnectableObservable<WebsocketMessageWrapper> _incomingMessages;
@@ -80,12 +77,10 @@ namespace GraphQL.Client.Http.Websocket
             _client = client;
             _buffer = new ArraySegment<byte>(new byte[8192]);
             IncomingMessageStream = GetMessageStream();
-            _receiveLoopScheduler.Schedule(() =>
-                Debug.WriteLine($"receive loop scheduler thread id: {Thread.CurrentThread.ManagedThreadId}"));
 
             _requestSubscription = _requestSubject
-                .ObserveOn(_sendLoopScheduler)
-                .SelectMany(SendWebSocketRequestAsync)
+                .Select(SendWebSocketRequestAsync)
+                .Concat()
                 .Subscribe();
         }
 
@@ -436,7 +431,7 @@ namespace GraphQL.Client.Http.Websocket
 
                 // create receiving observable
                 _incomingMessages = Observable
-                    .Defer(() => GetReceiveTask().ToObservable().ObserveOn(_receiveLoopScheduler))
+                    .Defer(() => GetReceiveTask().ToObservable())
                     .Repeat()
                     // complete sequence on OperationCanceledException, this is triggered by the cancellation token on disposal
                     .Catch<WebsocketMessageWrapper, OperationCanceledException>(exception => Observable.Empty<WebsocketMessageWrapper>())
@@ -489,13 +484,13 @@ namespace GraphQL.Client.Http.Websocket
         }
 
         private IObservable<WebsocketMessageWrapper> GetMessageStream() =>
-            Observable.Using(() => new EventLoopScheduler(), scheduler =>
-                Observable.Create<WebsocketMessageWrapper>(async observer =>
+            Observable.Create<WebsocketMessageWrapper>(async observer =>
                 {
                     // make sure the websocket is connected
                     await InitializeWebSocket();
                     // subscribe observer to message stream
-                    var subscription = new CompositeDisposable(_incomingMessages.ObserveOn(scheduler).Subscribe(observer))
+                    var subscription = new CompositeDisposable(_incomingMessages
+                        .Subscribe(observer))
                     {
                         // register the observer's OnCompleted method with the cancellation token to complete the sequence on disposal
                         _internalCancellationTokenSource.Token.Register(observer.OnCompleted)
@@ -507,7 +502,7 @@ namespace GraphQL.Client.Http.Websocket
                     Debug.WriteLine($"new incoming message subscription {hashCode} created");
 
                     return subscription;
-                }));
+                });
 
         private Task<WebsocketMessageWrapper> _receiveAsyncTask = null;
         private readonly object _receiveTaskLocker = new object();
@@ -634,10 +629,7 @@ namespace GraphQL.Client.Http.Websocket
             _exceptionSubject?.OnCompleted();
             _exceptionSubject?.Dispose();
             _internalCancellationTokenSource.Dispose();
-
-            _sendLoopScheduler?.Dispose();
-            _receiveLoopScheduler?.Dispose();
-
+            
             Debug.WriteLine("GraphQLHttpWebSocket disposed");
         }
 
