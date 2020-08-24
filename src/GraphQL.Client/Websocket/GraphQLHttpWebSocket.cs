@@ -84,8 +84,8 @@ namespace GraphQL.Client.Http.Websocket
                 Debug.WriteLine($"receive loop scheduler thread id: {Thread.CurrentThread.ManagedThreadId}"));
 
             _requestSubscription = _requestSubject
-                .ObserveOn(_sendLoopScheduler)
-                .SelectMany(SendWebSocketRequestAsync)
+                .Select(SendWebSocketRequestAsync)
+                .Concat()
                 .Subscribe();
         }
 
