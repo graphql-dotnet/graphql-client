@@ -79,7 +79,7 @@ namespace GraphQL.Client.Http.Websocket
             IncomingMessageStream = GetMessageStream();
 
             _requestSubscription = _requestSubject
-                .Select(SendWebSocketRequestAsync)
+                .Select(request => Observable.FromAsync(() => SendWebSocketRequestAsync(request)))
                 .Concat()
                 .Subscribe();
         }
