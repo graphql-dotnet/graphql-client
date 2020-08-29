@@ -112,15 +112,23 @@ namespace GraphQL.Client.Http.Websocket
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_STOP
                         };
-                        //var initRequest = new GraphQLWebSocketRequest
-                        //{
-                        //    Id = startRequest.Id,
-                        //    Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
-                        //    Payload = new Dictionary<string, object>() { { "Authorization", "BLABLA" } } as GraphQLRequest
-                        //};
 
+                        var initRequest = new GraphQLWebSocketRequest
+                        {
+                            Id = startRequest.Id,
+                            Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                        };
+                        
+
+                        // Check if there's an authorization header on the base client.
+                        // NOTE: perhaps there's a better way? 
                         var authHeader = _client.HttpClient.DefaultRequestHeaders.GetValues("Authorization").FirstOrDefault();
-                        var initRequest = new GraphQLInitAuthWebsocketRequest(startRequest.Id, authHeader);
+
+                        // If the auth header actually exist, send it in the connection_init request
+                        if (authHeader != null)
+                        {
+                            initRequest[GraphQLWebSocketRequest.PAYLOAD_KEY] = new Dictionary<string, string>() { { "Authorization", authHeader } };
+                        }
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
                             IncomingMessageStream
