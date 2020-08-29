@@ -4,6 +4,17 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions.Websocket
 {
+
+    public class GraphQLInitAuthWebsocketRequest : GraphQLWebSocketRequest
+    {
+        public GraphQLInitAuthWebsocketRequest(string id, string token)
+        {
+            Id = id;
+            Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT;
+            this[PAYLOAD_KEY] = new Dictionary<string, string>() { { "Authorization", token } };
+        }
+    }
+
     /// <summary>
     /// A Subscription Request
     /// </summary>

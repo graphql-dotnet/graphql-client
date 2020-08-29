@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Reactive;
@@ -110,12 +112,15 @@ namespace GraphQL.Client.Http.Websocket
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_STOP
                         };
-                        var initRequest = new GraphQLWebSocketRequest
-                        {
-                            Id = startRequest.Id,
-                            Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
-                            Payload = new GraphQLRequest()
-                        };
+                        //var initRequest = new GraphQLWebSocketRequest
+                        //{
+                        //    Id = startRequest.Id,
+                        //    Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                        //    Payload = new Dictionary<string, object>() { { "Authorization", "BLABLA" } } as GraphQLRequest
+                        //};
+
+                        var authHeader = _client.HttpClient.DefaultRequestHeaders.GetValues("Authorization").FirstOrDefault();
+                        var initRequest = new GraphQLInitAuthWebsocketRequest(startRequest.Id, authHeader);
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
                             IncomingMessageStream
@@ -559,13 +564,11 @@ namespace GraphQL.Client.Http.Websocket
                         return response;
 
                     case WebSocketMessageType.Close:
-                        var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
-                        closeResponse.MessageBytes = ms.ToArray();
                         Debug.WriteLine($"Connection closed by the server.");
                         throw new Exception("Connection closed by the server.");
 
-                    case WebSocketMessageType.Binary:
-                        throw new NotSupportedException("binary websocket messages are not supported");
+                    default:
+                        throw new NotSupportedException($"Websocket message type {webSocketReceiveResult.MessageType} not supported.");
                 }
             }
             catch (Exception e)
