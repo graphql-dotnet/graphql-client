@@ -619,7 +619,7 @@ namespace GraphQL.Client.Http.Websocket
 
         /// <summary>
         /// Task to await the completion (a.k.a. disposal) of this websocket.
-        /// </summary>
+        /// </summary> 
         /// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
         public Task? Completion { get; private set; }
 
@@ -643,7 +643,7 @@ namespace GraphQL.Client.Http.Websocket
             _exceptionSubject?.OnCompleted();
             _exceptionSubject?.Dispose();
             _internalCancellationTokenSource.Dispose();
-
+            
             Debug.WriteLine("GraphQLHttpWebSocket disposed");
         }
 
