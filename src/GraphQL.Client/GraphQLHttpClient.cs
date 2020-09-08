@@ -159,6 +159,8 @@ namespace GraphQL.Client.Http
 
         private Uri GetWebSocketUri()
         {
+            if (Options.WebSocketEndPoint != null)
+                return Options.WebSocketEndPoint;
             string webSocketSchema = Options.EndPoint.Scheme == "https"
                 ? "wss"
                 : Options.EndPoint.Scheme == "http"

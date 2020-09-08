@@ -12,9 +12,14 @@ namespace GraphQL.Client.Http
     public class GraphQLHttpClientOptions
     {
         /// <summary>
-        /// The GraphQL EndPoint to be used
+        /// The GraphQL EndPoint to be used for HTTP connections
         /// </summary>
         public Uri EndPoint { get; set; }
+
+        /// <summary>
+        /// The GraphQL EndPoint to be used for WebSocket connection
+        /// </summary>
+        public Uri WebSocketEndPoint { get; set; }
 
         /// <summary>
         /// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used
