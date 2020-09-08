@@ -66,10 +66,6 @@ namespace GraphQL.Client.Http
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
             _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(() => new GraphQLHttpWebSocket(GetWebSocketUri(), this));
-            if ((Options.EndPoint?.Scheme == "wss") || (Options.EndPoint?.Scheme == "ws"))
-            {
-                Options.UseWebSocketForQueriesAndMutations = true;
-            }
         }
 
         #endregion
@@ -159,12 +155,8 @@ namespace GraphQL.Client.Http
 
         private Uri GetWebSocketUri()
         {
-            string webSocketSchema = Options.EndPoint.Scheme == "https"
-                ? "wss"
-                : Options.EndPoint.Scheme == "http"
-                ? "ws"
-                : Options.EndPoint.Scheme;
-            return new Uri($"{webSocketSchema}://{Options.EndPoint.Host}:{Options.EndPoint.Port}{Options.EndPoint.AbsolutePath}{Options.EndPoint.Query}");
+            string webSocketSchema = Options.EndPoint.Scheme == "https" ? "wss" : "ws";
+            return new Uri($"{webSocketSchema}://{Options.EndPoint.Host}:{Options.EndPoint.Port}{Options.EndPoint.AbsolutePath}");
         }
 
         #endregion
