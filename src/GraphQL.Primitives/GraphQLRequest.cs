@@ -86,7 +86,7 @@ namespace GraphQL
         {
             unchecked
             {
-                var hashCode = Query.GetHashCode();
+                var hashCode = Query?.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ OperationName?.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ Variables?.GetHashCode() ?? 0;
                 return hashCode;
