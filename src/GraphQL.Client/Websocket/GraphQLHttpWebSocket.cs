@@ -114,6 +114,7 @@ namespace GraphQL.Client.Http.Websocket
                         {
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                            Payload = new GraphQLRequest()
                         };
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
@@ -563,16 +564,23 @@ namespace GraphQL.Client.Http.Websocket
                 _internalCancellationToken.ThrowIfCancellationRequested();
                 ms.Seek(0, SeekOrigin.Begin);
 
-                if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
+                switch (webSocketReceiveResult.MessageType)
                 {
-                    var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
-                    response.MessageBytes = ms.ToArray();
-                    Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
-                    return response;
-                }
-                else
-                {
-                    throw new NotSupportedException("binary websocket messages are not supported");
+                    case WebSocketMessageType.Text:
+                        var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                        response.MessageBytes = ms.ToArray();
+                        Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
+                        return response;
+
+                    case WebSocketMessageType.Close:
+                        var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                        closeResponse.MessageBytes = ms.ToArray();
+                        Debug.WriteLine($"Connection closed by the server.");
+                        throw new Exception("Connection closed by the server.");
+
+                    default:
+                        throw new NotSupportedException($"Websocket message type {webSocketReceiveResult.MessageType} not supported.");
+
                 }
             }
             catch (Exception e)
@@ -643,7 +651,7 @@ namespace GraphQL.Client.Http.Websocket
             _exceptionSubject?.OnCompleted();
             _exceptionSubject?.Dispose();
             _internalCancellationTokenSource.Dispose();
-            
+
             Debug.WriteLine("GraphQLHttpWebSocket disposed");
         }
 
