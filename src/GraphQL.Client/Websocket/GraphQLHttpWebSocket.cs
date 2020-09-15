@@ -407,8 +407,22 @@ namespace GraphQL.Client.Http.Websocket
 #else
                 _clientWebSocket = new ClientWebSocket();
                 _clientWebSocket.Options.AddSubProtocol("graphql-ws");
-                _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-                _clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
+                try
+                {
+                    _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    Debug.WriteLine("unable to set Options.ClientCertificates property; platform does not support it");
+                }
+                try
+                {
+                    _clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    Debug.WriteLine("unable to set Options.UseDefaultCredentials property; platform does not support it");
+                }
                 Options.ConfigureWebsocketOptions(_clientWebSocket.Options);
 #endif
                 return _initializeWebSocketTask = ConnectAsync(_internalCancellationToken);
