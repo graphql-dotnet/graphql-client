@@ -578,8 +578,9 @@ namespace GraphQL.Client.Http.Websocket
                         Debug.WriteLine($"Connection closed by the server.");
                         throw new Exception("Connection closed by the server.");
 
-                    case WebSocketMessageType.Binary:
-                        throw new NotSupportedException("binary websocket messages are not supported");
+                    default:
+                        throw new NotSupportedException($"Websocket message type {webSocketReceiveResult.MessageType} not supported.");
+
                 }
             }
             catch (Exception e)
