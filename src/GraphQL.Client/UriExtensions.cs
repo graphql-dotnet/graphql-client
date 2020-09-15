@@ -22,7 +22,7 @@ namespace GraphQL.Client.Http
                 return uri;
 
             string webSocketScheme = uri.Scheme == "https" ? "wss" : "ws";
-            return new Uri($"{webSocketScheme}://{uri.Host}:{uri.Port}{uri.AbsolutePath}");
+            return new Uri($"{webSocketScheme}://{uri.Host}:{uri.Port}{uri.PathAndQuery}");
         }
     }
 }
