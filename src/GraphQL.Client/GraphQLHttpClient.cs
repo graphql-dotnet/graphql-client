@@ -55,7 +55,7 @@ namespace GraphQL.Client.Http
         public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
 
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(options, serializer, new HttpClient(options.HttpMessageHandler)) { }
-        
+
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -65,7 +65,7 @@ namespace GraphQL.Client.Http
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
-            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(() => new GraphQLHttpWebSocket(GetWebSocketUri(), this));
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(() => new GraphQLHttpWebSocket(Options.EndPoint.GetWebSocketUri(), this));
         }
 
         #endregion
@@ -75,7 +75,7 @@ namespace GraphQL.Client.Http
         /// <inheritdoc />
         public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
-            if (Options.UseWebSocketForQueriesAndMutations)
+            if (Options.UseWebSocketForQueriesAndMutations || Options.EndPoint.HasWebSocketScheme())
                 return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
             return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
@@ -132,7 +132,7 @@ namespace GraphQL.Client.Http
         private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
-            
+
             using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
             using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
@@ -152,13 +152,6 @@ namespace GraphQL.Client.Http
 
             throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }
-
-        private Uri GetWebSocketUri()
-        {
-            string webSocketSchema = Options.EndPoint.Scheme == "https" ? "wss" : "ws";
-            return new Uri($"{webSocketSchema}://{Options.EndPoint.Host}:{Options.EndPoint.Port}{Options.EndPoint.AbsolutePath}");
-        }
-
         #endregion
 
         #region IDisposable
