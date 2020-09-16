@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
@@ -12,7 +13,8 @@ namespace GraphQL.Client.Serializer.SystemTextJson
     {
         public static JsonSerializerOptions DefaultJsonSerializerOptions => new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false)}
         }.SetupImmutableConverter();
 
         public JsonSerializerOptions Options { get; }

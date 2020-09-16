@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
+using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Subscription;
 using GraphQL.Types;
 using Newtonsoft.Json;
@@ -31,7 +32,7 @@ namespace GraphQL.Client.LocalExecution
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             Converters = new List<JsonConverter>
             {
-                new GraphQLEnumConverter()
+                new ConstantCaseEnumConverter()
             }
         };
 
@@ -50,7 +51,7 @@ namespace GraphQL.Client.LocalExecution
                 Schema.Initialize();
             _documentExecuter = new DocumentExecuter();
         }
-        
+
         public void Dispose() { }
 
         public Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
@@ -80,7 +81,7 @@ namespace GraphQL.Client.LocalExecution
         {
             var result = await ExecuteAsync(request, cancellationToken);
             var stream = ((SubscriptionExecutionResult)result).Streams?.Values.SingleOrDefault();
-            
+
             return stream == null
                 ? Observable.Throw<GraphQLResponse<TResponse>>(new InvalidOperationException("the GraphQL execution did not return an observable"))
                 : stream.SelectMany(executionResult => Observable.FromAsync(token => ExecutionResultToGraphQLResponse<TResponse>(executionResult, token)));

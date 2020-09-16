@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GraphQL.Client.Serializer.Tests.TestData
 {
@@ -19,8 +21,22 @@ namespace GraphQL.Client.Serializer.Tests.TestData
                 "{\"query\":\"simplequerystring\",\"variables\":null,\"operationName\":null,\"authentication\":\"an-authentication-token\"}",
                 new GraphQLRequest("simple query string"){{"authentication", "an-authentication-token"}}
             };
+            yield return new object[] {
+                "{\"query\":\"enumtest\",\"variables\":{\"enums\":[\"REGULAR\",\"PASCAL_CASE\",\"CAMEL_CASE\",\"LOWER\",\"UPPER\",\"CONSTANT_CASE\"]},\"operationName\":null}",
+                new GraphQLRequest("enumtest", new { enums = Enum.GetValues(typeof(TestEnum)).Cast<TestEnum>()})
+            };
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public enum TestEnum
+        {
+            Regular,
+            PascalCase,
+            camelCase,
+            lower,
+            UPPER,
+            CONSTANT_CASE
+        }
     }
 }

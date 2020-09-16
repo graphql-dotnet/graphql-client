@@ -11,6 +11,6 @@ namespace GraphQL.Client.Serializer.Tests
     public class NewtonsoftSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTest
     {
         public NewtonsoftSerializeNoCamelCaseTest()
-            : base(new NewtonsoftJsonSerializer(new JsonSerializerSettings())) { }
+            : base(new NewtonsoftJsonSerializer(new JsonSerializerSettings(){ Converters = { new ConstantCaseEnumConverter() } })) { }
     }
 }
