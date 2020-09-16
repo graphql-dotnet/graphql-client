@@ -9,7 +9,7 @@ namespace GraphQL.Client.Http
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public static bool HasWebSocketScheme(this Uri uri) => uri.Scheme.Equals("wss") || uri.Scheme.Equals("ws");
+        public static bool HasWebSocketScheme(this Uri uri) => uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase) || uri.Scheme.Equals("ws", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Infers the websocket uri from <paramref name="uri"/>.
@@ -21,8 +21,16 @@ namespace GraphQL.Client.Http
             if (uri.HasWebSocketScheme())
                 return uri;
 
-            string webSocketScheme = uri.Scheme == "https" ? "wss" : "ws";
-            return new Uri($"{webSocketScheme}://{uri.Host}:{uri.Port}{uri.PathAndQuery}");
+            string webSocketScheme;
+
+            if (uri.Scheme == Uri.UriSchemeHttps)
+                webSocketScheme = "wss";
+            else if (uri.Scheme == Uri.UriSchemeHttp)
+                webSocketScheme = "ws";
+            else
+                throw new NotSupportedException($"cannot infer websocket uri from uri scheme {uri.Scheme}");
+
+            return new UriBuilder(uri){Scheme = webSocketScheme}.Uri;
         }
     }
 }
