@@ -15,4 +15,8 @@
     <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Panic.StringUtils" Version="1.0.1" />
+  </ItemGroup>
+
 </Project>

@@ -15,7 +15,8 @@ namespace GraphQL.Client.Serializer.Newtonsoft
         public static JsonSerializerSettings DefaultJsonSerializerSettings => new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver { IgnoreIsSpecifiedMembers = true },
-            MissingMemberHandling = MissingMemberHandling.Ignore
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            Converters = { new ConstantCaseEnumConverter() }
         };
 
         public JsonSerializerSettings JsonSerializerSettings { get; }
