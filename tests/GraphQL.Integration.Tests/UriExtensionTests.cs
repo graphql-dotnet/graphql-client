@@ -28,7 +28,7 @@ namespace GraphQL.Integration.Tests
         [InlineData("ws://this-url-can-be-converted.net", true, "ws://this-url-can-be-converted.net")]
         [InlineData("wss://this-url-can-be-converted.net", true, "wss://this-url-can-be-converted.net")]
         [InlineData("https://this-url-can-be-converted.net/and/all/elements/?are#preserved", true, "wss://this-url-can-be-converted.net/and/all/elements/?are#preserved")]
-        [InlineData("ftp://this-url-can-be-converted.net", false, null)]
+        [InlineData("ftp://this-url-cannot-be-converted.net", false, null)]
         // AppSync example
         [InlineData("wss://example1234567890000.appsync-realtime-api.us-west-2.amazonaws.com/graphql?header=123456789ABCDEF&payload=e30=", true, "wss://example1234567890000.appsync-realtime-api.us-west-2.amazonaws.com/graphql?header=123456789ABCDEF&payload=e30=")]
         public void GetWebSocketUriTest(string input, bool canConvert, string result)
