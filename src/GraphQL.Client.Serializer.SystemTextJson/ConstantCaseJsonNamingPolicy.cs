@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Panic.StringUtils.Extensions;
+using GraphQL.Client.Abstractions.Utilities;
 
 namespace GraphQL.Client.Serializer.SystemTextJson
 {

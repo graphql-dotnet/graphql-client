@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using GraphQL.Client.Abstractions.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Panic.StringUtils.Extensions;
 
 namespace GraphQL.Client.Serializer.Newtonsoft
 {
