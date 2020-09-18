@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using GraphQL.Utilities;
+using GraphQL.Client.Abstractions.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace GraphQL.Client.LocalExecution
+namespace GraphQL.Client.Serializer.Newtonsoft
 {
-    public class GraphQLEnumConverter : StringEnumConverter
+    public class ConstantCaseEnumConverter : StringEnumConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -29,7 +29,7 @@ namespace GraphQL.Client.LocalExecution
                 }
                 else
                 {
-                    writer.WriteValue(StringUtils.ToConstantCase(memberName));
+                    writer.WriteValue(memberName.ToConstantCase());
                 }
             }
         }

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using GraphQL.Client.Serializer.SystemTextJson;
 
 namespace GraphQL.Client.Serializer.Tests
@@ -11,6 +12,6 @@ namespace GraphQL.Client.Serializer.Tests
     public class SystemTextJsonSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTest
     {
         public SystemTextJsonSerializeNoCamelCaseTest()
-            : base(new SystemTextJsonSerializer(new JsonSerializerOptions().SetupImmutableConverter())) { }
+            : base(new SystemTextJsonSerializer(new JsonSerializerOptions(){Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false)}}.SetupImmutableConverter())) { }
     }
 }

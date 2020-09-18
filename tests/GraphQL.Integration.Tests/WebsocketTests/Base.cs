@@ -71,6 +71,16 @@ namespace GraphQL.Integration.Tests.WebsocketTests
         }
 
         [Fact]
+        public async void CanUseWebSocketScheme()
+        {
+            ChatClient.Options.EndPoint = ChatClient.Options.EndPoint.GetWebSocketUri();
+            await ChatClient.InitializeWebsocketConnection();
+            const string message = "some random testing message";
+            var response = await ChatClient.AddMessageAsync(message);
+            response.Data.AddMessage.Content.Should().Be(message);
+        }
+
+        [Fact]
         public async void WebsocketRequestCanBeCancelled()
         {
             var graphQLRequest = new GraphQLRequest(@"

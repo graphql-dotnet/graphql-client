@@ -65,11 +65,7 @@ namespace GraphQL.Client.Http
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
-            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(() => new GraphQLHttpWebSocket(GetWebSocketUri(), this));
-            if ((Options.EndPoint?.Scheme == "wss") || (Options.EndPoint?.Scheme == "ws"))
-            {
-                Options.UseWebSocketForQueriesAndMutations = true;
-            }
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(() => new GraphQLHttpWebSocket(Options.EndPoint.GetWebSocketUri(), this));
         }
 
         #endregion
@@ -79,7 +75,7 @@ namespace GraphQL.Client.Http
         /// <inheritdoc />
         public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
-            if (Options.UseWebSocketForQueriesAndMutations)
+            if (Options.UseWebSocketForQueriesAndMutations || Options.EndPoint.HasWebSocketScheme())
                 return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
             return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
@@ -156,19 +152,6 @@ namespace GraphQL.Client.Http
 
             throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }
-
-        private Uri GetWebSocketUri()
-        {
-            if (Options.WebSocketEndPoint != null)
-                return Options.WebSocketEndPoint;
-            string webSocketSchema = Options.EndPoint.Scheme == "https"
-                ? "wss"
-                : Options.EndPoint.Scheme == "http"
-                ? "ws"
-                : Options.EndPoint.Scheme;
-            return new Uri($"{webSocketSchema}://{Options.EndPoint.Host}:{Options.EndPoint.Port}{Options.EndPoint.AbsolutePath}{Options.EndPoint.Query}");
-        }
-
         #endregion
 
         #region IDisposable

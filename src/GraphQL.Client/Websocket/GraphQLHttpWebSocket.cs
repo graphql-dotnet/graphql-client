@@ -114,6 +114,7 @@ namespace GraphQL.Client.Http.Websocket
                         {
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                            Payload = new GraphQLRequest()
                         };
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
@@ -414,21 +415,11 @@ namespace GraphQL.Client.Http.Websocket
 #else
                 _clientWebSocket = new ClientWebSocket();
                 _clientWebSocket.Options.AddSubProtocol("graphql-ws");
-                try
+                if(!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("WEBASSEMBLY")))
                 {
+                    // the following properties are not supported in Blazor WebAssembly and throw a PlatformNotSupportedException error when accessed
                     _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    Debug.WriteLine("unable to set Options.ClientCertificates property; platform does not support it");
-                }
-                try
-                {
                     _clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    Debug.WriteLine("unable to set Options.UseDefaultCredentials property; platform does not support it");
                 }
                 Options.ConfigureWebsocketOptions(_clientWebSocket.Options);
 #endif
@@ -570,16 +561,23 @@ namespace GraphQL.Client.Http.Websocket
                 _internalCancellationToken.ThrowIfCancellationRequested();
                 ms.Seek(0, SeekOrigin.Begin);
 
-                if (webSocketReceiveResult.MessageType == WebSocketMessageType.Text)
+                switch (webSocketReceiveResult.MessageType)
                 {
-                    var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
-                    response.MessageBytes = ms.ToArray();
-                    Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
-                    return response;
-                }
-                else
-                {
-                    throw new NotSupportedException("binary websocket messages are not supported");
+                    case WebSocketMessageType.Text:
+                        var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                        response.MessageBytes = ms.ToArray();
+                        Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
+                        return response;
+
+                    case WebSocketMessageType.Close:
+                        var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                        closeResponse.MessageBytes = ms.ToArray();
+                        Debug.WriteLine($"Connection closed by the server.");
+                        throw new Exception("Connection closed by the server.");
+
+                    default:
+                        throw new NotSupportedException($"Websocket message type {webSocketReceiveResult.MessageType} not supported.");
+
                 }
             }
             catch (Exception e)
@@ -626,7 +624,7 @@ namespace GraphQL.Client.Http.Websocket
 
         /// <summary>
         /// Task to await the completion (a.k.a. disposal) of this websocket.
-        /// </summary> 
+        /// </summary>
         /// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
         public Task? Completion { get; private set; }
 
@@ -650,7 +648,7 @@ namespace GraphQL.Client.Http.Websocket
             _exceptionSubject?.OnCompleted();
             _exceptionSubject?.Dispose();
             _internalCancellationTokenSource.Dispose();
-            
+
             Debug.WriteLine("GraphQLHttpWebSocket disposed");
         }
 

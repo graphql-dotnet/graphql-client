@@ -139,3 +139,9 @@ subscription.Dispose();
 * [GitHub GraphQL API Docs](https://developer.github.com/v4/guides/forming-calls/)
 * [GitHub GraphQL Explorer](https://developer.github.com/v4/explorer/)
 * [GitHub GraphQL Endpoint](https://api.github.com/graphql)
+
+## Blazor WebAssembly Limitations
+
+Blazor WebAssembly differs from other platforms as it does not support all features of other .NET runtime implementations. For instance, the following WebSocket options properties are not supported and will not be set:
+* [ClientCertificates](https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocketoptions.clientcertificates?view=netcore-3.1#System_Net_WebSockets_ClientWebSocketOptions_ClientCertificates)
+* [UseDefaultCredentials](https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocketoptions.usedefaultcredentials?view=netcore-3.1)
