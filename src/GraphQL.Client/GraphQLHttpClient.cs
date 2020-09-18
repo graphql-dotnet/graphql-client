@@ -55,7 +55,7 @@ namespace GraphQL.Client.Http
         public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
 
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(options, serializer, new HttpClient(options.HttpMessageHandler)) { }
-        
+
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -132,7 +132,7 @@ namespace GraphQL.Client.Http
         private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
-            
+
             using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
             using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
