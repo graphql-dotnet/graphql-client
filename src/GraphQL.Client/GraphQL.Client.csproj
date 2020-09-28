@@ -5,14 +5,14 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <RootNamespace>GraphQL.Client.Http</RootNamespace>
-    <Authors>Deinok,Alexander Rose,graphql-dotnet, Cityzenith LLC</Authors>
-    <Company>Deinok,Alexander Rose,graphql-dotnet, Cityzenith LLC</Company>
-    <PackageProjectUrl>https://github.com/cityzenith/graphql-client</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/cityzenith/graphql-client</RepositoryUrl>
+    <Authors>Deinok,Alexander Rose,graphql-dotnet</Authors>
+    <Company>Deinok,Alexander Rose,graphql-dotnet</Company>
+    <PackageProjectUrl>https://github.com/graphql-dotnet/graphql-client</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/graphql-dotnet/graphql-client</RepositoryUrl>
     <PackageId>GraphQL.Client</PackageId>
-    <AssemblyVersion>3.2.0.0</AssemblyVersion>
-    <FileVersion>3.2.0.0</FileVersion>
-    <Version>3.2.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
