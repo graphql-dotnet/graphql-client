@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,6 +36,11 @@ namespace GraphQL.Client.Http
         /// The Options	to be used
         /// </summary>
         public GraphQLHttpClientOptions Options { get; }
+
+        /// <summary>
+        /// The custom web socket headers for initialization of connection
+        /// </summary>
+        public Dictionary<string, string> WebSocketHeaders { get; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)

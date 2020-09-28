@@ -34,9 +34,9 @@ namespace GraphQL.Client.Abstractions.Websocket
         /// <summary>
         /// The payload of the websocket request
         /// </summary>
-        public GraphQLRequest Payload
+        public object Payload
         {
-            get => ContainsKey(PAYLOAD_KEY) ? (GraphQLRequest)this[PAYLOAD_KEY] : null;
+            get => ContainsKey(PAYLOAD_KEY) ? this[PAYLOAD_KEY] : null;
             set => this[PAYLOAD_KEY] = value;
         }
 
