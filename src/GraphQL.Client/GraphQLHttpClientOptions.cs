@@ -53,6 +53,11 @@ namespace GraphQL.Client.Http
             Task.FromResult(request is GraphQLHttpRequest graphQLHttpRequest ? graphQLHttpRequest : new GraphQLHttpRequest(request));
 
         /// <summary>
+        /// Subscription request preprocessing function. Can be used i.e. to inject authorization info into a GraphQL subscription request payload.
+        /// </summary>
+        public Func<GraphQLRequest, GraphQLHttpClient, Task<GraphQLHttpRequest>> PreprocessSubscriptionRequest { get; set; }
+
+        /// <summary>
         /// This callback is called after successfully establishing a websocket connection but before any regular request is made. 
         /// </summary>
         public Func<GraphQLHttpClient, Task> OnWebsocketConnected { get; set; } = client => Task.CompletedTask;
