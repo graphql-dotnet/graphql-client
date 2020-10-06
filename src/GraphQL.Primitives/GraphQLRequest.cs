@@ -49,6 +49,14 @@ namespace GraphQL
             OperationName = operationName;
         }
 
+        public GraphQLRequest(IEnumerable<KeyValuePair<string, object>> values)
+        {
+            foreach(var kv in values)
+            {
+                Add(kv.Key, kv.Value);
+            }
+        }
+
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified object
         /// </summary>
@@ -86,7 +94,7 @@ namespace GraphQL
         {
             unchecked
             {
-                var hashCode = Query.GetHashCode();
+                var hashCode = Query?.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ OperationName?.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ Variables?.GetHashCode() ?? 0;
                 return hashCode;
