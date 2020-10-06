@@ -408,7 +408,7 @@ namespace GraphQL.Client.Http.Websocket
 #else
                 _clientWebSocket = new ClientWebSocket();
                 _clientWebSocket.Options.AddSubProtocol("graphql-ws");
-                if(!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("WEBASSEMBLY")))
+                if(!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("BROWSER")))
                 {
                     // the following properties are not supported in Blazor WebAssembly and throw a PlatformNotSupportedException error when accessed
                     _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
