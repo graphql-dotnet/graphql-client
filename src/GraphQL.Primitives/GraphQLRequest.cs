@@ -49,9 +49,9 @@ namespace GraphQL
             OperationName = operationName;
         }
 
-        public GraphQLRequest(IEnumerable<KeyValuePair<string, object>> values)
+        public GraphQLRequest(GraphQLRequest other)
         {
-            foreach(var kv in values)
+            foreach(var kv in other)
             {
                 Add(kv.Key, kv.Value);
             }
