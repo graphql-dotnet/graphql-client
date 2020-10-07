@@ -136,6 +136,7 @@ namespace GraphQL.Client.Http.Websocket
                                         var typedResponse =
                                             _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
                                                 response.MessageBytes);
+                                        Debug.WriteLine($"payload => {System.Text.Encoding.UTF8.GetString(response.MessageBytes)}");
                                         o.OnNext(typedResponse.Payload);
 
                                         // in case of a GraphQL error, terminate the sequence after the response has been posted
@@ -194,7 +195,7 @@ namespace GraphQL.Client.Http.Websocket
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            Debug.WriteLine(e);
                             throw;
                         }
 
@@ -206,7 +207,7 @@ namespace GraphQL.Client.Http.Websocket
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            Debug.WriteLine(e);
                             throw;
                         }
 
@@ -255,14 +256,18 @@ namespace GraphQL.Client.Http.Websocket
                 // unwrap and push results or throw wrapped exceptions
                 .SelectMany(t =>
                 {
-                    Debug.WriteLine($"unwrap exception thread id: {Thread.CurrentThread.ManagedThreadId}");
                     // if the result contains an exception, throw it on the observable
                     if (t.Item2 != null)
+                    {
+                        Debug.WriteLine($"unwrap exception thread id: {Thread.CurrentThread.ManagedThreadId} => {t.Item2}");
                         return Observable.Throw<GraphQLResponse<TResponse>>(t.Item2);
-
-                    return t.Item1 == null
-                        ? Observable.Empty<GraphQLResponse<TResponse>>()
-                        : Observable.Return(t.Item1);
+                    }
+                    if (t.Item1 == null)
+                    {
+                        Debug.WriteLine($"empty item thread id: {Thread.CurrentThread.ManagedThreadId}");
+                        return Observable.Empty<GraphQLResponse<TResponse>>();
+                    }
+                    return Observable.Return(t.Item1);
                 })
                 // transform to hot observable and auto-connect
                 .Publish().RefCount();
@@ -319,7 +324,7 @@ namespace GraphQL.Client.Http.Websocket
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Debug.WriteLine(e);
                         throw;
                     }
 
