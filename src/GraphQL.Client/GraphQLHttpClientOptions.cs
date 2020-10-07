@@ -56,5 +56,11 @@ namespace GraphQL.Client.Http
         /// Configure additional websocket options (i.e. headers). This will not be invoked on Windows 7 when targeting .NET Framework 4.x. 
         /// </summary>
         public Action<ClientWebSocketOptions> ConfigureWebsocketOptions { get; set; } = options => { };
+
+        /// <summary>
+        /// The `ConnectionParams` object sent with the GQL_CONNECTION_INIT message on establishing a websocket connection.
+        /// See https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_connection_init.
+        /// </summary>
+        public object? WebSocketConnectionParams { get; set; } = null;
     }
 }

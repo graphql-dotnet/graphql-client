@@ -105,7 +105,7 @@ namespace GraphQL.Client.Http.Websocket
                             Type = GraphQLWebSocketMessageType.GQL_START,
                             Payload = request
                         };
-                        var closeRequest = new GraphQLWebSocketRequest
+                        var stopRequest = new GraphQLWebSocketRequest
                         {
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_STOP
@@ -114,7 +114,7 @@ namespace GraphQL.Client.Http.Websocket
                         {
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
-                            Payload = new GraphQLRequest()
+                            Payload = Options.WebSocketConnectionParams
                         };
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
@@ -179,8 +179,8 @@ namespace GraphQL.Client.Http.Websocket
 
                                 try
                                 {
-                                    Debug.WriteLine($"sending close message on subscription {startRequest.Id}");
-                                    await QueueWebSocketRequest(closeRequest);
+                                    Debug.WriteLine($"sending stop message on subscription {startRequest.Id}");
+                                    await QueueWebSocketRequest(stopRequest);
                                 }
                                 // do not break on disposing
                                 catch (OperationCanceledException) { }
