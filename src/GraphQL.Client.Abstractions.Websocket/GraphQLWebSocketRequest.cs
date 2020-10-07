@@ -14,7 +14,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         public const string PAYLOAD_KEY = "payload";
 
         /// <summary>
-        /// The Identifier of the Response
+        /// The Identifier of the request
         /// </summary>
         public string Id
         {
@@ -34,7 +34,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         /// <summary>
         /// The payload of the websocket request
         /// </summary>
-        public object Payload
+        public object? Payload
         {
             get => TryGetValue(PAYLOAD_KEY, out object value) ? value : null;
             set => this[PAYLOAD_KEY] = value;

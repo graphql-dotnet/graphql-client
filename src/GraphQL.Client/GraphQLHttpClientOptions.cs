@@ -61,6 +61,6 @@ namespace GraphQL.Client.Http
         /// The `ConnectionParams` object sent with the GQL_CONNECTION_INIT message on establishing a websocket connection.
         /// See https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_connection_init.
         /// </summary>
-        public object? WebSocketConnectionParams { get; set; } = null;
+        public Func<object?> SetWebSocketConnectionParams { get; set; } = () => null;
     }
 }

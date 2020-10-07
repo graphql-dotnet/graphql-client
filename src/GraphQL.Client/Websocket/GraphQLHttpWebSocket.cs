@@ -98,12 +98,13 @@ namespace GraphQL.Client.Http.Websocket
                     Observable.Create<GraphQLResponse<TResponse>>(async observer =>
                     {
                         Debug.WriteLine($"Create observable thread id: {Thread.CurrentThread.ManagedThreadId}");
-                        await _client.Options.PreprocessRequest(request, _client);
+                        var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client);
+
                         var startRequest = new GraphQLWebSocketRequest
                         {
                             Id = Guid.NewGuid().ToString("N"),
                             Type = GraphQLWebSocketMessageType.GQL_START,
-                            Payload = request
+                            Payload = preprocessedRequest
                         };
                         var stopRequest = new GraphQLWebSocketRequest
                         {
@@ -114,7 +115,7 @@ namespace GraphQL.Client.Http.Websocket
                         {
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
-                            Payload = Options.WebSocketConnectionParams
+                            Payload = Options.SetWebSocketConnectionParams()
                         };
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
