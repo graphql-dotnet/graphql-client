@@ -617,6 +617,9 @@ namespace GraphQL.Client.Http.Websocket
                 return;
             }
 
+            Debug.WriteLine($"send \"connection_terminate\" message");
+            await SendWebSocketMessageAsync(new GraphQLWebSocketRequest{Type = GraphQLWebSocketMessageType.GQL_CONNECTION_TERMINATE});
+
             Debug.WriteLine($"closing websocket {_clientWebSocket.GetHashCode()}");
             await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
             _stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
