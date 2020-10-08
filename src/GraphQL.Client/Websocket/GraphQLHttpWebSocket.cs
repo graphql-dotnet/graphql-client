@@ -8,6 +8,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
@@ -111,12 +112,6 @@ namespace GraphQL.Client.Http.Websocket
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_STOP
                         };
-                        var initRequest = new GraphQLWebSocketRequest
-                        {
-                            Id = startRequest.Id,
-                            Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
-                            Payload = Options.ConfigureWebSocketConnectionInitPayload(Options)
-                        };
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
                             IncomingMessageStream
@@ -187,20 +182,8 @@ namespace GraphQL.Client.Http.Websocket
                                 catch (OperationCanceledException) { }
                             })
                         );
-
-                        // send connection init
-                        Debug.WriteLine($"sending connection init on subscription {startRequest.Id}");
-                        try
-                        {
-                            await QueueWebSocketRequest(initRequest);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine(e);
-                            throw;
-                        }
-
-                        Debug.WriteLine($"sending initial message on subscription {startRequest.Id}");
+                        
+                        Debug.WriteLine($"sending start message on subscription {startRequest.Id}");
                         // send subscription request
                         try
                         {
@@ -354,12 +337,7 @@ namespace GraphQL.Client.Http.Websocket
                 }
 
                 await InitializeWebSocket();
-                var requestBytes = _client.JsonSerializer.SerializeToBytes(request);
-                await _clientWebSocket.SendAsync(
-                    new ArraySegment<byte>(requestBytes),
-                    WebSocketMessageType.Text,
-                    true,
-                    _internalCancellationToken);
+                await SendWebSocketMessageAsync(request, _internalCancellationToken);
                 request.SendCompleted();
             }
             catch (Exception e)
@@ -367,6 +345,16 @@ namespace GraphQL.Client.Http.Websocket
                 request.SendFailed(e);
             }
             return Unit.Default;
+        }
+
+        private async Task SendWebSocketMessageAsync(GraphQLWebSocketRequest request, CancellationToken cancellationToken = default)
+        {
+            var requestBytes = _client.JsonSerializer.SerializeToBytes(request);
+            await _clientWebSocket.SendAsync(
+                new ArraySegment<byte>(requestBytes),
+                WebSocketMessageType.Text,
+                true,
+                cancellationToken);
         }
 
         #endregion
@@ -469,9 +457,38 @@ namespace GraphQL.Client.Http.Websocket
                 Debug.WriteLine($"new incoming message stream {_incomingMessages.GetHashCode()} created");
 
                 _incomingMessagesConnection = new CompositeDisposable(maintenanceSubscription, connection);
+                
+                var initRequest = new GraphQLWebSocketRequest
+                {
+                    Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                    Payload = Options.ConfigureWebSocketConnectionInitPayload(Options)
+                };
+
+                // setup task to await connection_ack message
+                var ackTask = _incomingMessages
+                    .Where(response => response != null )
+                    .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
+                                           response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
+                    .FirstAsync()
+                    .ToTask();
+
+                // send connection init
+                Debug.WriteLine($"sending connection init message");
+                await SendWebSocketMessageAsync(initRequest);
+                var response = await ackTask;
+
+                if (response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK)
+                    Debug.WriteLine($"connection acknowledged: {Encoding.UTF8.GetString(response.MessageBytes)}");
+                else
+                {
+                    var errorPayload = Encoding.UTF8.GetString(response.MessageBytes);
+                    Debug.WriteLine($"connection error received: {errorPayload}");
+                    throw new GraphQLWebsocketConnectionException(errorPayload);
+                }
             }
             catch (Exception e)
             {
+                Debug.WriteLine($"failed to establish websocket connection");
                 _stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
                 _exceptionSubject.OnNext(e);
                 throw;
