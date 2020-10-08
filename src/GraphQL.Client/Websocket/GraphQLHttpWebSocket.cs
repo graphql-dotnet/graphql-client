@@ -115,7 +115,7 @@ namespace GraphQL.Client.Http.Websocket
                         {
                             Id = startRequest.Id,
                             Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
-                            Payload = Options.SetWebSocketConnectionInitPayload()
+                            Payload = Options.ConfigureWebSocketConnectionInitPayload(Options)
                         };
 
                         var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
