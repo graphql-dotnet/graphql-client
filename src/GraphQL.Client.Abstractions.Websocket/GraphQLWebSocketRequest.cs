@@ -14,11 +14,11 @@ namespace GraphQL.Client.Abstractions.Websocket
         public const string PAYLOAD_KEY = "payload";
 
         /// <summary>
-        /// The Identifier of the Response
+        /// The Identifier of the request
         /// </summary>
         public string Id
         {
-            get => ContainsKey(ID_KEY) ? (string)this[ID_KEY] : null;
+            get => TryGetValue(ID_KEY, out object value) ? (string)value : null;
             set => this[ID_KEY] = value;
         }
 
@@ -27,16 +27,16 @@ namespace GraphQL.Client.Abstractions.Websocket
         /// </summary>
         public string Type
         {
-            get => ContainsKey(TYPE_KEY) ? (string)this[TYPE_KEY] : null;
+            get => TryGetValue(TYPE_KEY, out object value) ? (string)value : null;
             set => this[TYPE_KEY] = value;
         }
 
         /// <summary>
         /// The payload of the websocket request
         /// </summary>
-        public GraphQLRequest Payload
+        public object? Payload
         {
-            get => ContainsKey(PAYLOAD_KEY) ? (GraphQLRequest)this[PAYLOAD_KEY] : null;
+            get => TryGetValue(PAYLOAD_KEY, out object value) ? value : null;
             set => this[PAYLOAD_KEY] = value;
         }
 

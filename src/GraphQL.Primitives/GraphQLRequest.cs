@@ -18,7 +18,7 @@ namespace GraphQL
         /// </summary>
         public string Query
         {
-            get => ContainsKey(QUERY_KEY) ? (string)this[QUERY_KEY] : null;
+            get => TryGetValue(QUERY_KEY, out object value) ? (string)value : null;
             set => this[QUERY_KEY] = value;
         }
 
@@ -27,7 +27,7 @@ namespace GraphQL
         /// </summary>
         public string? OperationName
         {
-            get => ContainsKey(OPERATION_NAME_KEY) ? (string)this[OPERATION_NAME_KEY] : null;
+            get => TryGetValue(OPERATION_NAME_KEY, out object value) ? (string)value : null;
             set => this[OPERATION_NAME_KEY] = value;
         }
 
@@ -36,7 +36,7 @@ namespace GraphQL
         /// </summary>
         public object? Variables
         {
-            get => ContainsKey(VARIABLES_KEY) ? this[VARIABLES_KEY] : null;
+            get => TryGetValue(VARIABLES_KEY, out object value) ? value : null;
             set => this[VARIABLES_KEY] = value;
         }
 
