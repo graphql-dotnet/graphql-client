@@ -38,8 +38,7 @@ namespace GraphQL.Client.Abstractions.Websocket
         public const string GQL_CONNECTION_KEEP_ALIVE = "ka"; // Server -> Client
 
         /// <summary>
-        ///     Client sends this message in order to stop a running GraphQL operation execution (for example: unsubscribe)
-        ///     id: string : operation id
+        ///     Client sends this message to terminate the connection.
         /// </summary>
         public const string GQL_CONNECTION_TERMINATE = "connection_terminate"; // Client -> Server
 
