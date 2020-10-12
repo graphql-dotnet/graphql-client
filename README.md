@@ -1,8 +1,18 @@
 # GraphQL.Client
-[![NuGet](https://img.shields.io/nuget/v/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
-[![NuGet](https://img.shields.io/nuget/vpre/GraphQL.Client.svg)](https://www.nuget.org/packages/GraphQL.Client)
 
 A GraphQL Client for .NET Standard over HTTP.
+
+Provides the following packages:
+
+| Package | Downloads | Nuget Latest | 
+|---------|-----------|--------------|
+| GraphQL.Client | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client)](https://www.nuget.org/packages/GraphQL.Client/) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client)](https://www.nuget.org/packages/GraphQL.Client) | 
+| GraphQL.Client.Abstractions | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client.Abstractions)](https://www.nuget.org/packages/GraphQL.Client.Abstractions) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client.Abstractions)](https://www.nuget.org/packages/GraphQL.Client.Abstractions) |
+| GraphQL.Client.Abstractions.Websocket | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client.Abstractions.Websocket)](https://www.nuget.org/packages/GraphQL.Client.Abstractions.Websocket) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client.Abstractions.Websocket)](https://www.nuget.org/packages/GraphQL.Client.Abstractions.Websocket) |
+| GraphQL.Client.LocalExecution | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client.LocalExecution)](https://www.nuget.org/packages/GraphQL.Client.LocalExecution) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client.LocalExecution)](https://www.nuget.org/packages/GraphQL.Client.LocalExecution) | 
+| GraphQL.Client.Serializer.Newtonsoft | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client.Serializer.Newtonsoft)](https://www.nuget.org/packages/GraphQL.Client.Serializer.Newtonsoft) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client.Serializer.Newtonsoft)](https://www.nuget.org/packages/GraphQL.Client.Serializer.Newtonsoft) | 
+| GraphQL.Client.Serializer.SystemTextJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client.Serializer.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Client.Serializer.SystemTextJson) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client.Serializer.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Client.Serializer.SystemTextJson) | 
+| GraphQL.Primitives | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Primitives)](https://www.nuget.org/packages/GraphQL.Primitives/) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Primitives)](https://www.nuget.org/packages/GraphQL.Primitives) | 
 
 ## Specification:
 The Library will try to follow the following standards and documents:

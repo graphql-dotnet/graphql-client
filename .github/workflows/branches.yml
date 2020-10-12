@@ -23,12 +23,12 @@ jobs:
     - name: Fetch complete repository including tags
       run: git fetch --tags --force --prune && git describe
     - name: Generate version info from git history
-      run: dotnet gitversion /output json > gitversion.json && cat gitversion.json
+      run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> gitversion.env && cat gitversion.env
     - name: Upload version info file
       uses: actions/upload-artifact@v1
       with:
         name: gitversion
-        path: gitversion.json
+        path: gitversion.env
 
   build:
     name: Build
@@ -43,7 +43,7 @@ jobs:
         name: gitversion
         path: ./
     - name: Inject version info into environment
-      run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
+      run: cat ./gitversion.env >> $GITHUB_ENV
     - name: Build solution
       run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet build -c Release
     - name: Create NuGet packages
@@ -67,6 +67,6 @@ jobs:
         name: gitversion
         path: ./
     - name: Inject version info into environment
-      run: jq -r 'to_entries|map("::set-env name=GitVersion_\(.key)::\(.value|tostring)")|.[]' gitversion.json
+      run: cat ./gitversion.env >> $GITHUB_ENV
     - name: Run tests
       run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet test -c Release
