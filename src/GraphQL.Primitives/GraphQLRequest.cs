@@ -49,13 +49,7 @@ namespace GraphQL
             OperationName = operationName;
         }
 
-        public GraphQLRequest(GraphQLRequest other)
-        {
-            foreach(var kv in other)
-            {
-                Add(kv.Key, kv.Value);
-            }
-        }
+        public GraphQLRequest(GraphQLRequest other): base(other) { }
 
         /// <summary>
         /// Returns a value that indicates whether this instance is equal to a specified object
