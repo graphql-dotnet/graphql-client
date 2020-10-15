@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace GraphQL.Client.Http
 {
@@ -9,7 +9,9 @@ namespace GraphQL.Client.Http
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public static bool HasWebSocketScheme(this Uri uri) => uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase) || uri.Scheme.Equals("ws", StringComparison.OrdinalIgnoreCase);
+        public static bool HasWebSocketScheme(this Uri? uri) =>
+            !(uri is null) &&
+            (uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase) || uri.Scheme.Equals("ws", StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Infers the websocket uri from <paramref name="uri"/>.
@@ -18,6 +20,9 @@ namespace GraphQL.Client.Http
         /// <returns></returns>
         public static Uri GetWebSocketUri(this Uri uri)
         {
+            if (uri is null)
+                throw new ArgumentNullException(nameof(uri));
+
             if (uri.HasWebSocketScheme())
                 return uri;
 

@@ -79,6 +79,30 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             var response = await ChatClient.AddMessageAsync(message);
             response.Data.AddMessage.Content.Should().Be(message);
         }
+        
+        [Fact]
+        public async void CanUseDedicatedWebSocketEndpoint()
+        {
+            ChatClient.Options.WebSocketEndPoint = ChatClient.Options.EndPoint.GetWebSocketUri();
+            ChatClient.Options.EndPoint = new Uri("http://bad-endpoint.test");
+            ChatClient.Options.UseWebSocketForQueriesAndMutations = true;
+            await ChatClient.InitializeWebsocketConnection();
+            const string message = "some random testing message";
+            var response = await ChatClient.AddMessageAsync(message);
+            response.Data.AddMessage.Content.Should().Be(message);
+        }
+        
+        [Fact]
+        public async void CanUseDedicatedWebSocketEndpointWithoutHttpEndpoint()
+        {
+            ChatClient.Options.WebSocketEndPoint = ChatClient.Options.EndPoint.GetWebSocketUri();
+            ChatClient.Options.EndPoint = null;
+            ChatClient.Options.UseWebSocketForQueriesAndMutations = false;
+            await ChatClient.InitializeWebsocketConnection();
+            const string message = "some random testing message";
+            var response = await ChatClient.AddMessageAsync(message);
+            response.Data.AddMessage.Content.Should().Be(message);
+        }
 
         [Fact]
         public async void WebsocketRequestCanBeCancelled()

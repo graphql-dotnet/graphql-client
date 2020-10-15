@@ -64,8 +64,8 @@ namespace GraphQL.Client.Http
 
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
-
-            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(() => new GraphQLHttpWebSocket(Options.EndPoint.GetWebSocketUri(), this));
+            
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
         }
 
         #endregion
@@ -75,7 +75,9 @@ namespace GraphQL.Client.Http
         /// <inheritdoc />
         public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
-            if (Options.UseWebSocketForQueriesAndMutations || Options.EndPoint.HasWebSocketScheme())
+            if (Options.UseWebSocketForQueriesAndMutations ||
+                !(Options.WebSocketEndPoint is null) && Options.EndPoint is null ||
+                Options.EndPoint.HasWebSocketScheme())
                 return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
             return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
@@ -152,6 +154,19 @@ namespace GraphQL.Client.Http
 
             throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }
+
+        private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
+        {
+            if(Options.WebSocketEndPoint is null && Options.EndPoint is null)
+                throw new InvalidOperationException("no endpoint configured");
+
+            var webSocketEndpoint = Options.WebSocketEndPoint ?? Options.EndPoint.GetWebSocketUri();
+            if (!webSocketEndpoint.HasWebSocketScheme())
+                throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
+
+            return new GraphQLHttpWebSocket(webSocketEndpoint, this);
+        }
+
         #endregion
 
         #region IDisposable
