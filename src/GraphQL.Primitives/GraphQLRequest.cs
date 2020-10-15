@@ -84,16 +84,7 @@ namespace GraphQL
         /// <summary>
         /// <inheritdoc cref="object.GetHashCode"/>
         /// </summary>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Query?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ OperationName?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ Variables?.GetHashCode() ?? 0;
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => (Query, OperationName, Variables).GetHashCode();
 
         /// <summary>
         /// Tests whether two specified <see cref="GraphQLRequest"/> instances are equivalent
