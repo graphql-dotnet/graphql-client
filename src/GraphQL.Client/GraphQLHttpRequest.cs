@@ -16,7 +16,7 @@ namespace GraphQL.Client.Http
         {
         }
 
-        public GraphQLHttpRequest(GraphQLRequest other): base(other.Query, other.Variables, other.OperationName)
+        public GraphQLHttpRequest(GraphQLRequest other): base(other)
         {
         }
 
