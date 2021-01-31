@@ -408,6 +408,10 @@ namespace GraphQL.Client.Http.Websocket
                 {
                     _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
                 }
+                catch (NotImplementedException)
+                {
+                    Debug.WriteLine("property 'ClientWebSocketOptions.ClientCertificates' not implemented by current platform");                
+                }
                 catch (PlatformNotSupportedException)
                 {
                     Debug.WriteLine("property 'ClientWebSocketOptions.ClientCertificates' not supported by current platform");
@@ -416,6 +420,10 @@ namespace GraphQL.Client.Http.Websocket
                 try
                 {
                     _clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
+                }
+                catch (NotImplementedException)
+                {
+                    Debug.WriteLine("property 'ClientWebSocketOptions.UseDefaultCredentials' not implemented by current platform");    
                 }
                 catch (PlatformNotSupportedException)
                 {
