@@ -21,6 +21,8 @@ namespace GraphQL.Client.Http
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
 
+        private readonly bool _disposeHttpClient = false;
+
         /// <summary>
         /// the json serializer
         /// </summary>
@@ -54,7 +56,12 @@ namespace GraphQL.Client.Http
 
         public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
 
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(options, serializer, new HttpClient(options.HttpMessageHandler)) { }
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(
+            options, serializer, new HttpClient(options.HttpMessageHandler))
+        {
+            // set this flag to dispose the internally created HttpClient when GraphQLHttpClient gets disposed
+            _disposeHttpClient = true;
+        }
 
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
@@ -195,7 +202,8 @@ namespace GraphQL.Client.Http
             {
                 Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
                 _cancellationTokenSource.Cancel();
-                HttpClient.Dispose();
+                if(_disposeHttpClient)
+                    HttpClient.Dispose();
                 if ( _lazyHttpWebSocket.IsValueCreated )
                     _lazyHttpWebSocket.Value.Dispose();
                 _cancellationTokenSource.Dispose();
