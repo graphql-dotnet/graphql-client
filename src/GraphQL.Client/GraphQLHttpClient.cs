@@ -16,7 +16,7 @@ namespace GraphQL.Client.Http
     public class GraphQLHttpClient : IGraphQLClient
     {
         private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
-        private GraphQLHttpWebSocket _graphQlHttpWebSocket => _lazyHttpWebSocket.Value;
+        private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
@@ -39,12 +39,12 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
         /// </summary>
-        public IObservable<Exception> WebSocketReceiveErrors => _graphQlHttpWebSocket.ReceiveErrors;
+        public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
 
         /// <summary>
         /// the websocket connection state
         /// </summary>
-        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => _graphQlHttpWebSocket.ConnectionState;
+        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
 
         #region Constructors
 
@@ -78,7 +78,7 @@ namespace GraphQL.Client.Http
             if (Options.UseWebSocketForQueriesAndMutations ||
                 !(Options.WebSocketEndPoint is null) && Options.EndPoint is null ||
                 Options.EndPoint.HasWebSocketScheme())
-                return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
+                return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
             return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
         }
@@ -99,7 +99,7 @@ namespace GraphQL.Client.Http
             if (_subscriptionStreams.ContainsKey(key))
                 return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
 
-            var observable = _graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
+            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
 
             _subscriptionStreams.TryAdd(key, observable);
             return observable;
@@ -116,7 +116,7 @@ namespace GraphQL.Client.Http
             if (_subscriptionStreams.ContainsKey(key))
                 return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
 
-            var observable = _graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
+            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
             _subscriptionStreams.TryAdd(key, observable);
             return observable;
         }
@@ -127,7 +127,7 @@ namespace GraphQL.Client.Http
         /// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
         /// </summary>
         /// <returns></returns>
-        public Task InitializeWebsocketConnection() => _graphQlHttpWebSocket.InitializeWebSocket();
+        public Task InitializeWebsocketConnection() => GraphQlHttpWebSocket.InitializeWebSocket();
 
         #region Private Methods
 
