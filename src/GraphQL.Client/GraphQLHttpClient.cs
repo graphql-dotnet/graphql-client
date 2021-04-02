@@ -16,10 +16,12 @@ namespace GraphQL.Client.Http
     public class GraphQLHttpClient : IGraphQLClient
     {
         private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
-        private GraphQLHttpWebSocket _graphQlHttpWebSocket => _lazyHttpWebSocket.Value;
+        private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
+
+        private readonly bool _disposeHttpClient = false;
 
         /// <summary>
         /// the json serializer
@@ -39,12 +41,12 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
         /// </summary>
-        public IObservable<Exception> WebSocketReceiveErrors => _graphQlHttpWebSocket.ReceiveErrors;
+        public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
 
         /// <summary>
         /// the websocket connection state
         /// </summary>
-        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => _graphQlHttpWebSocket.ConnectionState;
+        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
 
         #region Constructors
 
@@ -54,7 +56,12 @@ namespace GraphQL.Client.Http
 
         public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
 
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(options, serializer, new HttpClient(options.HttpMessageHandler)) { }
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(
+            options, serializer, new HttpClient(options.HttpMessageHandler))
+        {
+            // set this flag to dispose the internally created HttpClient when GraphQLHttpClient gets disposed
+            _disposeHttpClient = true;
+        }
 
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
@@ -78,7 +85,7 @@ namespace GraphQL.Client.Http
             if (Options.UseWebSocketForQueriesAndMutations ||
                 !(Options.WebSocketEndPoint is null) && Options.EndPoint is null ||
                 Options.EndPoint.HasWebSocketScheme())
-                return await _graphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
+                return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
             return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
         }
@@ -99,7 +106,7 @@ namespace GraphQL.Client.Http
             if (_subscriptionStreams.ContainsKey(key))
                 return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
 
-            var observable = _graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
+            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
 
             _subscriptionStreams.TryAdd(key, observable);
             return observable;
@@ -116,7 +123,7 @@ namespace GraphQL.Client.Http
             if (_subscriptionStreams.ContainsKey(key))
                 return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
 
-            var observable = _graphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
+            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
             _subscriptionStreams.TryAdd(key, observable);
             return observable;
         }
@@ -127,7 +134,7 @@ namespace GraphQL.Client.Http
         /// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
         /// </summary>
         /// <returns></returns>
-        public Task InitializeWebsocketConnection() => _graphQlHttpWebSocket.InitializeWebSocket();
+        public Task InitializeWebsocketConnection() => GraphQlHttpWebSocket.InitializeWebSocket();
 
         #region Private Methods
 
@@ -195,7 +202,8 @@ namespace GraphQL.Client.Http
             {
                 Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
                 _cancellationTokenSource.Cancel();
-                HttpClient.Dispose();
+                if(_disposeHttpClient)
+                    HttpClient.Dispose();
                 if ( _lazyHttpWebSocket.IsValueCreated )
                     _lazyHttpWebSocket.Value.Dispose();
                 _cancellationTokenSource.Dispose();
