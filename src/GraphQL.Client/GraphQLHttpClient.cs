@@ -87,7 +87,8 @@ namespace GraphQL.Client.Http
                 Options.EndPoint.HasWebSocketScheme())
                 return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
 
-            return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
+            return await SendHttpRequestAsync<TResponse>(request, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -143,7 +144,8 @@ namespace GraphQL.Client.Http
             var preprocessedRequest = await Options.PreprocessRequest(request, this);
 
             using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
-            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                .ConfigureAwait(false);
 
             var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
 
