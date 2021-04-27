@@ -15,9 +15,10 @@ namespace GraphQL.Client.Serializer.SystemTextJson
         {
             var clone = reader; // cause its a struct
 
-            if(clone.TokenType == JsonTokenType.StartObject)
+            if (clone.TokenType == JsonTokenType.StartObject)
                 clone.Read();
-            if(clone.TokenType != JsonTokenType.PropertyName || clone.GetString() != "__typename")
+            if (clone.TokenType != JsonTokenType.PropertyName || clone.GetString() != "__typename")
+
                 throw new JsonException();
 
             clone.Read();
