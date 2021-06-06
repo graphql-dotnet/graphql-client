@@ -491,7 +491,7 @@ namespace GraphQL.Client.Http.Websocket
                     .Where(response => response != null )
                     .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
                                            response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
-                    .FirstAsync()
+                    .LastAsync()
                     .ToTask();
 
                 // send connection init
