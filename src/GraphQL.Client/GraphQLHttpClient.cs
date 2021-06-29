@@ -5,12 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
-
+[assembly:InternalsVisibleTo("GraphQL.Client.TestHost")]
+[assembly:InternalsVisibleTo("GraphQL.Integration.Tests")]
 namespace GraphQL.Client.Http
 {
     public class GraphQLHttpClient : IGraphQLClient
@@ -63,6 +66,11 @@ namespace GraphQL.Client.Http
             _disposeHttpClient = true;
         }
 
+        internal GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient, Func<Uri, CancellationToken, Task<WebSocket>> connectedWebSocketFactory):this(options,serializer,httpClient)
+        {
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(()=>CreateGraphQLHttpWebSocket(connectedWebSocketFactory));
+        }
+
         public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -72,7 +80,7 @@ namespace GraphQL.Client.Http
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
             
-            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(()=>CreateGraphQLHttpWebSocket());
         }
 
         #endregion
@@ -162,7 +170,7 @@ namespace GraphQL.Client.Http
             throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }
 
-        private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
+        private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket(Func<Uri, CancellationToken, Task<WebSocket>>? connectedSocketFactory=null)
         {
             if(Options.WebSocketEndPoint is null && Options.EndPoint is null)
                 throw new InvalidOperationException("no endpoint configured");
@@ -171,7 +179,7 @@ namespace GraphQL.Client.Http
             if (!webSocketEndpoint.HasWebSocketScheme())
                 throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
 
-            return new GraphQLHttpWebSocket(webSocketEndpoint, this);
+            return new GraphQLHttpWebSocket(webSocketEndpoint, this,connectedSocketFactory);
         }
 
         #endregion

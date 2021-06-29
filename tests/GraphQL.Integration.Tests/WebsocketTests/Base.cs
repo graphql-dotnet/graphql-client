@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using FluentAssertions.Extensions;
 using GraphQL.Client.Abstractions;
-using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
@@ -81,7 +77,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             response.Errors.Should().BeNullOrEmpty();
             response.Data.AddMessage.Content.Should().Be(message);
         }
-        
+
         [Fact]
         public async void CanUseDedicatedWebSocketEndpoint()
         {
@@ -94,7 +90,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             response.Errors.Should().BeNullOrEmpty();
             response.Data.AddMessage.Content.Should().Be(message);
         }
-        
+
         [Fact]
         public async void CanUseDedicatedWebSocketEndpointWithoutHttpEndpoint()
         {
@@ -161,7 +157,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 			  }
 			}";
 
-        private readonly GraphQLRequest _subscriptionRequest = new GraphQLRequest(SUBSCRIPTION_QUERY);
+        protected readonly GraphQLRequest _subscriptionRequest = new GraphQLRequest(SUBSCRIPTION_QUERY);
 
 
         [Fact]
@@ -359,79 +355,6 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             await messagesMonitor.Should().CompleteAsync();
         }
 
-
-        [Fact]
-        public async void CanHandleConnectionTimeout()
-        {
-            var errorMonitor = new CallbackMonitor<Exception>();
-            var reconnectBlocker = new ManualResetEventSlim(false);
-
-            var callbackMonitor = ChatClient.ConfigureMonitorForOnWebsocketConnected();
-            // configure back-off strategy to allow it to be controlled from within the unit test
-            ChatClient.Options.BackOffStrategy = i =>
-            {
-                Debug.WriteLine("back-off strategy: waiting on reconnect blocker");
-                reconnectBlocker.Wait();
-                Debug.WriteLine("back-off strategy: reconnecting...");
-                return TimeSpan.Zero;
-            };
-
-            var websocketStates = new ConcurrentQueue<GraphQLWebsocketConnectionState>();
-
-            using (ChatClient.WebsocketConnectionState.Subscribe(websocketStates.Enqueue))
-            {
-                websocketStates.Should().ContainSingle(state => state == GraphQLWebsocketConnectionState.Disconnected);
-
-                Debug.WriteLine($"Test method thread id: {Thread.CurrentThread.ManagedThreadId}");
-                Debug.WriteLine("creating subscription stream");
-                var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest, errorMonitor.Invoke);
-
-                Debug.WriteLine("subscribing...");
-                var observer = observable.Observe();
-                callbackMonitor.Should().HaveBeenInvokedWithPayload();
-
-                websocketStates.Should().ContainInOrder(
-                    GraphQLWebsocketConnectionState.Disconnected,
-                    GraphQLWebsocketConnectionState.Connecting,
-                    GraphQLWebsocketConnectionState.Connected);
-                // clear the collection so the next tests on the collection work as expected
-                websocketStates.Clear();
-
-                await observer.Should().PushAsync(1);
-                observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
-
-                const string message1 = "Hello World";
-                var response = await ChatClient.AddMessageAsync(message1);
-                response.Data.AddMessage.Content.Should().Be(message1);
-                await observer.Should().PushAsync(2);
-                observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
-
-                Debug.WriteLine("stopping web host...");
-                await Fixture.ShutdownServer();
-                Debug.WriteLine("web host stopped");
-
-                errorMonitor.Should().HaveBeenInvokedWithPayload(10.Seconds())
-                    .Which.Should().BeOfType<WebSocketException>();
-                websocketStates.Should().Contain(GraphQLWebsocketConnectionState.Disconnected);
-
-                Debug.WriteLine("restarting web host...");
-                await InitializeAsync();
-                Debug.WriteLine("web host started");
-                reconnectBlocker.Set();
-                callbackMonitor.Should().HaveBeenInvokedWithPayload(3.Seconds());
-                await observer.Should().PushAsync(3);
-                observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
-
-                websocketStates.Should().ContainInOrder(
-                    GraphQLWebsocketConnectionState.Disconnected,
-                    GraphQLWebsocketConnectionState.Connecting,
-                    GraphQLWebsocketConnectionState.Connected);
-
-                // disposing the client should complete the subscription
-                ChatClient.Dispose();
-                await observer.Should().CompleteAsync(5.Seconds());
-            }
-        }
 
         [Fact]
         public async void CanHandleSubscriptionError()

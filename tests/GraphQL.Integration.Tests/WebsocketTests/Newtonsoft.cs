@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace GraphQL.Integration.Tests.WebsocketTests
 {
-    public class Newtonsoft : Base, IClassFixture<NewtonsoftIntegrationServerTestFixture>
+    public class Newtonsoft : BaseWithTimeout, IClassFixture<NewtonsoftIntegrationServerTestFixture>
     {
         public Newtonsoft(ITestOutputHelper output, NewtonsoftIntegrationServerTestFixture fixture) : base(output, fixture)
         {
