@@ -36,7 +36,7 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
         {
             Field<StringGraphType>("fromId");
             Field<StringGraphType>("content");
-            Field<DateGraphType>("sentAt");
+            Field<DateTimeGraphType>("sentAt");
         }
     }
 }

@@ -13,7 +13,6 @@ namespace GraphQL.Client.Tests.Common
         public static StarWarsSchema GetStarWarsSchema()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
             services.AddStarWarsSchema();
             return services.BuildServiceProvider().GetRequiredService<StarWarsSchema>();
         }
@@ -21,7 +20,6 @@ namespace GraphQL.Client.Tests.Common
         public static ChatSchema GetChatSchema()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
             services.AddChatSchema();
             return services.BuildServiceProvider().GetRequiredService<ChatSchema>();
         }

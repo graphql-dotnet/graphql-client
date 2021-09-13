@@ -12,7 +12,7 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
             Field(o => o.From, false, typeof(MessageFromType)).Resolve(ResolveFrom);
         }
 
-        private MessageFrom ResolveFrom(ResolveFieldContext<Message> context)
+        private MessageFrom ResolveFrom(IResolveFieldContext<Message> context)
         {
             var message = context.Source;
             return message.From;

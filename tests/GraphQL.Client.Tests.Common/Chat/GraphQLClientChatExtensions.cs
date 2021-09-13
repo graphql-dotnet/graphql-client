@@ -10,7 +10,7 @@ namespace GraphQL.Client.Tests.Common.Chat
 @"mutation($input: MessageInputType){
   addMessage(message: $input){
     content
-  }  
+  }
 }";
 
         public static Task<GraphQLResponse<AddMessageMutationResult>> AddMessageAsync(this IGraphQLClient client, string message)
@@ -21,7 +21,7 @@ namespace GraphQL.Client.Tests.Common.Chat
                 {
                     FromId = "2",
                     Content = message,
-                    SentAt = DateTime.Now
+                    SentAt = DateTime.Now.ToString("s")
                 }
             };
 

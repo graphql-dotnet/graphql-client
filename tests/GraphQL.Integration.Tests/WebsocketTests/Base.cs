@@ -67,6 +67,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             await ChatClient.InitializeWebsocketConnection();
             const string message = "some random testing message";
             var response = await ChatClient.AddMessageAsync(message);
+            response.Errors.Should().BeNullOrEmpty();
             response.Data.AddMessage.Content.Should().Be(message);
         }
 
@@ -77,6 +78,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             await ChatClient.InitializeWebsocketConnection();
             const string message = "some random testing message";
             var response = await ChatClient.AddMessageAsync(message);
+            response.Errors.Should().BeNullOrEmpty();
             response.Data.AddMessage.Content.Should().Be(message);
         }
         
@@ -89,6 +91,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             await ChatClient.InitializeWebsocketConnection();
             const string message = "some random testing message";
             var response = await ChatClient.AddMessageAsync(message);
+            response.Errors.Should().BeNullOrEmpty();
             response.Data.AddMessage.Content.Should().Be(message);
         }
         
@@ -174,10 +177,12 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             Debug.WriteLine("subscribing...");
             using var observer = observable.Observe();
             await observer.Should().PushAsync(1);
+            observer.RecordedMessages.Last().Errors.Should().BeNullOrEmpty();
             observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(InitialMessage.Content);
 
             const string message1 = "Hello World";
             var response = await ChatClient.AddMessageAsync(message1);
+            response.Errors.Should().BeNullOrEmpty();
             response.Data.AddMessage.Content.Should().Be(message1);
             await observer.Should().PushAsync(2);
             observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
