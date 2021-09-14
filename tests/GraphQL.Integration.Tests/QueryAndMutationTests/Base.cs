@@ -9,6 +9,7 @@ using GraphQL.Client.Http;
 using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Client.Tests.Common.StarWars;
+using GraphQL.Client.Tests.Common.StarWars.TestData;
 using GraphQL.Integration.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;

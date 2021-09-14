@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace GraphQL.Client.Tests.Common.StarWars
+namespace GraphQL.Client.Tests.Common.StarWars.TestData
 {
+    /// <summary>
+    /// Test data object
+    /// </summary>
     public class StarWarsHumans : IEnumerable<object[]>
     {
         public IEnumerator<object[]> GetEnumerator()

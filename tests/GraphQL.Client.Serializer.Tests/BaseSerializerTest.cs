@@ -16,6 +16,7 @@ using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Client.Tests.Common.StarWars;
+using GraphQL.Client.Tests.Common.StarWars.TestData;
 using Xunit;
 
 namespace GraphQL.Client.Serializer.Tests

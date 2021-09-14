@@ -1,11 +1,10 @@
 using GraphQL;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Chat.Schema;
+using GraphQL.Client.Tests.Common.StarWars;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
-using GraphQL.Server.Ui.Playground;
-using GraphQL.StarWars;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

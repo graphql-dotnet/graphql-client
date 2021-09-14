@@ -9,7 +9,6 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="GraphQL" Version="4.6.0" />
     <PackageReference Include="GraphQL.Server.Transports.Subscriptions.Abstractions" Version="5.0.2" />
-    <PackageReference Include="GraphQL.StarWars" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
     <PackageReference Include="Microsoft.Reactive.Testing" Version="5.0.0" />
   </ItemGroup>

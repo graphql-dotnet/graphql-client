@@ -1,6 +1,6 @@
 using GraphQL.Client.Tests.Common.Chat.Schema;
-using GraphQL.StarWars;
-using GraphQL.StarWars.Types;
+using GraphQL.Client.Tests.Common.StarWars;
+using GraphQL.Client.Tests.Common.StarWars.Types;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Client.Tests.Common
