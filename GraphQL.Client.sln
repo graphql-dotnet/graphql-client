@@ -65,6 +65,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{89
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Example", "examples\GraphQL.Client.Example\GraphQL.Client.Example.csproj", "{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphQL.Client.TestHost", "src\GraphQL.Client.TestHost\GraphQL.Client.TestHost.csproj", "{01AE8466-3E48-4988-81F1-7F93F1531302}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AE8466-3E48-4988-81F1-7F93F1531302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AE8466-3E48-4988-81F1-7F93F1531302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AE8466-3E48-4988-81F1-7F93F1531302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AE8466-3E48-4988-81F1-7F93F1531302}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -146,6 +152,7 @@ Global
 		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD} = {89AD33AB-64F6-4F82-822F-21DF7A10CEC0}
+		{01AE8466-3E48-4988-81F1-7F93F1531302} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}

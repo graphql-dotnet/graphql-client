@@ -14,7 +14,7 @@ namespace GraphQL.Integration.Tests.Helpers
     {
         public int Port { get; private set; }
 
-        public IWebHost Server { get; private set; }
+        public IWebHost Server { get; protected set; }
 
         public abstract IGraphQLWebsocketJsonSerializer Serializer { get; }
 
@@ -23,7 +23,7 @@ namespace GraphQL.Integration.Tests.Helpers
             Port = NetworkHelpers.GetFreeTcpPortNumber();
         }
 
-        public async Task CreateServer()
+        public virtual async Task CreateServer()
         {
             if (Server != null)
                 return;
@@ -46,21 +46,11 @@ namespace GraphQL.Integration.Tests.Helpers
         public GraphQLHttpClient GetChatClient(bool requestsViaWebsocket = false)
             => GetGraphQLClient(Common.CHAT_ENDPOINT, requestsViaWebsocket);
 
-        private GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false)
+        protected virtual GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false)
         {
             if (Serializer == null)
                 throw new InvalidOperationException("JSON serializer not configured");
             return WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket, Serializer);
         }
-    }
-
-    public class NewtonsoftIntegrationServerTestFixture : IntegrationServerTestFixture
-    {
-        public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new NewtonsoftJsonSerializer();
-    }
-
-    public class SystemTextJsonIntegrationServerTestFixture : IntegrationServerTestFixture
-    {
-        public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
     }
 }

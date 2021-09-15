@@ -5,16 +5,20 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
-
+[assembly:InternalsVisibleTo("GraphQL.Client.TestHost")]
+[assembly:InternalsVisibleTo("GraphQL.Integration.Tests")]
 namespace GraphQL.Client.Http
 {
     public class GraphQLHttpClient : IGraphQLClient
     {
+        private readonly IWebSocketFactory _webSocketFactory;
         private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
         private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
@@ -63,16 +67,17 @@ namespace GraphQL.Client.Http
             _disposeHttpClient = true;
         }
 
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient, IWebSocketFactory? webSocketFactory = null)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
             JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _webSocketFactory = webSocketFactory ?? WebSocketFactoryHelper.GetDefaultWebSocketFactory(options);
 
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
-            
-            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(()=>CreateGraphQLHttpWebSocket());
         }
 
         #endregion
@@ -171,7 +176,7 @@ namespace GraphQL.Client.Http
             if (!webSocketEndpoint.HasWebSocketScheme())
                 throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
 
-            return new GraphQLHttpWebSocket(webSocketEndpoint, this);
+            return new GraphQLHttpWebSocket(webSocketEndpoint, this, _webSocketFactory);
         }
 
         #endregion

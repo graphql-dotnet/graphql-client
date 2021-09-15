@@ -30,6 +30,7 @@ namespace GraphQL.Client.Http.Websocket
         private readonly BehaviorSubject<GraphQLWebsocketConnectionState> _stateSubject =
             new BehaviorSubject<GraphQLWebsocketConnectionState>(GraphQLWebsocketConnectionState.Disconnected);
         private readonly IDisposable _requestSubscription;
+        private readonly IWebSocketFactory _webSocketFactory;
 
         private int _connectionAttempt = 0;
         private IConnectableObservable<WebsocketMessageWrapper> _incomingMessages;
@@ -39,11 +40,7 @@ namespace GraphQL.Client.Http.Websocket
         private Task _initializeWebSocketTask = Task.CompletedTask;
         private readonly object _initializeLock = new object();
 
-#if NETFRAMEWORK
-		private WebSocket _clientWebSocket = null;
-#else
-        private ClientWebSocket _clientWebSocket = null;
-#endif
+ 		private WebSocket _clientWebSocket = null;
 
         #endregion
 
@@ -71,11 +68,12 @@ namespace GraphQL.Client.Http.Websocket
 
         #endregion
 
-        public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client)
+        public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client, IWebSocketFactory webSocketFactory)
         {
             _internalCancellationToken = _internalCancellationTokenSource.Token;
             _webSocketUri = webSocketUri;
             _client = client;
+            _webSocketFactory = webSocketFactory;
             _buffer = new ArraySegment<byte>(new byte[8192]);
             IncomingMessageStream = GetMessageStream();
 
@@ -182,7 +180,7 @@ namespace GraphQL.Client.Http.Websocket
                                 catch (OperationCanceledException) { }
                             })
                         );
-                        
+
                         Debug.WriteLine($"sending start message on subscription {startRequest.Id}");
                         // send subscription request
                         try
@@ -379,59 +377,6 @@ namespace GraphQL.Client.Http.Websocket
 
                 // else (re-)create websocket and connect
                 _clientWebSocket?.Dispose();
-
-#if NETFRAMEWORK
-				// fix websocket not supported on win 7 using
-				// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
-				_clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
-				switch (_clientWebSocket) {
-					case ClientWebSocket nativeWebSocket:
-						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
-						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
-                        Options.ConfigureWebsocketOptions(nativeWebSocket.Options);
-                        break;
-					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
-						managedWebSocket.Options.AddSubProtocol("graphql-ws");
-						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
-                        break;
-					default:
-						throw new NotSupportedException($"unknown websocket type {_clientWebSocket.GetType().Name}");
-				}
-#else
-                _clientWebSocket = new ClientWebSocket();
-                _clientWebSocket.Options.AddSubProtocol("graphql-ws");
-
-                // the following properties are not supported in Blazor WebAssembly and throw a PlatformNotSupportedException error when accessed
-                try
-                {
-                    _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-                }
-                catch (NotImplementedException)
-                {
-                    Debug.WriteLine("property 'ClientWebSocketOptions.ClientCertificates' not implemented by current platform");                
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    Debug.WriteLine("property 'ClientWebSocketOptions.ClientCertificates' not supported by current platform");
-                }
-
-                try
-                {
-                    _clientWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
-                }
-                catch (NotImplementedException)
-                {
-                    Debug.WriteLine("property 'ClientWebSocketOptions.UseDefaultCredentials' not implemented by current platform");    
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    Debug.WriteLine("Property 'ClientWebSocketOptions.UseDefaultCredentials' not supported by current platform");
-                }
-
-                Options.ConfigureWebsocketOptions(_clientWebSocket.Options);
-#endif
                 return _initializeWebSocketTask = ConnectAsync(_internalCancellationToken);
             }
         }
@@ -442,8 +387,7 @@ namespace GraphQL.Client.Http.Websocket
             {
                 await BackOff();
                 _stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
-                Debug.WriteLine($"opening websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})");
-                await _clientWebSocket.ConnectAsync(_webSocketUri, token);
+                _clientWebSocket = await _webSocketFactory.ConnectAsync(_webSocketUri, token);
                 _stateSubject.OnNext(GraphQLWebsocketConnectionState.Connected);
                 Debug.WriteLine($"connection established on websocket {_clientWebSocket.GetHashCode()}, invoking Options.OnWebsocketConnected()");
                 await (Options.OnWebsocketConnected?.Invoke(_client) ?? Task.CompletedTask);
@@ -479,7 +423,7 @@ namespace GraphQL.Client.Http.Websocket
                 Debug.WriteLine($"new incoming message stream {_incomingMessages.GetHashCode()} created");
 
                 _incomingMessagesConnection = new CompositeDisposable(maintenanceSubscription, connection);
-                
+
                 var initRequest = new GraphQLWebSocketRequest
                 {
                     Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
@@ -608,8 +552,6 @@ namespace GraphQL.Client.Http.Websocket
                         return response;
 
                     case WebSocketMessageType.Close:
-                        var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
-                        closeResponse.MessageBytes = ms.ToArray();
                         Debug.WriteLine($"Connection closed by the server.");
                         throw new Exception("Connection closed by the server.");
 
