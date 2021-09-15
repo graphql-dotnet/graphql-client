@@ -39,7 +39,7 @@ namespace GraphQL.Integration.Tests.Helpers
 
             return _testServer.CreateGraphQLHttpClient(new GraphQLHttpClientOptions
                 {
-                    EndPoint = new Uri($"http://localhost:{Port}{endpoint}"),
+                    EndPoint = new UriBuilder(_testServer.BaseAddress) { Path = endpoint }.Uri,
                     UseWebSocketForQueriesAndMutations = requestsViaWebsocket
                 },
                 Serializer);
