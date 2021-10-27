@@ -1,10 +1,10 @@
 using GraphQL;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Chat.Schema;
+using GraphQL.Client.Tests.Common.StarWars;
 using GraphQL.Server;
+using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
-using GraphQL.Server.Ui.Playground;
-using GraphQL.StarWars;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace IntegrationTestServer
 {
@@ -32,16 +33,21 @@ namespace IntegrationTestServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<KestrelServerOptions>(options => options.AllowSynchronousIO = true);
-
-            services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
+            //
             services.AddChatSchema();
             services.AddStarWarsSchema();
-            services.AddGraphQL(options =>
+            services.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>();
+            services.AddGraphQL((options, services) =>
             {
                 options.EnableMetrics = true;
-                options.ExposeExceptions = Environment.IsDevelopment();
+                var logger = services.GetRequiredService<ILogger<Startup>>();
+                options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
             })
-                .AddWebSockets();
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
+                .AddSystemTextJson()
+                .AddWebSockets()
+                .AddGraphTypes(typeof(ChatSchema))
+                .AddGraphTypes(typeof(StarWarsSchema));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,16 +63,8 @@ namespace IntegrationTestServer
             ConfigureGraphQLSchema<ChatSchema>(app, Common.CHAT_ENDPOINT);
             ConfigureGraphQLSchema<StarWarsSchema>(app, Common.STAR_WARS_ENDPOINT);
 
-            app.UseGraphiQLServer(new GraphiQLOptions
-            {
-                GraphiQLPath = "/ui/graphiql",
-                GraphQLEndPoint = Common.STAR_WARS_ENDPOINT
-            });
-            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
-            {
-                Path = "/ui/playground",
-                GraphQLEndPoint = Common.CHAT_ENDPOINT
-            });
+            app.UseGraphQLGraphiQL(new GraphiQLOptions { GraphQLEndPoint = Common.STAR_WARS_ENDPOINT });
+            app.UseGraphQLAltair(new AltairOptions { GraphQLEndPoint = Common.CHAT_ENDPOINT });
         }
 
         private void ConfigureGraphQLSchema<TSchema>(IApplicationBuilder app, string endpoint) where TSchema : Schema

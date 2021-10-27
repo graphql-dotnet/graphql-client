@@ -1,6 +1,6 @@
 using GraphQL.Client.Tests.Common.Chat.Schema;
-using GraphQL.StarWars;
-using GraphQL.StarWars.Types;
+using GraphQL.Client.Tests.Common.StarWars;
+using GraphQL.Client.Tests.Common.StarWars.Types;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Client.Tests.Common
@@ -13,7 +13,6 @@ namespace GraphQL.Client.Tests.Common
         public static StarWarsSchema GetStarWarsSchema()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
             services.AddStarWarsSchema();
             return services.BuildServiceProvider().GetRequiredService<StarWarsSchema>();
         }
@@ -21,7 +20,6 @@ namespace GraphQL.Client.Tests.Common
         public static ChatSchema GetChatSchema()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IDependencyResolver>(provider => new FuncDependencyResolver(provider.GetService));
             services.AddChatSchema();
             return services.BuildServiceProvider().GetRequiredService<ChatSchema>();
         }

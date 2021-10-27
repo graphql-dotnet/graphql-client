@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL.NewtonsoftJson;
 using GraphQL.Subscription;
 using GraphQL.Types;
 using Newtonsoft.Json;
@@ -41,6 +42,7 @@ namespace GraphQL.Client.LocalExecution
         public IGraphQLJsonSerializer Serializer { get; }
 
         private readonly DocumentExecuter _documentExecuter;
+        private readonly DocumentWriter _documentWriter;
 
         public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer)
         {
@@ -50,6 +52,7 @@ namespace GraphQL.Client.LocalExecution
             if (!Schema.Initialized)
                 Schema.Initialize();
             _documentExecuter = new DocumentExecuter();
+            _documentWriter = new DocumentWriter();
         }
 
         public void Dispose() { }
@@ -109,12 +112,13 @@ namespace GraphQL.Client.LocalExecution
             return result;
         }
 
-        private Task<GraphQLResponse<TResponse>> ExecutionResultToGraphQLResponse<TResponse>(ExecutionResult executionResult, CancellationToken cancellationToken = default)
+        private async Task<GraphQLResponse<TResponse>> ExecutionResultToGraphQLResponse<TResponse>(ExecutionResult executionResult, CancellationToken cancellationToken = default)
         {
+            string json = await _documentWriter.WriteToStringAsync(executionResult);
             // serialize result into utf8 byte stream
-            var resultStream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(executionResult, _variablesSerializerSettings)));
+            var resultStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
             // deserialize using the provided serializer
-            return Serializer.DeserializeFromUtf8StreamAsync<TResponse>(resultStream, cancellationToken);
+            return await Serializer.DeserializeFromUtf8StreamAsync<TResponse>(resultStream, cancellationToken);
         }
 
         #endregion

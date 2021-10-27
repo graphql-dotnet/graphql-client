@@ -1,13 +1,16 @@
+using System;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace GraphQL.Client.Tests.Common.Chat.Schema
 {
     public class ChatSchema : Types.Schema
     {
-        public ChatSchema(IDependencyResolver resolver)
-            : base(resolver)
+        public ChatSchema(IServiceProvider services)
+            : base(services)
         {
-            Query = resolver.Resolve<ChatQuery>();
-            Mutation = resolver.Resolve<ChatMutation>();
-            Subscription = resolver.Resolve<ChatSubscriptions>();
+            Query = services.GetRequiredService<ChatQuery>();
+            Mutation = services.GetRequiredService<ChatMutation>();
+            Subscription = services.GetRequiredService<ChatSubscriptions>();
         }
     }
 }
