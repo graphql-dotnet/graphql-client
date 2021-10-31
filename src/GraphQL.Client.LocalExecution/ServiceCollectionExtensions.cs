@@ -11,7 +11,7 @@ namespace GraphQL.Client.LocalExecution
         public static IGraphQLBuilder AddGraphQLLocalExecutionClient<TSchema>(this IServiceCollection services) where TSchema : ISchema
         {
             services.AddSingleton<GraphQLLocalExecutionClient<TSchema>>();
-            services.AddSingleton<IGraphQLClient, GraphQLLocalExecutionClient<TSchema>>();
+            services.AddSingleton<IGraphQLClient>(p => p.GetRequiredService<GraphQLLocalExecutionClient<TSchema>>());
             return services.AddGraphQL();
         }
     }
