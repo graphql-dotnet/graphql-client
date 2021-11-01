@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 
 namespace GraphQL.Client.Tests.Common.Chat.Schema
 {
@@ -82,13 +85,20 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
         }
 
         public IObservable<Message> Messages(string user) =>
-            _messageStream
-                .Select(message =>
+            Observable.Create<Message>(observer =>
+            {
+                Debug.WriteLine($"creating messages stream for user '{user}' on thread {Thread.CurrentThread.ManagedThreadId}");
+                return new CompositeDisposable
                 {
-                    message.Sub = user;
-                    return message;
-                })
-                .AsObservable();
+                    _messageStream.Select(message =>
+                        {
+                            message.Sub = user;
+                            return message;
+                        })
+                        .Subscribe(observer),
+                    Disposable.Create(() => Debug.WriteLine($"disposing messages stream for user '{user}' on thread {Thread.CurrentThread.ManagedThreadId}"))
+                };
+            });
 
         public void AddError(Exception exception) => _messageStream.OnError(exception);
 

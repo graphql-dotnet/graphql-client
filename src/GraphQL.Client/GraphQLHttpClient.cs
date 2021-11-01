@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
@@ -97,34 +98,15 @@ namespace GraphQL.Client.Http
 
         /// <inheritdoc />
         public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-
-            var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
-
-            if (_subscriptionStreams.ContainsKey(key))
-                return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
-
-            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
-
-            _subscriptionStreams.TryAdd(key, observable);
-            return observable;
-        }
+            => CreateSubscriptionStream<TResponse>(request, null);
 
         /// <inheritdoc />
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler)
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-
-            var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
-
-            if (_subscriptionStreams.ContainsKey(key))
-                return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
-
+            
             var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
-            _subscriptionStreams.TryAdd(key, observable);
             return observable;
         }
 

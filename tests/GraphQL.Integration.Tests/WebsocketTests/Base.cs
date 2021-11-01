@@ -226,13 +226,13 @@ namespace GraphQL.Integration.Tests.WebsocketTests
 
             const string message1 = "Hello World";
             Debug.WriteLine($"adding message {message1}");
-            var response = await ChatClient.AddMessageAsync(message1).ConfigureAwait(true);
+            var response = await ChatClient.AddMessageAsync(message1);
             response.Data.AddMessage.Content.Should().Be(message1);
             await observer.Should().PushAsync(2);
             observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message1);
 
             const string message2 = "How are you?";
-            response = await ChatClient.AddMessageAsync(message2).ConfigureAwait(true);
+            response = await ChatClient.AddMessageAsync(message2);
             response.Data.AddMessage.Content.Should().Be(message2);
             await observer.Should().PushAsync(3);
             observer.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message2);
@@ -247,7 +247,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             observer2.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message2);
 
             const string message3 = "lorem ipsum dolor si amet";
-            response = await ChatClient.AddMessageAsync(message3).ConfigureAwait(true);
+            response = await ChatClient.AddMessageAsync(message3);
             response.Data.AddMessage.Content.Should().Be(message3);
             await observer2.Should().PushAsync(2);
             observer2.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message3);

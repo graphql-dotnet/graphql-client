@@ -94,7 +94,7 @@ namespace GraphQL.Client.Http.Websocket
         /// <param name="request">the <see cref="GraphQLRequest"/> to start the subscription</param>
         /// <param name="exceptionHandler">Optional: exception handler for handling exceptions within the receive pipeline</param>
         /// <returns>a <see cref="IObservable{TResponse}"/> which represents the subscription</returns>
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler = null) =>
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
             Observable.Defer(() =>
                     Observable.Create<GraphQLResponse<TResponse>>(async observer =>
                     {
@@ -169,6 +169,7 @@ namespace GraphQL.Client.Http.Websocket
                             observable.Subscribe(observer),
                             Disposable.Create(async () =>
                             {
+                                Debug.WriteLine($"disposing subscription {startRequest.Id}, websocket state is '{WebSocketState}'");
                                 // only try to send close request on open websocket
                                 if (WebSocketState != WebSocketState.Open)
                                     return;
@@ -252,10 +253,7 @@ namespace GraphQL.Client.Http.Websocket
                         return Observable.Empty<GraphQLResponse<TResponse>>();
                     }
                     return Observable.Return(t.Item1);
-                })
-                // transform to hot observable and auto-connect
-                .Publish().RefCount();
-
+                });
         /// <summary>
         /// Send a regular GraphQL request (query, mutation) via websocket
         /// </summary>
