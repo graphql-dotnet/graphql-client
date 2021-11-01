@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F1-4428-863E-2C5C876DEEFE}"
 	ProjectSection(SolutionItems) = preProject
+		src\.editorconfig = src\.editorconfig
 		src\src.props = src\src.props
 	EndProjectSection
 EndProject
@@ -14,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		dotnet-tools.json = dotnet-tools.json
 		LICENSE.txt = LICENSE.txt
+		examples\GraphQL.Client.Example\Program.cs = examples\GraphQL.Client.Example\Program.cs
 		README.md = README.md
 		root.props = root.props
 	EndProjectSection
@@ -64,6 +66,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{89AD33AB-64F6-4F82-822F-21DF7A10CEC0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Example", "examples\GraphQL.Client.Example\GraphQL.Client.Example.csproj", "{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{98D4DDDD-DE15-4997-B888-9BC806C7416C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,6 +137,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E95A1258-F666-4D4E-9101-E0C46F6A3CB3} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
+		{05CAF9B2-981E-40C0-AE31-5FA56E351F12} = {98D4DDDD-DE15-4997-B888-9BC806C7416C}
 		{87FC440E-6A4D-47D8-9EB2-416FC31CC4A6} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{C212983F-67DB-44EB-BFB0-5DA75A86DF55} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{92107DF5-73DF-4371-8EB1-6734FED704AD} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
@@ -146,6 +151,7 @@ Global
 		{0D307BAD-27AE-4A5D-8764-4AA2620B01E9} = {0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}
 		{7FFFEC00-D751-4FFC-9FD4-E91858F9A1C5} = {47C98B55-08F1-4428-863E-2C5C876DEEFE}
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD} = {89AD33AB-64F6-4F82-822F-21DF7A10CEC0}
+		{98D4DDDD-DE15-4997-B888-9BC806C7416C} = {63F75859-4698-4EDE-8B70-4ACBB8BC425A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {387AC1AC-F90C-4EF8-955A-04D495C75AF4}

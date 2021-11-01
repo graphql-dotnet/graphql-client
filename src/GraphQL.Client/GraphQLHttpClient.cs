@@ -85,9 +85,9 @@ namespace GraphQL.Client.Http
             if (Options.UseWebSocketForQueriesAndMutations ||
                 !(Options.WebSocketEndPoint is null) && Options.EndPoint is null ||
                 Options.EndPoint.HasWebSocketScheme())
-                return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
+                return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken).ConfigureAwait(false);
 
-            return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
+            return await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -140,16 +140,16 @@ namespace GraphQL.Client.Http
 
         private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
-            var preprocessedRequest = await Options.PreprocessRequest(request, this);
+            var preprocessedRequest = await Options.PreprocessRequest(request, this).ConfigureAwait(false);
 
             using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
-            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-            var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+            var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken);
+                var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken).ConfigureAwait(false);
                 return graphQLResponse.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
             }
 
@@ -157,7 +157,7 @@ namespace GraphQL.Client.Http
             string content = null;
             if (contentStream != null)
                 using (var sr = new StreamReader(contentStream))
-                    content = await sr.ReadToEndAsync();
+                    content = await sr.ReadToEndAsync().ConfigureAwait(false);
 
             throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }

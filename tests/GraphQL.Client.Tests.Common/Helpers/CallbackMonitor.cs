@@ -46,10 +46,8 @@ namespace GraphQL.Client.Tests.Common.Helpers
 
         public class CallbackAssertions<TPayload> : ReferenceTypeAssertions<CallbackMonitor<TPayload>, CallbackAssertions<TPayload>>
         {
-            public CallbackAssertions(CallbackMonitor<TPayload> tester)
-            {
-                Subject = tester;
-            }
+            public CallbackAssertions(CallbackMonitor<TPayload> tester): base(tester)
+            { }
 
             protected override string Identifier => "callback";
 

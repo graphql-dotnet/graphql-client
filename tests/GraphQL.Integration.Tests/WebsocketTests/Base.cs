@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Extensions;
+using FluentAssertions.Reactive;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
-using GraphQL.Client.Tests.Common.FluentAssertions.Reactive;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Integration.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -140,7 +140,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
             request.Start();
             chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
             cts.Cancel();
-            request.Invoking().Should().Throw<TaskCanceledException>("because the request was cancelled");
+            await request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled");
 
             // let the server finish its query
             chatQuery.LongRunningQueryBlocker.Set();

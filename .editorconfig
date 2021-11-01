@@ -254,3 +254,6 @@ dotnet_naming_style.end_in_async_style.required_suffix = Async
 
 # dotnet_naming_rule.<namingRuleTitle>.severity = <value>
 dotnet_naming_rule.async_methods_end_in_async.severity = warning
+
+# ReSharper: Configure await
+configure_await_analysis_mode = library
