@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -19,7 +18,6 @@ namespace GraphQL.Client.Http
         private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object> _subscriptionStreams = new ConcurrentDictionary<Tuple<GraphQLRequest, Type>, object>();
 
         private readonly bool _disposeHttpClient = false;
 
@@ -85,9 +83,9 @@ namespace GraphQL.Client.Http
             if (Options.UseWebSocketForQueriesAndMutations ||
                 !(Options.WebSocketEndPoint is null) && Options.EndPoint is null ||
                 Options.EndPoint.HasWebSocketScheme())
-                return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken);
+                return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken).ConfigureAwait(false);
 
-            return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
+            return await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -97,34 +95,15 @@ namespace GraphQL.Client.Http
 
         /// <inheritdoc />
         public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-
-            var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
-
-            if (_subscriptionStreams.ContainsKey(key))
-                return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
-
-            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request);
-
-            _subscriptionStreams.TryAdd(key, observable);
-            return observable;
-        }
+            => CreateSubscriptionStream<TResponse>(request, null);
 
         /// <inheritdoc />
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler)
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-
-            var key = new Tuple<GraphQLRequest, Type>(request, typeof(TResponse));
-
-            if (_subscriptionStreams.ContainsKey(key))
-                return (IObservable<GraphQLResponse<TResponse>>)_subscriptionStreams[key];
-
+            
             var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
-            _subscriptionStreams.TryAdd(key, observable);
             return observable;
         }
 
@@ -140,16 +119,16 @@ namespace GraphQL.Client.Http
 
         private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
-            var preprocessedRequest = await Options.PreprocessRequest(request, this);
+            var preprocessedRequest = await Options.PreprocessRequest(request, this).ConfigureAwait(false);
 
             using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
-            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-            var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync();
+            var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken);
+                var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken).ConfigureAwait(false);
                 return graphQLResponse.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
             }
 
@@ -157,7 +136,7 @@ namespace GraphQL.Client.Http
             string content = null;
             if (contentStream != null)
                 using (var sr = new StreamReader(contentStream))
-                    content = await sr.ReadToEndAsync();
+                    content = await sr.ReadToEndAsync().ConfigureAwait(false);
 
             throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
         }

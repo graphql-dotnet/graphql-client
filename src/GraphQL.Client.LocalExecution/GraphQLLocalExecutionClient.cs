@@ -76,12 +76,12 @@ namespace GraphQL.Client.LocalExecution
 
         private async Task<GraphQLResponse<TResponse>> ExecuteQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken)
         {
-            var executionResult = await ExecuteAsync(request, cancellationToken);
-            return await ExecutionResultToGraphQLResponseAsync<TResponse>(executionResult, cancellationToken);
+            var executionResult = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+            return await ExecutionResultToGraphQLResponseAsync<TResponse>(executionResult, cancellationToken).ConfigureAwait(false);
         }
         private async Task<IObservable<GraphQLResponse<TResponse>>> ExecuteSubscriptionAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await ExecuteAsync(request, cancellationToken);
+            var result = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             var stream = ((SubscriptionExecutionResult)result).Streams?.Values.SingleOrDefault();
 
             return stream == null
@@ -106,7 +106,7 @@ namespace GraphQL.Client.LocalExecution
                 options.Query = deserializedRequest?.Query;
                 options.Inputs = inputs;
                 options.CancellationToken = cancellationToken;
-            });
+            }).ConfigureAwait(false);
 
             return result;
         }
@@ -114,9 +114,9 @@ namespace GraphQL.Client.LocalExecution
         private async Task<GraphQLResponse<TResponse>> ExecutionResultToGraphQLResponseAsync<TResponse>(ExecutionResult executionResult, CancellationToken cancellationToken = default)
         {
             using var stream = new MemoryStream();
-            await _documentWriter.WriteAsync(stream, executionResult, cancellationToken);
+            await _documentWriter.WriteAsync(stream, executionResult, cancellationToken).ConfigureAwait(false);
             stream.Seek(0, SeekOrigin.Begin);
-            return await Serializer.DeserializeFromUtf8StreamAsync<TResponse>(stream, cancellationToken);
+            return await Serializer.DeserializeFromUtf8StreamAsync<TResponse>(stream, cancellationToken).ConfigureAwait(false);
         }
 
         #endregion

@@ -68,7 +68,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests
             httpResponse.Errors.Should().BeNull();
             httpResponse.Data.Human.Name.Should().Be(name);
 
-            httpResponse.StatusCode.Should().BeEquivalentTo(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             httpResponse.ResponseHeaders.Date.Should().BeCloseTo(DateTimeOffset.Now, TimeSpan.FromMinutes(1));
         }
 
@@ -187,7 +187,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests
         }
 
         [Fact]
-        public void PostRequestCanBeCancelled()
+        public async Task PostRequestCanBeCancelled()
         {
             var graphQLRequest = new GraphQLRequest(@"
 				query Long {
@@ -218,7 +218,7 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests
             request.Start();
             chatQuery.WaitingOnQueryBlocker.Wait(1000).Should().BeTrue("because the request should have reached the server by then");
             cts.Cancel();
-            request.Invoking().Should().Throw<TaskCanceledException>("because the request was cancelled");
+            await request.Invoking().Should().ThrowAsync<TaskCanceledException>("because the request was cancelled");
 
             // let the server finish its query
             chatQuery.LongRunningQueryBlocker.Set();

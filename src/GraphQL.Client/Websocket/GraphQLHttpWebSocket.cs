@@ -94,12 +94,12 @@ namespace GraphQL.Client.Http.Websocket
         /// <param name="request">the <see cref="GraphQLRequest"/> to start the subscription</param>
         /// <param name="exceptionHandler">Optional: exception handler for handling exceptions within the receive pipeline</param>
         /// <returns>a <see cref="IObservable{TResponse}"/> which represents the subscription</returns>
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler = null) =>
+        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
             Observable.Defer(() =>
                     Observable.Create<GraphQLResponse<TResponse>>(async observer =>
                     {
                         Debug.WriteLine($"Create observable thread id: {Thread.CurrentThread.ManagedThreadId}");
-                        var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client);
+                        var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client).ConfigureAwait(false);
 
                         var startRequest = new GraphQLWebSocketRequest
                         {
@@ -157,7 +157,7 @@ namespace GraphQL.Client.Http.Websocket
                         try
                         {
                             // initialize websocket (completes immediately if socket is already open)
-                            await InitializeWebSocket();
+                            await InitializeWebSocket().ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -169,6 +169,7 @@ namespace GraphQL.Client.Http.Websocket
                             observable.Subscribe(observer),
                             Disposable.Create(async () =>
                             {
+                                Debug.WriteLine($"disposing subscription {startRequest.Id}, websocket state is '{WebSocketState}'");
                                 // only try to send close request on open websocket
                                 if (WebSocketState != WebSocketState.Open)
                                     return;
@@ -176,7 +177,7 @@ namespace GraphQL.Client.Http.Websocket
                                 try
                                 {
                                     Debug.WriteLine($"sending stop message on subscription {startRequest.Id}");
-                                    await QueueWebSocketRequest(stopRequest);
+                                    await QueueWebSocketRequest(stopRequest).ConfigureAwait(false);
                                 }
                                 // do not break on disposing
                                 catch (OperationCanceledException) { }
@@ -187,7 +188,7 @@ namespace GraphQL.Client.Http.Websocket
                         // send subscription request
                         try
                         {
-                            await QueueWebSocketRequest(startRequest);
+                            await QueueWebSocketRequest(startRequest).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -252,10 +253,7 @@ namespace GraphQL.Client.Http.Websocket
                         return Observable.Empty<GraphQLResponse<TResponse>>();
                     }
                     return Observable.Return(t.Item1);
-                })
-                // transform to hot observable and auto-connect
-                .Publish().RefCount();
-
+                });
         /// <summary>
         /// Send a regular GraphQL request (query, mutation) via websocket
         /// </summary>
@@ -266,7 +264,7 @@ namespace GraphQL.Client.Http.Websocket
         public Task<GraphQLResponse<TResponse>> SendRequest<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) =>
             Observable.Create<GraphQLResponse<TResponse>>(async observer =>
             {
-                var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client);
+                var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client).ConfigureAwait(false);
                 var websocketRequest = new GraphQLWebSocketRequest
                 {
                     Id = Guid.NewGuid().ToString("N"),
@@ -288,7 +286,7 @@ namespace GraphQL.Client.Http.Websocket
                 try
                 {
                     // initialize websocket (completes immediately if socket is already open)
-                    await InitializeWebSocket();
+                    await InitializeWebSocket().ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -304,7 +302,7 @@ namespace GraphQL.Client.Http.Websocket
                 // send request
                 try
                 {
-                    await QueueWebSocketRequest(websocketRequest);
+                    await QueueWebSocketRequest(websocketRequest).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -336,8 +334,8 @@ namespace GraphQL.Client.Http.Websocket
                     return Unit.Default;
                 }
 
-                await InitializeWebSocket();
-                await SendWebSocketMessageAsync(request, _internalCancellationToken);
+                await InitializeWebSocket().ConfigureAwait(false);
+                await SendWebSocketMessageAsync(request, _internalCancellationToken).ConfigureAwait(false);
                 request.SendCompleted();
             }
             catch (Exception e)
@@ -354,7 +352,7 @@ namespace GraphQL.Client.Http.Websocket
                 new ArraySegment<byte>(requestBytes),
                 WebSocketMessageType.Text,
                 true,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
         }
 
         #endregion
@@ -440,13 +438,13 @@ namespace GraphQL.Client.Http.Websocket
         {
             try
             {
-                await BackOff();
+                await BackOff().ConfigureAwait(false);
                 _stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
                 Debug.WriteLine($"opening websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})");
-                await _clientWebSocket.ConnectAsync(_webSocketUri, token);
+                await _clientWebSocket.ConnectAsync(_webSocketUri, token).ConfigureAwait(false);
                 _stateSubject.OnNext(GraphQLWebsocketConnectionState.Connected);
                 Debug.WriteLine($"connection established on websocket {_clientWebSocket.GetHashCode()}, invoking Options.OnWebsocketConnected()");
-                await (Options.OnWebsocketConnected?.Invoke(_client) ?? Task.CompletedTask);
+                await (Options.OnWebsocketConnected?.Invoke(_client) ?? Task.CompletedTask).ConfigureAwait(false);
                 Debug.WriteLine($"invoking Options.OnWebsocketConnected() on websocket {_clientWebSocket.GetHashCode()}");
                 _connectionAttempt = 1;
 
@@ -496,8 +494,8 @@ namespace GraphQL.Client.Http.Websocket
 
                 // send connection init
                 Debug.WriteLine($"sending connection init message");
-                await SendWebSocketMessageAsync(initRequest);
-                var response = await ackTask;
+                await SendWebSocketMessageAsync(initRequest).ConfigureAwait(false);
+                var response = await ackTask.ConfigureAwait(false);
 
                 if (response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK)
                     Debug.WriteLine($"connection acknowledged: {Encoding.UTF8.GetString(response.MessageBytes)}");
@@ -537,7 +535,7 @@ namespace GraphQL.Client.Http.Websocket
             Observable.Create<WebsocketMessageWrapper>(async observer =>
                 {
                     // make sure the websocket is connected
-                    await InitializeWebSocket();
+                    await InitializeWebSocket().ConfigureAwait(false);
                     // subscribe observer to message stream
                     var subscription = new CompositeDisposable(_incomingMessages
                         .Subscribe(observer))
@@ -591,7 +589,7 @@ namespace GraphQL.Client.Http.Websocket
                 do
                 {
                     // cancellation is done implicitly via the close method
-                    webSocketReceiveResult = await _clientWebSocket.ReceiveAsync(_buffer, CancellationToken.None);
+                    webSocketReceiveResult = await _clientWebSocket.ReceiveAsync(_buffer, CancellationToken.None).ConfigureAwait(false);
                     ms.Write(_buffer.Array, _buffer.Offset, webSocketReceiveResult.Count);
                 }
                 while (!webSocketReceiveResult.EndOfMessage && !_internalCancellationToken.IsCancellationRequested);
@@ -602,13 +600,13 @@ namespace GraphQL.Client.Http.Websocket
                 switch (webSocketReceiveResult.MessageType)
                 {
                     case WebSocketMessageType.Text:
-                        var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                        var response = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms).ConfigureAwait(false);
                         response.MessageBytes = ms.ToArray();
                         Debug.WriteLine($"{response.MessageBytes.Length} bytes received for id {response.Id} on websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})...");
                         return response;
 
                     case WebSocketMessageType.Close:
-                        var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms);
+                        var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms).ConfigureAwait(false);
                         closeResponse.MessageBytes = ms.ToArray();
                         Debug.WriteLine($"Connection closed by the server.");
                         throw new Exception("Connection closed by the server.");
@@ -640,10 +638,10 @@ namespace GraphQL.Client.Http.Websocket
             }
 
             Debug.WriteLine($"send \"connection_terminate\" message");
-            await SendWebSocketMessageAsync(new GraphQLWebSocketRequest { Type = GraphQLWebSocketMessageType.GQL_CONNECTION_TERMINATE });
+            await SendWebSocketMessageAsync(new GraphQLWebSocketRequest { Type = GraphQLWebSocketMessageType.GQL_CONNECTION_TERMINATE }).ConfigureAwait(false);
 
             Debug.WriteLine($"closing websocket {_clientWebSocket.GetHashCode()}");
-            await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+            await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
             _stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
         }
 
@@ -679,7 +677,7 @@ namespace GraphQL.Client.Http.Websocket
             if (!_internalCancellationTokenSource.IsCancellationRequested)
                 _internalCancellationTokenSource.Cancel();
 
-            await CloseAsync();
+            await CloseAsync().ConfigureAwait(false);
             _requestSubscription?.Dispose();
             _clientWebSocket?.Dispose();
 
