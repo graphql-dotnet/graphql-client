@@ -5,6 +5,7 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F1-4428-863E-2C5C876DEEFE}"
 	ProjectSection(SolutionItems) = preProject
+    src\.editorconfig = src\.editorconfig
 		src\src.props = src\src.props
 	EndProjectSection
 EndProject
