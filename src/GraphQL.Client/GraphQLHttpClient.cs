@@ -143,7 +143,7 @@ namespace GraphQL.Client.Http
 
         private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
         {
-            if(Options.WebSocketEndPoint is null && Options.EndPoint is null)
+            if (Options.WebSocketEndPoint is null && Options.EndPoint is null)
                 throw new InvalidOperationException("no endpoint configured");
 
             var webSocketEndpoint = Options.WebSocketEndPoint ?? Options.EndPoint.GetWebSocketUri();
@@ -181,7 +181,7 @@ namespace GraphQL.Client.Http
             {
                 Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
                 _cancellationTokenSource.Cancel();
-                if(_disposeHttpClient)
+                if (_disposeHttpClient)
                     HttpClient.Dispose();
                 if ( _lazyHttpWebSocket.IsValueCreated )
                     _lazyHttpWebSocket.Value.Dispose();

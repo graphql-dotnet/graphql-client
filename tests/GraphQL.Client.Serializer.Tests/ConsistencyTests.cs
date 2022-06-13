@@ -29,7 +29,7 @@ namespace GraphQL.Client.Serializer.Tests
                   {""number"": 567.8}
                 ]
             }";
-            
+
             var newtonsoftSerializer = new NewtonsoftJsonSerializer();
             var systemTextJsonSerializer = new SystemTextJsonSerializer();
 
@@ -52,7 +52,7 @@ namespace GraphQL.Client.Serializer.Tests
             {
                 second.Should().ContainKey(keyValuePair.Key);
                 second[keyValuePair.Key].Should().BeOfType(keyValuePair.Value.GetType());
-                if(keyValuePair.Value is Dictionary<string, object> map)
+                if (keyValuePair.Value is Dictionary<string, object> map)
                     CompareMaps(map, (Dictionary<string, object>)second[keyValuePair.Key]);
                 else
                     keyValuePair.Value.Should().BeEquivalentTo(second[keyValuePair.Key]);
