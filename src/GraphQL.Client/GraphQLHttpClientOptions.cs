@@ -67,5 +67,11 @@ namespace GraphQL.Client.Http
         /// See https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_connection_init.
         /// </summary>
         public Func<GraphQLHttpClientOptions, object?> ConfigureWebSocketConnectionInitPayload { get; set; } = options => null;
+
+
+        /// <summary>
+        /// Add the assembly name as UserAgent request header if none is set.
+        /// </summary>
+        public bool AddDefaultUserAgentRequestHeader { get; set; } = true;
     }
 }
