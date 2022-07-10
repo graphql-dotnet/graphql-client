@@ -66,11 +66,11 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-        if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
-            HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
-
-        _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
-    }
+            if (Options.AddDefaultUserAgentRequestHeader && !HttpClient.DefaultRequestHeaders.UserAgent.Any())
+                HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
+            
+            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+        }
 
     #endregion
 
