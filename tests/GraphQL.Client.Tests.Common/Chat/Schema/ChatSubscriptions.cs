@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using System.Security.Claims;
 using GraphQL.Resolvers;
 using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using GraphQL.Subscription;
 using GraphQL.Types;
 
 namespace GraphQL.Client.Tests.Common.Chat.Schema
@@ -16,23 +15,23 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
         public ChatSubscriptions(IChat chat)
         {
             _chat = chat;
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "messageAdded",
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(Subscribe)
+                StreamResolver = new SourceStreamResolver<Message>(Subscribe)
             });
 
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "contentAdded",
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(Subscribe)
+                StreamResolver = new SourceStreamResolver<Message>(Subscribe)
             });
 
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "messageAddedByUser",
                 Arguments = new QueryArguments(
@@ -40,30 +39,30 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
                 ),
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(SubscribeById)
+                StreamResolver = new SourceStreamResolver<Message>(SubscribeById)
             });
 
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "userJoined",
                 Type = typeof(MessageFromType),
                 Resolver = new FuncFieldResolver<MessageFrom>(context => context.Source as MessageFrom),
-                Subscriber = new EventStreamResolver<MessageFrom>(context => _chat.UserJoined())
+                StreamResolver = new SourceStreamResolver<MessageFrom>(context => _chat.UserJoined())
             });
 
 
-            AddField(new EventStreamFieldType
+            AddField(new FieldType
             {
                 Name = "failImmediately",
                 Type = typeof(MessageType),
                 Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(context => throw new NotSupportedException("this is supposed to fail"))
+                StreamResolver = new SourceStreamResolver<Message>((Func<IResolveFieldContext, IObservable<Message>>)(context => throw new NotSupportedException("this is supposed to fail")))
             });
         }
 
-        private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
+        private IObservable<Message> SubscribeById(IResolveFieldContext context)
         {
-            var messageContext = (MessageHandlingContext) context.UserContext;
+            var messageContext = (MessageHandlingContext)context.UserContext;
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
             var sub = "Anonymous";
@@ -83,9 +82,9 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema
             return message;
         }
 
-        private IObservable<Message> Subscribe(IResolveEventStreamContext context)
+        private IObservable<Message> Subscribe(IResolveFieldContext context)
         {
-            var messageContext = (MessageHandlingContext) context.UserContext;
+            var messageContext = (MessageHandlingContext)context.UserContext;
             var user = messageContext.Get<ClaimsPrincipal>("user");
 
             var sub = "Anonymous";

@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="../tests.props" />
+  <Import Project="../tests.props" />
 
-	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net5</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\src\GraphQL.Primitives\GraphQL.Primitives.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GraphQL.Primitives\GraphQL.Primitives.csproj" />
+  </ItemGroup>
 
 </Project>

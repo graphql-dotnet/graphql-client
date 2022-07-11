@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="../tests.props" />
-  
+
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

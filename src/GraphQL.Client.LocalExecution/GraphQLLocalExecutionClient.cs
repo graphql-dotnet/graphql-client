@@ -8,8 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Serializer.Newtonsoft;
-using GraphQL.NewtonsoftJson;
-using GraphQL.Subscription;
 using GraphQL.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,7 +18,7 @@ namespace GraphQL.Client.LocalExecution
     public static class GraphQLLocalExecutionClient
     {
         public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, IGraphQLJsonSerializer serializer) where TSchema : ISchema
-            => new GraphQLLocalExecutionClient<TSchema>(schema, serializer, new SubscriptionDocumentExecuter(), new DocumentWriter());
+            => new GraphQLLocalExecutionClient<TSchema>(schema, serializer, new DocumentExecuter(), new GraphQL.NewtonsoftJson.GraphQLSerializer());
     }
 
     public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema : ISchema
@@ -41,9 +39,9 @@ namespace GraphQL.Client.LocalExecution
         public IGraphQLJsonSerializer Serializer { get; }
 
         private readonly IDocumentExecuter _documentExecuter;
-        private readonly IDocumentWriter _documentWriter;
+        private readonly IGraphQLSerializer _documentSerializer;
 
-        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer, IDocumentExecuter documentExecuter, IDocumentWriter documentWriter)
+        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer, IDocumentExecuter documentExecuter, IGraphQLSerializer documentSerializer)
         {
             Schema = schema ?? throw new ArgumentNullException(nameof(schema), "no schema configured");
             Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
@@ -51,7 +49,7 @@ namespace GraphQL.Client.LocalExecution
             if (!Schema.Initialized)
                 Schema.Initialize();
             _documentExecuter = documentExecuter;
-            _documentWriter = documentWriter;
+            _documentSerializer = documentSerializer;
         }
 
         public void Dispose() { }
@@ -82,7 +80,7 @@ namespace GraphQL.Client.LocalExecution
         private async Task<IObservable<GraphQLResponse<TResponse>>> ExecuteSubscriptionAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var result = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
-            var stream = ((SubscriptionExecutionResult)result).Streams?.Values.SingleOrDefault();
+            var stream = result.Streams?.Values.SingleOrDefault();
 
             return stream == null
                 ? Observable.Throw<GraphQLResponse<TResponse>>(new InvalidOperationException("the GraphQL execution did not return an observable"))
@@ -95,8 +93,7 @@ namespace GraphQL.Client.LocalExecution
 
             var deserializedRequest = JsonConvert.DeserializeObject<GraphQLRequest>(serializedRequest);
             var inputs = deserializedRequest.Variables != null
-                ? (JObject.FromObject(request.Variables, JsonSerializer.Create(_variablesSerializerSettings)) as JObject)
-                .ToInputs()
+                ? _documentSerializer.ReadNode<Inputs>(JObject.FromObject(request.Variables, JsonSerializer.Create(_variablesSerializerSettings)))
                 : null;
 
             var result = await _documentExecuter.ExecuteAsync(options =>
@@ -104,7 +101,7 @@ namespace GraphQL.Client.LocalExecution
                 options.Schema = Schema;
                 options.OperationName = deserializedRequest?.OperationName;
                 options.Query = deserializedRequest?.Query;
-                options.Inputs = inputs;
+                options.Variables = inputs;
                 options.CancellationToken = cancellationToken;
             }).ConfigureAwait(false);
 
@@ -114,7 +111,7 @@ namespace GraphQL.Client.LocalExecution
         private async Task<GraphQLResponse<TResponse>> ExecutionResultToGraphQLResponseAsync<TResponse>(ExecutionResult executionResult, CancellationToken cancellationToken = default)
         {
             using var stream = new MemoryStream();
-            await _documentWriter.WriteAsync(stream, executionResult, cancellationToken).ConfigureAwait(false);
+            await _documentSerializer.WriteAsync(stream, executionResult, cancellationToken).ConfigureAwait(false);
             stream.Seek(0, SeekOrigin.Begin);
             return await Serializer.DeserializeFromUtf8StreamAsync<TResponse>(stream, cancellationToken).ConfigureAwait(false);
         }
