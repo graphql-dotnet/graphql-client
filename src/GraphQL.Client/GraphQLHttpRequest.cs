@@ -41,6 +41,10 @@ namespace GraphQL.Client.Http
                 Content = new StringContent(serializer.SerializeToString(this), Encoding.UTF8, options.MediaType)
             };
 
+            var userAgentOption = options.DefaultUserAgentRequestHeader;
+            if (userAgentOption != null)
+                message.Headers.UserAgent.Add(userAgentOption(options));
+
 #pragma warning disable CS0618 // Type or member is obsolete
             PreprocessHttpRequestMessage(message);
 #pragma warning restore CS0618 // Type or member is obsolete

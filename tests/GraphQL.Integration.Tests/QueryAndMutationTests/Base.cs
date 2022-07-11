@@ -180,6 +180,9 @@ namespace GraphQL.Integration.Tests.QueryAndMutationTests
             };
 
             var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
+            var userAgent = StarWarsClient.Options.DefaultUserAgentRequestHeader;
+            if (userAgent != null)
+                defaultHeaders.UserAgent.Add(userAgent(StarWarsClient.Options));
             var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
             callbackTester.Should().HaveBeenInvokedWithPayload().Which.Headers.Should().BeEquivalentTo(defaultHeaders);
             Assert.Null(response.Errors);

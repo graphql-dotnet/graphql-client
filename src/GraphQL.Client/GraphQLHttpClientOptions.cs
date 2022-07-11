@@ -68,10 +68,10 @@ namespace GraphQL.Client.Http
         /// </summary>
         public Func<GraphQLHttpClientOptions, object?> ConfigureWebSocketConnectionInitPayload { get; set; } = options => null;
 
-
         /// <summary>
-        /// Add the assembly name as UserAgent request header if none is set.
+        /// The default user agent request header.
+        /// Default to the GraphQL client assembly.
         /// </summary>
-        public bool AddDefaultUserAgentRequestHeader { get; set; } = true;
+        public Func<GraphQLHttpClientOptions, ProductInfoHeaderValue> DefaultUserAgentRequestHeader { get; set; } = _ => new ProductInfoHeaderValue(typeof(GraphQLHttpClient).Assembly.GetName().Name, typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString());
     }
 }

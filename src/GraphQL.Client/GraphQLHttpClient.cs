@@ -66,10 +66,6 @@ namespace GraphQL.Client.Http
             Options = options ?? throw new ArgumentNullException(nameof(options));
             JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
             HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-            if (Options.AddDefaultUserAgentRequestHeader && !HttpClient.DefaultRequestHeaders.UserAgent.Any())
-                HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
-            
             _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
         }
 
