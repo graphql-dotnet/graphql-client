@@ -43,6 +43,10 @@ public class GraphQLHttpRequest : GraphQLRequest
         message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         message.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
 
+            var userAgentOption = options.DefaultUserAgentRequestHeader;
+            if (userAgentOption != null)
+                message.Headers.UserAgent.Add(userAgentOption(options));
+
 #pragma warning disable CS0618 // Type or member is obsolete
         PreprocessHttpRequestMessage(message);
 #pragma warning restore CS0618 // Type or member is obsolete

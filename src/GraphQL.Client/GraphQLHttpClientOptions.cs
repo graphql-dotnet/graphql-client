@@ -82,13 +82,9 @@ public class GraphQLHttpClientOptions
     public Func<GraphQLHttpClientOptions, object?> ConfigureWebSocketConnectionInitPayload { get; set; } = options => null;
 
     /// <summary>
-    /// Sets the `ConnectionParams` object sent with the GQL_CONNECTION_INIT message on establishing a GraphQL websocket connection.
-    /// See https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_connection_init.
+    /// The default user agent request header.
+    /// Default to the GraphQL client assembly.
     /// </summary>
-    public Func<GraphQLHttpClientOptions, object?> ConfigureWebSocketConnectionInitPayload { get; set; } = options => null;
-
-    /// <summary>
-    /// Add the assembly name as UserAgent request header if none is set.
-    /// </summary>
-    public bool AddDefaultUserAgentRequestHeader { get; set; } = true;
+    public Func<GraphQLHttpClientOptions, ProductInfoHeaderValue> DefaultUserAgentRequestHeader { get; set; } = _ => new ProductInfoHeaderValue(typeof(GraphQLHttpClient).Assembly.GetName().Name, typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString());
+    
 }
