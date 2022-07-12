@@ -25,8 +25,6 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: | 
-          3.1.x
-          5.0.x
           6.0.x
     - name: Restore dotnet tools
       run: dotnet tool restore
@@ -34,6 +32,11 @@ jobs:
       run: git fetch --tags --force --prune && git describe
     - name: Generate version info from git history
       run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> $GITHUB_ENV
+    - name: Check that the version number has been resolved
+      if: ${{ !env.GitVersion_SemVer }}
+      run: |
+        echo Error! Version number not resolved!
+        exit 1
     - name: Print current version
       run: echo "Current version is \"$GitVersion_SemVer\""
     - name: Install dependencies
