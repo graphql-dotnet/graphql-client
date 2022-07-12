@@ -3,7 +3,7 @@
   <Import Project="../tests.props" />
 
   <PropertyGroup>
-    <TargetFramework>net5</TargetFramework>
+    <TargetFramework>net6</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
