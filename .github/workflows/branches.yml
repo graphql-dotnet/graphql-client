@@ -24,7 +24,10 @@ jobs:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: "6.0.x"
+        dotnet-version: | 
+          3.1.x
+          5.0.x
+          6.0.x
     - name: Restore dotnet tools
       run: dotnet tool restore
     - name: Fetch complete repository including tags
