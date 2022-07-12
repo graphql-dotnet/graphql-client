@@ -41,7 +41,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Download version info file
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: gitversion
         path: ./
@@ -65,7 +65,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Download version info file
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: gitversion
         path: ./
@@ -82,7 +82,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Download nuget packages
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: nupkg
     - name: Publish the package to GPR
