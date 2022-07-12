@@ -85,6 +85,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: nupkg
+        path: nupkg
     - name: Publish the package to GPR
     # using workaround with CURL because of non-functioning upload via dotnet nuget (https://stackoverflow.com/a/58943251)
       run: |
