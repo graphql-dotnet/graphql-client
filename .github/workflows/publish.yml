@@ -1,0 +1,59 @@
+name: Publish
+on:
+  release:
+    types:
+      - published
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  MSBUILDSINGLELOADCONTEXT: 1
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Check github.ref starts with 'refs/tags/'
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        echo Error! github.ref does not start with 'refs/tags'
+        echo github.ref: ${{ github.ref }}
+        exit 1
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: "6.0.x"
+        source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
+    - name: Restore dotnet tools
+      run: dotnet tool restore
+    - name: Fetch complete repository including tags
+      run: git fetch --tags --force --prune && git describe
+    - name: Generate version info from git history
+      run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> $GITHUB_ENV
+    - name: Fail if the version number has not been resolved
+      if: ${{ !env.GitVersion_SemVer }}
+      run: |
+        echo Error! Version number not resolved!
+        exit 1
+    - name: Print current version
+      run: echo "Current version is \"$GitVersion_SemVer\""
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build solution
+      run:  dotnet build --no-restore -c Release
+    - name: Create NuGet packages
+      run: dotnet pack -c Release --no-restore --no-build -o nupkg
+    - name: Upload nuget packages as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: nupkg
+        path: nupkg
+    - name: Publish Nuget packages to GitHub registry
+      run: dotnet nuget push "nupkg/*" -k ${{secrets.NUGET_API_KEY}}
