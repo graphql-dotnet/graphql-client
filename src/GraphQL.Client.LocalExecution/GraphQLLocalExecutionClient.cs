@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Types;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.LocalExecution
