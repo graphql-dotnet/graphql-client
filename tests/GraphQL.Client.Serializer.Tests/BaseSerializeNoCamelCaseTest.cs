@@ -13,24 +13,27 @@ namespace GraphQL.Client.Serializer.Tests
 {
     public abstract class BaseSerializeNoCamelCaseTest
     {
-        public IGraphQLWebsocketJsonSerializer Serializer { get; }
+        public IGraphQLWebsocketJsonSerializer ClientSerializer { get; }
+
+        public IGraphQLTextSerializer ServerSerializer { get; }
 
         public IGraphQLClient ChatClient { get; }
 
         public IGraphQLClient StarWarsClient { get; }
 
-        protected BaseSerializeNoCamelCaseTest(IGraphQLWebsocketJsonSerializer serializer)
+        protected BaseSerializeNoCamelCaseTest(IGraphQLWebsocketJsonSerializer clientSerializer, IGraphQLTextSerializer serverSerializer)
         {
-            Serializer = serializer;
-            ChatClient = GraphQLLocalExecutionClient.New(Common.GetChatSchema(), serializer);
-            StarWarsClient = GraphQLLocalExecutionClient.New(Common.GetStarWarsSchema(), serializer);
+            ClientSerializer = clientSerializer;
+            ServerSerializer = serverSerializer;
+            ChatClient = GraphQLLocalExecutionClient.New(Common.GetChatSchema(), clientSerializer, serverSerializer);
+            StarWarsClient = GraphQLLocalExecutionClient.New(Common.GetStarWarsSchema(), clientSerializer, serverSerializer);
         }
 
         [Theory]
         [ClassData(typeof(SerializeToStringTestData))]
         public void SerializeToStringTest(string expectedJson, GraphQLRequest request)
         {
-            var json = Serializer.SerializeToString(request).RemoveWhitespace();
+            var json = ClientSerializer.SerializeToString(request).RemoveWhitespace();
             json.Should().Be(expectedJson.RemoveWhitespace());
         }
 
@@ -38,7 +41,7 @@ namespace GraphQL.Client.Serializer.Tests
         [ClassData(typeof(SerializeToBytesTestData))]
         public void SerializeToBytesTest(string expectedJson, GraphQLWebSocketRequest request)
         {
-            var json = Encoding.UTF8.GetString(Serializer.SerializeToBytes(request)).RemoveWhitespace();
+            var json = Encoding.UTF8.GetString(ClientSerializer.SerializeToBytes(request)).RemoveWhitespace();
             json.Should().Be(expectedJson.RemoveWhitespace());
         }
 

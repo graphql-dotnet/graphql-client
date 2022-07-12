@@ -12,6 +12,7 @@ namespace GraphQL
         public const string OPERATION_NAME_KEY = "operationName";
         public const string QUERY_KEY = "query";
         public const string VARIABLES_KEY = "variables";
+        public const string EXTENSIONS_KEY = "extensions";
 
         /// <summary>
         /// The Query
@@ -40,13 +41,23 @@ namespace GraphQL
             set => this[VARIABLES_KEY] = value;
         }
 
+        /// <summary>
+        /// Represents the request extensions
+        /// </summary>
+        public object? Extensions
+        {
+            get => TryGetValue(EXTENSIONS_KEY, out object value) ? value : null;
+            set => this[EXTENSIONS_KEY] = value;
+        }
+
         public GraphQLRequest() { }
 
-        public GraphQLRequest(string query, object? variables = null, string? operationName = null)
+        public GraphQLRequest(string query, object? variables = null, string? operationName = null, object? extensions = null)
         {
             Query = query;
             Variables = variables;
             OperationName = operationName;
+            Extensions = extensions;
         }
 
         public GraphQLRequest(GraphQLRequest other): base(other) { }
@@ -84,7 +95,7 @@ namespace GraphQL
         /// <summary>
         /// <inheritdoc cref="object.GetHashCode"/>
         /// </summary>
-        public override int GetHashCode() => (Query, OperationName, Variables).GetHashCode();
+        public override int GetHashCode() => (Query, OperationName, Variables, Extensions).GetHashCode();
 
         /// <summary>
         /// Tests whether two specified <see cref="GraphQLRequest"/> instances are equivalent

@@ -2,9 +2,11 @@ using GraphQL;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.StarWars;
+using GraphQL.MicrosoftDI;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
+using GraphQL.SystemTextJson;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,18 +38,22 @@ namespace IntegrationTestServer
             //
             services.AddChatSchema();
             services.AddStarWarsSchema();
-            services.AddSingleton<IDocumentExecuter, SubscriptionDocumentExecuter>();
-            services.AddGraphQL((options, services) =>
-            {
-                options.EnableMetrics = true;
-                var logger = services.GetRequiredService<ILogger<Startup>>();
-                options.UnhandledExceptionDelegate = ctx => logger.LogError("{Error} occurred", ctx.OriginalException.Message);
-            })
+            services.AddGraphQL(builder => builder
+                .AddApolloTracing(enableMetrics: true)
+                .AddHttpMiddleware<ChatSchema>()
+                .AddHttpMiddleware<StarWarsSchema>()
+                .AddWebSocketsHttpMiddleware<ChatSchema>()
+                .AddWebSocketsHttpMiddleware<StarWarsSchema>()
+                .ConfigureExecutionOptions(opt => opt.UnhandledExceptionDelegate = ctx =>
+                {
+                    var logger = ctx.Context.RequestServices.GetRequiredService<ILogger<Startup>>();
+                    logger.LogError("{Error} occurred", ctx.OriginalException.Message);
+                    return System.Threading.Tasks.Task.CompletedTask;
+                })
                 .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
                 .AddSystemTextJson()
                 .AddWebSockets()
-                .AddGraphTypes(typeof(ChatSchema))
-                .AddGraphTypes(typeof(StarWarsSchema));
+                .AddGraphTypes(typeof(ChatSchema).Assembly));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,9 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
@@ -98,7 +96,7 @@ namespace GraphQL.Client.Http
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-            
+
             var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
             return observable;
         }

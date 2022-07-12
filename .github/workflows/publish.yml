@@ -1,10 +1,8 @@
-name: Master workflow
+name: Publish
 on:
-  push:
-    branches:
-      - master
-      - 'release/**'
-      - 'releases/**'
+  release:
+    types:
+      - published
 
 env:
   DOTNET_NOLOGO: true
@@ -20,13 +18,19 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    - name: Check github.ref starts with 'refs/tags/'
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        echo Error! github.ref does not start with 'refs/tags'
+        echo github.ref: ${{ github.ref }}
+        exit 1
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: "6.0.x"
-        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
+        source-url: https://api.nuget.org/v3/index.json
       env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
     - name: Restore dotnet tools
       run: dotnet tool restore
     - name: Fetch complete repository including tags
@@ -44,8 +48,6 @@ jobs:
       run: dotnet restore
     - name: Build solution
       run:  dotnet build --no-restore -c Release
-    - name: Run Tests
-      run: dotnet test -c Release --no-restore --no-build
     - name: Create NuGet packages
       run: dotnet pack -c Release --no-restore --no-build -o nupkg
     - name: Upload nuget packages as artifacts
@@ -53,5 +55,23 @@ jobs:
       with:
         name: nupkg
         path: nupkg
-    - name: Publish Nuget packages to GitHub registry
-      run: dotnet nuget push "nupkg/*" -k ${{secrets.GITHUB_TOKEN}}
+    - name: Publish Nuget packages to Nuget registry
+      run: dotnet nuget push "nupkg/*" -k ${{secrets.NUGET_API_KEY}}
+    - name: Upload Nuget packages as release artifacts
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          console.log('environment', process.versions);
+          const fs = require('fs').promises;
+          const { repo: { owner, repo }, sha } = context;
+          for (let file of await fs.readdir('nupkg')) {
+            console.log('uploading', file);
+            await github.rest.repos.uploadReleaseAsset({
+              owner,
+              repo,
+              release_id: ${{ github.event.release.id }},
+              name: file,
+              data: await fs.readFile(`nupkg/${file}`)
+            });
+          }
