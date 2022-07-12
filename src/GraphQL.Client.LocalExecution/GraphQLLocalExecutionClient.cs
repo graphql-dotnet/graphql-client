@@ -101,7 +101,8 @@ namespace GraphQL.Client.LocalExecution
                 options.Schema = Schema;
                 options.OperationName = deserializedRequest?.OperationName;
                 options.Query = deserializedRequest?.Query;
-                options.Variables = inputs;
+                options.Variables = deserializedRequest?.Variables;
+                options.Extensions = deserializedRequest?.Extensions;
                 options.CancellationToken = cancellationToken;
             }).ConfigureAwait(false);
 
