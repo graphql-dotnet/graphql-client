@@ -55,5 +55,23 @@ jobs:
       with:
         name: nupkg
         path: nupkg
-    - name: Publish Nuget packages to GitHub registry
+    - name: Publish Nuget packages to Nuget registry
       run: dotnet nuget push "nupkg/*" -k ${{secrets.NUGET_API_KEY}}
+    - name: Upload Nuget packages as release artifacts
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          console.log('environment', process.versions);
+          const fs = require('fs').promises;
+          const { repo: { owner, repo }, sha } = context;
+          for (let file of await fs.readdir('nupkg')) {
+            console.log('uploading', file);
+            await github.rest.repos.uploadReleaseAsset({
+              owner,
+              repo,
+              release_id: ${{ github.event.release.id }},
+              name: file,
+              data: await fs.readFile(`nupkg/${file}`)
+            });
+          }
