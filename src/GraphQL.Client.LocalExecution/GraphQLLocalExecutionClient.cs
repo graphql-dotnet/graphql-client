@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -7,31 +6,19 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
-using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Types;
-using Newtonsoft.Json.Serialization;
 
 namespace GraphQL.Client.LocalExecution
 {
     public static class GraphQLLocalExecutionClient
     {
-        public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, IGraphQLJsonSerializer serializer) where TSchema : ISchema
-            => new GraphQLLocalExecutionClient<TSchema>(schema, serializer, new DocumentExecuter(), new GraphQL.NewtonsoftJson.GraphQLSerializer());
+        public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, IGraphQLJsonSerializer clientSerializer, IGraphQLTextSerializer serverSerializer)
+            where TSchema : ISchema
+            => new GraphQLLocalExecutionClient<TSchema>(schema, new DocumentExecuter(), clientSerializer, serverSerializer);
     }
 
     public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema : ISchema
     {
-        private static readonly JsonSerializerSettings _variablesSerializerSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            DateTimeZoneHandling = DateTimeZoneHandling.Local,
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new ConstantCaseEnumConverter()
-            }
-        };
-
         public TSchema Schema { get; }
 
         public IGraphQLJsonSerializer Serializer { get; }
@@ -39,15 +26,15 @@ namespace GraphQL.Client.LocalExecution
         private readonly IDocumentExecuter _documentExecuter;
         private readonly IGraphQLTextSerializer _documentSerializer;
 
-        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer, IDocumentExecuter documentExecuter, IGraphQLTextSerializer documentSerializer)
+        public GraphQLLocalExecutionClient(TSchema schema, IDocumentExecuter documentExecuter, IGraphQLJsonSerializer serializer, IGraphQLTextSerializer documentSerializer)
         {
             Schema = schema ?? throw new ArgumentNullException(nameof(schema), "no schema configured");
+            _documentExecuter = documentExecuter;
             Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
+            _documentSerializer = documentSerializer;
 
             if (!Schema.Initialized)
                 Schema.Initialize();
-            _documentExecuter = documentExecuter;
-            _documentSerializer = documentSerializer;
         }
 
         public void Dispose() { }
@@ -75,6 +62,7 @@ namespace GraphQL.Client.LocalExecution
             var executionResult = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             return await ExecutionResultToGraphQLResponseAsync<TResponse>(executionResult, cancellationToken).ConfigureAwait(false);
         }
+
         private async Task<IObservable<GraphQLResponse<TResponse>>> ExecuteSubscriptionAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         {
             var result = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
@@ -85,22 +73,17 @@ namespace GraphQL.Client.LocalExecution
                 : stream.SelectMany(executionResult => Observable.FromAsync(token => ExecutionResultToGraphQLResponseAsync<TResponse>(executionResult, token)));
         }
 
-        private async Task<ExecutionResult> ExecuteAsync(GraphQLRequest request, CancellationToken cancellationToken = default)
+        private async Task<ExecutionResult> ExecuteAsync(GraphQLRequest clientRequest, CancellationToken cancellationToken = default)
         {
-            string serializedRequest = Serializer.SerializeToString(request);
-
-            var deserializedRequest = JsonConvert.DeserializeObject<GraphQLRequest>(serializedRequest);
-            var inputs = deserializedRequest.Variables != null
-                ? _documentSerializer.ReadNode<Inputs>(JObject.FromObject(request.Variables, JsonSerializer.Create(_variablesSerializerSettings)))
-                : null;
+            var serverRequest = _documentSerializer.Deserialize<Transport.GraphQLRequest>(Serializer.SerializeToString(clientRequest));
 
             var result = await _documentExecuter.ExecuteAsync(options =>
             {
                 options.Schema = Schema;
-                options.OperationName = deserializedRequest?.OperationName;
-                options.Query = deserializedRequest?.Query;
-                options.Variables = deserializedRequest?.Variables;
-                options.Extensions = deserializedRequest?.Extensions;
+                options.OperationName = serverRequest?.OperationName;
+                options.Query = serverRequest?.Query;
+                options.Variables = serverRequest?.Variables;
+                options.Extensions = serverRequest?.Extensions;
                 options.CancellationToken = cancellationToken;
             }).ConfigureAwait(false);
 

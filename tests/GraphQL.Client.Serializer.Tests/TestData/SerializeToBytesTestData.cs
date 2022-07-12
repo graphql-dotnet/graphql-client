@@ -9,7 +9,7 @@ namespace GraphQL.Client.Serializer.Tests.TestData
         public IEnumerator<object[]> GetEnumerator()
         {
             yield return new object[] {
-                "{\"id\":\"1234567\",\"type\":\"start\",\"payload\":{\"query\":\"simplequerystring\",\"variables\":null,\"operationName\":null}}",
+                "{\"id\":\"1234567\",\"type\":\"start\",\"payload\":{\"query\":\"simplequerystring\",\"variables\":null,\"operationName\":null,\"extensions\":null}}",
                 new GraphQLWebSocketRequest {
                     Id = "1234567",
                     Type = GraphQLWebSocketMessageType.GQL_START,
@@ -17,7 +17,7 @@ namespace GraphQL.Client.Serializer.Tests.TestData
                 }
             };
             yield return new object[] {
-                "{\"id\":\"34476567\",\"type\":\"start\",\"payload\":{\"query\":\"simplequerystring\",\"variables\":{\"camelCaseProperty\":\"camelCase\",\"PascalCaseProperty\":\"PascalCase\"},\"operationName\":null}}",
+                "{\"id\":\"34476567\",\"type\":\"start\",\"payload\":{\"query\":\"simplequerystring\",\"variables\":{\"camelCaseProperty\":\"camelCase\",\"PascalCaseProperty\":\"PascalCase\"},\"operationName\":null,\"extensions\":null}}",
                 new GraphQLWebSocketRequest {
                     Id = "34476567",
                     Type = GraphQLWebSocketMessageType.GQL_START,

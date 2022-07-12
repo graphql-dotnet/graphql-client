@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.3.2" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
     <ProjectReference Include="..\..\src\GraphQL.Client.LocalExecution\GraphQL.Client.LocalExecution.csproj" />
     <ProjectReference Include="..\..\src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj" />

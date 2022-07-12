@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.0.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
