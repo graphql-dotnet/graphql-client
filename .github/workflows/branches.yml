@@ -32,7 +32,7 @@ jobs:
       run: git fetch --tags --force --prune && git describe
     - name: Generate version info from git history
       run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> $GITHUB_ENV
-    - name: Check that the version number has been resolved
+    - name: Fail if the version number has not been resolved
       if: ${{ !env.GitVersion_SemVer }}
       run: |
         echo Error! Version number not resolved!
