@@ -5,91 +5,53 @@ on:
       - master
       - 'release/**'
       - 'releases/**'
-    tags:
-      - v*
-      - V*
+
 env:
+  DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   MSBUILDSINGLELOADCONTEXT: 1
 
 jobs:
-  generateVersionInfo:
-    name: GenerateVersionInfo
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: "6.0.x"
+        source-url: https://nuget.pkg.github.com/graphql-dotnet/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Restore dotnet tools
       run: dotnet tool restore
     - name: Fetch complete repository including tags
       run: git fetch --tags --force --prune && git describe
     - name: Generate version info from git history
-      run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> gitversion.env && cat gitversion.env
-    - name: Upload version info file
-      uses: actions/upload-artifact@v3
-      with:
-        name: gitversion
-        path: gitversion.env
-
-  build:
-    name: Build
-    needs: generateVersionInfo
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Download version info file
-      uses: actions/download-artifact@v3
-      with:
-        name: gitversion
-        path: ./
-    - name: Inject version info into environment
-      run: cat ./gitversion.env >> $GITHUB_ENV
-    - name: Build solution
-      run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet build -c Release
-    - name: Create NuGet packages
-      run: dotnet pack -c Release --no-build -o nupkg
-    - name: Upload nuget packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: nupkg
-        path: nupkg
-
-  test:
-    name: Test
-    needs: [build, generateVersionInfo]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Download version info file
-      uses: actions/download-artifact@v3
-      with:
-        name: gitversion
-        path: ./
-    - name: Inject version info into environment
-      run: cat ./gitversion.env >> $GITHUB_ENV
-    - name: Run tests
-      run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet test -c Release
-
-  publish:
-    name: Publish
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Download nuget packages
-      uses: actions/download-artifact@v3
-      with:
-        name: nupkg
-        path: nupkg
-    - name: Publish the package to GPR
-    # using workaround with CURL because of non-functioning upload via dotnet nuget (https://stackoverflow.com/a/58943251)
+      run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> $GITHUB_ENV
+    - name: Fail if the version number has not been resolved
+      if: ${{ !env.GitVersion_SemVer }}
       run: |
-           for f in ./nupkg/*.nupkg
-           do
-             curl -vX PUT -u "graphql-dotnet:${{secrets.GITHUB_TOKEN}}" -F package=@$f https://nuget.pkg.github.com/graphql-dotnet/
-           done
+        echo Error! Version number not resolved!
+        exit 1
+    - name: Print current version
+      run: echo "Current version is \"$GitVersion_SemVer\""
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build solution
+      run:  dotnet build --no-restore -c Release
+    - name: Run Tests
+      run: dotnet test -c Release --no-restore --no-build
+    - name: Create NuGet packages
+      run: dotnet pack -c Release --no-restore --no-build -o nupkg
+    - name: Upload nuget packages as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: nupkg
+        path: nupkg
+    - name: Publish Nuget packages to GitHub registry
+      run: dotnet nuget push "nupkg/*" -k ${{secrets.GITHUB_TOKEN}}
