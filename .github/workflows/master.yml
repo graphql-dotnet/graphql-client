@@ -1,11 +1,11 @@
 name: Master workflow
-on: 
+on:
   push:
     branches:
       - master
       - 'release/**'
       - 'releases/**'
-    tags:        
+    tags:
       - v*
       - V*
 env:
@@ -13,7 +13,7 @@ env:
   MSBUILDSINGLELOADCONTEXT: 1
 
 jobs:
-  generateVersionInfo:  
+  generateVersionInfo:
     name: GenerateVersionInfo
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +50,7 @@ jobs:
     - name: Build solution
       run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet build -c Release
     - name: Create NuGet packages
-      run: dotnet pack -c Release --no-build -o nupkg 
+      run: dotnet pack -c Release --no-build -o nupkg
     - name: Upload nuget packages
       uses: actions/upload-artifact@v1
       with:
@@ -85,7 +85,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: nupkg
-    - name: Publish the package to GPR    
+    - name: Publish the package to GPR
     # using workaround with CURL because of non-functioning upload via dotnet nuget (https://stackoverflow.com/a/58943251)
       run: |
            for f in ./nupkg/*.nupkg

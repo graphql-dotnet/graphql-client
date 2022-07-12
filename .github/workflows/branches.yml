@@ -1,5 +1,5 @@
 name: Branch workflow
-on: 
+on:
   push:
     branches-ignore:
       - master
@@ -7,10 +7,10 @@ on:
       - 'releases/**'
   pull_request:
 env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: true  
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
   MSBUILDSINGLELOADCONTEXT: 1
 jobs:
-  generateVersionInfo:  
+  generateVersionInfo:
     name: GenerateVersionInfo
     runs-on: ubuntu-latest
     steps:
@@ -47,7 +47,7 @@ jobs:
     - name: Build solution
       run: echo "Current version is \"$GitVersion_SemVer\"" && dotnet build -c Release
     - name: Create NuGet packages
-      run: dotnet pack -c Release --no-build -o nupkg 
+      run: dotnet pack -c Release --no-build -o nupkg
     - name: Upload nuget packages
       uses: actions/upload-artifact@v1
       with:

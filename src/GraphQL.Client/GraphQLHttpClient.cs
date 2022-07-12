@@ -69,7 +69,7 @@ namespace GraphQL.Client.Http
 
             if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
-            
+
             _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
         }
 
@@ -102,7 +102,7 @@ namespace GraphQL.Client.Http
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GraphQLHttpClient));
-            
+
             var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
             return observable;
         }

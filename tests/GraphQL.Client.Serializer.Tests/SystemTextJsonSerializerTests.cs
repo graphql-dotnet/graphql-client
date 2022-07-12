@@ -6,12 +6,13 @@ namespace GraphQL.Client.Serializer.Tests
 {
     public class SystemTextJsonSerializerTests : BaseSerializerTest
     {
-        public SystemTextJsonSerializerTests() : base(new SystemTextJsonSerializer()) { }
+        public SystemTextJsonSerializerTests()
+            : base(new SystemTextJsonSerializer(), new GraphQL.SystemTextJson.GraphQLSerializer()) { }
     }
 
     public class SystemTextJsonSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTest
     {
         public SystemTextJsonSerializeNoCamelCaseTest()
-            : base(new SystemTextJsonSerializer(new JsonSerializerOptions(){Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false)}}.SetupImmutableConverter())) { }
+            : base(new SystemTextJsonSerializer(new JsonSerializerOptions { Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false)}}.SetupImmutableConverter()), new GraphQL.SystemTextJson.GraphQLSerializer()) { }
     }
 }

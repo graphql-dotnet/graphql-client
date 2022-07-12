@@ -1,10 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="../tests.props" />
-  
+
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="5.3.2" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="5.3.2" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />

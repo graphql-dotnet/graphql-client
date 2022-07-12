@@ -8,10 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="4.6.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="4.6.0" />
-    <PackageReference Include="GraphQL.SystemReactive" Version="4.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

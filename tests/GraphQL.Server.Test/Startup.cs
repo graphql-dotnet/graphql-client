@@ -1,3 +1,4 @@
+using GraphQL.MicrosoftDI;
 using GraphQL.Server.Test.GraphQL;
 using GraphQL.Server.Ui.GraphiQL;
 using Microsoft.AspNetCore.Builder;
@@ -21,17 +22,17 @@ namespace GraphQL.Server.Test
             app.UseWebSockets();
             app.UseGraphQLWebSockets<TestSchema>();
             app.UseGraphQL<TestSchema>();
-            app.UseGraphiQLServer(new GraphiQLOptions { });
+            app.UseGraphQLGraphiQL(new GraphiQLOptions { });
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<TestSchema>();
-            services.AddGraphQL(options =>
-            {
-                options.EnableMetrics = true;
-                options.ExposeExceptions = true;
-            }).AddWebSockets();
+            services.AddGraphQL(builder => builder
+                .AddSchema<TestSchema>()
+                .AddApolloTracing(enableMetrics: true)
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
+                .AddWebSockets()
+            );
         }
     }
 }

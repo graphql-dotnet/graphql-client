@@ -12,7 +12,7 @@ namespace GraphQL.Client.LocalExecution
         {
             services.AddSingleton<GraphQLLocalExecutionClient<TSchema>>();
             services.AddSingleton<IGraphQLClient>(p => p.GetRequiredService<GraphQLLocalExecutionClient<TSchema>>());
-            return services.AddGraphQL();
+            return new GraphQLBuilder(services, null);
         }
     }
 }
