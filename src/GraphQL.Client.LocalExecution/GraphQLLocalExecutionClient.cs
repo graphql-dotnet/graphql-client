@@ -39,7 +39,7 @@ namespace GraphQL.Client.LocalExecution
         public IGraphQLJsonSerializer Serializer { get; }
 
         private readonly IDocumentExecuter _documentExecuter;
-        private readonly IGraphQLSerializer _documentSerializer;
+        private readonly IGraphQLTextSerializer _documentSerializer;
 
         public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer, IDocumentExecuter documentExecuter, IGraphQLSerializer documentSerializer)
         {
