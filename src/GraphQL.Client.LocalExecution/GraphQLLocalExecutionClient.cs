@@ -41,7 +41,7 @@ namespace GraphQL.Client.LocalExecution
         private readonly IDocumentExecuter _documentExecuter;
         private readonly IGraphQLTextSerializer _documentSerializer;
 
-        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer, IDocumentExecuter documentExecuter, IGraphQLSerializer documentSerializer)
+        public GraphQLLocalExecutionClient(TSchema schema, IGraphQLJsonSerializer serializer, IDocumentExecuter documentExecuter, IGraphQLTextSerializer documentSerializer)
         {
             Schema = schema ?? throw new ArgumentNullException(nameof(schema), "no schema configured");
             Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
