@@ -21,6 +21,10 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: "6.0.x"
     - name: Restore dotnet tools
       run: dotnet tool restore
     - name: Fetch complete repository including tags
