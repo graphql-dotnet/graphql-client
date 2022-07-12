@@ -28,7 +28,7 @@ jobs:
     - name: Generate version info from git history
       run: dotnet gitversion /output json | jq -r 'to_entries|map("GitVersion_\(.key)=\(.value|tostring)")|.[]' >> gitversion.env && cat gitversion.env
     - name: Upload version info file
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: gitversion
         path: gitversion.env
@@ -52,7 +52,7 @@ jobs:
     - name: Create NuGet packages
       run: dotnet pack -c Release --no-build -o nupkg
     - name: Upload nuget packages
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: nupkg
         path: nupkg
