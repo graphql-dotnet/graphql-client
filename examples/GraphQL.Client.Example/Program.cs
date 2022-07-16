@@ -7,7 +7,7 @@ using GraphQL.Client.Serializer.Newtonsoft;
 
 namespace GraphQL.Client.Example
 {
-    public class Program
+    public static class Program
     {
         public static async Task Main()
         {
