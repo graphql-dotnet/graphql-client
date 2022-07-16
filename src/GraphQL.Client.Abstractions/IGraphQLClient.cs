@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GraphQL.Client.Abstractions
 {
-    public interface IGraphQLClient : IDisposable
+    public interface IGraphQLClient
     {
         Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default);
 
@@ -14,7 +14,7 @@ namespace GraphQL.Client.Abstractions
         /// <summary>
         /// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>
         /// All subscriptions made to this stream share the same hot observable.<br/>
-        /// The stream must be recreated completely after an error has occured within its logic (i.e. a <see cref="WebSocketException"/>)
+        /// The stream must be recreated completely after an error has occurred within its logic (i.e. a <see cref="WebSocketException"/>)
         /// </summary>
         /// <param name="request">the GraphQL request for this subscription</param>
         /// <returns>an observable stream for the specified subscription</returns>
