@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using GraphQL.Builders;
 using GraphQL.Client.Tests.Common.StarWars.Types;
 using GraphQL.Types.Relay.DataObjects;

@@ -1,5 +1,3 @@
-using System;
-
 namespace GraphQL.Client.Tests.Common.Chat
 {
     public class AddMessageVariables

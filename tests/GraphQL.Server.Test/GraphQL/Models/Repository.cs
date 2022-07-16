@@ -1,4 +1,3 @@
-using System;
 using GraphQL.Types;
 
 namespace GraphQL.Server.Test.GraphQL.Models
@@ -7,13 +6,13 @@ namespace GraphQL.Server.Test.GraphQL.Models
     {
         public int DatabaseId { get; set; }
 
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public object Owner { get; set; }
+        public object? Owner { get; set; }
 
-        public Uri Url { get; set; }
+        public Uri? Url { get; set; }
     }
 
     public class RepositoryGraphType : ObjectGraphType<Repository>

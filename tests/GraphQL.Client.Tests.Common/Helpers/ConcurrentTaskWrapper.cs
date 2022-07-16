@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 namespace GraphQL.Client.Tests.Common.Helpers
 {
     public class ConcurrentTaskWrapper

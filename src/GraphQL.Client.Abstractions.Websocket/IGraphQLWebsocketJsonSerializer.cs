@@ -1,6 +1,3 @@
-using System.IO;
-using System.Threading.Tasks;
-
 namespace GraphQL.Client.Abstractions.Websocket
 {
     /// <summary>

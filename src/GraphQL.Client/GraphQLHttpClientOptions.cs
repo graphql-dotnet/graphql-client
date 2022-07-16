@@ -1,13 +1,10 @@
-using System;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
-using System.Threading.Tasks;
 
 namespace GraphQL.Client.Http
 {
     /// <summary>
-    /// The Options that the <see cref="GraphQLHttpClient"/> will use
+    /// The Options that the <see cref="GraphQLHttpClient"/> will use.
     /// </summary>
     public class GraphQLHttpClientOptions
     {

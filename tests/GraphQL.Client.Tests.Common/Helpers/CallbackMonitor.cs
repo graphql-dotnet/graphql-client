@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;

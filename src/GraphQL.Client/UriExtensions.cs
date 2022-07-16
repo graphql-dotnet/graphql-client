@@ -1,5 +1,3 @@
-using System;
-
 namespace GraphQL.Client.Http
 {
     public static class UriExtensions

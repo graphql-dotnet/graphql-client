@@ -1,12 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Client.Serializer.SystemTextJson;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Helpers;
-using Microsoft.AspNetCore.Hosting;
 
 namespace GraphQL.Integration.Tests.Helpers
 {

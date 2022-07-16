@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading.Tasks;
 using GraphQL.Client.Http;
 
 namespace GraphQL.Client.Tests.Common.Helpers

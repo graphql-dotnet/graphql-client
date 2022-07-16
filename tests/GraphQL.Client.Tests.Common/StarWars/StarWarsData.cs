@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GraphQL.Client.Tests.Common.StarWars.Types;
 
 namespace GraphQL.Client.Tests.Common.StarWars

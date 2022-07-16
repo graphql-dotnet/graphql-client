@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="../src.props" />
-
   <PropertyGroup>
     <Description>A serializer implementation for GraphQL.Client using Newtonsoft.Json as underlying JSON library</Description>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>

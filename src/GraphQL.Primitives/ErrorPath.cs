@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace GraphQL
 {
     public class ErrorPath : List<object>

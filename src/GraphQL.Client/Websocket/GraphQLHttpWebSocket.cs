@@ -1,7 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
 using System.Net.WebSockets;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -9,8 +6,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http.Websocket

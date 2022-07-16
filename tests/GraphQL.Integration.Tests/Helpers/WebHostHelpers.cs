@@ -1,16 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Helpers;
 using IntegrationTestServer;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace GraphQL.Integration.Tests.Helpers
 {

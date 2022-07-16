@@ -1,4 +1,3 @@
-using System;
 using System.Net.WebSockets;
 using GraphQL.Client.Abstractions;
 

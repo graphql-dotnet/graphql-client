@@ -1,11 +1,6 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Extensions;
@@ -17,7 +12,6 @@ using GraphQL.Client.Tests.Common.Chat;
 using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
 using GraphQL.Integration.Tests.Helpers;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 

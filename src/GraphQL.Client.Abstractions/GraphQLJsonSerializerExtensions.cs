@@ -1,5 +1,3 @@
-using System;
-
 namespace GraphQL.Client.Abstractions
 {
     public static class GraphQLJsonSerializerExtensions
