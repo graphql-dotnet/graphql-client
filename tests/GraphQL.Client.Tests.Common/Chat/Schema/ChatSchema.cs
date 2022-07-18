@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphQL.Client.Tests.Common.Chat.Schema

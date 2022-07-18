@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 
 namespace GraphQL.Client.Tests.Common.Chat

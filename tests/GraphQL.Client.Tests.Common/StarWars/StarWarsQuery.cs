@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using GraphQL.Client.Tests.Common.StarWars.Types;
 using GraphQL.Types;
 

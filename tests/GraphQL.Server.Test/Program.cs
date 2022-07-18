@@ -1,10 +1,8 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
 
 namespace GraphQL.Server.Test
 {
-    public class Program
+    public static class Program
     {
         public static async Task Main(string[] args) =>
             await CreateHostBuilder(args).Build().RunAsync();

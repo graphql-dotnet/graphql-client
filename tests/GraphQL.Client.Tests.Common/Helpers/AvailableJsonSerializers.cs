@@ -1,7 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using GraphQL.Client.Abstractions;
 
 namespace GraphQL.Client.Tests.Common.Helpers

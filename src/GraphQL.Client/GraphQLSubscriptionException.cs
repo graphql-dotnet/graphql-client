@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.Serialization;
 
 namespace GraphQL.Client.Http

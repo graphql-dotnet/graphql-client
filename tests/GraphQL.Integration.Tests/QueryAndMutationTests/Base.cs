@@ -1,17 +1,11 @@
-using System;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
 using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.Helpers;
-using GraphQL.Client.Tests.Common.StarWars;
 using GraphQL.Client.Tests.Common.StarWars.TestData;
 using GraphQL.Integration.Tests.Helpers;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace GraphQL.Integration.Tests.QueryAndMutationTests

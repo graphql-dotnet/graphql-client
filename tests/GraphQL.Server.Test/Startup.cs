@@ -1,10 +1,6 @@
 using GraphQL.MicrosoftDI;
 using GraphQL.Server.Test.GraphQL;
 using GraphQL.Server.Ui.GraphiQL;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace GraphQL.Server.Test
 {

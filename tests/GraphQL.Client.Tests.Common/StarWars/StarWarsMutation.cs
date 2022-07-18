@@ -3,6 +3,7 @@ using GraphQL.Types;
 
 namespace GraphQL.Client.Tests.Common.StarWars
 {
+    /// <summary> Mutation graph type for StarWars schema. </summary>
     /// <example>
     /// This is an example JSON request for a mutation
     /// {

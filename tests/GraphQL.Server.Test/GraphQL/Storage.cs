@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using GraphQL.Server.Test.GraphQL.Models;
 
 namespace GraphQL.Server.Test.GraphQL

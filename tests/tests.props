@@ -1,7 +1,5 @@
 <Project>
 
-  <Import Project="../root.props" />
-
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);NU1701;IDE1006</NoWarn>

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace GraphQL.Client.Tests.Common.StarWars.Types
 {
     public abstract class StarWarsCharacter

@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="../src.props" />
-
   <PropertyGroup>
     <Description>A GraphQL Client which executes the queries directly on a provided GraphQL schema using graphql-dotnet</Description>
     <TargetFramework>netstandard2.0</TargetFramework>

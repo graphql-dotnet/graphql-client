@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="../src.props" />
-
   <PropertyGroup>
     <Description>GraphQL basic types</Description>
     <RootNamespace>GraphQL</RootNamespace>

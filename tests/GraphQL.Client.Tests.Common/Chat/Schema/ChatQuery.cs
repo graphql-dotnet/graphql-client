@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using GraphQL.Types;
 
 namespace GraphQL.Client.Tests.Common.Chat.Schema

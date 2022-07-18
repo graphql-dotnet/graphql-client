@@ -1,11 +1,5 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
@@ -110,7 +104,7 @@ namespace GraphQL.Client.Http
         #endregion
 
         /// <summary>
-        /// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
+        /// Explicitly opens the websocket connection. Will be closed again on disposing the last subscription.
         /// </summary>
         /// <returns></returns>
         public Task InitializeWebsocketConnection() => GraphQlHttpWebSocket.InitializeWebSocket();

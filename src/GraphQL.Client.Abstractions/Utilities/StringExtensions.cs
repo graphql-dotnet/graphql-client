@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GraphQL.Client.Abstractions.Utilities
+﻿namespace GraphQL.Client.Abstractions.Utilities
 {
     /// <summary>
     /// Copied from https://github.com/jquense/StringUtils
