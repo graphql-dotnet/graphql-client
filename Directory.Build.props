@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <NoWarn>$(NoWarn);NU5105;RCS1194</NoWarn> <!--TODO: fix-->
+    <NoWarn>$(NoWarn);NU5105</NoWarn> <!--TODO: fix-->
     <NoWarn>$(NoWarn);1591</NoWarn> <!--TODO: write comments to public APIs-->
     <Nullable>annotations</Nullable>
     <PackageIcon>logo.64x64.png</PackageIcon>
@@ -29,16 +29,5 @@
     <WarningLevel>4</WarningLevel>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Roslynator.Analyzers" Version="4.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 
 </Project>
