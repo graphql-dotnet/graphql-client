@@ -11,7 +11,7 @@ namespace GraphQL.Client.Http
         private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
         private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         private readonly bool _disposeHttpClient = false;
 
@@ -42,14 +42,17 @@ namespace GraphQL.Client.Http
 
         #region Constructors
 
-        public GraphQLHttpClient(string endPoint, IGraphQLWebsocketJsonSerializer serializer) : this(new Uri(endPoint), serializer) { }
+        public GraphQLHttpClient(string endPoint, IGraphQLWebsocketJsonSerializer serializer)
+            : this(new Uri(endPoint), serializer) { }
 
-        public GraphQLHttpClient(Uri endPoint, IGraphQLWebsocketJsonSerializer serializer) : this(o => o.EndPoint = endPoint, serializer) { }
+        public GraphQLHttpClient(Uri endPoint, IGraphQLWebsocketJsonSerializer serializer)
+            : this(o => o.EndPoint = endPoint, serializer) { }
 
-        public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer) : this(configure.New(), serializer) { }
+        public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer)
+            : this(configure.New(), serializer) { }
 
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer) : this(
-            options, serializer, new HttpClient(options.HttpMessageHandler))
+        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer)
+            : this(options, serializer, new HttpClient(options.HttpMessageHandler))
         {
             // set this flag to dispose the internally created HttpClient when GraphQLHttpClient gets disposed
             _disposeHttpClient = true;
@@ -120,7 +123,7 @@ namespace GraphQL.Client.Http
 
             var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
-            if (httpResponseMessage.IsSuccessStatusCode)
+            if (Options.IsValidResponseToDeserialize(httpResponseMessage))
             {
                 var graphQLResponse = await JsonSerializer.DeserializeFromUtf8StreamAsync<TResponse>(contentStream, cancellationToken).ConfigureAwait(false);
                 return graphQLResponse.ToGraphQLHttpResponse(httpResponseMessage.Headers, httpResponseMessage.StatusCode);
@@ -167,7 +170,7 @@ namespace GraphQL.Client.Http
         }
 
         private volatile bool _disposed;
-        private readonly object _disposeLocker = new object();
+        private readonly object _disposeLocker = new();
 
         protected virtual void Dispose(bool disposing)
         {

@@ -16,7 +16,7 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// The GraphQL EndPoint to be used for websocket connections
         /// </summary>
-        public Uri? WebSocketEndPoint { get; set; } = null;
+        public Uri? WebSocketEndPoint { get; set; }
 
         /// <summary>
         /// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used
@@ -50,12 +50,17 @@ namespace GraphQL.Client.Http
             Task.FromResult(request is GraphQLHttpRequest graphQLHttpRequest ? graphQLHttpRequest : new GraphQLHttpRequest(request));
 
         /// <summary>
-        /// This callback is called after successfully establishing a websocket connection but before any regular request is made. 
+        /// Delegate to determine if GraphQL response may be properly deserialized into <see cref="GraphQLResponse{T}"/>.
+        /// </summary>
+        public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = r => r.IsSuccessStatusCode;
+
+        /// <summary>
+        /// This callback is called after successfully establishing a websocket connection but before any regular request is made.
         /// </summary>
         public Func<GraphQLHttpClient, Task> OnWebsocketConnected { get; set; } = client => Task.CompletedTask;
 
         /// <summary>
-        /// Configure additional websocket options (i.e. headers). This will not be invoked on Windows 7 when targeting .NET Framework 4.x. 
+        /// Configure additional websocket options (i.e. headers). This will not be invoked on Windows 7 when targeting .NET Framework 4.x.
         /// </summary>
         public Action<ClientWebSocketOptions> ConfigureWebsocketOptions { get; set; } = options => { };
 
