@@ -52,7 +52,7 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// Delegate to determine if GraphQL response may be properly deserialized into <see cref="GraphQLResponse{T}"/>.
         /// </summary>
-        public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = r => r.IsSuccessStatusCode;
+        public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = r => r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.BadRequest;
 
         /// <summary>
         /// This callback is called after successfully establishing a websocket connection but before any regular request is made.
