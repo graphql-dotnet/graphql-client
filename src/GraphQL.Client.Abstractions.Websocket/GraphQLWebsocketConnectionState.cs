@@ -1,11 +1,10 @@
-namespace GraphQL.Client.Abstractions.Websocket
+namespace GraphQL.Client.Abstractions.Websocket;
+
+public enum GraphQLWebsocketConnectionState
 {
-    public enum GraphQLWebsocketConnectionState
-    {
-        Disconnected,
+    Disconnected,
 
-        Connecting,
+    Connecting,
 
-        Connected
-    }
+    Connected
 }

@@ -1,11 +1,10 @@
 using System.Runtime.Serialization;
 
-namespace GraphQL.Client.Abstractions.Websocket
-{
-    public class WebsocketMessageWrapper : GraphQLWebSocketResponse
-    {
+namespace GraphQL.Client.Abstractions.Websocket;
 
-        [IgnoreDataMember]
-        public byte[] MessageBytes { get; set; }
-    }
+public class WebsocketMessageWrapper : GraphQLWebSocketResponse
+{
+
+    [IgnoreDataMember]
+    public byte[] MessageBytes { get; set; }
 }

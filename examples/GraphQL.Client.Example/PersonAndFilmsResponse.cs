@@ -1,25 +1,24 @@
 using System.Collections.Generic;
 
-namespace GraphQL.Client.Example
+namespace GraphQL.Client.Example;
+
+public class PersonAndFilmsResponse
 {
-    public class PersonAndFilmsResponse
+    public PersonContent Person { get; set; }
+
+    public class PersonContent
     {
-        public PersonContent Person { get; set; }
+        public string Name { get; set; }
 
-        public class PersonContent
+        public FilmConnectionContent FilmConnection { get; set; }
+
+        public class FilmConnectionContent
         {
-            public string Name { get; set; }
+            public List<FilmContent> Films { get; set; }
 
-            public FilmConnectionContent FilmConnection { get; set; }
-
-            public class FilmConnectionContent
+            public class FilmContent
             {
-                public List<FilmContent> Films { get; set; }
-
-                public class FilmContent
-                {
-                    public string Title { get; set; }
-                }
+                public string Title { get; set; }
             }
         }
     }

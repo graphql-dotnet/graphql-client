@@ -1,11 +1,10 @@
-namespace GraphQL
+namespace GraphQL;
+
+public interface IGraphQLResponse
 {
-    public interface IGraphQLResponse
-    {
-        object Data { get; }
+    object Data { get; }
 
-        GraphQLError[]? Errors { get; set; }
+    GraphQLError[]? Errors { get; set; }
 
-        Map? Extensions { get; set; }
-    }
+    Map? Extensions { get; set; }
 }
