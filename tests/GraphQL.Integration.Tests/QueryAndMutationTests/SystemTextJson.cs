@@ -1,12 +1,11 @@
 using GraphQL.Integration.Tests.Helpers;
 using Xunit;
 
-namespace GraphQL.Integration.Tests.QueryAndMutationTests
+namespace GraphQL.Integration.Tests.QueryAndMutationTests;
+
+public class SystemTextJson : Base, IClassFixture<SystemTextJsonIntegrationServerTestFixture>
 {
-    public class SystemTextJson : Base, IClassFixture<SystemTextJsonIntegrationServerTestFixture>
+    public SystemTextJson(SystemTextJsonIntegrationServerTestFixture fixture) : base(fixture)
     {
-        public SystemTextJson(SystemTextJsonIntegrationServerTestFixture fixture) : base(fixture)
-        {
-        }
     }
 }

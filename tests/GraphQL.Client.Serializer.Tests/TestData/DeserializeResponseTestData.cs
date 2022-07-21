@@ -1,46 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace GraphQL.Client.Serializer.Tests.TestData
+namespace GraphQL.Client.Serializer.Tests.TestData;
+
+public class DeserializeResponseTestData : IEnumerable<object[]>
 {
-    public class DeserializeResponseTestData : IEnumerable<object[]>
+    public IEnumerator<object[]> GetEnumerator()
     {
-        public IEnumerator<object[]> GetEnumerator()
-        {
-            // object array structure:
-            // [0]: input json
-            // [1]: expected deserialized response
+        // object array structure:
+        // [0]: input json
+        // [1]: expected deserialized response
 
-            yield return new object[] {
-                "{\"errors\":[{\"message\":\"Throttled\",\"extensions\":{\"code\":\"THROTTLED\",\"documentation\":\"https://help.shopify.com/api/graphql-admin-api/graphql-admin-api-rate-limits\"}}],\"extensions\":{\"cost\":{\"requestedQueryCost\":992,\"actualQueryCost\":null,\"throttleStatus\":{\"maximumAvailable\":1000,\"currentlyAvailable\":632,\"restoreRate\":50}}}}",
-                new GraphQLResponse<object> {
-                    Data = null,
-                    Errors = new[] {
-                        new GraphQLError {
-                            Message = "Throttled",
-                            Extensions = new Map {
-                                {"code", "THROTTLED" },
-                                {"documentation", "https://help.shopify.com/api/graphql-admin-api/graphql-admin-api-rate-limits" }
-                            }
+        yield return new object[] {
+            "{\"errors\":[{\"message\":\"Throttled\",\"extensions\":{\"code\":\"THROTTLED\",\"documentation\":\"https://help.shopify.com/api/graphql-admin-api/graphql-admin-api-rate-limits\"}}],\"extensions\":{\"cost\":{\"requestedQueryCost\":992,\"actualQueryCost\":null,\"throttleStatus\":{\"maximumAvailable\":1000,\"currentlyAvailable\":632,\"restoreRate\":50}}}}",
+            new GraphQLResponse<object> {
+                Data = null,
+                Errors = new[] {
+                    new GraphQLError {
+                        Message = "Throttled",
+                        Extensions = new Map {
+                            {"code", "THROTTLED" },
+                            {"documentation", "https://help.shopify.com/api/graphql-admin-api/graphql-admin-api-rate-limits" }
                         }
-                    },
-                    Extensions = new Map {
-                        {"cost", new Dictionary<string, object> {
-                            {"requestedQueryCost", 992},
-                            {"actualQueryCost", null},
-                            {"throttleStatus", new Dictionary<string, object> {
-                                {"maximumAvailable", 1000},
-                                {"currentlyAvailable", 632},
-                                {"restoreRate", 50}
-                            }}
-                        }}
                     }
+                },
+                Extensions = new Map {
+                    {"cost", new Dictionary<string, object> {
+                        {"requestedQueryCost", 992},
+                        {"actualQueryCost", null},
+                        {"throttleStatus", new Dictionary<string, object> {
+                            {"maximumAvailable", 1000},
+                            {"currentlyAvailable", 632},
+                            {"restoreRate", 50}
+                        }}
+                    }}
                 }
-            };
+            }
+        };
 
-            yield return new object[]
-            {
-                @"{
+        yield return new object[]
+        {
+            @"{
                     ""errors"": [
                         {
                             ""message"": ""Name for character with ID 1002 could not be fetched."",
@@ -78,65 +78,64 @@ namespace GraphQL.Client.Serializer.Tests.TestData
                         }
                     }
                 }",
-                NewAnonymouslyTypedGraphQLResponse(new
+            NewAnonymouslyTypedGraphQLResponse(new
+                {
+                    hero = new
                     {
-                        hero = new
+                        name = "R2-D2",
+                        heroFriends = new List<Friend>
                         {
-                            name = "R2-D2",
-                            heroFriends = new List<Friend>
-                            {
-                                new Friend {Id = "1000", Name = "Luke Skywalker"},
-                                new Friend {Id = "1002", Name = null},
-                                new Friend {Id = "1003", Name = "Leia Organa"}
-                            }
+                            new Friend {Id = "1000", Name = "Luke Skywalker"},
+                            new Friend {Id = "1002", Name = null},
+                            new Friend {Id = "1003", Name = "Leia Organa"}
                         }
-                    },
-                    new[] {
-                        new GraphQLError {
-                            Message = "Name for character with ID 1002 could not be fetched.",
-                            Locations = new [] { new GraphQLLocation{Line = 6, Column = 7 }},
-                            Path = new ErrorPath{"hero", "heroFriends", 1, "name"}
-                        }
-                    })
-            };
+                    }
+                },
+                new[] {
+                    new GraphQLError {
+                        Message = "Name for character with ID 1002 could not be fetched.",
+                        Locations = new [] { new GraphQLLocation{Line = 6, Column = 7 }},
+                        Path = new ErrorPath{"hero", "heroFriends", 1, "name"}
+                    }
+                })
+        };
 
-            // add test for github issue #230 : https://github.com/graphql-dotnet/graphql-client/issues/230
-            yield return new object[] {
-                "{\"data\":{\"getMyModelType\":{\"id\":\"foo\",\"title\":\"The best Foo movie!\"}}}",
-                new GraphQLResponse<GetMyModelTypeResponse> {
-                    Data = new GetMyModelTypeResponse
+        // add test for github issue #230 : https://github.com/graphql-dotnet/graphql-client/issues/230
+        yield return new object[] {
+            "{\"data\":{\"getMyModelType\":{\"id\":\"foo\",\"title\":\"The best Foo movie!\"}}}",
+            new GraphQLResponse<GetMyModelTypeResponse> {
+                Data = new GetMyModelTypeResponse
+                {
+                    getMyModelType = new Movie
                     {
-                        getMyModelType = new Movie
-                        {
-                            id = "foo",
-                            title = "The best Foo movie!"
-                        }
-                    },
-                }
-            };
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        private GraphQLResponse<T> NewAnonymouslyTypedGraphQLResponse<T>(T data, GraphQLError[]? errors = null, Map? extensions = null)
-            => new GraphQLResponse<T> {Data = data, Errors = errors, Extensions = extensions};
+                        id = "foo",
+                        title = "The best Foo movie!"
+                    }
+                },
+            }
+        };
     }
 
-    public class Friend
-    {
-        public string Id { get; set; }
-        public string? Name { get; set; }
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public class GetMyModelTypeResponse
-    {
-        //--- Properties ---
-        public Movie getMyModelType { get; set; }
-    }
-    public class Movie
-    {
-        //--- Properties ---
-        public string id { get; set; }
-        public string title { get; set; }
-    }
+    private GraphQLResponse<T> NewAnonymouslyTypedGraphQLResponse<T>(T data, GraphQLError[]? errors = null, Map? extensions = null)
+        => new GraphQLResponse<T> {Data = data, Errors = errors, Extensions = extensions};
+}
+
+public class Friend
+{
+    public string Id { get; set; }
+    public string? Name { get; set; }
+}
+
+public class GetMyModelTypeResponse
+{
+    //--- Properties ---
+    public Movie getMyModelType { get; set; }
+}
+public class Movie
+{
+    //--- Properties ---
+    public string id { get; set; }
+    public string title { get; set; }
 }
