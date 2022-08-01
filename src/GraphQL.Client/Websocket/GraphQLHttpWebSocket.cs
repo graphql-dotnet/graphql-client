@@ -399,7 +399,9 @@ internal class GraphQLHttpWebSocket : IDisposable
             // the following properties are not supported in Blazor WebAssembly and throw a PlatformNotSupportedException error when accessed
             try
             {
-                _clientWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+                var certs = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+                if (certs != null) // ClientWebSocketOptions.ClientCertificates.set throws ArgumentNullException
+                    _clientWebSocket.Options.ClientCertificates = certs;
             }
             catch (NotImplementedException)
             {
