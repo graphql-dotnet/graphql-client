@@ -52,8 +52,12 @@ public class GraphQLHttpClientOptions
 
     /// <summary>
     /// Delegate to determine if GraphQL response may be properly deserialized into <see cref="GraphQLResponse{T}"/>.
+    /// Note that compatible to the draft graphql-over-http spec GraphQL Server MAY return 4xx status codes (401/403, etc.)
+    /// with well-formed GraphQL response containing errors collection.
     /// </summary>
-    public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = r => r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.BadRequest;
+    public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = r =>
+        // Why not application/json? See https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md#processing-the-response
+        r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.BadRequest || r.Content.Headers.ContentType.MediaType == "application/graphql+json";
 
     /// <summary>
     /// This callback is called after successfully establishing a websocket connection but before any regular request is made.

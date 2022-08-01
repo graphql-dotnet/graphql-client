@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Text;
 using GraphQL.Client.Abstractions;
@@ -38,6 +39,9 @@ public class GraphQLHttpRequest : GraphQLRequest
         {
             Content = new StringContent(serializer.SerializeToString(this), Encoding.UTF8, options.MediaType)
         };
+        message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/graphql+json"));
+        message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        message.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
 
 #pragma warning disable CS0618 // Type or member is obsolete
         PreprocessHttpRequestMessage(message);
