@@ -4,26 +4,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F1-4428-863E-2C5C876DEEFE}"
-	ProjectSection(SolutionItems) = preProject
-		src\.editorconfig = src\.editorconfig
-		src\src.props = src\src.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63F75859-4698-4EDE-8B70-4ACBB8BC425A}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		dotnet-tools.json = dotnet-tools.json
 		LICENSE.txt = LICENSE.txt
 		examples\GraphQL.Client.Example\Program.cs = examples\GraphQL.Client.Example\Program.cs
 		README.md = README.md
-		root.props = root.props
+		tests\tests.props = tests\tests.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}"
-	ProjectSection(SolutionItems) = preProject
-		tests\tests.props = tests\tests.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{6326E0E2-3F48-4BAF-80D3-47AED5EB647C}"
 	ProjectSection(SolutionItems) = preProject

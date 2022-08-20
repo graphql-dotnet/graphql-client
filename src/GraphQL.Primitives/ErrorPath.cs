@@ -1,15 +1,12 @@
-using System.Collections.Generic;
+namespace GraphQL;
 
-namespace GraphQL
+public class ErrorPath : List<object>
 {
-    public class ErrorPath : List<object>
+    public ErrorPath()
     {
-        public ErrorPath()
-        {
-        }
+    }
 
-        public ErrorPath(IEnumerable<object> collection) : base(collection)
-        {
-        }
+    public ErrorPath(IEnumerable<object> collection) : base(collection)
+    {
     }
 }

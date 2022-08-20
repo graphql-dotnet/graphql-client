@@ -1,18 +1,15 @@
-using System;
+namespace GraphQL.Client.Tests.Common.Chat;
 
-namespace GraphQL.Client.Tests.Common.Chat
+public class AddMessageVariables
 {
-    public class AddMessageVariables
+    public AddMessageInput Input { get; set; }
+
+    public class AddMessageInput
     {
-        public AddMessageInput Input { get; set; }
+        public string FromId { get; set; }
 
-        public class AddMessageInput
-        {
-            public string FromId { get; set; }
+        public string Content { get; set; }
 
-            public string Content { get; set; }
-
-            public string SentAt { get; set; }
-        }
+        public string SentAt { get; set; }
     }
 }

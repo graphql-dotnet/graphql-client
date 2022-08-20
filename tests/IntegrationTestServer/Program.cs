@@ -1,16 +1,13 @@
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 
-namespace IntegrationTestServer
+namespace IntegrationTestServer;
+
+public static class Program
 {
-    public class Program
-    {
-        public static void Main(string[] args) => CreateWebHostBuilder(args).Build().Run();
+    public static void Main(string[] args) => CreateWebHostBuilder(args).Build().Run();
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .ConfigureLogging((ctx, logging) => logging.SetMinimumLevel(LogLevel.Debug));
-    }
+    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        WebHost.CreateDefaultBuilder(args)
+            .UseStartup<Startup>()
+            .ConfigureLogging((_, logging) => logging.SetMinimumLevel(LogLevel.Debug));
 }

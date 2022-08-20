@@ -1,13 +1,10 @@
-using System;
+namespace GraphQL.Client.Tests.Common.Chat.Schema;
 
-namespace GraphQL.Client.Tests.Common.Chat.Schema
+public class ReceivedMessage
 {
-    public class ReceivedMessage
-    {
-        public string FromId { get; set; }
+    public string FromId { get; set; }
 
-        public string Content { get; set; }
+    public string Content { get; set; }
 
-        public DateTime SentAt { get; set; }
-    }
+    public DateTime SentAt { get; set; }
 }

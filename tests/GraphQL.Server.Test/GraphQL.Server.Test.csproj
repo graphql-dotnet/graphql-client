@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net6</TargetFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GraphQL.MicrosoftDI" Version="5.0.0" />
-    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="6.0.0" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="6.1.0" />
     <PackageReference Include="GraphQL.Server.Transports.Subscriptions.WebSockets" Version="6.1.0" />
     <PackageReference Include="GraphQL.Server.Ui.GraphiQL" Version="6.1.0" />
   </ItemGroup>
