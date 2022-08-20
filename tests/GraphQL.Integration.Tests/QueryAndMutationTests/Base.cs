@@ -157,10 +157,6 @@ public abstract class Base : IAsyncLifetime
         if (userAgent != null)
             defaultHeaders.UserAgent.Add(userAgent);
 
-        Assert.Null(mutationResponse.Errors);
-        Assert.Equal("Han Solo", mutationResponse.Data.createHuman.Name);
-        Assert.Equal("Corellia", mutationResponse.Data.createHuman.HomePlanet);
-
         queryRequest.Variables = new { id = mutationResponse.Data.createHuman.Id };
         var queryResponse = await StarWarsClient.SendQueryAsync(queryRequest, () => new { Human = new { Name = string.Empty } });
 
