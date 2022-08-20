@@ -152,7 +152,6 @@ public abstract class Base : IAsyncLifetime
             }
         });
 
-
         var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
         var userAgentOption = StarWarsClient.Options.DefaultUserAgentRequestHeader;
         if (userAgentOption != null)
