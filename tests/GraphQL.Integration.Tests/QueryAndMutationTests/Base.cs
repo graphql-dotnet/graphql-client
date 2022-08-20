@@ -156,10 +156,6 @@ public abstract class Base : IAsyncLifetime
         var userAgent = StarWarsClient.Options.DefaultUserAgentRequestHeader;
         if (userAgent != null)
             defaultHeaders.UserAgent.Add(userAgent);
-        var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
-        callbackTester.Should().HaveBeenInvokedWithPayload().Which.Headers.Should().BeEquivalentTo(defaultHeaders);
-        Assert.Null(response.Errors);
-        Assert.Equal("Luke", response.Data.Human.Name);
 
         Assert.Null(mutationResponse.Errors);
         Assert.Equal("Han Solo", mutationResponse.Data.createHuman.Name);
