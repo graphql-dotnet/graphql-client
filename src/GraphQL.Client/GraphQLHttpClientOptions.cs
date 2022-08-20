@@ -85,6 +85,5 @@ public class GraphQLHttpClientOptions
     /// The default user agent request header.
     /// Default to the GraphQL client assembly.
     /// </summary>
-    public Func<GraphQLHttpClientOptions, ProductInfoHeaderValue> DefaultUserAgentRequestHeader { get; set; } = _ => new ProductInfoHeaderValue(typeof(GraphQLHttpClient).Assembly.GetName().Name, typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString());
-    
+    public ProductInfoHeaderValue DefaultUserAgentRequestHeader { get; set; } = new ProductInfoHeaderValue(typeof(GraphQLHttpClient).Assembly.GetName().Name, typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString());
 }
