@@ -43,7 +43,6 @@ public class GraphQLHttpRequest : GraphQLRequest
         message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         message.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
 
-            var userAgentOption = options.DefaultUserAgentRequestHeader;
             if (userAgentOption != null)
                 message.Headers.UserAgent.Add(userAgentOption(options));
 
