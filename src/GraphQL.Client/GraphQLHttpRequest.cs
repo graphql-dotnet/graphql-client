@@ -42,7 +42,7 @@ namespace GraphQL.Client.Http
             };
 
             if (options.DefaultUserAgentRequestHeader != null)
-                message.Headers.UserAgent.Add(userAgentOption(options));
+                message.Headers.UserAgent.Add(options.DefaultUserAgentRequestHeader);
 
 #pragma warning disable CS0618 // Type or member is obsolete
             PreprocessHttpRequestMessage(message);
