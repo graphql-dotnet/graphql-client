@@ -6,22 +6,18 @@ public class ChatMutation : ObjectGraphType<object>
 {
     public ChatMutation(IChat chat)
     {
-        Field<MessageType>("addMessage",
-            arguments: new QueryArguments(
-                new QueryArgument<MessageInputType> { Name = "message" }
-            ),
-            resolve: context =>
+        Field<MessageType>("addMessage")
+            .Argument<MessageInputType>("message")
+            .Resolve(context =>
             {
                 var receivedMessage = context.GetArgument<ReceivedMessage>("message");
                 var message = chat.AddMessage(receivedMessage);
                 return message;
             });
 
-        Field<MessageFromType>("join",
-            arguments: new QueryArguments(
-                new QueryArgument<StringGraphType> { Name = "userId" }
-            ),
-            resolve: context =>
+        Field<MessageFromType>("join")
+            .Argument<StringGraphType>("userId")
+            .Resolve(context =>
             {
                 var userId = context.GetArgument<string>("userId");
                 var userJoined = chat.Join(userId);

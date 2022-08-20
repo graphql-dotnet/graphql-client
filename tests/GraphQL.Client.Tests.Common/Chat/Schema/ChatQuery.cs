@@ -4,7 +4,8 @@ namespace GraphQL.Client.Tests.Common.Chat.Schema;
 
 public class ChatQuery : ObjectGraphType
 {
-    public static readonly Dictionary<string, object> TestExtensions = new Dictionary<string, object> {
+    public static readonly Dictionary<string, object> TestExtensions = new()
+    {
         {"extension1", "hello world"},
         {"another extension", 4711},
         {"long", 19942590700}
@@ -19,18 +20,16 @@ public class ChatQuery : ObjectGraphType
     {
         Name = "ChatQuery";
 
-        Field<ListGraphType<MessageType>>("messages", resolve: context => chat.AllMessages.Take(100));
+        Field<ListGraphType<MessageType>>("messages").Resolve(context => chat.AllMessages.Take(100));
 
-        Field<StringGraphType>()
-            .Name("extensionsTest")
+        Field<StringGraphType>("extensionsTest")
             .Resolve(context =>
             {
                 context.Errors.Add(new ExecutionError("this error contains extension fields", TestExtensions));
                 return null;
             });
 
-        Field<StringGraphType>()
-            .Name("longRunning")
+        Field<StringGraphType>("longRunning")
             .Resolve(context =>
             {
                 WaitingOnQueryBlocker.Set();

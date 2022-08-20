@@ -48,7 +48,6 @@ public abstract class BaseSerializeNoCamelCaseTest
     [Fact]
     public async void WorksWithoutCamelCaseNamingStrategy()
     {
-
         const string message = "some random testing message";
         var graphQLRequest = new GraphQLRequest(
             @"mutation($input: MessageInputType){

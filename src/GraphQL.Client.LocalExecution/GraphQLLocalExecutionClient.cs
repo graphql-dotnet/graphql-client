@@ -9,7 +9,7 @@ public static class GraphQLLocalExecutionClient
 {
     public static GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, IGraphQLJsonSerializer clientSerializer, IGraphQLTextSerializer serverSerializer)
         where TSchema : ISchema
-        => new GraphQLLocalExecutionClient<TSchema>(schema, new DocumentExecuter(), clientSerializer, serverSerializer);
+        => new(schema, new DocumentExecuter(), clientSerializer, serverSerializer);
 }
 
 public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema : ISchema
