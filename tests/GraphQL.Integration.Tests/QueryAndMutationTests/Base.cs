@@ -152,6 +152,10 @@ public abstract class Base : IAsyncLifetime
             }
         });
 
+        Assert.Null(mutationResponse.Errors);
+        Assert.Equal("Han Solo", mutationResponse.Data.createHuman.Name);
+        Assert.Equal("Corellia", mutationResponse.Data.createHuman.HomePlanet);
+        
         var defaultHeaders = StarWarsClient.HttpClient.DefaultRequestHeaders;
         var userAgent = StarWarsClient.Options.DefaultUserAgentRequestHeader;
         if (userAgent != null)
