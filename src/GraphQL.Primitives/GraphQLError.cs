@@ -27,7 +27,7 @@ public class GraphQLError : IEquatable<GraphQLError?>
 
     /// <summary>
     /// The extensions of the error
-    /// </summary> 
+    /// </summary>
     [DataMember(Name = "extensions")]
     public Map? Extensions { get; set; }
 

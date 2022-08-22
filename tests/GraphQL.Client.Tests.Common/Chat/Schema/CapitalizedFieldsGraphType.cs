@@ -8,8 +8,7 @@ public class CapitalizedFieldsGraphType : ObjectGraphType
     {
         Name = "CapitalizedFields";
 
-        Field<StringGraphType>()
-            .Name("StringField")
+        Field<StringGraphType>("StringField")
             .Resolve(context => "hello world");
     }
 }

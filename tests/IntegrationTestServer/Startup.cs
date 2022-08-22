@@ -33,20 +33,15 @@ public class Startup
         services.AddChatSchema();
         services.AddStarWarsSchema();
         services.AddGraphQL(builder => builder
-            .AddApolloTracing(enableMetrics: true)
-            .AddHttpMiddleware<ChatSchema>()
-            .AddHttpMiddleware<StarWarsSchema>()
-            .AddWebSocketsHttpMiddleware<ChatSchema>()
-            .AddWebSocketsHttpMiddleware<StarWarsSchema>()
+            .UseApolloTracing(enableMetrics: true)
             .ConfigureExecutionOptions(opt => opt.UnhandledExceptionDelegate = ctx =>
             {
                 var logger = ctx.Context.RequestServices.GetRequiredService<ILogger<Startup>>();
                 logger.LogError("{Error} occurred", ctx.OriginalException.Message);
                 return System.Threading.Tasks.Task.CompletedTask;
             })
-            .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = Environment.IsDevelopment())
+            .AddErrorInfoProvider(opt => opt.ExposeExceptionDetails = Environment.IsDevelopment())
             .AddSystemTextJson()
-            .AddWebSockets()
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 
@@ -63,13 +58,12 @@ public class Startup
         ConfigureGraphQLSchema<ChatSchema>(app, Common.CHAT_ENDPOINT);
         ConfigureGraphQLSchema<StarWarsSchema>(app, Common.STAR_WARS_ENDPOINT);
 
-        app.UseGraphQLGraphiQL(new GraphiQLOptions { GraphQLEndPoint = Common.STAR_WARS_ENDPOINT });
-        app.UseGraphQLAltair(new AltairOptions { GraphQLEndPoint = Common.CHAT_ENDPOINT });
+        app.UseGraphQLGraphiQL(options: new GraphiQLOptions { GraphQLEndPoint = Common.STAR_WARS_ENDPOINT });
+        app.UseGraphQLAltair(options: new AltairOptions { GraphQLEndPoint = Common.CHAT_ENDPOINT });
     }
 
     private void ConfigureGraphQLSchema<TSchema>(IApplicationBuilder app, string endpoint) where TSchema : Schema
     {
-        app.UseGraphQLWebSockets<TSchema>(endpoint);
         app.UseGraphQL<TSchema>(endpoint);
     }
 }

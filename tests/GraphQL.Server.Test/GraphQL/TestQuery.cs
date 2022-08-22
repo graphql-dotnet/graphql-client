@@ -7,7 +7,10 @@ public class TestQuery : ObjectGraphType
 {
     public TestQuery()
     {
-        Field<RepositoryGraphType>("repository", arguments: new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "owner" }, new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }), resolve: context =>
+        Field<RepositoryGraphType>("repository")
+            .Argument<NonNullGraphType<StringGraphType>>("owner")
+            .Argument<NonNullGraphType<StringGraphType>>("name")
+            .Resolve(context =>
         {
             var owner = context.GetArgument<string>("owner");
             var name = context.GetArgument<string>("name");
