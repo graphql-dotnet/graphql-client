@@ -6,7 +6,7 @@ namespace GraphQL.Client.Serializer.SystemTextJson
 {
     public abstract class PolymorphicTypenameConverter<T> : JsonConverter<T>
     {
-        protected abstract Type Descriminator(string typename);
+        protected abstract Type GetTypeFromTypenameField(string typename);
 
         public override bool CanConvert(Type typeToConvert) =>
             typeof(T).IsAssignableFrom(typeToConvert);
