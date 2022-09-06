@@ -176,7 +176,7 @@ public abstract class Base : IAsyncLifetime
 
         var expectedHeaders = new HttpRequestMessage().Headers;
         expectedHeaders.UserAgent.Add(new ProductInfoHeaderValue("GraphQL.Client", typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString()));
-        expectedHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/graphql+json"));
+        expectedHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/graphql-response+json"));
         expectedHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         expectedHeaders.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
         var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
