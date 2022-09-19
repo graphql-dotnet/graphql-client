@@ -39,7 +39,7 @@ public class GraphQLHttpRequest : GraphQLRequest
         {
             Content = new StringContent(serializer.SerializeToString(this), Encoding.UTF8, options.MediaType)
         };
-        message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/graphql+json"));
+        message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/graphql-response+json"));
         message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         message.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
 
