@@ -20,6 +20,11 @@ public class GraphQLHttpClientOptions
     public Uri? WebSocketEndPoint { get; set; }
 
     /// <summary>
+    /// The GraphQL websocket protocol to be used
+    /// </summary>
+    public string WebSocketProtocol { get; set; }
+
+    /// <summary>
     /// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used
     /// </summary>
     public HttpMessageHandler HttpMessageHandler { get; set; } = new HttpClientHandler();
