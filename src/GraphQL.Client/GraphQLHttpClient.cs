@@ -147,7 +147,9 @@ public class GraphQLHttpClient : IGraphQLClient, IDisposable
         if (!webSocketEndpoint.HasWebSocketScheme())
             throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
 
-        return new GraphQLHttpWebSocket(webSocketEndpoint, this);
+        var webSocketProtocol = Options.WebSocketProtocol ?? WebSocketProtocols.DEPRECATED_GRAPHQL_WS_PROTOCOL;
+
+        return new GraphQLHttpWebSocket(webSocketEndpoint, this, webSocketProtocol);
     }
 
     #endregion

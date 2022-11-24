@@ -72,15 +72,67 @@ public static class GraphQLWebSocketMessageType
     public const string GQL_ERROR = "error"; // Server -> Client
 
     /// <summary>
-    ///     Server sends this message to indicate that a GraphQL operation is done, and no more data will arrive for the
-    ///     specific operation.
+    ///     Server -> Client: Server sends this message to indicate that a GraphQL operation is done, and no more data will arrive
+    ///     for the specific operation.
+    ///     Client -> Server: "indicates that the client has stopped listening and wants to complete the subscription. No further
+    ///     events, relevant to the original subscription, should be sent through. Even if the client sent a Complete message for
+    ///     a single-result-operation before it resolved, the result should not be sent through once it does."
+    ///     Replaces the GQL_STOP in graphql-transport-ws
     ///     id: string : operation ID of the operation that completed
     /// </summary>
-    public const string GQL_COMPLETE = "complete"; // Server -> Client
+    public const string GQL_COMPLETE = "complete"; // Server -> Client and Client -> Server
 
     /// <summary>
     ///     Client sends this message in order to stop a running GraphQL operation execution (for example: unsubscribe)
     ///     id: string : operation id
     /// </summary>
     public const string GQL_STOP = "stop"; // Client -> Server
+
+
+    // Additional types for graphql-transport-ws, as described in https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+
+    /// <summary>
+    ///     Bidirectional. "Useful for detecting failed connections, displaying latency metrics or other types of network probing.
+    ///     A Pong must be sent in response from the receiving party as soon as possible. The Ping message can be sent at any time
+    ///     within the established socket. The optional payload field can be used to transfer additional details about the ping."
+    ///     payload: Object: ping details
+    /// </summary>
+    public const string GQL_PING = "ping"; // Bidirectional
+
+    /// <summary>
+    ///     Bidirectional. "The response to the Ping message. Must be sent as soon as the Ping message is received.
+    ///     The Pong message can be sent at any time within the established socket. Furthermore, the Pong message
+    ///     may even be sent unsolicited as an unidirectional heartbeat. The optional payload field can be used to
+    ///     transfer additional details about the pong."
+    ///     payload: Object: pong details
+    /// </summary>
+    public const string GQL_PONG = "pong"; // Bidirectional
+
+    /// <summary>
+    ///     Client-> Server. "Requests an operation specified in the message payload. This message provides a unique
+    ///     ID field to connect published messages to the operation requested by this message. If there is already an
+    ///     active subscriber for an operation matching the provided ID, regardless of the operation type, the server
+    ///     must close the socket immediately with the event 4409: Subscriber for *unique-operation-id* already exists.
+    ///     The server needs only keep track of IDs for as long as the subscription is active. Once a client completes
+    ///     an operation, it is free to re-use that ID."
+    ///     id: string : operation id
+    ///     payload: Object:
+    ///         operationName : string : subscribe
+    ///         query : string : the subscription query
+    ///         variables : Dictionary(string, string) : a dictionary with variables and their values
+    ///         extensions : Dictionary(string, string) : a dictionary of extensions
+    /// </summary>
+    public const string GQL_SUBSCRIBE = "subscribe"; // Client -> Server
+
+
+    /// <summary>
+    ///     Server -> Client. "Operation execution result(s) from the source stream created by the binding Subscribe
+    ///     message. After all results have been emitted, the Complete message will follow indicating stream
+    ///     completion."
+    ///     id: string : operation id
+    ///     payload: Object: ExecutionResult
+    /// </summary>
+
+    public const string GQL_NEXT = "next"; // Server -> Client
+    
 }
