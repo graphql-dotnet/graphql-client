@@ -211,7 +211,6 @@ internal class GraphQLHttpWebSocket : IDisposable
     }
 
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     /// <summary>
     /// Create a new subscription stream using the graphql-ws subprotocol (graphql-transport-ws)
     /// </summary>
@@ -219,8 +218,146 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// <param name="observer"></param>
     /// <param name="request">the <see cref="GraphQLRequest"/> to start the subscription</param>
     /// <returns>a <see cref="Task{CompositeDisposable}"/></returns>
-    public async Task<CompositeDisposable> CreateWSStreamAsync<TResponse>(IObserver<GraphQLResponse<TResponse>> observer, GraphQLRequest request) => throw new NotImplementedException("");
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+    public async Task<CompositeDisposable> CreateWSStreamAsync<TResponse>(IObserver<GraphQLResponse<TResponse>> observer, GraphQLRequest request)
+    {
+
+        Debug.WriteLine($"Create observable thread id: {Thread.CurrentThread.ManagedThreadId}");
+        var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client).ConfigureAwait(false);
+
+
+        var startRequest = new GraphQLWebSocketRequest
+        {
+            Id = Guid.NewGuid().ToString("N"),
+            Type = GraphQLWebSocketMessageType.GQL_SUBSCRIBE,
+            Payload = preprocessedRequest
+        };
+
+
+        var stopRequest = new GraphQLWebSocketRequest
+        {
+            Id = startRequest.Id,
+            Type = GraphQLWebSocketMessageType.GQL_COMPLETE
+        };
+
+        var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
+            IncomingMessageStream
+                // ignore null values and messages for other requests
+                .Where(response => response != null && response.Id == startRequest.Id)
+                .Subscribe(async response =>
+                    {
+                        // respond with a PONG when a ping is received
+                        if (response.Type == GraphQLWebSocketMessageType.GQL_PING)
+                        {
+
+                            var payload = Options.ConfigureWebSocketConnectionInitPayload(Options);
+                            GraphQLWebSocketRequest pongRequest;
+
+                            if (payload != null)
+                            {
+                                pongRequest = new GraphQLWebSocketRequest
+                                {
+                                    Type = GraphQLWebSocketMessageType.GQL_PONG,
+                                    Payload = payload
+                                };
+                            }
+                            else
+                            {
+                                pongRequest = new GraphQLWebSocketRequest
+                                {
+                                    Type = GraphQLWebSocketMessageType.GQL_PONG,
+                                };
+                            }
+
+                            await SendWebSocketMessageAsync(pongRequest).ConfigureAwait(false);
+
+                        }
+
+                        // terminate the sequence when a 'complete' message is received
+                        if (response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
+                        {
+                            Debug.WriteLine($"received 'complete' message on subscription {startRequest.Id}");
+                            o.OnCompleted();
+                            return;
+                        }
+
+                        // If the message type was not 'complete', then it must only be 'next' or 'error'
+                        if (!(response.Type == GraphQLWebSocketMessageType.GQL_NEXT || response.Type == GraphQLWebSocketMessageType.GQL_ERROR))
+                            throw new WebSocketException("Did not receive 'next' nor 'error'");
+
+
+                        // post the GraphQLResponse to the stream (even if a GraphQL error occurred)
+                        Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
+                        var typedResponse =
+                            _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
+                                response.MessageBytes);
+                        Debug.WriteLine($"payload => {System.Text.Encoding.UTF8.GetString(response.MessageBytes)}");
+                        o.OnNext(typedResponse.Payload);
+
+                        // in case of a GraphQL error, terminate the sequence after the response has been posted
+                        if (response.Type == GraphQLWebSocketMessageType.GQL_ERROR)
+                        {
+                            Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");
+                            o.OnCompleted();
+                        }
+                    },
+                    e =>
+                    {
+                        Debug.WriteLine($"response stream for subscription {startRequest.Id} failed: {e}");
+                        o.OnError(e);
+                    },
+                    () =>
+                    {
+                        Debug.WriteLine($"response stream for subscription {startRequest.Id} completed");
+                        o.OnCompleted();
+                    })
+        );
+
+        try
+        {
+            // initialize websocket (completes immediately if socket is already open)
+            await InitializeWebSocket().ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            // subscribe observer to failed observable
+            return (CompositeDisposable)Observable.Throw<GraphQLResponse<TResponse>>(e).Subscribe(observer);
+        }
+
+        var disposable = new CompositeDisposable(
+            observable.Subscribe(observer),
+            Disposable.Create(async () =>
+            {
+                Debug.WriteLine($"disposing subscription {startRequest.Id}, websocket state is '{WebSocketState}'");
+                // only try to send close request on open websocket
+                if (WebSocketState != WebSocketState.Open)
+                    return;
+
+                try
+                {
+                    Debug.WriteLine($"sending stop message on subscription {startRequest.Id}");
+                    await QueueWebSocketRequest(stopRequest).ConfigureAwait(false);
+                }
+                // do not break on disposing
+                catch (OperationCanceledException) { }
+            })
+        );
+
+        Debug.WriteLine($"sending start message on subscription {startRequest.Id}");
+        // send subscription request
+        try
+        {
+            await QueueWebSocketRequest(startRequest).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            throw;
+        }
+
+        return disposable;
+
+
+    }
 
 
     /// <summary>
@@ -475,12 +612,18 @@ internal class GraphQLHttpWebSocket : IDisposable
             }
 
             Options.ConfigureWebsocketOptions(_clientWebSocket.Options);
+
 #endif
-            return _initializeWebSocketTask = ConnectAsync(_internalCancellationToken);
+            if (WSProtocol == WebSocketProtocols.DEPRECATED_GRAPHQL_WS_PROTOCOL)
+                return _initializeWebSocketTask = DeprecatedConnectAsync(_internalCancellationToken);
+            else if (WSProtocol == WebSocketProtocols.GRAPHQL_TRANSPORT_WS_PROTOCOL)
+                return _initializeWebSocketTask = GQLTransportWSConnectAsync(_internalCancellationToken);
+            else
+                throw new NotImplementedException("Subprotocol not implemented");
         }
     }
 
-    private async Task ConnectAsync(CancellationToken token)
+    private async Task DeprecatedConnectAsync(CancellationToken token)
     {
         try
         {
@@ -550,6 +693,106 @@ internal class GraphQLHttpWebSocket : IDisposable
             else
             {
                 string errorPayload = Encoding.UTF8.GetString(response.MessageBytes);
+                Debug.WriteLine($"connection error received: {errorPayload}");
+                throw new GraphQLWebsocketConnectionException(errorPayload);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"failed to establish websocket connection");
+            _stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
+            _exceptionSubject.OnNext(e);
+            throw;
+        }
+    }
+
+    private async Task GQLTransportWSConnectAsync(CancellationToken token)
+    {
+        try
+        {
+            //Client sends a WebSocket handshake request with the sub-protocol: graphql-transport-ws
+            await BackOff().ConfigureAwait(false);
+            _stateSubject.OnNext(GraphQLWebsocketConnectionState.Connecting);
+            Debug.WriteLine($"opening websocket {_clientWebSocket.GetHashCode()} (thread {Thread.CurrentThread.ManagedThreadId})");
+            await _clientWebSocket.ConnectAsync(_webSocketUri, token).ConfigureAwait(false);
+            _stateSubject.OnNext(GraphQLWebsocketConnectionState.Connected);
+            Debug.WriteLine($"connection established on websocket {_clientWebSocket.GetHashCode()}, invoking Options.OnWebsocketConnected()");
+            await (Options.OnWebsocketConnected?.Invoke(_client) ?? Task.CompletedTask).ConfigureAwait(false);
+            Debug.WriteLine($"invoking Options.OnWebsocketConnected() on websocket {_clientWebSocket.GetHashCode()}");
+            _connectionAttempt = 1;
+
+            // Client immediately dispatches a ConnectionInit message optionally providing a payload as agreed with the server
+
+            // create receiving observable
+            _incomingMessages = Observable
+                .Defer(() => GetReceiveTask().ToObservable())
+                .Repeat()
+                // complete sequence on OperationCanceledException, this is triggered by the cancellation token on disposal
+                .Catch<WebsocketMessageWrapper, OperationCanceledException>(exception => Observable.Empty<WebsocketMessageWrapper>())
+                .Publish();
+
+            // subscribe maintenance
+            var maintenanceSubscription = _incomingMessages.Subscribe(_ => { }, ex =>
+            {
+                Debug.WriteLine($"incoming message stream {_incomingMessages.GetHashCode()} received an error: {ex}");
+                _exceptionSubject.OnNext(ex);
+                _incomingMessagesConnection?.Dispose();
+                _stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
+            },
+                () =>
+                {
+                    Debug.WriteLine($"incoming message stream {_incomingMessages.GetHashCode()} completed");
+                    _incomingMessagesConnection?.Dispose();
+                    _stateSubject.OnNext(GraphQLWebsocketConnectionState.Disconnected);
+                });
+
+
+            // connect observable
+            var connection = _incomingMessages.Connect();
+            Debug.WriteLine($"new incoming message stream {_incomingMessages.GetHashCode()} created");
+
+            _incomingMessagesConnection = new CompositeDisposable(connection, maintenanceSubscription);
+
+            var payload = Options.ConfigureWebSocketConnectionInitPayload(Options);
+
+            GraphQLWebSocketRequest initRequest;
+
+            if (payload != null )
+            {
+                initRequest = new GraphQLWebSocketRequest
+                {
+                    Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                    Payload = payload
+                };
+            }
+            else
+            {
+                initRequest = new GraphQLWebSocketRequest
+                {
+                    Type = GraphQLWebSocketMessageType.GQL_CONNECTION_INIT,
+                };
+
+            }
+
+
+            // setup task to await connection_ack message
+            var ackTask = _incomingMessages
+                .Where(response => response != null)
+                .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
+                                       response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
+                .LastAsync()
+                .ToTask();
+
+            // send connection init
+            Debug.WriteLine($"sending connection init message");
+            await SendWebSocketMessageAsync(initRequest).ConfigureAwait(false);
+            var response = await ackTask.ConfigureAwait(false);
+
+            if (response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK)
+                Debug.WriteLine($"connection acknowledged: {Encoding.UTF8.GetString(response.MessageBytes)}");
+            else
+            {
+                var errorPayload = Encoding.UTF8.GetString(response.MessageBytes);
                 Debug.WriteLine($"connection error received: {errorPayload}");
                 throw new GraphQLWebsocketConnectionException(errorPayload);
             }
