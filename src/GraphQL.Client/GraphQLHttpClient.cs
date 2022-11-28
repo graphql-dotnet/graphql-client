@@ -8,8 +8,8 @@ namespace GraphQL.Client.Http;
 
 public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
 {
-    private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
-    private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
+    private readonly Lazy<BaseGraphQLHttpWebSocket> _lazyHttpWebSocket;
+    private BaseGraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -67,7 +67,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
             HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
-        _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+        _lazyHttpWebSocket = new Lazy<BaseGraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
     }
 
     #endregion
@@ -137,7 +137,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
     }
 
-    private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
+    private BaseGraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
     {
         if (Options.WebSocketEndPoint is null && Options.EndPoint is null)
             throw new InvalidOperationException("no endpoint configured");
@@ -146,9 +146,20 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         if (!webSocketEndpoint.HasWebSocketScheme())
             throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
 
-        var webSocketProtocol = Options.WebSocketProtocol ?? WebSocketProtocols.DEPRECATED_GRAPHQL_WS_PROTOCOL;
+        //By default we use the old "graphql-ws" protocol since it is the one supported by dotnet graphql server
+        //This way we don't break previous code
 
-        return new GraphQLHttpWebSocket(webSocketEndpoint, this, webSocketProtocol);
+        var webSocketProtocol = Options.WebSocketProtocol ?? WebSocketProtocols.GRAPHQL_WS;
+
+        switch (webSocketProtocol)
+        {
+            case WebSocketProtocols.GRAPHQL_TRANSPORT_WS:
+                return new GraphQLHttpWebSocketTransportWS(webSocketEndpoint, this);
+            case WebSocketProtocols.GRAPHQL_WS:
+                return new GraphQLHttpWebSocketWS(webSocketEndpoint, this);
+            default:
+                throw new NotImplementedException($"Websocket subprotocol {webSocketProtocol} not implemented");
+        }
     }
 
     #endregion
