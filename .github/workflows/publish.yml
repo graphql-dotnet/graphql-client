@@ -24,10 +24,10 @@ jobs:
         echo Error! github.ref does not start with 'refs/tags'
         echo github.ref: ${{ github.ref }}
         exit 1
-    - name: Setup .NET Core SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: "6.0.x"
+        dotnet-version: "7.0.x"
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_API_KEY}}
