@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="7.1.1" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="7.2.2" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="7.3.0" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="7.3.0" />
   </ItemGroup>
 
   <ItemGroup>
