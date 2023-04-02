@@ -56,7 +56,7 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
         Extensions = extensions;
     }
 
-    public GraphQLRequest(GraphQLRequest other): base(other) { }
+    public GraphQLRequest(GraphQLRequest other) : base(other) { }
 
     /// <summary>
     /// Returns a value that indicates whether this instance is equal to a specified object

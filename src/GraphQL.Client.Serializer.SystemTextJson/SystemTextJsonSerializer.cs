@@ -10,7 +10,7 @@ public class SystemTextJsonSerializer : IGraphQLWebsocketJsonSerializer
     public static JsonSerializerOptions DefaultJsonSerializerOptions => new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false)}
+        Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false) }
     }.SetupImmutableConverter();
 
     public JsonSerializerOptions Options { get; }

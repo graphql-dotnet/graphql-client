@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace GraphQL.Client.Http.Websocket;
 
 [Serializable]
-public class GraphQLWebsocketConnectionException: Exception
+public class GraphQLWebsocketConnectionException : Exception
 {
     public GraphQLWebsocketConnectionException()
     {

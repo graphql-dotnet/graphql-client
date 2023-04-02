@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Serializer.Tests.TestData;

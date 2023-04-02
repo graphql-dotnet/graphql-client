@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;

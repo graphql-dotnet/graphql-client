@@ -15,7 +15,7 @@ public class GraphQLHttpRequest : GraphQLRequest
     {
     }
 
-    public GraphQLHttpRequest(GraphQLRequest other): base(other)
+    public GraphQLHttpRequest(GraphQLRequest other) : base(other)
     {
     }
 

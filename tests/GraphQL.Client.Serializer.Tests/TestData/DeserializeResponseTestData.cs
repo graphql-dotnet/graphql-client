@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 
 namespace GraphQL.Client.Serializer.Tests.TestData;
 
@@ -119,7 +118,7 @@ public class DeserializeResponseTestData : IEnumerable<object[]>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     private GraphQLResponse<T> NewAnonymouslyTypedGraphQLResponse<T>(T data, GraphQLError[]? errors = null, Map? extensions = null)
-        => new GraphQLResponse<T> {Data = data, Errors = errors, Extensions = extensions};
+        => new GraphQLResponse<T> { Data = data, Errors = errors, Extensions = extensions };
 }
 
 public class Friend

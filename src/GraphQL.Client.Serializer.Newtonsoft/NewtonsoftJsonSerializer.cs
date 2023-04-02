@@ -8,7 +8,7 @@ namespace GraphQL.Client.Serializer.Newtonsoft;
 
 public class NewtonsoftJsonSerializer : IGraphQLWebsocketJsonSerializer
 {
-    public static JsonSerializerSettings DefaultJsonSerializerSettings => new JsonSerializerSettings
+    public static JsonSerializerSettings DefaultJsonSerializerSettings => new()
     {
         ContractResolver = new CamelCasePropertyNamesContractResolver { IgnoreIsSpecifiedMembers = true },
         MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -34,7 +34,7 @@ public class NewtonsoftJsonSerializer : IGraphQLWebsocketJsonSerializer
 
     public byte[] SerializeToBytes(GraphQLWebSocketRequest request)
     {
-        var json = JsonConvert.SerializeObject(request, JsonSerializerSettings);
+        string json = JsonConvert.SerializeObject(request, JsonSerializerSettings);
         return Encoding.UTF8.GetBytes(json);
     }
 

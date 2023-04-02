@@ -22,7 +22,7 @@ public class MapConverter : JsonConverter<Map>
     {
         if (reader.TokenType != JsonTokenType.StartObject)
             throw new JsonException();
-        
+
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
@@ -60,7 +60,7 @@ public class MapConverter : JsonConverter<Map>
 
         return result;
     }
-    
+
     private static object? ReadValue(ref Utf8JsonReader reader)
         => reader.TokenType switch
         {
@@ -74,6 +74,4 @@ public class MapConverter : JsonConverter<Map>
             JsonTokenType.None => null,
             _ => throw new InvalidOperationException($"Unexpected value kind: {reader.TokenType}")
         };
-
-    
 }

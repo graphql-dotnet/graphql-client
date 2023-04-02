@@ -8,7 +8,7 @@ public static class UriExtensions
     /// <param name="uri"></param>
     /// <returns></returns>
     public static bool HasWebSocketScheme(this Uri? uri) =>
-        !(uri is null) &&
+        uri is not null &&
         (uri.Scheme.Equals("wss", StringComparison.OrdinalIgnoreCase) || uri.Scheme.Equals("ws", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
@@ -33,6 +33,6 @@ public static class UriExtensions
         else
             throw new NotSupportedException($"cannot infer websocket uri from uri scheme {uri.Scheme}");
 
-        return new UriBuilder(uri){Scheme = webSocketScheme}.Uri;
+        return new UriBuilder(uri) { Scheme = webSocketScheme }.Uri;
     }
 }

@@ -2,10 +2,10 @@ namespace GraphQL.Client.Tests.Common.Helpers;
 
 public class ConcurrentTaskWrapper
 {
-    public static ConcurrentTaskWrapper<TResult> New<TResult>(Func<Task<TResult>> createTask) => new ConcurrentTaskWrapper<TResult>(createTask);
+    public static ConcurrentTaskWrapper<TResult> New<TResult>(Func<Task<TResult>> createTask) => new(createTask);
 
     private readonly Func<Task> _createTask;
-    private Task _internalTask = null;
+    private Task _internalTask;
 
     public ConcurrentTaskWrapper(Func<Task> createTask)
     {
@@ -24,7 +24,7 @@ public class ConcurrentTaskWrapper
 public class ConcurrentTaskWrapper<TResult>
 {
     private readonly Func<Task<TResult>> _createTask;
-    private Task<TResult> _internalTask = null;
+    private Task<TResult> _internalTask;
 
     public ConcurrentTaskWrapper(Func<Task<TResult>> createTask)
     {
@@ -39,11 +39,7 @@ public class ConcurrentTaskWrapper<TResult>
         return _internalTask = _createTask();
     }
 
-    public void Start()
-    {
-        if (_internalTask == null)
-            _internalTask = _createTask();
-    }
+    public void Start() => _internalTask ??= _createTask();
 
     public Func<Task<TResult>> Invoking() => Invoke;
 

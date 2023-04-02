@@ -1,6 +1,4 @@
-using GraphQL.MicrosoftDI;
 using GraphQL.Server.Test.GraphQL;
-using GraphQL.Server.Ui.GraphiQL;
 
 namespace GraphQL.Server.Test;
 

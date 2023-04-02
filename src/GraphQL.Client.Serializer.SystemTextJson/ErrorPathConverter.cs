@@ -7,13 +7,13 @@ public class ErrorPathConverter : JsonConverter<ErrorPath>
 {
 
     public override ErrorPath Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-        new ErrorPath(ReadArray(ref reader));
+        new(ReadArray(ref reader));
 
     public override void Write(Utf8JsonWriter writer, ErrorPath value, JsonSerializerOptions options)
         => throw new NotImplementedException(
             "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
-    
-    private IEnumerable<object?> ReadArray(ref Utf8JsonReader reader)
+
+    private static IEnumerable<object?> ReadArray(ref Utf8JsonReader reader)
     {
         if (reader.TokenType != JsonTokenType.StartArray)
         {
@@ -33,7 +33,7 @@ public class ErrorPathConverter : JsonConverter<ErrorPath>
         return array;
     }
 
-    private object? ReadValue(ref Utf8JsonReader reader)
+    private static object? ReadValue(ref Utf8JsonReader reader)
         => reader.TokenType switch
         {
             JsonTokenType.None => null,

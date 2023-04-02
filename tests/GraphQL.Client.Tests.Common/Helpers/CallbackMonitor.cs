@@ -44,7 +44,7 @@ public class CallbackMonitor<T>
 
     public class CallbackAssertions<TPayload> : ReferenceTypeAssertions<CallbackMonitor<TPayload>, CallbackAssertions<TPayload>>
     {
-        public CallbackAssertions(CallbackMonitor<TPayload> tester): base(tester)
+        public CallbackAssertions(CallbackMonitor<TPayload> tester) : base(tester)
         { }
 
         protected override string Identifier => "callback";
