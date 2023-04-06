@@ -19,7 +19,7 @@ public class SystemTextJsonSerializeNoCamelCaseTest : BaseSerializeNoCamelCaseTe
 {
     public SystemTextJsonSerializeNoCamelCaseTest()
         : base(
-            new SystemTextJsonSerializer(new JsonSerializerOptions { Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false)}}.SetupImmutableConverter()),
+            new SystemTextJsonSerializer(new JsonSerializerOptions { Converters = { new JsonStringEnumConverter(new ConstantCaseJsonNamingPolicy(), false) } }.SetupImmutableConverter()),
             new GraphQL.SystemTextJson.GraphQLSerializer(new ErrorInfoProvider(opt => opt.ExposeData = true)))
     {
     }

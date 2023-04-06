@@ -2,12 +2,8 @@ using GraphQL;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Chat.Schema;
 using GraphQL.Client.Tests.Common.StarWars;
-using GraphQL.MicrosoftDI;
-using GraphQL.Server;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Server.Ui.GraphiQL;
-using GraphQL.SystemTextJson;
-using GraphQL.Types;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace IntegrationTestServer;
@@ -38,7 +34,7 @@ public class Startup
             {
                 var logger = ctx.Context.RequestServices.GetRequiredService<ILogger<Startup>>();
                 logger.LogError("{Error} occurred", ctx.OriginalException.Message);
-                return System.Threading.Tasks.Task.CompletedTask;
+                return Task.CompletedTask;
             })
             .AddErrorInfoProvider(opt => opt.ExposeExceptionDetails = Environment.IsDevelopment())
             .AddSystemTextJson()
@@ -52,18 +48,12 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
         }
-
         app.UseWebSockets();
 
-        ConfigureGraphQLSchema<ChatSchema>(app, Common.CHAT_ENDPOINT);
-        ConfigureGraphQLSchema<StarWarsSchema>(app, Common.STAR_WARS_ENDPOINT);
+        app.UseGraphQL<ChatSchema>(Common.CHAT_ENDPOINT);
+        app.UseGraphQL<StarWarsSchema>(Common.STAR_WARS_ENDPOINT);
 
         app.UseGraphQLGraphiQL(options: new GraphiQLOptions { GraphQLEndPoint = Common.STAR_WARS_ENDPOINT });
         app.UseGraphQLAltair(options: new AltairOptions { GraphQLEndPoint = Common.CHAT_ENDPOINT });
-    }
-
-    private void ConfigureGraphQLSchema<TSchema>(IApplicationBuilder app, string endpoint) where TSchema : Schema
-    {
-        app.UseGraphQL<TSchema>(endpoint);
     }
 }

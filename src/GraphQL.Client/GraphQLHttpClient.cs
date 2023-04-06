@@ -77,12 +77,9 @@ public class GraphQLHttpClient : IGraphQLClient, IDisposable
     /// <inheritdoc />
     public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
     {
-        if (Options.UseWebSocketForQueriesAndMutations ||
-            !(Options.WebSocketEndPoint is null) && Options.EndPoint is null ||
-            Options.EndPoint.HasWebSocketScheme())
-            return await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken).ConfigureAwait(false);
-
-        return await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
+        return Options.UseWebSocketForQueriesAndMutations || Options.WebSocketEndPoint is not null && Options.EndPoint is null || Options.EndPoint.HasWebSocketScheme()
+            ? await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken).ConfigureAwait(false)
+            : await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -132,22 +129,23 @@ public class GraphQLHttpClient : IGraphQLClient, IDisposable
         // error handling
         string content = null;
         if (contentStream != null)
-            using (var sr = new StreamReader(contentStream))
-                content = await sr.ReadToEndAsync().ConfigureAwait(false);
+        {
+            using var sr = new StreamReader(contentStream);
+            content = await sr.ReadToEndAsync().ConfigureAwait(false);
+        }
 
         throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
     }
 
     private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
     {
-        if(Options.WebSocketEndPoint is null && Options.EndPoint is null)
+        if (Options.WebSocketEndPoint is null && Options.EndPoint is null)
             throw new InvalidOperationException("no endpoint configured");
 
         var webSocketEndpoint = Options.WebSocketEndPoint ?? Options.EndPoint.GetWebSocketUri();
-        if (!webSocketEndpoint.HasWebSocketScheme())
-            throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
-
-        return new GraphQLHttpWebSocket(webSocketEndpoint, this);
+        return webSocketEndpoint.HasWebSocketScheme()
+            ? new GraphQLHttpWebSocket(webSocketEndpoint, this)
+            : throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
     }
 
     #endregion
@@ -178,9 +176,9 @@ public class GraphQLHttpClient : IGraphQLClient, IDisposable
         {
             Debug.WriteLine($"Disposing GraphQLHttpClient on endpoint {Options.EndPoint}");
             _cancellationTokenSource.Cancel();
-            if(_disposeHttpClient)
+            if (_disposeHttpClient)
                 HttpClient.Dispose();
-            if ( _lazyHttpWebSocket.IsValueCreated )
+            if (_lazyHttpWebSocket.IsValueCreated)
                 _lazyHttpWebSocket.Value.Dispose();
             _cancellationTokenSource.Dispose();
         }

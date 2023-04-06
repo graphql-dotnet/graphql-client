@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using GraphQL.Client.Serializer.Newtonsoft;
@@ -29,7 +28,7 @@ public class ConsistencyTests
                   {""number"": 567.8}
                 ]
             }";
-        
+
         var newtonsoftSerializer = new NewtonsoftJsonSerializer();
         var systemTextJsonSerializer = new SystemTextJsonSerializer();
 
@@ -37,7 +36,7 @@ public class ConsistencyTests
         var systemTextJsonMap = System.Text.Json.JsonSerializer.Deserialize<Map>(json, systemTextJsonSerializer.Options);
 
 
-        using(new AssertionScope())
+        using (new AssertionScope())
         {
             CompareMaps(newtonsoftMap, systemTextJsonMap);
         }
@@ -52,7 +51,7 @@ public class ConsistencyTests
         {
             second.Should().ContainKey(keyValuePair.Key);
             second[keyValuePair.Key].Should().BeOfType(keyValuePair.Value.GetType());
-            if(keyValuePair.Value is Dictionary<string, object> map)
+            if (keyValuePair.Value is Dictionary<string, object> map)
                 CompareMaps(map, (Dictionary<string, object>)second[keyValuePair.Key]);
             else
                 keyValuePair.Value.Should().BeEquivalentTo(second[keyValuePair.Key]);

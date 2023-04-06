@@ -29,7 +29,7 @@ public abstract class Base : IAsyncLifetime
         Fixture = fixture;
     }
 
-    protected static ReceivedMessage InitialMessage = new ReceivedMessage
+    protected static ReceivedMessage InitialMessage = new()
     {
         Content = "initial message",
         SentAt = DateTime.Now,
@@ -42,11 +42,8 @@ public abstract class Base : IAsyncLifetime
         // make sure the buffer always contains the same message
         Fixture.Server.Services.GetService<Chat>().AddMessage(InitialMessage);
 
-        if (ChatClient == null)
-        {
-            // then create the chat client
-            ChatClient = Fixture.GetChatClient(true);
-        }
+        // then create the chat client
+        ChatClient ??= Fixture.GetChatClient(true);
     }
 
     public Task DisposeAsync()
@@ -75,7 +72,7 @@ public abstract class Base : IAsyncLifetime
         response.Errors.Should().BeNullOrEmpty();
         response.Data.AddMessage.Content.Should().Be(message);
     }
-    
+
     [Fact]
     public async void CanUseDedicatedWebSocketEndpoint()
     {
@@ -88,7 +85,7 @@ public abstract class Base : IAsyncLifetime
         response.Errors.Should().BeNullOrEmpty();
         response.Data.AddMessage.Content.Should().Be(message);
     }
-    
+
     [Fact]
     public async void CanUseDedicatedWebSocketEndpointWithoutHttpEndpoint()
     {
@@ -155,8 +152,7 @@ public abstract class Base : IAsyncLifetime
 			  }
 			}";
 
-    private readonly GraphQLRequest _subscriptionRequest = new GraphQLRequest(SUBSCRIPTION_QUERY);
-
+    private readonly GraphQLRequest _subscriptionRequest = new(SUBSCRIPTION_QUERY);
 
     [Fact]
     public async void CanCreateObservableSubscription()
@@ -234,9 +230,9 @@ public abstract class Base : IAsyncLifetime
         Debug.WriteLine("disposing subscription...");
         observer.Dispose(); // does not close the websocket connection
 
-        Debug.WriteLine($"creating new subscription from thread {Thread.CurrentThread.ManagedThreadId} ...");
+        Debug.WriteLine($"creating new subscription from thread {Environment.CurrentManagedThreadId} ...");
         var observer2 = observable.Observe();
-        Debug.WriteLine($"waiting for payload on {Thread.CurrentThread.ManagedThreadId} ...");
+        Debug.WriteLine($"waiting for payload on {Environment.CurrentManagedThreadId} ...");
         await observer2.Should().PushAsync(1);
         observer2.RecordedMessages.Last().Data.MessageAdded.Content.Should().Be(message2);
 
@@ -273,12 +269,12 @@ public abstract class Base : IAsyncLifetime
 
     }
 
-    private readonly GraphQLRequest _subscriptionRequest2 = new GraphQLRequest(SUBSCRIPTION_QUERY2);
+    private readonly GraphQLRequest _subscriptionRequest2 = new(SUBSCRIPTION_QUERY2);
 
     [Fact]
     public async void CanConnectTwoSubscriptionsSimultaneously()
     {
-        var port = NetworkHelpers.GetFreeTcpPortNumber();
+        int port = NetworkHelpers.GetFreeTcpPortNumber();
         var callbackTester = new CallbackMonitor<Exception>();
         var callbackTester2 = new CallbackMonitor<Exception>();
 
@@ -376,7 +372,7 @@ public abstract class Base : IAsyncLifetime
         {
             websocketStates.Should().ContainSingle(state => state == GraphQLWebsocketConnectionState.Disconnected);
 
-            Debug.WriteLine($"Test method thread id: {Thread.CurrentThread.ManagedThreadId}");
+            Debug.WriteLine($"Test method thread id: {Environment.CurrentManagedThreadId}");
             Debug.WriteLine("creating subscription stream");
             var observable = ChatClient.CreateSubscriptionStream<MessageAddedSubscriptionResult>(_subscriptionRequest, errorMonitor.Invoke);
 

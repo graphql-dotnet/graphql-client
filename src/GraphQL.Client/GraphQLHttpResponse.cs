@@ -21,7 +21,7 @@ public class GraphQLHttpResponse<T> : GraphQLResponse<T>
 
 public static class GraphQLResponseExtensions
 {
-    public static GraphQLHttpResponse<T> ToGraphQLHttpResponse<T>(this GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode) => new GraphQLHttpResponse<T>(response, responseHeaders, statusCode);
+    public static GraphQLHttpResponse<T> ToGraphQLHttpResponse<T>(this GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode) => new(response, responseHeaders, statusCode);
 
     /// <summary>
     /// Casts <paramref name="response"/> to <see cref="GraphQLHttpResponse{T}"/>. Throws if the cast fails.
