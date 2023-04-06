@@ -6,7 +6,7 @@ using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http;
 
-public class GraphQLHttpClient : IGraphQLClient, IDisposable
+public class GraphQLHttpClient : IGraphQLClient, IGraphQLWebSocketClient, IDisposable
 {
     private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
     private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
