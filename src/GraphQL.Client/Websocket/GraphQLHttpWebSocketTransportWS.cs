@@ -36,11 +36,11 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                     switch (response.Type)
                     {
                         case GraphQLWebSocketMessageType.GQL_NEXT:
-                            var typedResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(response.MessageBytes);
+                            var typedResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<GraphQLResponse<TResponse>>(response.MessageBytes);
                             return typedResponse.Payload;
                         case GraphQLWebSocketMessageType.GQL_ERROR:
                             // the payload only consists of the error array
-                            var errorResponse = _client.JsonSerializer.DeserializeToErrorWebsocketResponse(response.MessageBytes);
+                            var errorResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<GraphQLError[]>(response.MessageBytes);
                             return new GraphQLResponse<TResponse> { Errors = errorResponse.Payload };
                     }
                     return null;
@@ -160,7 +160,7 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                                         case GraphQLWebSocketMessageType.GQL_NEXT:
                                             // post the GraphQLResponse to the stream (even if a GraphQL error occurred)
                                             Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
-                                            var typedResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(response.MessageBytes);
+                                            var typedResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<GraphQLResponse<TResponse>>(response.MessageBytes);
                                             Debug.WriteLine($"payload => {Encoding.UTF8.GetString(response.MessageBytes)}");
                                             o.OnNext(typedResponse.Payload);
                                             break;
@@ -168,7 +168,7 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                                             // the payload only consists of the error array
                                             Debug.WriteLine($"received error on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
                                             Debug.WriteLine($"payload => {Encoding.UTF8.GetString(response.MessageBytes)}");
-                                            var errorResponse = _client.JsonSerializer.DeserializeToErrorWebsocketResponse(response.MessageBytes);
+                                            var errorResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<GraphQLError[]>(response.MessageBytes);
                                             o.OnNext(new GraphQLResponse<TResponse> { Errors = errorResponse.Payload });
                                             // in case of a GraphQL error, terminate the sequence after the response has been posted
                                             Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");

@@ -35,7 +35,7 @@ internal class GraphQLHttpWebSocketWS : BaseGraphQLHttpWebSocket
                 {
                     Debug.WriteLine($"received response for request {websocketRequest.Id}");
                     var typedResponse =
-                        _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
+                        _client.JsonSerializer.DeserializeToWebsocketResponse<GraphQLResponse<TResponse>>(
                             response.MessageBytes);
                     return typedResponse.Payload;
                 });
@@ -112,7 +112,7 @@ internal class GraphQLHttpWebSocketWS : BaseGraphQLHttpWebSocket
                                     // post the GraphQLResponse to the stream (even if a GraphQL error occurred)
                                     Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
                                     var typedResponse =
-                                        _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
+                                        _client.JsonSerializer.DeserializeToWebsocketResponse<GraphQLResponse<TResponse>>(
                                             response.MessageBytes);
                                     Debug.WriteLine($"payload => {System.Text.Encoding.UTF8.GetString(response.MessageBytes)}");
                                     o.OnNext(typedResponse.Payload);
