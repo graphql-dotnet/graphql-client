@@ -1,9 +1,7 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Text;
 using GraphQL.Client.Abstractions.Websocket;
@@ -14,10 +12,10 @@ namespace GraphQL.Client.Http.Websocket;
 //[GraphQL over WebSocket Protocol](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md).
 internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
 {
+    public override string WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
+
     public GraphQLHttpWebSocketTransportWS(Uri webSocketUri, GraphQLHttpClient client) : base(webSocketUri, client)
-    {
-        WSProtocol = "graphql-transport-ws";
-    }
+    { }
 
     /// <summary>
     /// Create a new subscription stream using the graphql-transport-ws subprotocol 
@@ -244,7 +242,6 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
 
     }
 
-
     protected override async Task ConnectAsync(CancellationToken token)
     {
         try
@@ -296,7 +293,7 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
 
             GraphQLWebSocketRequest initRequest;
 
-            if (payload != null )
+            if (payload != null)
             {
                 initRequest = new GraphQLWebSocketRequest
                 {

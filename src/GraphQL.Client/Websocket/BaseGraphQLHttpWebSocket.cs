@@ -5,7 +5,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
-using System.Text;
 using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http.Websocket;
@@ -37,7 +36,7 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
 
 
 #if NETFRAMEWORK
-		protected WebSocket _clientWebSocket = null;
+    protected WebSocket _clientWebSocket = null;
 #else
     protected ClientWebSocket _clientWebSocket = null;
 #endif
@@ -66,6 +65,10 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
     /// </summary>
     public IObservable<WebsocketMessageWrapper> IncomingMessageStream { get; }
 
+    /// <summary>
+    /// The websocket protocol used for subscriptions or full-websocket connections
+    /// </summary>
+    public abstract string WebsocketProtocol { get; }
     #endregion
 
     public BaseGraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client)
@@ -221,27 +224,28 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
             _clientWebSocket?.Dispose();
 
 #if NETFRAMEWORK
-				// fix websocket not supported on win 7 using
-				// https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
-				_clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
-				switch (_clientWebSocket) {
-					case ClientWebSocket nativeWebSocket:
-						nativeWebSocket.Options.AddSubProtocol(WSProtocol);
-						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
+            // fix websocket not supported on win 7 using
+            // https://github.com/PingmanTools/System.Net.WebSockets.Client.Managed
+            _clientWebSocket = SystemClientWebSocket.CreateClientWebSocket();
+            switch (_clientWebSocket)
+            {
+                case ClientWebSocket nativeWebSocket:
+                    nativeWebSocket.Options.AddSubProtocol(WebsocketProtocol);
+                    nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+                    nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
                     Options.ConfigureWebsocketOptions(nativeWebSocket.Options);
                     break;
-					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
-						managedWebSocket.Options.AddSubProtocol(WSProtocol);
-						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
-						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
+                case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
+                    managedWebSocket.Options.AddSubProtocol(WebsocketProtocol);
+                    managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+                    managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
                     break;
-					default:
-						throw new NotSupportedException($"unknown websocket type {_clientWebSocket.GetType().Name}");
-				}
+                default:
+                    throw new NotSupportedException($"unknown websocket type {_clientWebSocket.GetType().Name}");
+            }
 #else
             _clientWebSocket = new ClientWebSocket();
-            _clientWebSocket.Options.AddSubProtocol(WSProtocol);
+            _clientWebSocket.Options.AddSubProtocol(WebsocketProtocol);
 
             // the following properties are not supported in Blazor WebAssembly and throw a PlatformNotSupportedException error when accessed
             try
@@ -374,7 +378,7 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
 
                 case WebSocketMessageType.Close:
                     var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms).ConfigureAwait(false);
-                    if (closeResponse != null )
+                    if (closeResponse != null)
                         closeResponse.MessageBytes = ms.ToArray();
                     Debug.WriteLine($"Connection closed by the server.");
                     throw new Exception("Connection closed by the server.");
@@ -404,8 +408,7 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
     {
         lock (_completedLocker)
         {
-            if (Completion == null)
-                Completion = CompleteAsync();
+            Completion ??= CompleteAsync();
         }
     }
 
@@ -414,7 +417,6 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
     /// </summary>
     /// Async disposal as recommended by Stephen Cleary (https://blog.stephencleary.com/2013/03/async-oop-6-disposal.html)
     public Task? Completion { get; protected set; }
-    public string WSProtocol { get; protected set; }
 
     protected readonly object _completedLocker = new object();
     protected async Task CompleteAsync()

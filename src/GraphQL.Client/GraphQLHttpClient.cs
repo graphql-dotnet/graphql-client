@@ -146,20 +146,12 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         if (!webSocketEndpoint.HasWebSocketScheme())
             throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
 
-        //By default we use the old "graphql-ws" protocol since it is the one supported by dotnet graphql server
-        //This way we don't break previous code
-
-        var webSocketProtocol = Options.WebSocketProtocol ?? WebSocketProtocols.GRAPHQL_WS;
-
-        switch (webSocketProtocol)
+        return Options.WebSocketProtocol switch
         {
-            case WebSocketProtocols.GRAPHQL_TRANSPORT_WS:
-                return new GraphQLHttpWebSocketTransportWS(webSocketEndpoint, this);
-            case WebSocketProtocols.GRAPHQL_WS:
-                return new GraphQLHttpWebSocketWS(webSocketEndpoint, this);
-            default:
-                throw new NotImplementedException($"Websocket subprotocol {webSocketProtocol} not implemented");
-        }
+            WebSocketProtocols.GRAPHQL_TRANSPORT_WS => new GraphQLHttpWebSocketTransportWS(webSocketEndpoint, this),
+            WebSocketProtocols.GRAPHQL_WS => new GraphQLHttpWebSocketWS(webSocketEndpoint, this),
+            _ => throw new NotImplementedException($"Websocket subprotocol {Options.WebSocketProtocol} not implemented")
+        };
     }
 
     #endregion

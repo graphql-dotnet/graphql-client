@@ -1,9 +1,7 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Text;
 using GraphQL.Client.Abstractions.Websocket;
@@ -14,10 +12,10 @@ namespace GraphQL.Client.Http.Websocket;
 //[subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws).
 internal class GraphQLHttpWebSocketWS : BaseGraphQLHttpWebSocket
 {
+    public override string WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
+
     public GraphQLHttpWebSocketWS(Uri webSocketUri, GraphQLHttpClient client) : base(webSocketUri, client)
-    {
-        WSProtocol = "graphql-ws";
-    }
+    { }
 
     /// <summary>
     /// Create a new subscription stream using the deprecated graphql-ws subprotocol
