@@ -11,4 +11,6 @@ public interface IGraphQLWebsocketJsonSerializer : IGraphQLJsonSerializer
     Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream);
 
     GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes);
+
+    GraphQLWebSocketResponse<GraphQLError[]> DeserializeToErrorWebsocketResponse(byte[] bytes);
 }

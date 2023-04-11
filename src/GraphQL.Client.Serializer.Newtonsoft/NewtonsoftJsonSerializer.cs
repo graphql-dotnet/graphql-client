@@ -44,6 +44,9 @@ public class NewtonsoftJsonSerializer : IGraphQLWebsocketJsonSerializer
         JsonConvert.DeserializeObject<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(Encoding.UTF8.GetString(bytes),
             JsonSerializerSettings);
 
+    public GraphQLWebSocketResponse<GraphQLError[]> DeserializeToErrorWebsocketResponse(byte[] bytes) =>
+        JsonConvert.DeserializeObject<GraphQLWebSocketResponse<GraphQLError[]>>(Encoding.UTF8.GetString(bytes), JsonSerializerSettings);
+
     public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) => DeserializeFromUtf8Stream<GraphQLResponse<TResponse>>(stream);
 
     private Task<T> DeserializeFromUtf8Stream<T>(Stream stream)

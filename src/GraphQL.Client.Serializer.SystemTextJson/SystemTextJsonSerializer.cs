@@ -45,4 +45,7 @@ public class SystemTextJsonSerializer : IGraphQLWebsocketJsonSerializer
     public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) =>
         JsonSerializer.Deserialize<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(new ReadOnlySpan<byte>(bytes),
             Options);
+
+    public GraphQLWebSocketResponse<GraphQLError[]> DeserializeToErrorWebsocketResponse(byte[] bytes) =>
+        JsonSerializer.Deserialize<GraphQLWebSocketResponse<GraphQLError[]>>(new ReadOnlySpan<byte>(bytes), Options);
 }

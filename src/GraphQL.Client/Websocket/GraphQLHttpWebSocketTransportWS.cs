@@ -17,6 +17,70 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
     public GraphQLHttpWebSocketTransportWS(Uri webSocketUri, GraphQLHttpClient client) : base(webSocketUri, client)
     { }
 
+    public override Task<GraphQLResponse<TResponse>> SendRequest<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+        Observable.Create<GraphQLResponse<TResponse>>(async observer =>
+        {
+            var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client).ConfigureAwait(false);
+            var websocketRequest = new GraphQLWebSocketRequest
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Type = GraphQLWebSocketMessageType.GQL_SUBSCRIBE,
+                Payload = preprocessedRequest
+            };
+            var observable = IncomingMessageStream
+                .Where(response => response != null && response.Id == websocketRequest.Id)
+                .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
+                .Select(response =>
+                {
+                    Debug.WriteLine($"received response for request {websocketRequest.Id}");
+                    switch (response.Type)
+                    {
+                        case GraphQLWebSocketMessageType.GQL_NEXT:
+                            var typedResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(response.MessageBytes);
+                            return typedResponse.Payload;
+                        case GraphQLWebSocketMessageType.GQL_ERROR:
+                            // the payload only consists of the error array
+                            var errorResponse = _client.JsonSerializer.DeserializeToErrorWebsocketResponse(response.MessageBytes);
+                            return new GraphQLResponse<TResponse> { Errors = errorResponse.Payload };
+                    }
+                    return null;
+                });
+
+            try
+            {
+                // initialize websocket (completes immediately if socket is already open)
+                await InitializeWebSocket().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                // subscribe observer to failed observable
+                return Observable.Throw<GraphQLResponse<TResponse>>(e).Subscribe(observer);
+            }
+
+            var disposable = new CompositeDisposable(
+                observable.Subscribe(observer)
+            );
+
+            Debug.WriteLine($"submitting request {websocketRequest.Id}");
+            // send request
+            try
+            {
+                await QueueWebSocketRequest(websocketRequest).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                throw;
+            }
+
+            return disposable;
+        })
+            // complete sequence on OperationCanceledException, this is triggered by the cancellation token
+            .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
+                Observable.Empty<GraphQLResponse<TResponse>>())
+            .FirstAsync()
+            .ToTask(cancellationToken);
+
     /// <summary>
     /// Create a new subscription stream using the graphql-transport-ws subprotocol 
     /// </summary>
@@ -52,6 +116,7 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                             .Where(response => response != null && response.Id == startRequest.Id)
                             .Subscribe(async response =>
                                 {
+                                    //ToDo: this has nothing to do with the subscription itself and should be created after GQL_CONNECTION_ACK
                                     // respond with a PONG when a ping is received
                                     if (response.Type == GraphQLWebSocketMessageType.GQL_PING)
                                     {
@@ -87,24 +152,31 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                                         return;
                                     }
 
-                                    // If the message type was not 'complete', then it must only be 'next' or 'error'
                                     if (!(response.Type == GraphQLWebSocketMessageType.GQL_NEXT || response.Type == GraphQLWebSocketMessageType.GQL_ERROR))
                                         throw new WebSocketException("Did not receive 'next' nor 'error'");
 
-
-                                    // post the GraphQLResponse to the stream (even if a GraphQL error occurred)
-                                    Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
-                                    var typedResponse =
-                                        _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
-                                            response.MessageBytes);
-                                    Debug.WriteLine($"payload => {System.Text.Encoding.UTF8.GetString(response.MessageBytes)}");
-                                    o.OnNext(typedResponse.Payload);
-
-                                    // in case of a GraphQL error, terminate the sequence after the response has been posted
-                                    if (response.Type == GraphQLWebSocketMessageType.GQL_ERROR)
+                                    switch (response.Type)
                                     {
-                                        Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");
-                                        o.OnCompleted();
+                                        case GraphQLWebSocketMessageType.GQL_NEXT:
+                                            // post the GraphQLResponse to the stream (even if a GraphQL error occurred)
+                                            Debug.WriteLine($"received payload on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
+                                            var typedResponse = _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(response.MessageBytes);
+                                            Debug.WriteLine($"payload => {Encoding.UTF8.GetString(response.MessageBytes)}");
+                                            o.OnNext(typedResponse.Payload);
+                                            break;
+                                        case GraphQLWebSocketMessageType.GQL_ERROR:
+                                            // the payload only consists of the error array
+                                            Debug.WriteLine($"received error on subscription {startRequest.Id} (thread {Thread.CurrentThread.ManagedThreadId})");
+                                            Debug.WriteLine($"payload => {Encoding.UTF8.GetString(response.MessageBytes)}");
+                                            var errorResponse = _client.JsonSerializer.DeserializeToErrorWebsocketResponse(response.MessageBytes);
+                                            o.OnNext(new GraphQLResponse<TResponse> { Errors = errorResponse.Payload });
+                                            // in case of a GraphQL error, terminate the sequence after the response has been posted
+                                            Debug.WriteLine($"terminating subscription {startRequest.Id} because of a GraphQL error");
+                                            o.OnCompleted();
+                                            break;
+                                        default:
+                                            // If the message type was not 'complete', then it must only be 'next' or 'error'
+                                            throw new WebSocketException("Did not receive 'next' nor 'error'");
                                     }
                                 },
                                 e =>

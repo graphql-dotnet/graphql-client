@@ -90,6 +90,16 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
 
 
     /// <summary>
+    /// Send a regular GraphQL request (query, mutation) via websocket
+    /// </summary>
+    /// <typeparam name="TResponse">the response type</typeparam>
+    /// <param name="request">the <see cref="GraphQLRequest"/> to send</param>
+    /// <param name="cancellationToken">the token to cancel the request</param>
+    /// <returns></returns>
+    public abstract Task<GraphQLResponse<TResponse>> SendRequest<TResponse>(GraphQLRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Create a new subscription stream
     /// </summary>
     /// <typeparam name="TResponse">the response type</typeparam>
@@ -98,71 +108,7 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
     /// <returns>a <see cref="IObservable{TResponse}"/> which represents the subscription</returns>
     public abstract IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null);
 
-
-    /// <summary>
-    /// Send a regular GraphQL request (query, mutation) via websocket
-    /// </summary>
-    /// <typeparam name="TResponse">the response type</typeparam>
-    /// <param name="request">the <see cref="GraphQLRequest"/> to send</param>
-    /// <param name="cancellationToken">the token to cancel the request</param>
-    /// <returns></returns>
-    public Task<GraphQLResponse<TResponse>> SendRequest<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) =>
-        Observable.Create<GraphQLResponse<TResponse>>(async observer =>
-        {
-            var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client).ConfigureAwait(false);
-            var websocketRequest = new GraphQLWebSocketRequest
-            {
-                Id = Guid.NewGuid().ToString("N"),
-                Type = GraphQLWebSocketMessageType.GQL_START,
-                Payload = preprocessedRequest
-            };
-            var observable = IncomingMessageStream
-                .Where(response => response != null && response.Id == websocketRequest.Id)
-                .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
-                .Select(response =>
-                {
-                    Debug.WriteLine($"received response for request {websocketRequest.Id}");
-                    var typedResponse =
-                        _client.JsonSerializer.DeserializeToWebsocketResponse<TResponse>(
-                            response.MessageBytes);
-                    return typedResponse.Payload;
-                });
-
-            try
-            {
-                // initialize websocket (completes immediately if socket is already open)
-                await InitializeWebSocket().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                // subscribe observer to failed observable
-                return Observable.Throw<GraphQLResponse<TResponse>>(e).Subscribe(observer);
-            }
-
-            var disposable = new CompositeDisposable(
-                observable.Subscribe(observer)
-            );
-
-            Debug.WriteLine($"submitting request {websocketRequest.Id}");
-            // send request
-            try
-            {
-                await QueueWebSocketRequest(websocketRequest).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-                throw;
-            }
-
-            return disposable;
-        })
-            // complete sequence on OperationCanceledException, this is triggered by the cancellation token
-            .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
-                Observable.Empty<GraphQLResponse<TResponse>>())
-            .FirstAsync()
-            .ToTask(cancellationToken);
-
+    
     protected Task QueueWebSocketRequest(GraphQLWebSocketRequest request)
     {
         _requestSubject.OnNext(request);
