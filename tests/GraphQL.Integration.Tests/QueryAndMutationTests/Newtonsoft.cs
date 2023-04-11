@@ -3,9 +3,9 @@ using Xunit;
 
 namespace GraphQL.Integration.Tests.QueryAndMutationTests;
 
-public class Newtonsoft : Base, IClassFixture<NewtonsoftIntegrationServerTestFixture>
+public class Newtonsoft : Base, IClassFixture<NewtonsoftGraphQLWsServerTestFixture>
 {
-    public Newtonsoft(NewtonsoftIntegrationServerTestFixture fixture) : base(fixture)
+    public Newtonsoft(NewtonsoftGraphQLWsServerTestFixture fixture) : base(fixture)
     {
     }
 }

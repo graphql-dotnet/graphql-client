@@ -3,9 +3,9 @@ using Xunit;
 
 namespace GraphQL.Integration.Tests.QueryAndMutationTests;
 
-public class SystemTextJson : Base, IClassFixture<SystemTextJsonIntegrationServerTestFixture>
+public class SystemTextJson : Base, IClassFixture<SystemTextJsonGraphQLWsServerTestFixture>
 {
-    public SystemTextJson(SystemTextJsonIntegrationServerTestFixture fixture) : base(fixture)
+    public SystemTextJson(SystemTextJsonGraphQLWsServerTestFixture fixture) : base(fixture)
     {
     }
 }
