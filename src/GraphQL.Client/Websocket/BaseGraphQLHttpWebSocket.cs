@@ -4,7 +4,6 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http.Websocket;
@@ -108,7 +107,6 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
     /// <returns>a <see cref="IObservable{TResponse}"/> which represents the subscription</returns>
     public abstract IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null);
 
-    
     protected Task QueueWebSocketRequest(GraphQLWebSocketRequest request)
     {
         _requestSubject.OnNext(request);

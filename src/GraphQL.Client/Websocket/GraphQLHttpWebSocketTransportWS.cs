@@ -114,36 +114,8 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                         IncomingMessageStream
                             // ignore null values and messages for other requests
                             .Where(response => response != null && response.Id == startRequest.Id)
-                            .Subscribe(async response =>
+                            .Subscribe(response =>
                                 {
-                                    //ToDo: this has nothing to do with the subscription itself and should be created after GQL_CONNECTION_ACK
-                                    // respond with a PONG when a ping is received
-                                    if (response.Type == GraphQLWebSocketMessageType.GQL_PING)
-                                    {
-
-                                        var payload = Options.ConfigureWebSocketConnectionInitPayload(Options);
-                                        GraphQLWebSocketRequest pongRequest;
-
-                                        if (payload != null)
-                                        {
-                                            pongRequest = new GraphQLWebSocketRequest
-                                            {
-                                                Type = GraphQLWebSocketMessageType.GQL_PONG,
-                                                Payload = payload
-                                            };
-                                        }
-                                        else
-                                        {
-                                            pongRequest = new GraphQLWebSocketRequest
-                                            {
-                                                Type = GraphQLWebSocketMessageType.GQL_PONG,
-                                            };
-                                        }
-
-                                        await SendWebSocketMessageAsync(pongRequest).ConfigureAwait(false);
-
-                                    }
-
                                     // terminate the sequence when a 'complete' message is received
                                     if (response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
                                     {
@@ -291,6 +263,7 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                 }
                 return Observable.Return(t.Item1);
             });
+
     protected override async Task CloseAsync()
     {
         if (_clientWebSocket == null)
@@ -359,7 +332,8 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
             var connection = _incomingMessages.Connect();
             Debug.WriteLine($"new incoming message stream {_incomingMessages.GetHashCode()} created");
 
-            _incomingMessagesConnection = new CompositeDisposable(connection, maintenanceSubscription);
+            var pingPongSubscription = new CompositeDisposable();
+            _incomingMessagesConnection = new CompositeDisposable(connection, maintenanceSubscription, pingPongSubscription);
 
             var payload = Options.ConfigureWebSocketConnectionInitPayload(Options);
 
@@ -404,6 +378,11 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
                 Debug.WriteLine($"connection error received: {errorPayload}");
                 throw new GraphQLWebsocketConnectionException(errorPayload);
             }
+
+            pingPongSubscription.Add(_incomingMessages
+                .Where(msg => msg != null && msg.Type == GraphQLWebSocketMessageType.GQL_PING)
+                .SelectMany(msg => Observable.FromAsync(() => RespondWithPongAsync(msg)))
+                .Subscribe());
         }
         catch (Exception e)
         {
@@ -412,6 +391,32 @@ internal class GraphQLHttpWebSocketTransportWS : BaseGraphQLHttpWebSocket
             _exceptionSubject.OnNext(e);
             throw;
         }
+    }
 
+    private async Task RespondWithPongAsync(WebsocketMessageWrapper pingMessage)
+    {
+        // respond with a PONG when a ping is received
+        if (pingMessage.Type == GraphQLWebSocketMessageType.GQL_PING)
+        {
+            object? payload = null;
+            try
+            {
+                // try to deserialize response to put it back in the pong request
+                var responseObject = _client.JsonSerializer.DeserializeToWebsocketResponse<object?>(pingMessage.MessageBytes);
+                payload = responseObject.Payload;
+            }
+            catch (Exception)
+            {
+                // ignore exception
+            }
+            Debug.WriteLine($"ping received, responding with pong");
+            var pongRequest = new GraphQLWebSocketRequest
+            {
+                Type = GraphQLWebSocketMessageType.GQL_PONG,
+                Payload = payload
+            };
+
+            await SendWebSocketMessageAsync(pongRequest).ConfigureAwait(false);
+        }
     }
 }
