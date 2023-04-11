@@ -8,7 +8,7 @@ using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http.Websocket;
 
-//Implements communications using the deprecatged WebSocket sub-protocol used by
+//Implements communications using the deprecated WebSocket sub-protocol used by
 //[subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws).
 internal class GraphQLHttpWebSocketWS : BaseGraphQLHttpWebSocket
 {

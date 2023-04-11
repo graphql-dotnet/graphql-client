@@ -377,7 +377,15 @@ internal abstract class BaseGraphQLHttpWebSocket : IDisposable
                     return response;
 
                 case WebSocketMessageType.Close:
-                    var closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms).ConfigureAwait(false);
+                    WebsocketMessageWrapper closeResponse = null;
+                    try
+                    {
+                        closeResponse = await _client.JsonSerializer.DeserializeToWebsocketResponseWrapperAsync(ms).ConfigureAwait(false);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                     if (closeResponse != null)
                         closeResponse.MessageBytes = ms.ToArray();
                     Debug.WriteLine($"Connection closed by the server.");
