@@ -2,6 +2,8 @@ namespace GraphQL.Client.Abstractions.Websocket;
 
 public interface IGraphQLWebSocketClient : IGraphQLClient
 {
+    public string? WebSocketSubProtocol { get; }
+
     /// <summary>
     /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
     /// </summary>

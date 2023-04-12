@@ -23,7 +23,7 @@ public class GraphQLHttpClientOptions
     /// <summary>
     /// The GraphQL websocket protocol to be used. Defaults to the older "graphql-ws" protocol to not break old code. 
     /// </summary>
-    public string WebSocketProtocol { get; set; } = WebSocketProtocols.GRAPHQL_WS;
+    public string? WebSocketProtocol { get; set; } = WebSocketProtocols.AUTO_NEGOTIATE;
 
     /// <summary>
     /// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used

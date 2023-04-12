@@ -16,7 +16,7 @@ public abstract class IntegrationServerTestFixture
 
     public abstract IGraphQLWebsocketJsonSerializer Serializer { get; }
 
-    public abstract string WebsocketProtocol { get; }
+    public abstract string? WebsocketProtocol { get; }
 
     public IntegrationServerTestFixture()
     {
@@ -57,23 +57,28 @@ public abstract class IntegrationServerTestFixture
 public class NewtonsoftGraphQLWsServerTestFixture : IntegrationServerTestFixture
 {
     public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new NewtonsoftJsonSerializer();
-    public override string WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
 }
 
 public class SystemTextJsonGraphQLWsServerTestFixture : IntegrationServerTestFixture
 {
     public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
-    public override string WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
 }
 
 public class NewtonsoftGraphQLTransportWsServerTestFixture : IntegrationServerTestFixture
 {
     public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new NewtonsoftJsonSerializer();
-    public override string WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
 }
 
 public class SystemTextJsonGraphQLTransportWsServerTestFixture : IntegrationServerTestFixture
 {
     public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
-    public override string WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
+}
+public class SystemTextJsonAutoNegotiateServerTestFixture : IntegrationServerTestFixture
+{
+    public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
+    public override string? WebsocketProtocol => WebSocketProtocols.AUTO_NEGOTIATE;
 }

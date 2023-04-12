@@ -8,8 +8,8 @@ namespace GraphQL.Client.Http;
 
 public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
 {
-    private readonly Lazy<BaseGraphQLHttpWebSocket> _lazyHttpWebSocket;
-    private BaseGraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
+    private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
+    private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -34,6 +34,8 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
     /// </summary>
     public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
+
+    public string? WebSocketSubProtocol => GraphQlHttpWebSocket.WebsocketProtocol;
 
     /// <summary>
     /// the websocket connection state
@@ -67,7 +69,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         if (!HttpClient.DefaultRequestHeaders.UserAgent.Any())
             HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
-        _lazyHttpWebSocket = new Lazy<BaseGraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+        _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
     }
 
     #endregion
@@ -78,7 +80,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
     {
         return Options.UseWebSocketForQueriesAndMutations || Options.WebSocketEndPoint is not null && Options.EndPoint is null || Options.EndPoint.HasWebSocketScheme()
-            ? await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken).ConfigureAwait(false)
+            ? await GraphQlHttpWebSocket.SendRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false)
             : await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
     }
 
@@ -137,21 +139,15 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
     }
 
-    private BaseGraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
+    private GraphQLHttpWebSocket CreateGraphQLHttpWebSocket()
     {
         if (Options.WebSocketEndPoint is null && Options.EndPoint is null)
             throw new InvalidOperationException("no endpoint configured");
 
         var webSocketEndpoint = Options.WebSocketEndPoint ?? Options.EndPoint.GetWebSocketUri();
-        if (!webSocketEndpoint.HasWebSocketScheme())
-            throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
-
-        return Options.WebSocketProtocol switch
-        {
-            WebSocketProtocols.GRAPHQL_TRANSPORT_WS => new GraphQLHttpWebSocketTransportWS(webSocketEndpoint, this),
-            WebSocketProtocols.GRAPHQL_WS => new GraphQLHttpWebSocketWS(webSocketEndpoint, this),
-            _ => throw new NotImplementedException($"Websocket subprotocol {Options.WebSocketProtocol} not implemented")
-        };
+        return !webSocketEndpoint.HasWebSocketScheme()
+            ? throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint")
+            : new GraphQLHttpWebSocket(webSocketEndpoint, this);
     }
 
     #endregion
