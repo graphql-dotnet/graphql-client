@@ -185,6 +185,7 @@ internal class GraphQLWSProtocolHandler: IWebsocketProtocolHandler
             return disposable;
         });
 
+
     public async Task InitializeConnectionAsync(IObservable<WebsocketMessageWrapper> incomingMessages,
         CompositeDisposable closeConnectionDisposable)
     {
@@ -219,4 +220,16 @@ internal class GraphQLWSProtocolHandler: IWebsocketProtocolHandler
 
     public Task SendCloseConnectionRequestAsync()
         => _sendWebsocketMessage(new GraphQLWebSocketRequest { Type = GraphQLWebSocketMessageType.GQL_CONNECTION_TERMINATE }, CancellationToken.None);
+
+    public IObservable<object?> CreatePongObservable()
+        => throw PingPongNotSupportedException;
+
+    public Task SendPingAsync(object? payload)
+        => throw PingPongNotSupportedException;
+
+    public Task SendPongAsync(object? payload)
+        => throw PingPongNotSupportedException;
+
+    private NotSupportedException PingPongNotSupportedException
+        => new("ping/pong is not supported by the \"graphql-ws\" websocket protocol");
 }

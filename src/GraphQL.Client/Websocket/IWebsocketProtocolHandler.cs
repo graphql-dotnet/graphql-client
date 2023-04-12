@@ -11,7 +11,13 @@ public interface IWebsocketProtocolHandler
 
     IObservable<GraphQLResponse<TResponse>> CreateGraphQLRequestObservable<TResponse>(GraphQLRequest request);
 
+    IObservable<object?> CreatePongObservable();
+
     Task InitializeConnectionAsync(IObservable<WebsocketMessageWrapper> incomingMessages, CompositeDisposable closeConnectionDisposable);
 
     Task SendCloseConnectionRequestAsync();
+
+    Task SendPingAsync(object? payload);
+
+    Task SendPongAsync(object? payload);
 }

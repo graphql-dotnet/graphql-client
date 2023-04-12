@@ -476,5 +476,4 @@ public abstract class Base : IAsyncLifetime
         await observer.Should().CompleteAsync();
         ChatClient.Dispose();
     }
-
 }

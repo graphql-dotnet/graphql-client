@@ -30,17 +30,17 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// </summary>
     public GraphQLHttpClientOptions Options { get; }
 
-    /// <summary>
-    /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
-    /// </summary>
+    /// <inheritdoc />
     public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
 
+    /// <inheritdoc />
     public string? WebSocketSubProtocol => GraphQlHttpWebSocket.WebsocketProtocol;
 
-    /// <summary>
-    /// the websocket connection state
-    /// </summary>
+    /// <inheritdoc />
     public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
+
+    /// <inheritdoc />
+    public IObservable<object?> PongStream => GraphQlHttpWebSocket.GetPongStream();
 
     #region Constructors
 
@@ -105,11 +105,14 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
 
     #endregion
 
-    /// <summary>
-    /// Explicitly opens the websocket connection. Will be closed again on disposing the last subscription.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public Task InitializeWebsocketConnection() => GraphQlHttpWebSocket.InitializeWebSocket();
+
+    /// <inheritdoc />
+    public Task SendPingAsync(object? payload) => GraphQlHttpWebSocket.SendPingAsync(payload);
+
+    /// <inheritdoc />
+    public Task SendPongAsync(object? payload) => GraphQlHttpWebSocket.SendPongAsync(payload);
 
     #region Private Methods
 

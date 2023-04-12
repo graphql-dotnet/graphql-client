@@ -207,6 +207,27 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
             return disposable;
         });
 
+    public IObservable<object?> CreatePongObservable()
+        => _webSocketHandler.IncomingMessageStream
+            .Where(msg => msg != null && msg.Type == GraphQLWebSocketMessageType.GQL_PONG)
+            .Select(msg =>
+            {
+                object? payload = null;
+                try
+                {
+                    // try to deserialize response to put it back in the pong request
+                    var responseObject =
+                        _client.JsonSerializer.DeserializeToWebsocketResponse<object?>(msg.MessageBytes);
+                    payload = responseObject.Payload;
+                }
+                catch (Exception)
+                {
+                    // ignore exception
+                }
+
+                return payload;
+            });
+
     public async Task InitializeConnectionAsync(IObservable<WebsocketMessageWrapper> incomingMessages,
         CompositeDisposable closeConnectionDisposable)
     {
@@ -272,5 +293,29 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
 
             await _queueWebSocketRequest(pongRequest).ConfigureAwait(false);
         }
+    }
+
+    public Task SendPingAsync(object? payload)
+    {
+        Debug.WriteLine("sending ping");
+        var webSocketRequest = new GraphQLWebSocketRequest
+        {
+            Type = GraphQLWebSocketMessageType.GQL_PING,
+            Payload = payload
+        };
+
+        return _queueWebSocketRequest(webSocketRequest);
+    }
+
+    public Task SendPongAsync(object? payload)
+    {
+        Debug.WriteLine("sending pong");
+        var webSocketRequest = new GraphQLWebSocketRequest
+        {
+            Type = GraphQLWebSocketMessageType.GQL_PONG,
+            Payload = payload
+        };
+
+        return _queueWebSocketRequest(webSocketRequest);
     }
 }

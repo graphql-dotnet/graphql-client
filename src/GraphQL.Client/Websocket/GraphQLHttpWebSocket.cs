@@ -69,6 +69,10 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// The websocket protocol used for subscriptions or full-websocket connections
     /// </summary>
     public string? WebsocketProtocol => _websocketProtocolHandler?.WebsocketProtocol;
+
+
+    public IObservable<object?> Pongs => null;
+
     #endregion
 
     public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client)
@@ -86,8 +90,47 @@ internal class GraphQLHttpWebSocket : IDisposable
 
     }
 
+    /// <summary>
+    /// Returns the pong message stream. Subscribing initiates the websocket connection if not already established.
+    /// </summary>
+    /// <returns></returns>
+    public IObservable<object?> GetPongStream() =>
+        Observable.Defer(async () =>
+            {
+                if (_websocketProtocolHandler is null)
+                {
+                    await InitializeWebSocket().ConfigureAwait(false);
+                }
+
+                return _websocketProtocolHandler.CreatePongObservable();
+            })
+            // complete sequence on OperationCanceledException, this is triggered by the cancellation token
+            .Catch<object?, OperationCanceledException>(exception =>
+                Observable.Empty<object?>());
+
     #region Send requests
 
+    /// <inheritdoc cref="IGraphQLWebSocketClient.SendPingAsync"/>
+    public async Task SendPingAsync(object? payload)
+    {
+        if (_websocketProtocolHandler is null)
+        {
+            await InitializeWebSocket().ConfigureAwait(false);
+        }
+
+        await _websocketProtocolHandler.SendPingAsync(payload);
+    }
+
+    /// <inheritdoc cref="IGraphQLWebSocketClient.SendPongAsync"/>
+    public async Task SendPongAsync(object? payload)
+    {
+        if (_websocketProtocolHandler is null)
+        {
+            await InitializeWebSocket().ConfigureAwait(false);
+        }
+
+        await _websocketProtocolHandler.SendPongAsync(payload);
+    }
 
     /// <summary>
     /// Send a regular GraphQL request (query, mutation) via websocket
