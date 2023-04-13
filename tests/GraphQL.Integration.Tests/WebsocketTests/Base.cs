@@ -21,7 +21,7 @@ public abstract class Base : IAsyncLifetime
 {
     protected readonly ITestOutputHelper Output;
     protected readonly IntegrationServerTestFixture Fixture;
-    protected GraphQLHttpClient ChatClient;
+    protected GraphQLHttpClient? ChatClient;
 
     protected Base(ITestOutputHelper output, IntegrationServerTestFixture fixture)
     {
@@ -43,7 +43,7 @@ public abstract class Base : IAsyncLifetime
         Fixture.Server.Services.GetService<Chat>().AddMessage(InitialMessage);
 
         // then create the chat client
-        ChatClient ??= Fixture.GetChatClient(true);
+        ChatClient ??= Fixture.GetChatClient(options => options.UseWebSocketForQueriesAndMutations = true);
     }
 
     public Task DisposeAsync()
