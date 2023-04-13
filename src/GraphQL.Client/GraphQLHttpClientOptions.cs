@@ -80,4 +80,11 @@ public class GraphQLHttpClientOptions
     /// See https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_connection_init.
     /// </summary>
     public Func<GraphQLHttpClientOptions, object?> ConfigureWebSocketConnectionInitPayload { get; set; } = options => null;
+
+    /// <summary>
+    /// The default user agent request header.
+    /// Default to the GraphQL client assembly.
+    /// </summary>
+    public ProductInfoHeaderValue? DefaultUserAgentRequestHeader { get; set; }
+        = new ProductInfoHeaderValue(typeof(GraphQLHttpClient).Assembly.GetName().Name, typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString());
 }

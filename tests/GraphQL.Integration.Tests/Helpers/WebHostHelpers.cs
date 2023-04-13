@@ -2,8 +2,6 @@ using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
 using GraphQL.Client.Http.Websocket;
 using GraphQL.Client.Serializer.Newtonsoft;
-using GraphQL.Client.Tests.Common;
-using GraphQL.Client.Tests.Common.Helpers;
 using IntegrationTestServer;
 
 namespace GraphQL.Integration.Tests.Helpers;
@@ -31,37 +29,15 @@ public static class WebHostHelpers
         return host;
     }
 
-    public static GraphQLHttpClient GetGraphQLClient(int port, string endpoint, bool requestsViaWebsocket = false, IGraphQLWebsocketJsonSerializer serializer = null, string websocketProtocol = WebSocketProtocols.GRAPHQL_WS)
-        => new GraphQLHttpClient(new GraphQLHttpClientOptions
-        {
-            EndPoint = new Uri($"http://localhost:{port}{endpoint}"),
-            UseWebSocketForQueriesAndMutations = requestsViaWebsocket,
-            WebSocketProtocol = websocketProtocol
-        },
-            serializer ?? new NewtonsoftJsonSerializer());
-}
-
-public class TestServerSetup : IDisposable
-{
-    public TestServerSetup(IGraphQLWebsocketJsonSerializer serializer)
+    public static GraphQLHttpClient GetGraphQLClient(
+        int port,
+        string endpoint,
+        IGraphQLWebsocketJsonSerializer? serializer = null,
+        Action<GraphQLHttpClientOptions>? configure = null)
     {
-        Serializer = serializer;
-        Port = NetworkHelpers.GetFreeTcpPortNumber();
+        var options = new GraphQLHttpClientOptions();
+        configure?.Invoke(options);
+        options.EndPoint = new Uri($"http://localhost:{port}{endpoint}");
+        return new GraphQLHttpClient(options, serializer ?? new NewtonsoftJsonSerializer());
     }
-
-    public int Port { get; }
-
-    public IWebHost Server { get; set; }
-
-    public IGraphQLWebsocketJsonSerializer Serializer { get; set; }
-
-    public GraphQLHttpClient GetStarWarsClient(bool requestsViaWebsocket = false)
-        => GetGraphQLClient(Common.STAR_WARS_ENDPOINT, requestsViaWebsocket);
-
-    public GraphQLHttpClient GetChatClient(bool requestsViaWebsocket = false)
-        => GetGraphQLClient(Common.CHAT_ENDPOINT, requestsViaWebsocket);
-
-    private GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false) => WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket);
-
-    public void Dispose() => Server?.Dispose();
 }

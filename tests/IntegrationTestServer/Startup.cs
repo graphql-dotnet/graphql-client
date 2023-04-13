@@ -25,7 +25,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.Configure<KestrelServerOptions>(options => options.AllowSynchronousIO = true);
-        //
+        services.AddHttpContextAccessor();
         services.AddChatSchema();
         services.AddStarWarsSchema();
         services.AddGraphQL(builder => builder

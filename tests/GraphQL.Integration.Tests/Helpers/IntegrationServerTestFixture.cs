@@ -12,7 +12,7 @@ public abstract class IntegrationServerTestFixture
 {
     public int Port { get; private set; }
 
-    public IWebHost Server { get; private set; }
+    public IWebHost? Server { get; private set; }
 
     public abstract IGraphQLWebsocketJsonSerializer Serializer { get; }
 
@@ -27,7 +27,7 @@ public abstract class IntegrationServerTestFixture
     {
         if (Server != null)
             return;
-        Server = await WebHostHelpers.CreateServer(Port);
+        Server = await WebHostHelpers.CreateServer(Port).ConfigureAwait(false);
     }
 
     public async Task ShutdownServer()
@@ -40,18 +40,20 @@ public abstract class IntegrationServerTestFixture
         Server = null;
     }
 
-    public GraphQLHttpClient GetStarWarsClient(bool requestsViaWebsocket = false)
-        => GetGraphQLClient(Common.STAR_WARS_ENDPOINT, requestsViaWebsocket);
+    public GraphQLHttpClient GetStarWarsClient(Action<GraphQLHttpClientOptions>? configure = null)
+        => GetGraphQLClient(Common.STAR_WARS_ENDPOINT, configure);
 
-    public GraphQLHttpClient GetChatClient(bool requestsViaWebsocket = false)
-        => GetGraphQLClient(Common.CHAT_ENDPOINT, requestsViaWebsocket);
+    public GraphQLHttpClient GetChatClient(Action<GraphQLHttpClientOptions>? configure = null)
+        => GetGraphQLClient(Common.CHAT_ENDPOINT, configure);
 
-    private GraphQLHttpClient GetGraphQLClient(string endpoint, bool requestsViaWebsocket = false)
-    {
-        if (Serializer == null)
-            throw new InvalidOperationException("JSON serializer not configured");
-        return WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket, Serializer, WebsocketProtocol);
-    }
+    private GraphQLHttpClient GetGraphQLClient(string endpoint, Action<GraphQLHttpClientOptions>? configure) =>
+        Serializer == null
+            ? throw new InvalidOperationException("JSON serializer not configured")
+            : WebHostHelpers.GetGraphQLClient(Port, endpoint, Serializer, options =>
+            {
+                configure?.Invoke(options);
+                options.WebSocketProtocol = WebsocketProtocol;
+            });
 }
 
 public class NewtonsoftGraphQLWsServerTestFixture : IntegrationServerTestFixture
