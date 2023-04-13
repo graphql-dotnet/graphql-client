@@ -1,5 +1,6 @@
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
+using GraphQL.Client.Http.Websocket;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Client.Serializer.SystemTextJson;
 using GraphQL.Client.Tests.Common;
@@ -14,6 +15,8 @@ public abstract class IntegrationServerTestFixture
     public IWebHost Server { get; private set; }
 
     public abstract IGraphQLWebsocketJsonSerializer Serializer { get; }
+
+    public abstract string? WebsocketProtocol { get; }
 
     public IntegrationServerTestFixture()
     {
@@ -47,16 +50,35 @@ public abstract class IntegrationServerTestFixture
     {
         if (Serializer == null)
             throw new InvalidOperationException("JSON serializer not configured");
-        return WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket, Serializer);
+        return WebHostHelpers.GetGraphQLClient(Port, endpoint, requestsViaWebsocket, Serializer, WebsocketProtocol);
     }
 }
 
-public class NewtonsoftIntegrationServerTestFixture : IntegrationServerTestFixture
+public class NewtonsoftGraphQLWsServerTestFixture : IntegrationServerTestFixture
 {
     public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new NewtonsoftJsonSerializer();
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
 }
 
-public class SystemTextJsonIntegrationServerTestFixture : IntegrationServerTestFixture
+public class SystemTextJsonGraphQLWsServerTestFixture : IntegrationServerTestFixture
 {
     public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_WS;
+}
+
+public class NewtonsoftGraphQLTransportWsServerTestFixture : IntegrationServerTestFixture
+{
+    public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new NewtonsoftJsonSerializer();
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
+}
+
+public class SystemTextJsonGraphQLTransportWsServerTestFixture : IntegrationServerTestFixture
+{
+    public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
+    public override string? WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
+}
+public class SystemTextJsonAutoNegotiateServerTestFixture : IntegrationServerTestFixture
+{
+    public override IGraphQLWebsocketJsonSerializer Serializer { get; } = new SystemTextJsonSerializer();
+    public override string? WebsocketProtocol => WebSocketProtocols.AUTO_NEGOTIATE;
 }

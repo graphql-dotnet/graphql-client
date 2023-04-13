@@ -30,15 +30,17 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// </summary>
     public GraphQLHttpClientOptions Options { get; }
 
-    /// <summary>
-    /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
-    /// </summary>
+    /// <inheritdoc />
     public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
 
-    /// <summary>
-    /// the websocket connection state
-    /// </summary>
+    /// <inheritdoc />
+    public string? WebSocketSubProtocol => GraphQlHttpWebSocket.WebsocketProtocol;
+
+    /// <inheritdoc />
     public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
+
+    /// <inheritdoc />
+    public IObservable<object?> PongStream => GraphQlHttpWebSocket.GetPongStream();
 
     #region Constructors
 
@@ -78,7 +80,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
     {
         return Options.UseWebSocketForQueriesAndMutations || Options.WebSocketEndPoint is not null && Options.EndPoint is null || Options.EndPoint.HasWebSocketScheme()
-            ? await GraphQlHttpWebSocket.SendRequest<TResponse>(request, cancellationToken).ConfigureAwait(false)
+            ? await GraphQlHttpWebSocket.SendRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false)
             : await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
     }
 
@@ -103,11 +105,14 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
 
     #endregion
 
-    /// <summary>
-    /// Explicitly opens the websocket connection. Will be closed again on disposing the last subscription.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public Task InitializeWebsocketConnection() => GraphQlHttpWebSocket.InitializeWebSocket();
+
+    /// <inheritdoc />
+    public Task SendPingAsync(object? payload) => GraphQlHttpWebSocket.SendPingAsync(payload);
+
+    /// <inheritdoc />
+    public Task SendPongAsync(object? payload) => GraphQlHttpWebSocket.SendPongAsync(payload);
 
     #region Private Methods
 
@@ -143,9 +148,9 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
             throw new InvalidOperationException("no endpoint configured");
 
         var webSocketEndpoint = Options.WebSocketEndPoint ?? Options.EndPoint.GetWebSocketUri();
-        return webSocketEndpoint.HasWebSocketScheme()
-            ? new GraphQLHttpWebSocket(webSocketEndpoint, this)
-            : throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
+        return !webSocketEndpoint.HasWebSocketScheme()
+            ? throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint")
+            : new GraphQLHttpWebSocket(webSocketEndpoint, this);
     }
 
     #endregion

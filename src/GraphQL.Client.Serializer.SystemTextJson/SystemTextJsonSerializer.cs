@@ -42,7 +42,7 @@ public class SystemTextJsonSerializer : IGraphQLWebsocketJsonSerializer
 
     public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) => JsonSerializer.DeserializeAsync<WebsocketMessageWrapper>(stream, Options).AsTask();
 
-    public GraphQLWebSocketResponse<GraphQLResponse<TResponse>> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) =>
-        JsonSerializer.Deserialize<GraphQLWebSocketResponse<GraphQLResponse<TResponse>>>(new ReadOnlySpan<byte>(bytes),
+    public GraphQLWebSocketResponse<TResponse> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) =>
+        JsonSerializer.Deserialize<GraphQLWebSocketResponse<TResponse>>(new ReadOnlySpan<byte>(bytes),
             Options);
 }

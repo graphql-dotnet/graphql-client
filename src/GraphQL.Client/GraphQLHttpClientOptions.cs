@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
+using GraphQL.Client.Http.Websocket;
 
 namespace GraphQL.Client.Http;
 
@@ -18,6 +19,11 @@ public class GraphQLHttpClientOptions
     /// The GraphQL EndPoint to be used for websocket connections
     /// </summary>
     public Uri? WebSocketEndPoint { get; set; }
+
+    /// <summary>
+    /// The GraphQL websocket protocol to be used. Defaults to the older "graphql-ws" protocol to not break old code. 
+    /// </summary>
+    public string? WebSocketProtocol { get; set; } = WebSocketProtocols.AUTO_NEGOTIATE;
 
     /// <summary>
     /// The <see cref="System.Net.Http.HttpMessageHandler"/> that is going to be used

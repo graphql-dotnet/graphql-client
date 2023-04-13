@@ -1,5 +1,6 @@
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
+using GraphQL.Client.Http.Websocket;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Helpers;
@@ -30,11 +31,12 @@ public static class WebHostHelpers
         return host;
     }
 
-    public static GraphQLHttpClient GetGraphQLClient(int port, string endpoint, bool requestsViaWebsocket = false, IGraphQLWebsocketJsonSerializer serializer = null)
+    public static GraphQLHttpClient GetGraphQLClient(int port, string endpoint, bool requestsViaWebsocket = false, IGraphQLWebsocketJsonSerializer serializer = null, string websocketProtocol = WebSocketProtocols.GRAPHQL_WS)
         => new GraphQLHttpClient(new GraphQLHttpClientOptions
         {
             EndPoint = new Uri($"http://localhost:{port}{endpoint}"),
-            UseWebSocketForQueriesAndMutations = requestsViaWebsocket
+            UseWebSocketForQueriesAndMutations = requestsViaWebsocket,
+            WebSocketProtocol = websocketProtocol
         },
             serializer ?? new NewtonsoftJsonSerializer());
 }
