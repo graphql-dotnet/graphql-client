@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.Server.All" Version="7.3.0" />
+    <PackageReference Include="GraphQL.Server.All" Version="7.4.0" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="System.Reactive.Compatibility" Version="5.0.0" />
   </ItemGroup>
