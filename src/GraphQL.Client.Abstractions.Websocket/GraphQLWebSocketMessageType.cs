@@ -134,5 +134,4 @@ public static class GraphQLWebSocketMessageType
     /// </summary>
 
     public const string GQL_NEXT = "next"; // Server -> Client
-    
 }
