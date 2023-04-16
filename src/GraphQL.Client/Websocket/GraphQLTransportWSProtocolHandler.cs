@@ -8,7 +8,7 @@ using GraphQL.Client.Abstractions.Websocket;
 
 namespace GraphQL.Client.Http.Websocket;
 
-internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
+internal class GraphQLTransportWSProtocolHandler : IWebsocketProtocolHandler
 {
     public string WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
 

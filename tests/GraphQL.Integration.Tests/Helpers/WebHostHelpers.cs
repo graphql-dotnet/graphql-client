@@ -1,6 +1,5 @@
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http;
-using GraphQL.Client.Http.Websocket;
 using GraphQL.Client.Serializer.Newtonsoft;
 using IntegrationTestServer;
 
