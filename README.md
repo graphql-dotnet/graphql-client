@@ -22,6 +22,9 @@ The Library will try to follow the following standards and documents:
 
 ## Usage
 
+The intended use of `GraphQLHttpClient` is to keep one instance alive per endpoint (obvious in case you're
+operating full websocket, but also true for regular requests) and is built with thread-safety in mind.
+
 ### Create a GraphQLHttpClient
 
 ```csharp
