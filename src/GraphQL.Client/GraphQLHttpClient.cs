@@ -169,9 +169,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
                 // GraphQL server supports APQ!
 
                 // Alas, for the first time we did not guess and in vain removed Query, so we return Query and
-                // send request again. This is one-time "cache miss", not so scary. By the way, after a second call,
-                // there is a probability of receiving PERSISTED_QUERY_NOT_FOUND error again, but it is so ghostly
-                // that this can and should be neglect so not to complicate the code without the need.
+                // send request again. This is one-time "cache miss", not so scary.
                 request.Query = savedQuery;
                 return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
             }
