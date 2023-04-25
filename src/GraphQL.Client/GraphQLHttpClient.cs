@@ -150,9 +150,13 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
             //};
             request.Extensions ??= new
             {
-                version = APQ_SUPPORTED_VERSION,
-                sha256Hash = Hash.Compute(request.Query),
+                persistedQuery = new
+                {
+                    version = APQ_SUPPORTED_VERSION,
+                    sha256Hash = Hash.Compute(request.Query),
+                }
             };
+
             request.Query = null;
         }
 

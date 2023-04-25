@@ -102,8 +102,8 @@ public class GraphQLHttpClientOptions
 
     /// <summary>
     /// Delegate permitting use of <see href="https://www.apollographql.com/docs/react/api/link/persisted-queries/">Automatic Persisted Queries (APQ)</see>.
-    /// By default returns <see langword="true" /> for all requests. Note that GraphQL server should support APQ. Otherwise, the client disables APQ completely
+    /// By default returns <see langword="false" /> for all requests. Note that GraphQL server should support APQ. Otherwise, the client disables APQ completely
     /// after an unsuccessful attempt to send an APQ request and then send only regular requests.
     /// </summary>
-    public Func<GraphQLRequest, bool> EnableAutomaticPersistedQueries { get; set; } = _ => true;
+    public Func<GraphQLRequest, bool> EnableAutomaticPersistedQueries { get; set; } = _ => false;
 }
