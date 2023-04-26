@@ -30,7 +30,7 @@ public class ApiApprovalTests
         string testDir = Path.Combine(baseDir, $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}..");
         string projectDir = Path.Combine(testDir, "..");
         string srcDir = Path.Combine(projectDir, "..", "src");
-        string buildDir = Path.Combine(srcDir, projectName, "bin", "Debug");
+        string buildDir = Path.Combine(srcDir, projectName, "bin", Environment.GetEnvironmentVariable("CI") == null ? "Debug" : "Release");
         Debug.Assert(Directory.Exists(buildDir), $"Directory '{buildDir}' doesn't exist");
         string csProject = Path.Combine(srcDir, projectName, projectName + ".csproj");
         var project = XDocument.Load(csProject);
