@@ -11,6 +11,10 @@ public class SerializeToStringTestData : IEnumerable<object[]>
             new GraphQLRequest("simple query string")
         };
         yield return new object[] {
+            "{\"query\":\"simplequerystring\",\"variables\":null,\"operationName\":null,\"extensions\":{\"a\":\"abc\",\"b\":true,\"c\":{\"d\":42}}}",
+            new GraphQLRequest("simple query string", extensions: new Dictionary<string, object?> { ["a"] = "abc", ["b"] = true, ["c"] = new Dictionary<string, object> { ["d"] = 42 } })
+        };
+        yield return new object[] {
             "{\"query\":\"simplequerystring\",\"variables\":{\"camelCaseProperty\":\"camelCase\",\"PascalCaseProperty\":\"PascalCase\"},\"operationName\":null,\"extensions\":null}",
             new GraphQLRequest("simple query string", new { camelCaseProperty = "camelCase", PascalCaseProperty = "PascalCase"})
         };
