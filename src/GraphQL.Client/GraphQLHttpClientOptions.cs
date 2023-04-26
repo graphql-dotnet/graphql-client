@@ -61,9 +61,18 @@ public class GraphQLHttpClientOptions
     /// Note that compatible to the draft graphql-over-http spec GraphQL Server MAY return 4xx status codes (401/403, etc.)
     /// with well-formed GraphQL response containing errors collection.
     /// </summary>
-    public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = r =>
+    public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = DefaultIsValidResponseToDeserialize;
+
+    internal static IReadOnlyCollection<string> AcceptedResponseContentTypes { get; } = new[] { "application/graphql+json", "application/json", "application/graphql-response+json" };
+
+    private static bool DefaultIsValidResponseToDeserialize(HttpResponseMessage r)
+    {
         // Why not application/json? See https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md#processing-the-response
-        r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.BadRequest || r.Content.Headers.ContentType?.MediaType == "application/graphql+json";
+        if (r.Content.Headers.ContentType?.MediaType != null && !AcceptedResponseContentTypes.Contains(r.Content.Headers.ContentType.MediaType))
+            return false;
+
+        return r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.BadRequest;
+    }
 
     /// <summary>
     /// This callback is called after successfully establishing a websocket connection but before any regular request is made.
