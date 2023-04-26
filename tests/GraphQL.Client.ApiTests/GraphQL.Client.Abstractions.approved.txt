@@ -1,0 +1,66 @@
+namespace GraphQL.Client.Abstractions
+{
+    public static class GraphQLClientExtensions
+    {
+        public static System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Func<TResponse> defineResponseType) { }
+        public static System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Func<TResponse> defineResponseType, System.Action<System.Exception> exceptionHandler) { }
+        public static System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Func<TResponse> defineResponseType, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, string query, object? variables = null, string? operationName = null, System.Func<TResponse> defineResponseType = null, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Func<TResponse> defineResponseType, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, string query, object? variables = null, string? operationName = null, System.Func<TResponse> defineResponseType = null, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public static class GraphQLJsonSerializerExtensions
+    {
+        public static TOptions AndReturn<TOptions>(this System.Action<TOptions> configure, TOptions options) { }
+        public static TOptions New<TOptions>(this System.Action<TOptions> configure) { }
+    }
+    public interface IGraphQLClient
+    {
+        System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQL.GraphQLRequest request);
+        System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQL.GraphQLRequest request, System.Action<System.Exception> exceptionHandler);
+        System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQL.GraphQLRequest request, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQL.GraphQLRequest request, System.Threading.CancellationToken cancellationToken = default);
+    }
+    public interface IGraphQLJsonSerializer
+    {
+        System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken);
+        string SerializeToString(GraphQL.GraphQLRequest request);
+    }
+}
+namespace GraphQL.Client.Abstractions.Utilities
+{
+    public static class StringExtensions
+    {
+        public static string Capitalize(this string str) { }
+        public static string StripIndent(this string str) { }
+        public static string ToCamelCase(this string str) { }
+        public static string ToConstantCase(this string str) { }
+        public static string ToKebabCase(this string str) { }
+        public static string ToLowerCase(this string str) { }
+        public static string ToLowerFirst(this string str) { }
+        public static string ToPascalCase(this string str) { }
+        public static string ToSnakeCase(this string str) { }
+        public static string ToUpperCase(this string str) { }
+        public static string ToUpperFirst(this string str) { }
+        public static System.Collections.Generic.IEnumerable<string> ToWords(this string str) { }
+    }
+    public static class StringUtils
+    {
+        public static string Capitalize(string str) { }
+        public static string ChangeCase(string str, System.Func<string, string> composer) { }
+        public static string ChangeCase(string str, System.Func<string, int, string> composer) { }
+        public static string ChangeCase(string str, string sep, System.Func<string, string> composer) { }
+        public static string ChangeCase(string str, string sep, System.Func<string, int, string> composer) { }
+        public static string StripIndent(string str) { }
+        public static string ToCamelCase(string str) { }
+        public static string ToConstantCase(string str) { }
+        public static string ToKebabCase(string str) { }
+        public static string ToLowerCase(string str) { }
+        public static string ToLowerFirst(string str) { }
+        public static string ToPascalCase(string str) { }
+        public static string ToSnakeCase(string str) { }
+        public static string ToUpperCase(string str) { }
+        public static string ToUpperFirst(string str) { }
+        public static System.Collections.Generic.IEnumerable<string> ToWords(string str) { }
+    }
+}

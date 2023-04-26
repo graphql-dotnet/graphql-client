@@ -1,0 +1,25 @@
+namespace GraphQL.Client.LocalExecution
+{
+    public static class GraphQLLocalExecutionClient
+    {
+        public static GraphQL.Client.LocalExecution.GraphQLLocalExecutionClient<TSchema> New<TSchema>(TSchema schema, GraphQL.Client.Abstractions.IGraphQLJsonSerializer clientSerializer, GraphQL.IGraphQLTextSerializer serverSerializer)
+            where TSchema : GraphQL.Types.ISchema { }
+    }
+    public class GraphQLLocalExecutionClient<TSchema> : GraphQL.Client.Abstractions.IGraphQLClient
+        where TSchema : GraphQL.Types.ISchema
+    {
+        public GraphQLLocalExecutionClient(TSchema schema, GraphQL.IDocumentExecuter documentExecuter, GraphQL.Client.Abstractions.IGraphQLJsonSerializer serializer, GraphQL.IGraphQLTextSerializer documentSerializer) { }
+        public TSchema Schema { get; }
+        public GraphQL.Client.Abstractions.IGraphQLJsonSerializer Serializer { get; }
+        public System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQL.GraphQLRequest request) { }
+        public System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQL.GraphQLRequest request, System.Action<System.Exception> exceptionHandler) { }
+        public void Dispose() { }
+        public System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQL.GraphQLRequest request, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQL.GraphQLRequest request, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public static class ServiceCollectionExtensions
+    {
+        public static GraphQL.DI.IGraphQLBuilder AddGraphQLLocalExecutionClient<TSchema>(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
+            where TSchema : GraphQL.Types.ISchema { }
+    }
+}

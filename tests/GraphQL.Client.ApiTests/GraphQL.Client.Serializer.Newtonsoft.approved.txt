@@ -1,0 +1,27 @@
+namespace GraphQL.Client.Serializer.Newtonsoft
+{
+    public class ConstantCaseEnumConverter : Newtonsoft.Json.Converters.StringEnumConverter
+    {
+        public ConstantCaseEnumConverter() { }
+        public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer) { }
+    }
+    public class MapConverter : Newtonsoft.Json.JsonConverter<GraphQL.Map>
+    {
+        public MapConverter() { }
+        public override GraphQL.Map ReadJson(Newtonsoft.Json.JsonReader reader, System.Type objectType, GraphQL.Map existingValue, bool hasExistingValue, Newtonsoft.Json.JsonSerializer serializer) { }
+        public override void WriteJson(Newtonsoft.Json.JsonWriter writer, GraphQL.Map value, Newtonsoft.Json.JsonSerializer serializer) { }
+    }
+    public class NewtonsoftJsonSerializer : GraphQL.Client.Abstractions.IGraphQLJsonSerializer, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer
+    {
+        public NewtonsoftJsonSerializer() { }
+        public NewtonsoftJsonSerializer(Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings) { }
+        public NewtonsoftJsonSerializer(System.Action<Newtonsoft.Json.JsonSerializerSettings> configure) { }
+        public Newtonsoft.Json.JsonSerializerSettings JsonSerializerSettings { get; }
+        public static Newtonsoft.Json.JsonSerializerSettings DefaultJsonSerializerSettings { get; }
+        public System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken) { }
+        public GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse<TResponse> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) { }
+        public System.Threading.Tasks.Task<GraphQL.Client.Abstractions.Websocket.WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(System.IO.Stream stream) { }
+        public byte[] SerializeToBytes(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request) { }
+        public string SerializeToString(GraphQL.GraphQLRequest request) { }
+    }
+}

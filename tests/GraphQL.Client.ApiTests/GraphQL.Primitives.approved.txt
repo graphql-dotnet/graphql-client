@@ -1,0 +1,80 @@
+namespace GraphQL
+{
+    public class ErrorPath : System.Collections.Generic.List<object>
+    {
+        public ErrorPath() { }
+        public ErrorPath(System.Collections.Generic.IEnumerable<object> collection) { }
+    }
+    public class GraphQLError : System.IEquatable<GraphQL.GraphQLError?>
+    {
+        public GraphQLError() { }
+        [System.Runtime.Serialization.DataMember(Name="extensions")]
+        public GraphQL.Map? Extensions { get; set; }
+        [System.Runtime.Serialization.DataMember(Name="locations")]
+        public GraphQL.GraphQLLocation[]? Locations { get; set; }
+        [System.Runtime.Serialization.DataMember(Name="message")]
+        public string Message { get; set; }
+        [System.Runtime.Serialization.DataMember(Name="path")]
+        public GraphQL.ErrorPath? Path { get; set; }
+        public bool Equals(GraphQL.GraphQLError? other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(GraphQL.GraphQLError? left, GraphQL.GraphQLError? right) { }
+        public static bool operator ==(GraphQL.GraphQLError? left, GraphQL.GraphQLError? right) { }
+    }
+    public sealed class GraphQLLocation : System.IEquatable<GraphQL.GraphQLLocation?>
+    {
+        public GraphQLLocation() { }
+        public uint Column { get; set; }
+        public uint Line { get; set; }
+        public bool Equals(GraphQL.GraphQLLocation? other) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(GraphQL.GraphQLLocation? left, GraphQL.GraphQLLocation? right) { }
+        public static bool operator ==(GraphQL.GraphQLLocation? left, GraphQL.GraphQLLocation? right) { }
+    }
+    public class GraphQLRequest : System.Collections.Generic.Dictionary<string, object>, System.IEquatable<GraphQL.GraphQLRequest?>
+    {
+        public const string EXTENSIONS_KEY = "extensions";
+        public const string OPERATION_NAME_KEY = "operationName";
+        public const string QUERY_KEY = "query";
+        public const string VARIABLES_KEY = "variables";
+        public GraphQLRequest() { }
+        public GraphQLRequest(GraphQL.GraphQLRequest other) { }
+        public GraphQLRequest(string query, object? variables = null, string? operationName = null, object? extensions = null) { }
+        public object? Extensions { get; set; }
+        public string? OperationName { get; set; }
+        public string Query { get; set; }
+        public object? Variables { get; set; }
+        public virtual bool Equals(GraphQL.GraphQLRequest? other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(GraphQL.GraphQLRequest? left, GraphQL.GraphQLRequest? right) { }
+        public static bool operator ==(GraphQL.GraphQLRequest? left, GraphQL.GraphQLRequest? right) { }
+    }
+    public class GraphQLResponse<T> : GraphQL.IGraphQLResponse, System.IEquatable<GraphQL.GraphQLResponse<T>?>
+    {
+        public GraphQLResponse() { }
+        [System.Runtime.Serialization.DataMember(Name="data")]
+        public T Data { get; set; }
+        [System.Runtime.Serialization.DataMember(Name="errors")]
+        public GraphQL.GraphQLError[]? Errors { get; set; }
+        [System.Runtime.Serialization.DataMember(Name="extensions")]
+        public GraphQL.Map? Extensions { get; set; }
+        public bool Equals(GraphQL.GraphQLResponse<T>? other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(GraphQL.GraphQLResponse<T>? response1, GraphQL.GraphQLResponse<T>? response2) { }
+        public static bool operator ==(GraphQL.GraphQLResponse<T>? response1, GraphQL.GraphQLResponse<T>? response2) { }
+    }
+    public interface IGraphQLResponse
+    {
+        object Data { get; }
+        GraphQL.GraphQLError[]? Errors { get; set; }
+        GraphQL.Map? Extensions { get; set; }
+    }
+    public class Map : System.Collections.Generic.Dictionary<string, object>
+    {
+        public Map() { }
+    }
+}
