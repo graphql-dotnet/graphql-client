@@ -21,7 +21,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// <summary>
     /// This flag is used to completely disable APQ when GraphQL server does not support it.
     /// </summary>
-    private bool _useAPQ = true;
+    private bool _APQdisabledPerSession;
 
     /// <summary>
     /// the json serializer
@@ -136,27 +136,17 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         var savedQuery = request.Query;
         bool useAPQ = false;
 
-        if (request.Query != null && _useAPQ && Options.EnableAutomaticPersistedQueries(request))
+        if (request.Query != null && !_APQdisabledPerSession && Options.EnableAutomaticPersistedQueries(request))
         {
             // https://www.apollographql.com/docs/react/api/link/persisted-queries/
             const int APQ_SUPPORTED_VERSION = 1;
             useAPQ = true;
-            // TODO: I suggest to change request.Extension type to public Dictionary<string, object?>?
-            //request.Extensions ??= new();
-            //request.Extensions["persistedQuery"] = new Dictionary<string, object>
-            //{
-            //    ["version"] = APQ_SUPPORTED_VERSION,
-            //    ["sha256Hash"] = Hash.Compute(request.Query),
-            //};
-            request.Extensions ??= new
+            request.Extensions ??= new();
+            request.Extensions["persistedQuery"] = new Dictionary<string, object>
             {
-                persistedQuery = new
-                {
-                    version = APQ_SUPPORTED_VERSION,
-                    sha256Hash = Hash.Compute(request.Query),
-                }
+                ["version"] = APQ_SUPPORTED_VERSION,
+                ["sha256Hash"] = Hash.Compute(request.Query),
             };
-
             request.Query = null;
         }
 
@@ -173,12 +163,11 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
                 request.Query = savedQuery;
                 return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
             }
-            else if (response.Errors.Any(error => string.Equals(error.Message, "PersistedQueryNotSupported") ||
-                     response.Errors.Any(error => string.Equals(error.Message, "GraphQL query is missing.")))) // GraphQL.NET specific error message
+            else
             {
                 // GraphQL server either supports APQ of some other version, or does not support it at all.
                 // Send a request for the second time. This is better than returning an error. Let the client work with APQ disabled.
-                _useAPQ = false;
+                _APQdisabledPerSession = Options.DisableAPQ(response);
                 request.Query = savedQuery;
                 return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
             }
