@@ -40,15 +40,15 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
     /// <summary>
     /// Represents the request extensions
     /// </summary>
-    public object? Extensions
+    public Dictionary<string, object?>? Extensions
     {
-        get => TryGetValue(EXTENSIONS_KEY, out object value) ? value : null;
+        get => TryGetValue(EXTENSIONS_KEY, out object value) && value is Dictionary<string, object?> d ? d : null;
         set => this[EXTENSIONS_KEY] = value;
     }
 
     public GraphQLRequest() { }
 
-    public GraphQLRequest(string query, object? variables = null, string? operationName = null, object? extensions = null)
+    public GraphQLRequest(string query, object? variables = null, string? operationName = null, Dictionary<string, object?>? extensions = null)
     {
         Query = query;
         Variables = variables;
