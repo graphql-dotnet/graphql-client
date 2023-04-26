@@ -114,6 +114,6 @@ public class GraphQLHttpClientOptions
     public Func<IGraphQLHttpResponse, bool> DisableAPQ { get; set; } = response =>
     {
         return ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600) ||
-                response.Errors.Any(error => string.Equals(error.Message, "PersistedQueryNotSupported"));
+                response.Errors?.Any(error => string.Equals(error.Message, "PersistedQueryNotSupported", StringComparison.CurrentCultureIgnoreCase)) == true;
     };
 }

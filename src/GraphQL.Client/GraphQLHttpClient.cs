@@ -152,9 +152,9 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
 
         var response = await SendHttpRequestAsync<TResponse>(request, cancellationToken);
 
-        if (useAPQ && response.Errors?.Length > 0)
+        if (useAPQ)
         {
-            if (response.Errors.Any(error => string.Equals(error.Message, "PersistedQueryNotFound", StringComparison.CurrentCultureIgnoreCase)))
+            if (response.Errors?.Any(error => string.Equals(error.Message, "PersistedQueryNotFound", StringComparison.CurrentCultureIgnoreCase)) == true)
             {
                 // GraphQL server supports APQ!
 
