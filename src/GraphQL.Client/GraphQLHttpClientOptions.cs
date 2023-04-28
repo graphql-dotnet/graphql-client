@@ -67,7 +67,6 @@ public class GraphQLHttpClientOptions
 
     private static bool DefaultIsValidResponseToDeserialize(HttpResponseMessage r)
     {
-        // Why not application/json? See https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md#processing-the-response
         if (r.Content.Headers.ContentType?.MediaType != null && !AcceptedResponseContentTypes.Contains(r.Content.Headers.ContentType.MediaType))
             return false;
 
