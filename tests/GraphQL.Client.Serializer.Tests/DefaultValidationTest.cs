@@ -2,14 +2,12 @@ using System.Net;
 using System.Net.Http.Headers;
 using FluentAssertions;
 using GraphQL.Client.Http;
-
 using Xunit;
 
 namespace GraphQL.Client.Serializer.Tests;
 
 public class DefaultValidationTest
 {
-
     [Theory]
     [InlineData(HttpStatusCode.OK, "application/json", true)]
     [InlineData(HttpStatusCode.OK, "application/graphql-response+json", true)]
@@ -23,8 +21,8 @@ public class DefaultValidationTest
         var response = new HttpResponseMessage(statusCode);
         response.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
 
-        bool result = new GraphQLHttpClientOptions().IsValidResponseToDeserialize(response);
+        bool isValid = new GraphQLHttpClientOptions().IsValidResponseToDeserialize(response);
 
-        result.Should().Be(expectedResult);
+        isValid.Should().Be(expectedResult);
     }
 }

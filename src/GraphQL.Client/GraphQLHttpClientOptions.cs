@@ -63,7 +63,7 @@ public class GraphQLHttpClientOptions
     /// </summary>
     public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = DefaultIsValidResponseToDeserialize;
 
-    internal static IReadOnlyCollection<string> AcceptedResponseContentTypes { get; } = new[] { "application/graphql+json", "application/json", "application/graphql-response+json" };
+    private static IReadOnlyCollection<string> AcceptedResponseContentTypes { get; } = new[] { "application/graphql+json", "application/json", "application/graphql-response+json" };
 
     private static bool DefaultIsValidResponseToDeserialize(HttpResponseMessage r)
     {
