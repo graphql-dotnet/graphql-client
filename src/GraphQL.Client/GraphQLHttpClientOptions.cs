@@ -63,11 +63,11 @@ public class GraphQLHttpClientOptions
     /// </summary>
     public Func<HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; } = DefaultIsValidResponseToDeserialize;
 
-    private static IReadOnlyCollection<string> AcceptedResponseContentTypes { get; } = new[] { "application/graphql+json", "application/json", "application/graphql-response+json" };
+    private static readonly IReadOnlyCollection<string> _acceptedResponseContentTypes = new[] { "application/graphql+json", "application/json", "application/graphql-response+json" };
 
     private static bool DefaultIsValidResponseToDeserialize(HttpResponseMessage r)
     {
-        if (r.Content.Headers.ContentType?.MediaType != null && !AcceptedResponseContentTypes.Contains(r.Content.Headers.ContentType.MediaType))
+        if (r.Content.Headers.ContentType?.MediaType != null && !_acceptedResponseContentTypes.Contains(r.Content.Headers.ContentType.MediaType))
             return false;
 
         return r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.BadRequest;
