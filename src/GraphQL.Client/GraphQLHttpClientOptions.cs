@@ -65,7 +65,7 @@ public class GraphQLHttpClientOptions
 
     private static readonly IReadOnlyCollection<string> _acceptedResponseContentTypes = new[] { "application/graphql+json", "application/json", "application/graphql-response+json" };
 
-    private static bool DefaultIsValidResponseToDeserialize(HttpResponseMessage r)
+    public static bool DefaultIsValidResponseToDeserialize(HttpResponseMessage r)
     {
         if (r.Content.Headers.ContentType?.MediaType != null && !_acceptedResponseContentTypes.Contains(r.Content.Headers.ContentType.MediaType))
             return false;
