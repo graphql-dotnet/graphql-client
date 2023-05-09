@@ -11,11 +11,13 @@ public class GraphQLHttpRequest : GraphQLRequest
     {
     }
 
-    public GraphQLHttpRequest(string query, object? variables = null, string? operationName = null) : base(query, variables, operationName)
+    public GraphQLHttpRequest(string query, object? variables = null, string? operationName = null, Dictionary<string, object?>? extensions = null)
+        : base(query, variables, operationName, extensions)
     {
     }
 
-    public GraphQLHttpRequest(GraphQLRequest other) : base(other)
+    public GraphQLHttpRequest(GraphQLRequest other)
+        : base(other)
     {
     }
 
