@@ -164,28 +164,6 @@ public abstract class Base : IAsyncLifetime
     }
 
     [Fact]
-    public async void PreprocessHttpRequestMessageIsCalled()
-    {
-        var callbackTester = new CallbackMonitor<HttpRequestMessage>();
-        var graphQLRequest = new GraphQLHttpRequest($"{{ human(id: \"1\") {{ name }} }}")
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            PreprocessHttpRequestMessage = callbackTester.Invoke
-#pragma warning restore CS0618 // Type or member is obsolete
-        };
-
-        var expectedHeaders = new HttpRequestMessage().Headers;
-        expectedHeaders.UserAgent.Add(new ProductInfoHeaderValue("GraphQL.Client", typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString()));
-        expectedHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/graphql-response+json"));
-        expectedHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        expectedHeaders.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
-        var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
-        callbackTester.Should().HaveBeenInvokedWithPayload().Which.Headers.Should().BeEquivalentTo(expectedHeaders);
-        Assert.Null(response.Errors);
-        Assert.Equal("Luke", response.Data.Human.Name);
-    }
-
-    [Fact]
     public async Task PostRequestCanBeCancelled()
     {
         var graphQLRequest = new GraphQLRequest(@"
