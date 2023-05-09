@@ -22,13 +22,6 @@ public class GraphQLHttpRequest : GraphQLRequest
     }
 
     /// <summary>
-    /// Allows to preprocess a <see cref="HttpRequestMessage"/> before it is sent, i.e. add custom headers
-    /// </summary>
-    [IgnoreDataMember]
-    [Obsolete("Inherit from GraphQLHttpRequest and override ToHttpRequestMessage() to customize the HttpRequestMessage. Will be removed in v4.0.0.")]
-    public Action<HttpRequestMessage> PreprocessHttpRequestMessage { get; set; } = message => { };
-
-    /// <summary>
     /// Creates a <see cref="HttpRequestMessage"/> from this <see cref="GraphQLHttpRequest"/>.
     /// Used by <see cref="GraphQLHttpClient"/> to convert GraphQL requests when sending them as regular HTTP requests.
     /// </summary>
@@ -48,9 +41,6 @@ public class GraphQLHttpRequest : GraphQLRequest
         if (options.DefaultUserAgentRequestHeader != null)
             message.Headers.UserAgent.Add(options.DefaultUserAgentRequestHeader);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        PreprocessHttpRequestMessage(message);
-#pragma warning restore CS0618 // Type or member is obsolete
         return message;
     }
 }

@@ -46,16 +46,13 @@ namespace GraphQL.Client.Http
         public bool UseWebSocketForQueriesAndMutations { get; set; }
         public System.Uri? WebSocketEndPoint { get; set; }
         public string? WebSocketProtocol { get; set; }
+        public static bool DefaultIsValidResponseToDeserialize(System.Net.Http.HttpResponseMessage r) { }
     }
     public class GraphQLHttpRequest : GraphQL.GraphQLRequest
     {
         public GraphQLHttpRequest() { }
         public GraphQLHttpRequest(GraphQL.GraphQLRequest other) { }
-        public GraphQLHttpRequest(string query, object? variables = null, string? operationName = null) { }
-        [System.Obsolete("Inherit from GraphQLHttpRequest and override ToHttpRequestMessage() to customize " +
-            "the HttpRequestMessage. Will be removed in v4.0.0.")]
-        [System.Runtime.Serialization.IgnoreDataMember]
-        public System.Action<System.Net.Http.HttpRequestMessage> PreprocessHttpRequestMessage { get; set; }
+        public GraphQLHttpRequest(string query, object? variables = null, string? operationName = null, System.Collections.Generic.Dictionary<string, object?>? extensions = null) { }
         public virtual System.Net.Http.HttpRequestMessage ToHttpRequestMessage(GraphQL.Client.Http.GraphQLHttpClientOptions options, GraphQL.Client.Abstractions.IGraphQLJsonSerializer serializer) { }
     }
     public class GraphQLHttpRequestException : System.Exception

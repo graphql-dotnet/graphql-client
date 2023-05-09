@@ -41,8 +41,8 @@ namespace GraphQL
         public const string VARIABLES_KEY = "variables";
         public GraphQLRequest() { }
         public GraphQLRequest(GraphQL.GraphQLRequest other) { }
-        public GraphQLRequest(string query, object? variables = null, string? operationName = null, object? extensions = null) { }
-        public object? Extensions { get; set; }
+        public GraphQLRequest(string query, object? variables = null, string? operationName = null, System.Collections.Generic.Dictionary<string, object?>? extensions = null) { }
+        public System.Collections.Generic.Dictionary<string, object?>? Extensions { get; set; }
         public string? OperationName { get; set; }
         public string Query { get; set; }
         public object? Variables { get; set; }
