@@ -1,0 +1,50 @@
+namespace GraphQL.Client.Serializer.SystemTextJson
+{
+    public class ConstantCaseJsonNamingPolicy : System.Text.Json.JsonNamingPolicy
+    {
+        public ConstantCaseJsonNamingPolicy() { }
+        public override string ConvertName(string name) { }
+    }
+    public static class ConverterHelperExtensions
+    {
+        public static string GetRawString(ref this System.Text.Json.Utf8JsonReader reader) { }
+        public static object ReadNumber(ref this System.Text.Json.Utf8JsonReader reader) { }
+        public static bool TryGetBigInteger(ref this System.Text.Json.Utf8JsonReader reader, out System.Numerics.BigInteger bi) { }
+    }
+    public class ErrorPathConverter : System.Text.Json.Serialization.JsonConverter<GraphQL.ErrorPath>
+    {
+        public ErrorPathConverter() { }
+        public override GraphQL.ErrorPath Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, GraphQL.ErrorPath value, System.Text.Json.JsonSerializerOptions options) { }
+    }
+    public class ImmutableConverter : System.Text.Json.Serialization.JsonConverter<object>
+    {
+        public ImmutableConverter() { }
+        public override bool CanConvert(System.Type typeToConvert) { }
+        public override object Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, object value, System.Text.Json.JsonSerializerOptions options) { }
+    }
+    public static class JsonSerializerOptionsExtensions
+    {
+        public static System.Text.Json.JsonSerializerOptions SetupImmutableConverter(this System.Text.Json.JsonSerializerOptions options) { }
+    }
+    public class MapConverter : System.Text.Json.Serialization.JsonConverter<GraphQL.Map>
+    {
+        public MapConverter() { }
+        public override GraphQL.Map Read(ref System.Text.Json.Utf8JsonReader reader, System.Type typeToConvert, System.Text.Json.JsonSerializerOptions options) { }
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, GraphQL.Map value, System.Text.Json.JsonSerializerOptions options) { }
+    }
+    public class SystemTextJsonSerializer : GraphQL.Client.Abstractions.IGraphQLJsonSerializer, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer
+    {
+        public SystemTextJsonSerializer() { }
+        public SystemTextJsonSerializer(System.Action<System.Text.Json.JsonSerializerOptions> configure) { }
+        public SystemTextJsonSerializer(System.Text.Json.JsonSerializerOptions options) { }
+        public System.Text.Json.JsonSerializerOptions Options { get; }
+        public static System.Text.Json.JsonSerializerOptions DefaultJsonSerializerOptions { get; }
+        public System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken) { }
+        public GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse<TResponse> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) { }
+        public System.Threading.Tasks.Task<GraphQL.Client.Abstractions.Websocket.WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(System.IO.Stream stream) { }
+        public byte[] SerializeToBytes(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request) { }
+        public string SerializeToString(GraphQL.GraphQLRequest request) { }
+    }
+}

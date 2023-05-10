@@ -1,0 +1,86 @@
+namespace GraphQL.Client.Abstractions.Websocket
+{
+    public static class GraphQLWebSocketMessageType
+    {
+        public const string GQL_COMPLETE = "complete";
+        public const string GQL_CONNECTION_ACK = "connection_ack";
+        public const string GQL_CONNECTION_ERROR = "connection_error";
+        public const string GQL_CONNECTION_INIT = "connection_init";
+        public const string GQL_CONNECTION_KEEP_ALIVE = "ka";
+        public const string GQL_CONNECTION_TERMINATE = "connection_terminate";
+        public const string GQL_DATA = "data";
+        public const string GQL_ERROR = "error";
+        public const string GQL_NEXT = "next";
+        public const string GQL_PING = "ping";
+        public const string GQL_PONG = "pong";
+        public const string GQL_START = "start";
+        public const string GQL_STOP = "stop";
+        public const string GQL_SUBSCRIBE = "subscribe";
+    }
+    public class GraphQLWebSocketRequest : System.Collections.Generic.Dictionary<string, object>, System.IEquatable<GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest>
+    {
+        public const string ID_KEY = "id";
+        public const string PAYLOAD_KEY = "payload";
+        public const string TYPE_KEY = "type";
+        public GraphQLWebSocketRequest() { }
+        public string Id { get; set; }
+        public object? Payload { get; set; }
+        public string Type { get; set; }
+        public bool Equals(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest other) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public void SendCanceled() { }
+        public void SendCompleted() { }
+        public void SendFailed(System.Exception e) { }
+        public System.Threading.Tasks.Task SendTask() { }
+        public static bool operator !=(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request1, GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request2) { }
+        public static bool operator ==(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request1, GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request2) { }
+    }
+    public class GraphQLWebSocketResponse : System.IEquatable<GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse>
+    {
+        public GraphQLWebSocketResponse() { }
+        public string Id { get; set; }
+        public string Type { get; set; }
+        public bool Equals(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse other) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse response1, GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse response2) { }
+        public static bool operator ==(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse response1, GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse response2) { }
+    }
+    public class GraphQLWebSocketResponse<TPayload> : GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse, System.IEquatable<GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse<TPayload>>
+    {
+        public GraphQLWebSocketResponse() { }
+        public TPayload Payload { get; set; }
+        public bool Equals(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse<TPayload>? other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+    }
+    public enum GraphQLWebsocketConnectionState
+    {
+        Disconnected = 0,
+        Connecting = 1,
+        Connected = 2,
+    }
+    public interface IGraphQLWebSocketClient : GraphQL.Client.Abstractions.IGraphQLClient
+    {
+        System.IObservable<object?> PongStream { get; }
+        System.IObservable<System.Exception> WebSocketReceiveErrors { get; }
+        string? WebSocketSubProtocol { get; }
+        System.IObservable<GraphQL.Client.Abstractions.Websocket.GraphQLWebsocketConnectionState> WebsocketConnectionState { get; }
+        System.Threading.Tasks.Task InitializeWebsocketConnection();
+        System.Threading.Tasks.Task SendPingAsync(object? payload);
+        System.Threading.Tasks.Task SendPongAsync(object? payload);
+    }
+    public interface IGraphQLWebsocketJsonSerializer : GraphQL.Client.Abstractions.IGraphQLJsonSerializer
+    {
+        GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse<TResponse> DeserializeToWebsocketResponse<TResponse>(byte[] bytes);
+        System.Threading.Tasks.Task<GraphQL.Client.Abstractions.Websocket.WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(System.IO.Stream stream);
+        byte[] SerializeToBytes(GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketRequest request);
+    }
+    public class WebsocketMessageWrapper : GraphQL.Client.Abstractions.Websocket.GraphQLWebSocketResponse
+    {
+        public WebsocketMessageWrapper() { }
+        [System.Runtime.Serialization.IgnoreDataMember]
+        public byte[] MessageBytes { get; set; }
+    }
+}

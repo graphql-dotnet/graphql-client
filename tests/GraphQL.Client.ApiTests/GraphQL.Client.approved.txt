@@ -1,0 +1,117 @@
+namespace GraphQL.Client.Http
+{
+    public class GraphQLHttpClient : GraphQL.Client.Abstractions.IGraphQLClient, GraphQL.Client.Abstractions.Websocket.IGraphQLWebSocketClient, System.IDisposable
+    {
+        public GraphQLHttpClient(GraphQL.Client.Http.GraphQLHttpClientOptions options, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer serializer) { }
+        public GraphQLHttpClient(System.Action<GraphQL.Client.Http.GraphQLHttpClientOptions> configure, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer serializer) { }
+        public GraphQLHttpClient(string endPoint, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer serializer) { }
+        public GraphQLHttpClient(System.Uri endPoint, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer serializer) { }
+        public GraphQLHttpClient(GraphQL.Client.Http.GraphQLHttpClientOptions options, GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer serializer, System.Net.Http.HttpClient httpClient) { }
+        public System.Net.Http.HttpClient HttpClient { get; }
+        public GraphQL.Client.Abstractions.Websocket.IGraphQLWebsocketJsonSerializer JsonSerializer { get; }
+        public GraphQL.Client.Http.GraphQLHttpClientOptions Options { get; }
+        public System.IObservable<object?> PongStream { get; }
+        public System.IObservable<System.Exception> WebSocketReceiveErrors { get; }
+        public string? WebSocketSubProtocol { get; }
+        public System.IObservable<GraphQL.Client.Abstractions.Websocket.GraphQLWebsocketConnectionState> WebsocketConnectionState { get; }
+        public System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQL.GraphQLRequest request) { }
+        public System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQL.GraphQLRequest request, System.Action<System.Exception>? exceptionHandler) { }
+        public void Dispose() { }
+        protected virtual void Dispose(bool disposing) { }
+        public System.Threading.Tasks.Task InitializeWebsocketConnection() { }
+        public System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQL.GraphQLRequest request, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.Threading.Tasks.Task SendPingAsync(object? payload) { }
+        public System.Threading.Tasks.Task SendPongAsync(object? payload) { }
+        public System.Threading.Tasks.Task<GraphQL.GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQL.GraphQLRequest request, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public static class GraphQLHttpClientExtensions
+    {
+        public static System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Action<System.Net.WebSockets.WebSocketException> webSocketExceptionHandler) { }
+        public static System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Func<TResponse> defineResponseType) { }
+        public static System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this GraphQL.Client.Abstractions.IGraphQLClient client, GraphQL.GraphQLRequest request, System.Func<TResponse> defineResponseType, System.Action<System.Net.WebSockets.WebSocketException> webSocketExceptionHandler) { }
+    }
+    public class GraphQLHttpClientOptions
+    {
+        public GraphQLHttpClientOptions() { }
+        public System.Func<int, System.TimeSpan> BackOffStrategy { get; set; }
+        public System.Func<GraphQL.Client.Http.GraphQLHttpClientOptions, object?> ConfigureWebSocketConnectionInitPayload { get; set; }
+        public System.Action<System.Net.WebSockets.ClientWebSocketOptions> ConfigureWebsocketOptions { get; set; }
+        public System.Net.Http.Headers.ProductInfoHeaderValue? DefaultUserAgentRequestHeader { get; set; }
+        public System.Uri? EndPoint { get; set; }
+        public System.Net.Http.HttpMessageHandler HttpMessageHandler { get; set; }
+        public System.Func<System.Net.Http.HttpResponseMessage, bool> IsValidResponseToDeserialize { get; set; }
+        public string MediaType { get; set; }
+        public System.Func<GraphQL.Client.Http.GraphQLHttpClient, System.Threading.Tasks.Task> OnWebsocketConnected { get; set; }
+        public System.Func<GraphQL.GraphQLRequest, GraphQL.Client.Http.GraphQLHttpClient, System.Threading.Tasks.Task<GraphQL.Client.Http.GraphQLHttpRequest>> PreprocessRequest { get; set; }
+        public bool UseWebSocketForQueriesAndMutations { get; set; }
+        public System.Uri? WebSocketEndPoint { get; set; }
+        public string? WebSocketProtocol { get; set; }
+        public static bool DefaultIsValidResponseToDeserialize(System.Net.Http.HttpResponseMessage r) { }
+    }
+    public class GraphQLHttpRequest : GraphQL.GraphQLRequest
+    {
+        public GraphQLHttpRequest() { }
+        public GraphQLHttpRequest(GraphQL.GraphQLRequest other) { }
+        public GraphQLHttpRequest(string query, object? variables = null, string? operationName = null, System.Collections.Generic.Dictionary<string, object?>? extensions = null) { }
+        public virtual System.Net.Http.HttpRequestMessage ToHttpRequestMessage(GraphQL.Client.Http.GraphQLHttpClientOptions options, GraphQL.Client.Abstractions.IGraphQLJsonSerializer serializer) { }
+    }
+    public class GraphQLHttpRequestException : System.Exception
+    {
+        public GraphQLHttpRequestException(System.Net.HttpStatusCode statusCode, System.Net.Http.Headers.HttpResponseHeaders responseHeaders, string? content) { }
+        public string? Content { get; }
+        public System.Net.Http.Headers.HttpResponseHeaders ResponseHeaders { get; }
+        public System.Net.HttpStatusCode StatusCode { get; }
+    }
+    public class GraphQLHttpResponse<T> : GraphQL.GraphQLResponse<T>
+    {
+        public GraphQLHttpResponse(GraphQL.GraphQLResponse<T> response, System.Net.Http.Headers.HttpResponseHeaders responseHeaders, System.Net.HttpStatusCode statusCode) { }
+        public System.Net.Http.Headers.HttpResponseHeaders ResponseHeaders { get; set; }
+        public System.Net.HttpStatusCode StatusCode { get; set; }
+    }
+    public static class GraphQLResponseExtensions
+    {
+        public static GraphQL.Client.Http.GraphQLHttpResponse<T> AsGraphQLHttpResponse<T>(this GraphQL.GraphQLResponse<T> response) { }
+        public static GraphQL.Client.Http.GraphQLHttpResponse<T> ToGraphQLHttpResponse<T>(this GraphQL.GraphQLResponse<T> response, System.Net.Http.Headers.HttpResponseHeaders responseHeaders, System.Net.HttpStatusCode statusCode) { }
+    }
+    [System.Serializable]
+    public class GraphQLSubscriptionException : System.Exception
+    {
+        public GraphQLSubscriptionException() { }
+        public GraphQLSubscriptionException(object error) { }
+        protected GraphQLSubscriptionException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+    }
+    public static class UriExtensions
+    {
+        public static System.Uri GetWebSocketUri(this System.Uri uri) { }
+        public static bool HasWebSocketScheme(this System.Uri? uri) { }
+    }
+}
+namespace GraphQL.Client.Http.Websocket
+{
+    [System.Serializable]
+    public class GraphQLWebsocketConnectionException : System.Exception
+    {
+        public GraphQLWebsocketConnectionException() { }
+        public GraphQLWebsocketConnectionException(string message) { }
+        protected GraphQLWebsocketConnectionException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+        public GraphQLWebsocketConnectionException(string message, System.Exception innerException) { }
+    }
+    public interface IWebsocketProtocolHandler
+    {
+        string WebsocketProtocol { get; }
+        System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateGraphQLRequestObservable<TResponse>(GraphQL.GraphQLRequest request);
+        System.IObservable<object?> CreatePongObservable();
+        System.IObservable<GraphQL.GraphQLResponse<TResponse>> CreateSubscriptionObservable<TResponse>(GraphQL.GraphQLRequest request);
+        System.Threading.Tasks.Task InitializeConnectionAsync(System.IObservable<GraphQL.Client.Abstractions.Websocket.WebsocketMessageWrapper> incomingMessages, System.Reactive.Disposables.CompositeDisposable closeConnectionDisposable);
+        System.Threading.Tasks.Task SendCloseConnectionRequestAsync();
+        System.Threading.Tasks.Task SendPingAsync(object? payload);
+        System.Threading.Tasks.Task SendPongAsync(object? payload);
+    }
+    public static class WebSocketProtocols
+    {
+        public const string AUTO_NEGOTIATE = null;
+        public const string GRAPHQL_TRANSPORT_WS = "graphql-transport-ws";
+        public const string GRAPHQL_WS = "graphql-ws";
+        public static System.Collections.Generic.IEnumerable<string> GetSupportedWebSocketProtocols() { }
+    }
+}

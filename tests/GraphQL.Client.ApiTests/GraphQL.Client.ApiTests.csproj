@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../tests.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net7</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PublicApiGenerator" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GraphQL.Client.LocalExecution\GraphQL.Client.LocalExecution.csproj" />
+    <ProjectReference Include="..\..\src\GraphQL.Client.Serializer.Newtonsoft\GraphQL.Client.Serializer.Newtonsoft.csproj" />
+    <ProjectReference Include="..\..\src\GraphQL.Client.Serializer.SystemTextJson\GraphQL.Client.Serializer.SystemTextJson.csproj" />
+    <ProjectReference Include="..\..\src\GraphQL.Client\GraphQL.Client.csproj" />
+  </ItemGroup>
+
+</Project>
