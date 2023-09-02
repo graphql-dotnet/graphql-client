@@ -22,6 +22,7 @@ public class Startup
     {
         services.AddGraphQL(builder => builder
             .AddSchema<TestSchema>()
+            .AddSystemTextJson()
             .UseApolloTracing(enableMetrics: true)
             .AddErrorInfoProvider(opt => opt.ExposeExceptionDetails = true)
         );
