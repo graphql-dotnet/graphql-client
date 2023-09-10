@@ -37,6 +37,9 @@ public class GraphQLHttpRequest : GraphQLRequest
         message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         message.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("utf-8"));
 
+        // Explicitly setting content header to avoid issues with some GrahQL servers
+        message.Content.Headers.ContentType = new MediaTypeHeaderValue(options.MediaType);
+
         if (options.DefaultUserAgentRequestHeader != null)
             message.Headers.UserAgent.Add(options.DefaultUserAgentRequestHeader);
 
