@@ -190,4 +190,29 @@ public abstract class BaseSerializerTest
 
         action.Should().NotThrow();
     }
+
+    [Fact]
+    public async Task CanDeserializeObjectWithBothConstructorAndProperties()
+    {
+        // Arrange
+        const string jsonString = @"{ ""data"": { ""property1"": ""value1"", ""property2"": ""value2"" } }";
+        var contentStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonString));
+
+        // Act
+        var result = await ClientSerializer.DeserializeFromUtf8StreamAsync<WithConstructorAndProperties>(contentStream, default).ConfigureAwait(false);
+
+        // Assert
+        result.Data.Property1.Should().Be("value1");
+        result.Data.Property2.Should().Be("value2");
+    }
+
+    private class WithConstructorAndProperties
+    {
+        public WithConstructorAndProperties(string property2)
+        {
+            Property2 = property2;
+        }
+        public string? Property1 { get; set; }
+        public string Property2 { get; }
+    }
 }

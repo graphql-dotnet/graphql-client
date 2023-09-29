@@ -19,31 +19,30 @@ public class ImmutableConverter : JsonConverter<object>
         if (nullableUnderlyingType != null && nullableUnderlyingType.IsValueType)
             return false;
 
-        bool result;
         var constructors = typeToConvert.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
         if (constructors.Length != 1)
         {
-            result = false;
+            return false;
         }
-        else
+
+        var constructor = constructors[0];
+        var parameters = constructor.GetParameters();
+
+        if (parameters.Length <= 0)
         {
-            var constructor = constructors[0];
-            var parameters = constructor.GetParameters();
-
-            if (parameters.Length > 0)
-            {
-                var properties = typeToConvert.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                result = parameters
-                    .Select(parameter => properties.Any(p => NameOfPropertyAndParameter.Matches(p.Name, parameter.Name, typeToConvert.IsAnonymous())))
-                    .All(hasMatchingProperty => hasMatchingProperty);
-            }
-            else
-            {
-                result = false;
-            }
+            return false;
         }
 
-        return result;
+        var properties = typeToConvert.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (properties.Length > parameters.Length)
+        {
+            return false;
+        }
+
+        return properties
+            .Select(property => parameters.Any(parameter => NameOfPropertyAndParameter.Matches(property.Name, parameter.Name, typeToConvert.IsAnonymous())))
+            .All(hasMatchingParameter => hasMatchingParameter);
     }
 
     public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
