@@ -76,16 +76,19 @@ public class ConsistencyTests
         System.Text.Json.JsonSerializer.Deserialize<Map>(json, systemTextJsonSerializer.Options).Should().BeNull();
     }
 
-    private void CompareMaps(Dictionary<string, object> first, Dictionary<string, object> second)
+    private void CompareMaps(Dictionary<string, object>? first, Dictionary<string, object>? second)
     {
-        foreach (var keyValuePair in first)
-        {
-            second.Should().ContainKey(keyValuePair.Key);
-            second[keyValuePair.Key].Should().BeOfType(keyValuePair.Value.GetType());
-            if (keyValuePair.Value is Dictionary<string, object> map)
-                CompareMaps(map, (Dictionary<string, object>)second[keyValuePair.Key]);
-            else
-                keyValuePair.Value.Should().BeEquivalentTo(second[keyValuePair.Key]);
-        }
+        if (first is null)
+            second.Should().BeNull();
+        else
+            foreach (var keyValuePair in first)
+            {
+                second.Should().ContainKey(keyValuePair.Key);
+                second[keyValuePair.Key].Should().BeOfType(keyValuePair.Value.GetType());
+                if (keyValuePair.Value is Dictionary<string, object> map)
+                    CompareMaps(map, (Dictionary<string, object>)second[keyValuePair.Key]);
+                else
+                    keyValuePair.Value.Should().BeEquivalentTo(second[keyValuePair.Key]);
+            }
     }
 }
