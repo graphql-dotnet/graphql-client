@@ -9,10 +9,8 @@ namespace GraphQL.Client.Serializer.Tests;
 
 public class ConsistencyTests
 {
-    [Fact]
-    public void MapConvertersShouldBehaveConsistent()
-    {
-        const string json = @"{
+    [Theory]
+    [InlineData(@"{
                 ""array"": [
                   ""some stuff"",
                   ""something else""
@@ -27,7 +25,26 @@ public class ConsistencyTests
                   {""number"": 1234.567},
                   {""number"": 567.8}
                 ]
-            }";
+            }")]
+    [InlineData("null")]
+    public void MapConvertersShouldBehaveConsistent(string json)
+    {
+        //const string json = @"{
+        //        ""array"": [
+        //          ""some stuff"",
+        //          ""something else""
+        //        ],
+        //        ""string"": ""this is a string"",
+        //        ""boolean"": true,
+        //        ""number"": 1234.567,
+        //        ""nested object"": {
+        //            ""prop1"": false
+        //        },
+        //        ""arrayOfObjects"": [
+        //          {""number"": 1234.567},
+        //          {""number"": 567.8}
+        //        ]
+        //    }";
 
         var newtonsoftSerializer = new NewtonsoftJsonSerializer();
         var systemTextJsonSerializer = new SystemTextJsonSerializer();
@@ -43,6 +60,20 @@ public class ConsistencyTests
 
         newtonsoftMap.Should().BeEquivalentTo(systemTextJsonMap, options => options
             .RespectingRuntimeTypes());
+    }
+
+    /// <summary>
+    /// Regression test for https://github.com/graphql-dotnet/graphql-client/issues/601
+    /// </summary>
+    [Fact]
+    public void MapConvertersShouldBeAbleToDeserializeNullValues()
+    {
+        var newtonsoftSerializer = new NewtonsoftJsonSerializer();
+        var systemTextJsonSerializer = new SystemTextJsonSerializer();
+        string json = "null";
+
+        JsonConvert.DeserializeObject<Map>(json, newtonsoftSerializer.JsonSerializerSettings).Should().BeNull();
+        System.Text.Json.JsonSerializer.Deserialize<Map>(json, systemTextJsonSerializer.Options).Should().BeNull();
     }
 
     private void CompareMaps(Dictionary<string, object> first, Dictionary<string, object> second)
