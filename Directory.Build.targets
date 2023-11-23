@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!--TODO: remove? since generated on CI-->
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsPackable)' == 'true' AND '$(GitVersion_SemVer)' != ''">
+  <!-- <PropertyGroup Condition="'$(IsPackable)' == 'true' AND '$(GitVersion_SemVer)' != ''">
     <GetVersion>false</GetVersion>
     <WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
@@ -23,7 +23,7 @@
     <FileVersion Condition=" '$(FileVersion)' == '' ">$(GitVersion_AssemblySemFileVer)</FileVersion>
     <RepositoryBranch Condition=" '$(RepositoryBranch)' == '' ">$(GitVersion_BranchName)</RepositoryBranch>
     <RepositoryCommit Condition=" '$(RepositoryCommit)' == '' ">$(GitVersion_Sha)</RepositoryCommit>
-  </PropertyGroup>
+  </PropertyGroup> -->
 
   <PropertyGroup Condition="'$(IsPackable)' != 'true'">
     <NoWarn>$(NoWarn);1591</NoWarn>
@@ -34,9 +34,9 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="\" Visible="false" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Update="GitVersionTask" Version="5.6.7">
+    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
