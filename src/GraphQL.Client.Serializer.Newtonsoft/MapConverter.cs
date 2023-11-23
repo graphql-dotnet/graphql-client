@@ -9,15 +9,15 @@ public class MapConverter : JsonConverter<Map>
         throw new NotImplementedException(
             "This converter currently is only intended to be used to read a JSON object into a strongly-typed representation.");
 
-    public override Map ReadJson(JsonReader reader, Type objectType, Map existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override Map? ReadJson(JsonReader reader, Type objectType, Map existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
         var rootToken = JToken.ReadFrom(reader);
-        if (rootToken is JObject)
+        return rootToken.Type switch
         {
-            return (Map)ReadDictionary(rootToken, new Map());
-        }
-        else
-            throw new ArgumentException("This converter can only parse when the root element is a JSON Object.");
+            JTokenType.Object => (Map)ReadDictionary(rootToken, new Map()),
+            JTokenType.Null => null,
+            _ => throw new ArgumentException("This converter can only parse when the root element is a JSON Object.")
+        };
     }
 
     private object? ReadToken(JToken? token) =>

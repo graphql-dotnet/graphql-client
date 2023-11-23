@@ -1,4 +1,8 @@
 using System.Diagnostics;
+#pragma warning disable IDE0005
+// see https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/8.0/implicit-global-using-netfx
+using System.Net.Http;
+#pragma warning restore IDE0005
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
