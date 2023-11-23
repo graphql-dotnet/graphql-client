@@ -33,7 +33,7 @@
     <None Include="..\..\assets\logo.64x64.png" Pack="true" PackagePath="\" Visible="false" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="\" Visible="false" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
