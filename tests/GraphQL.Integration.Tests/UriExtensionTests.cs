@@ -30,12 +30,12 @@ public class UriExtensionTests
     [InlineData("ftp://this-url-cannot-be-converted.net", false, null)]
     // AppSync example
     [InlineData("wss://example1234567890000.appsync-realtime-api.us-west-2.amazonaws.com/graphql?header=123456789ABCDEF&payload=e30=", true, "wss://example1234567890000.appsync-realtime-api.us-west-2.amazonaws.com/graphql?header=123456789ABCDEF&payload=e30=")]
-    public void GetWebSocketUriTest(string input, bool canConvert, string result)
+    public void GetWebSocketUriTest(string input, bool canConvert, string? result)
     {
         var inputUri = new Uri(input);
         if (canConvert)
         {
-            inputUri.GetWebSocketUri().Should().BeEquivalentTo(new Uri(result));
+            inputUri.GetWebSocketUri().Should().BeEquivalentTo(new Uri(result!));
         }
         else
         {

@@ -15,7 +15,7 @@ public class SystemTextJsonAutoNegotiate : Base, IClassFixture<SystemTextJsonAut
     [Fact]
     public async Task WebSocketProtocolIsAutoNegotiated()
     {
-        await ChatClient.InitializeWebsocketConnection().ConfigureAwait(false);
+        await ChatClient.InitializeWebsocketConnection();
         ChatClient.WebSocketSubProtocol.Should().Be(WebSocketProtocols.GRAPHQL_TRANSPORT_WS);
     }
 }

@@ -121,7 +121,7 @@ public abstract class Base : IAsyncLifetime
         // unblock the query
         chatQuery.LongRunningQueryBlocker.Set();
         // check execution time
-        request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
+        (await request.Invoke()).Data.longRunning.Should().Be("finally returned");
 
         // reset stuff
         chatQuery.LongRunningQueryBlocker.Reset();

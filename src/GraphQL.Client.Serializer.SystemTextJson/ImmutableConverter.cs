@@ -95,7 +95,10 @@ public class ImmutableConverter : JsonConverter<object>
             DefaultBufferSize = options.DefaultBufferSize,
             DictionaryKeyPolicy = options.DictionaryKeyPolicy,
             Encoder = options.Encoder,
+#pragma warning disable SYSLIB0020
+            // obsolete warning disabled to keep compatibility until deprecated field is removed
             IgnoreNullValues = options.IgnoreNullValues,
+#pragma warning restore SYSLIB0020
             IgnoreReadOnlyProperties = options.IgnoreReadOnlyProperties,
             MaxDepth = options.MaxDepth,
             PropertyNameCaseInsensitive = options.PropertyNameCaseInsensitive,

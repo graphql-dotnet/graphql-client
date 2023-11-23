@@ -7,8 +7,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions.Reactive" Version="0.2.0" />
-    <PackageReference Include="GraphQL" Version="7.4.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="GraphQL" Version="7.6.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

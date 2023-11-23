@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
@@ -185,7 +184,7 @@ public abstract class Base : IAsyncLifetime
         // unblock the query
         chatQuery.LongRunningQueryBlocker.Set();
         // check execution time
-        request.Invoke().Result.Data.longRunning.Should().Be("finally returned");
+        (await request.Invoke()).Data.longRunning.Should().Be("finally returned");
 
         // reset stuff
         chatQuery.LongRunningQueryBlocker.Reset();

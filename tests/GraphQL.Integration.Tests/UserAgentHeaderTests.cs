@@ -17,7 +17,7 @@ public class UserAgentHeaderTests : IAsyncLifetime, IClassFixture<SystemTextJson
         Fixture = fixture;
     }
 
-    public async Task InitializeAsync() => await Fixture.CreateServer().ConfigureAwait(false);
+    public async Task InitializeAsync() => await Fixture.CreateServer();
 
     public Task DisposeAsync()
     {
@@ -32,7 +32,7 @@ public class UserAgentHeaderTests : IAsyncLifetime, IClassFixture<SystemTextJson
         ChatClient = Fixture.GetChatClient(options => options.DefaultUserAgentRequestHeader = ProductInfoHeaderValue.Parse(userAgent));
 
         var graphQLRequest = new GraphQLRequest("query clientUserAgent { clientUserAgent }");
-        var response = await ChatClient.SendQueryAsync(graphQLRequest, () => new { clientUserAgent = string.Empty }).ConfigureAwait(false);
+        var response = await ChatClient.SendQueryAsync(graphQLRequest, () => new { clientUserAgent = string.Empty });
 
         response.Errors.Should().BeNull();
         response.Data.clientUserAgent.Should().Be(userAgent);
@@ -48,7 +48,7 @@ public class UserAgentHeaderTests : IAsyncLifetime, IClassFixture<SystemTextJson
         ChatClient = Fixture.GetChatClient();
 
         var graphQLRequest = new GraphQLRequest("query clientUserAgent { clientUserAgent }");
-        var response = await ChatClient.SendQueryAsync(graphQLRequest, () => new { clientUserAgent = string.Empty }).ConfigureAwait(false);
+        var response = await ChatClient.SendQueryAsync(graphQLRequest, () => new { clientUserAgent = string.Empty });
 
         response.Errors.Should().BeNull();
         response.Data.clientUserAgent.Should().Be(expectedUserAgent);
@@ -60,7 +60,7 @@ public class UserAgentHeaderTests : IAsyncLifetime, IClassFixture<SystemTextJson
         ChatClient = Fixture.GetChatClient(options => options.DefaultUserAgentRequestHeader = null);
 
         var graphQLRequest = new GraphQLRequest("query clientUserAgent { clientUserAgent }");
-        var response = await ChatClient.SendQueryAsync(graphQLRequest, () => new { clientUserAgent = string.Empty }).ConfigureAwait(false);
+        var response = await ChatClient.SendQueryAsync(graphQLRequest, () => new { clientUserAgent = string.Empty });
 
         response.Errors.Should().HaveCount(1);
         response.Errors[0].Message.Should().Be("user agent header not set");
