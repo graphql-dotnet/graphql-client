@@ -199,7 +199,8 @@ public abstract class BaseSerializerTest
         var contentStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonString));
 
         // Act
-        var result = await ClientSerializer.DeserializeFromUtf8StreamAsync<WithConstructorAndProperties>(contentStream, default).ConfigureAwait(false);
+        var result = await ClientSerializer
+            .DeserializeFromUtf8StreamAsync<WithConstructorAndProperties>(contentStream, default);
 
         // Assert
         result.Data.Property1.Should().Be("value1");

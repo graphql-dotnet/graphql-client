@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 
 namespace GraphQL.Primitives.Tests;
@@ -26,7 +27,7 @@ public class GraphQLRequestTest
     public void Equality1Fact()
     {
         var graphQLRequest = new GraphQLRequest("{hero{name}}");
-        Assert.Equal(graphQLRequest, graphQLRequest);
+        graphQLRequest.Equals(graphQLRequest).Should().BeTrue();
     }
 
     [Fact]
@@ -34,7 +35,7 @@ public class GraphQLRequestTest
     {
         var graphQLRequest1 = new GraphQLRequest("{hero{name}}");
         var graphQLRequest2 = new GraphQLRequest("{hero{name}}");
-        Assert.Equal(graphQLRequest1, graphQLRequest2);
+        graphQLRequest1.Equals(graphQLRequest2).Should().BeTrue();
     }
 
     [Fact]
@@ -42,7 +43,7 @@ public class GraphQLRequestTest
     {
         var graphQLRequest1 = new GraphQLRequest("{hero{name}}", new { varName = "varValue" }, "operationName");
         var graphQLRequest2 = new GraphQLRequest("{hero{name}}", new { varName = "varValue" }, "operationName");
-        Assert.Equal(graphQLRequest1, graphQLRequest2);
+        graphQLRequest1.Equals(graphQLRequest2).Should().BeTrue();
     }
 
     [Fact]
@@ -66,7 +67,7 @@ public class GraphQLRequestTest
     {
         var graphQLRequest1 = new GraphQLRequest("{hero{name1}}");
         var graphQLRequest2 = new GraphQLRequest("{hero{name2}}");
-        Assert.NotEqual(graphQLRequest1, graphQLRequest2);
+        graphQLRequest1.Equals(graphQLRequest2).Should().BeFalse();
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public class GraphQLRequestTest
     {
         var graphQLRequest1 = new GraphQLRequest("{hero{name}}", new { varName = "varValue1" }, "operationName");
         var graphQLRequest2 = new GraphQLRequest("{hero{name}}", new { varName = "varValue2" }, "operationName");
-        Assert.NotEqual(graphQLRequest1, graphQLRequest2);
+        graphQLRequest1.Equals(graphQLRequest2).Should().BeFalse();
     }
 
     [Fact]
