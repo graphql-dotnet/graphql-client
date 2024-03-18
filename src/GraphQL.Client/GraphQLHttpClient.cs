@@ -71,6 +71,15 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
     }
 
+    public GraphQLHttpClient(Action<GraphQLHttpClientOptions> configure, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
+        : this(configure.New(), serializer, httpClient) { }
+
+    public GraphQLHttpClient(Uri endPoint, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
+        : this(o => o.EndPoint = endPoint, serializer, httpClient) { }
+
+    public GraphQLHttpClient(string endPoint, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
+        : this(new Uri(endPoint), serializer, httpClient) { }
+
     #endregion
 
     #region IGraphQLClient
