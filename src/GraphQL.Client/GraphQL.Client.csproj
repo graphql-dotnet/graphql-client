@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net5</TargetFrameworks>
     <RootNamespace>GraphQL.Client.Http</RootNamespace>
   </PropertyGroup>
 
@@ -20,6 +20,10 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
     <PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
   <ItemGroup>
