@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace GraphQL.Client.Abstractions;
 
 public static class GraphQLClientExtensions
 {
     public static Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(this IGraphQLClient client,
-        string query, object? variables = null,
+        [StringSyntax("GraphQL")] string query, object? variables = null,
         string? operationName = null, Func<TResponse> defineResponseType = null, CancellationToken cancellationToken = default)
     {
         _ = defineResponseType;
@@ -12,7 +14,7 @@ public static class GraphQLClientExtensions
     }
 
     public static Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(this IGraphQLClient client,
-        string query, object? variables = null,
+        [StringSyntax("GraphQL")] string query, object? variables = null,
         string? operationName = null, Func<TResponse> defineResponseType = null, CancellationToken cancellationToken = default)
     {
         _ = defineResponseType;
