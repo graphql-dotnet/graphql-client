@@ -116,7 +116,7 @@ internal class GraphQLTransportWSProtocolHandler : IWebsocketProtocolHandler
 
             var disposable = new CompositeDisposable(
                 observable.Subscribe(observer),
-                Disposable.Create(async () =>
+                Disposable.Create(() =>
                 {
                     Debug.WriteLine($"disposing subscription {startRequest.Id}, websocket state is '{_webSocketHandler.WebSocketState}'");
                     // only try to send close request on open websocket
@@ -126,7 +126,7 @@ internal class GraphQLTransportWSProtocolHandler : IWebsocketProtocolHandler
                     try
                     {
                         Debug.WriteLine($"sending stop message on subscription {startRequest.Id}");
-                        await _queueWebSocketRequest(stopRequest).ConfigureAwait(false);
+                        _queueWebSocketRequest(stopRequest).GetAwaiter().GetResult();
                     }
                     // do not break on disposing
                     catch (OperationCanceledException) { }
