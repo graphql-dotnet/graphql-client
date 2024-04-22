@@ -109,7 +109,7 @@ var personName = graphQLResponse.Data.person.Name;
 > [!IMPORTANT]
 > Note that the field in the GraphQL response which gets deserialized into the response object is the `data` field.
 >
-> A common mistake is to try to directly use the `PersonType` object as response type (because thats the *thing* you actually want to query), but the returned response object contains a property `person` containing a `PersonType` object (like the `ResponseType` modelled above).
+> A common mistake is to try to directly use the `PersonType` class as response type (because thats the *thing* you actually want to query), but the returned response object contains a property `person` containing a `PersonType` object (like the `ResponseType` modelled above).
 
 ### Use Subscriptions
 
