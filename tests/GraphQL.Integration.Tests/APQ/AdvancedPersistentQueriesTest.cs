@@ -9,12 +9,13 @@ using Xunit;
 namespace GraphQL.Integration.Tests.APQ;
 
 [SuppressMessage("ReSharper", "UseConfigureAwaitFalse")]
-public class APQViaHttpRequests : IAsyncLifetime, IClassFixture<SystemTextJsonAutoNegotiateServerTestFixture>
+public class AdvancedPersistentQueriesTest : IAsyncLifetime, IClassFixture<SystemTextJsonAutoNegotiateServerTestFixture>
 {
     public SystemTextJsonAutoNegotiateServerTestFixture Fixture { get; }
     protected GraphQLHttpClient StarWarsClient;
+    protected GraphQLHttpClient StarWarsWebsocketClient;
 
-    public APQViaHttpRequests(SystemTextJsonAutoNegotiateServerTestFixture fixture)
+    public AdvancedPersistentQueriesTest(SystemTextJsonAutoNegotiateServerTestFixture fixture)
     {
         Fixture = fixture;
     }
@@ -23,6 +24,11 @@ public class APQViaHttpRequests : IAsyncLifetime, IClassFixture<SystemTextJsonAu
     {
         await Fixture.CreateServer();
         StarWarsClient = Fixture.GetStarWarsClient(options => options.EnableAutomaticPersistedQueries = _ => true);
+        StarWarsWebsocketClient = Fixture.GetStarWarsClient(options =>
+        {
+            options.EnableAutomaticPersistedQueries = _ => true;
+            options.UseWebSocketForQueriesAndMutations = true;
+        });
     }
 
     public Task DisposeAsync()
@@ -50,5 +56,26 @@ public class APQViaHttpRequests : IAsyncLifetime, IClassFixture<SystemTextJsonAu
         Assert.Null(response.Errors);
         Assert.Equal(name, response.Data.Human.Name);
         StarWarsClient.APQDisabledForSession.Should().BeFalse("if APQ has worked it won't get disabled");
+    }
+
+    [Theory]
+    [ClassData(typeof(StarWarsHumans))]
+    public async void After_querying_all_starwars_humans_using_websocket_transport_the_APQDisabledForSession_is_still_false_Async(int id, string name)
+    {
+        var query = new GraphQLQuery("""
+                                     query Human($id: String!){
+                                     human(id: $id) {
+                                             name
+                                         }
+                                     }
+                                     """);
+
+        var graphQLRequest = new GraphQLRequest(query, new { id = id.ToString() });
+
+        var response = await StarWarsWebsocketClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
+
+        Assert.Null(response.Errors);
+        Assert.Equal(name, response.Data.Human.Name);
+        StarWarsWebsocketClient.APQDisabledForSession.Should().BeFalse("if APQ has worked it won't get disabled");
     }
 }
