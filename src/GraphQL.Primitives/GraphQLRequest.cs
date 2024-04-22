@@ -59,7 +59,7 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
         Extensions = extensions;
     }
 
-#if NET7_0_OR_GREATER
+#if NET6_0_OR_GREATER
     public GraphQLRequest(GraphQLQuery query, object? variables = null, string? operationName = null,
         Dictionary<string, object?>? extensions = null)
         : this(query.Text, variables, operationName, extensions)

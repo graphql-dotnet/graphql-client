@@ -13,7 +13,7 @@ public static class GraphQLClientExtensions
             cancellationToken: cancellationToken);
     }
 
-#if NET7_0_OR_GREATER
+#if NET6_0_OR_GREATER
     public static Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(this IGraphQLClient client,
         GraphQLQuery query, object? variables = null,
         string? operationName = null, Func<TResponse>? defineResponseType = null,
@@ -31,7 +31,7 @@ public static class GraphQLClientExtensions
             cancellationToken: cancellationToken);
     }
 
-#if NET7_0_OR_GREATER
+#if NET6_0_OR_GREATER
     public static Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(this IGraphQLClient client,
         GraphQLQuery query, object? variables = null, string? operationName = null, Func<TResponse>? defineResponseType = null,
         CancellationToken cancellationToken = default)
