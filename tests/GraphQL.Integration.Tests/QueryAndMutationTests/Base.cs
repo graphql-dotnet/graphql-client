@@ -82,13 +82,15 @@ public abstract class Base : IAsyncLifetime
     [ClassData(typeof(StarWarsHumans))]
     public async void QueryWitVarsTheory(int id, string name)
     {
-        var graphQLRequest = new GraphQLRequest(@"
-				query Human($id: String!){
-					human(id: $id) {
-						name
-					}
-				}",
-            new { id = id.ToString() });
+        var query = new GraphQLQuery("""
+                                        query Human($id: String!){
+                                        human(id: $id) {
+                                                name
+                                            }
+                                        }
+                                        """);
+
+        var graphQLRequest = new GraphQLRequest(query, new { id = id.ToString() });
 
         var response = await StarWarsClient.SendQueryAsync(graphQLRequest, () => new { Human = new { Name = string.Empty } });
 

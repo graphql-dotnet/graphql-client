@@ -20,6 +20,13 @@ public class GraphQLHttpRequest : GraphQLRequest
     {
     }
 
+#if NET6_0_OR_GREATER
+    public GraphQLHttpRequest(GraphQLQuery query, object? variables = null, string? operationName = null, Dictionary<string, object?>? extensions = null)
+        : base(query, variables, operationName, extensions)
+    {
+    }
+#endif
+
     public GraphQLHttpRequest(GraphQLRequest other)
         : base(other)
     {

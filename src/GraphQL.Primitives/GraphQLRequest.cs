@@ -59,6 +59,14 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
         Extensions = extensions;
     }
 
+#if NET6_0_OR_GREATER
+    public GraphQLRequest(GraphQLQuery query, object? variables = null, string? operationName = null,
+        Dictionary<string, object?>? extensions = null)
+        : this(query.Text, variables, operationName, extensions)
+    {
+    }
+#endif
+
     public GraphQLRequest(GraphQLRequest other) : base(other) { }
 
     /// <summary>

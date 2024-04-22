@@ -14,34 +14,38 @@ Provides the following packages:
 | GraphQL.Client.Serializer.SystemTextJson | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Client.Serializer.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Client.Serializer.SystemTextJson) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Client.Serializer.SystemTextJson)](https://www.nuget.org/packages/GraphQL.Client.Serializer.SystemTextJson) | 
 | GraphQL.Primitives | [![Nuget](https://img.shields.io/nuget/dt/GraphQL.Primitives)](https://www.nuget.org/packages/GraphQL.Primitives/) | [![Nuget](https://img.shields.io/nuget/vpre/GraphQL.Primitives)](https://www.nuget.org/packages/GraphQL.Primitives) | 
 
-## Specification:
+## Specification
 The Library will try to follow the following standards and documents:
 
 * [GraphQL Specification](https://spec.graphql.org/June2018/)
 * [GraphQL HomePage](https://graphql.org/learn)
 
-## Usage:
+## Usage
 
 ### Create a GraphQLHttpClient
 
 ```csharp
-// To use NewtonsoftJsonSerializer, add a reference to NuGet package GraphQL.Client.Serializer.Newtonsoft
-var graphQLClient = new GraphQLHttpClient("https://api.example.com/graphql", new NewtonsoftJsonSerializer());
+// To use NewtonsoftJsonSerializer, add a reference to 
+// NuGet package GraphQL.Client.Serializer.Newtonsoft
+var graphQLClient = new GraphQLHttpClient(
+    "https://api.example.com/graphql", 
+    new NewtonsoftJsonSerializer());
 ```
 
 > [!NOTE]
-> *GraphQLHttpClient* is meant to be used as a single longlived instance per endpoint (i.e. register as singleton in a DI system), which should be reused for multiple requests.
+> *GraphQLHttpClient* is meant to be used as a single long-lived instance per endpoint (i.e. register as singleton in a DI system), which should be reused for multiple requests.
 
 ### Create a GraphQLRequest:
 #### Simple Request:
 ```csharp
 var heroRequest = new GraphQLRequest {
-    Query = @"
+    Query = """
     {
         hero {
             name
         }
-    }"
+    }
+    """
 };
 ```
 
@@ -49,7 +53,7 @@ var heroRequest = new GraphQLRequest {
 
 ```csharp
 var personAndFilmsRequest = new GraphQLRequest {
-    Query =@"
+    Query ="""
     query PersonAndFilms($id: ID) {
         person(id: $id) {
             name
@@ -59,7 +63,8 @@ var personAndFilmsRequest = new GraphQLRequest {
                 }
             }
         }
-    }",
+    }
+    """,
     OperationName = "PersonAndFilms",
     Variables = new {
         id = "cGVvcGxlOjE="
@@ -72,7 +77,7 @@ var personAndFilmsRequest = new GraphQLRequest {
 > 
 > If you really need to send a *list of bytes* with a `byte[]` as a  source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
 
-### Execute Query/Mutation:
+### Execute Query/Mutation
 
 ```csharp
 public class ResponseType 
@@ -102,7 +107,9 @@ var personName = graphQLResponse.Data.Person.Name;
 Using the extension method for anonymously typed responses (namespace `GraphQL.Client.Abstractions`) you could achieve the same result with the following code:
 
 ```csharp
-var graphQLResponse = await graphQLClient.SendQueryAsync(personAndFilmsRequest, () => new { person = new PersonType()} );
+var graphQLResponse = await graphQLClient.SendQueryAsync(
+    personAndFilmsRequest, 
+    () => new { person = new PersonType()});
 var personName = graphQLResponse.Data.person.Name;
 ```
 
@@ -162,7 +169,29 @@ Currently, there is no native support for GraphQL formatting and syntax highligh
 
 For Rider, JetBrains provides a [Plugin](https://plugins.jetbrains.com/plugin/8097-graphql), too.
 
-## Useful Links:
+To leverage syntax highlighting in variable declarations, the `GraphQLQuery` value record type is provided:
+
+```csharp
+GraphQLQuery query = new("""
+                         query PersonAndFilms($id: ID) {
+                             person(id: $id) {
+                                 name
+                                 filmConnection {
+                                     films {
+                                         title
+                                     }
+                                 }
+                             }
+                         }
+                         """);
+                         
+var graphQLResponse = await graphQLClient.SendQueryAsync<ResponseType>(
+    query, 
+    "PersonAndFilms",
+    new { id = "cGVvcGxlOjE=" });
+```
+
+## Useful Links
 
 * [StarWars Example Server (GitHub)](https://github.com/graphql/swapi-graphql)
 * [StarWars Example Server (EndPoint)](https://swapi.apis.guru/)
