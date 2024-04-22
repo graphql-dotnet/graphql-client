@@ -29,8 +29,7 @@ The Library will try to follow the following standards and documents:
 // NuGet package GraphQL.Client.Serializer.Newtonsoft
 var graphQLClient = new GraphQLHttpClient(
     "https://api.example.com/graphql", 
-    new NewtonsoftJsonSerializer()
-);
+    new NewtonsoftJsonSerializer());
 ```
 
 > [!NOTE]
@@ -110,8 +109,7 @@ Using the extension method for anonymously typed responses (namespace `GraphQL.C
 ```csharp
 var graphQLResponse = await graphQLClient.SendQueryAsync(
     personAndFilmsRequest, 
-    () => new { person = new PersonType()} 
-);
+    () => new { person = new PersonType()});
 var personName = graphQLResponse.Data.person.Name;
 ```
 
@@ -190,8 +188,7 @@ GraphQLQuery query = new("""
 var graphQLResponse = await graphQLClient.SendQueryAsync<ResponseType>(
     query, 
     "PersonAndFilms",
-    new { id = "cGVvcGxlOjE=" }
-);
+    new { id = "cGVvcGxlOjE=" });
 ```
 
 ## Useful Links
