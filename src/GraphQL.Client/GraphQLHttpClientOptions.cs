@@ -111,9 +111,9 @@ public class GraphQLHttpClientOptions
     /// A delegate which takes an <see cref="IGraphQLResponse"/> and returns a boolean to disable any future persisted queries for that session.
     /// This defaults to disabling on PersistedQueryNotSupported or a 400 or 500 HTTP error.
     /// </summary>
-    public Func<IGraphQLHttpResponse, bool> DisableAPQ { get; set; } = response =>
+    public Func<IGraphQLResponse, bool> DisableAPQ { get; set; } = response =>
     {
-        return ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600) ||
-                response.Errors?.Any(error => string.Equals(error.Message, "PersistedQueryNotSupported", StringComparison.CurrentCultureIgnoreCase)) == true;
+        return response.Errors?.Any(error => string.Equals(error.Message, "PersistedQueryNotSupported", StringComparison.CurrentCultureIgnoreCase)) == true
+            || response is IGraphQLHttpResponse httpResponse && (int)httpResponse.StatusCode >= 400 && (int)httpResponse.StatusCode < 600;
     };
 }

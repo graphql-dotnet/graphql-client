@@ -16,7 +16,7 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
     /// The Query
     /// </summary>
     [StringSyntax("GraphQL")]
-    public string Query
+    public string? Query
     {
         get => TryGetValue(QUERY_KEY, out object value) ? (string)value : null;
         set => this[QUERY_KEY] = value;
