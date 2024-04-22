@@ -21,7 +21,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// <summary>
     /// This flag is used to completely disable APQ when GraphQL server does not support it.
     /// </summary>
-    private bool _APQdisabledPerSession;
+    private bool _apqDisabledPerSession;
 
     /// <summary>
     /// the json serializer
@@ -136,7 +136,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         var savedQuery = request.Query;
         bool useAPQ = false;
 
-        if (request.Query != null && !_APQdisabledPerSession && Options.EnableAutomaticPersistedQueries(request))
+        if (request.Query != null && !_apqDisabledPerSession && Options.EnableAutomaticPersistedQueries(request))
         {
             // https://www.apollographql.com/docs/react/api/link/persisted-queries/
             const int APQ_SUPPORTED_VERSION = 1;
@@ -167,7 +167,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
             {
                 // GraphQL server either supports APQ of some other version, or does not support it at all.
                 // Send a request for the second time. This is better than returning an error. Let the client work with APQ disabled.
-                _APQdisabledPerSession = Options.DisableAPQ(response);
+                _apqDisabledPerSession = Options.DisableAPQ(response);
                 request.Query = savedQuery;
                 return await SendHttpRequestAsync<TResponse>(request, cancellationToken);
             }
