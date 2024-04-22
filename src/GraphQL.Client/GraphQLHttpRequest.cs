@@ -1,5 +1,6 @@
 #pragma warning disable IDE0005
 // see https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/8.0/implicit-global-using-netfx
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 #pragma warning restore IDE0005
 using System.Net.Http.Headers;
@@ -14,7 +15,7 @@ public class GraphQLHttpRequest : GraphQLRequest
     {
     }
 
-    public GraphQLHttpRequest(string query, object? variables = null, string? operationName = null, Dictionary<string, object?>? extensions = null)
+    public GraphQLHttpRequest([StringSyntax("GraphQL")] string query, object? variables = null, string? operationName = null, Dictionary<string, object?>? extensions = null)
         : base(query, variables, operationName, extensions)
     {
     }
