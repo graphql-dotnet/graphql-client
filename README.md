@@ -36,12 +36,13 @@ var graphQLClient = new GraphQLHttpClient("https://api.example.com/graphql", new
 #### Simple Request:
 ```csharp
 var heroRequest = new GraphQLRequest {
-    Query = @"
+    Query = """
     {
         hero {
             name
         }
-    }"
+    }
+    """
 };
 ```
 
@@ -49,7 +50,7 @@ var heroRequest = new GraphQLRequest {
 
 ```csharp
 var personAndFilmsRequest = new GraphQLRequest {
-    Query =@"
+    Query ="""
     query PersonAndFilms($id: ID) {
         person(id: $id) {
             name
@@ -59,7 +60,8 @@ var personAndFilmsRequest = new GraphQLRequest {
                 }
             }
         }
-    }",
+    }
+    """,
     OperationName = "PersonAndFilms",
     Variables = new {
         id = "cGVvcGxlOjE="
@@ -161,6 +163,25 @@ From v6.0.4 on all GraphQL string parameters in this library are decorated with 
 Currently, there is no native support for GraphQL formatting and syntax highlighting in Visual Studio, but the [GraphQLTools Extension](https://marketplace.visualstudio.com/items?itemName=codearchitects-research.GraphQLTools) provides that for you.
 
 For Rider, JetBrains provides a [Plugin](https://plugins.jetbrains.com/plugin/8097-graphql), too.
+
+To leverage syntax highlighting in variable declarations, the `GraphQLQuery` value record type is provided:
+
+```csharp
+GraphQLQuery query = new("""
+                         query PersonAndFilms($id: ID) {
+                             person(id: $id) {
+                                 name
+                                 filmConnection {
+                                     films {
+                                         title
+                                     }
+                                 }
+                             }
+                         }
+                         """);
+                         
+var graphQLResponse = await graphQLClient.SendQueryAsync<ResponseType>(query, new { id = "cGVvcGxlOjE=" });
+```
 
 ## Useful Links:
 
