@@ -58,7 +58,7 @@ jobs:
     - name: Publish Nuget packages to Nuget registry
       run: dotnet nuget push "nupkg/*" -k ${{secrets.NUGET_API_KEY}}
     - name: Upload Nuget packages as release artifacts
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
