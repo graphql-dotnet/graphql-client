@@ -30,7 +30,7 @@ var graphQLClient = new GraphQLHttpClient("https://api.example.com/graphql", new
 ```
 
 > [!NOTE]
-> *GraphQLHttpClient* is meant to be used as a single longlived instance per endpoint (i.e. register as singleton in a DI system) to be reused for multiple requests.
+> *GraphQLHttpClient* is meant to be used as a single longlived instance per endpoint (i.e. register as singleton in a DI system), which should be reused for multiple requests.
 
 ### Create a GraphQLRequest:
 #### Simple Request:
@@ -68,7 +68,9 @@ var personAndFilmsRequest = new GraphQLRequest {
 ```
 
 > [!WARNING]
-> Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data! If you really need to send a *list of bytes* with a `byte[]` as a  source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
+> Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data.
+> 
+> If you really need to send a *list of bytes* with a `byte[]` as a  source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
 
 ### Execute Query/Mutation:
 
@@ -103,6 +105,11 @@ Using the extension method for anonymously typed responses (namespace `GraphQL.C
 var graphQLResponse = await graphQLClient.SendQueryAsync(personAndFilmsRequest, () => new { person = new PersonType()} );
 var personName = graphQLResponse.Data.person.Name;
 ```
+
+> [!IMPORTANT]
+> Note that the field in the GraphQL response which gets deserialized into the response object is the `data` field.
+>
+> A common mistake is to try to directly use the `PersonType` object as response type (because thats the *thing* you actually want to query), but the returned response object contains a property `person` containing a `PersonType` object (like the `ResponseType` modelled above).
 
 ### Use Subscriptions
 
