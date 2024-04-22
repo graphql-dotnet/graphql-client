@@ -29,6 +29,9 @@ The Library will try to follow the following standards and documents:
 var graphQLClient = new GraphQLHttpClient("https://api.example.com/graphql", new NewtonsoftJsonSerializer());
 ```
 
+> [!NOTE]
+> *GraphQLHttpClient* is meant to be used as a single longlived instance per endpoint (i.e. register as singleton in a DI system) to be reused for multiple requests.
+
 ### Create a GraphQLRequest:
 #### Simple Request:
 ```csharp
@@ -64,7 +67,8 @@ var personAndFilmsRequest = new GraphQLRequest {
 };
 ```
 
-Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data! If you really need to send a *list of bytes* with a `byte[]` as a source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
+> [!WARNING]
+> Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data! If you really need to send a *list of bytes* with a `byte[]` as a  source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
 
 ### Execute Query/Mutation:
 
