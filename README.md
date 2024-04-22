@@ -141,6 +141,16 @@ var subscription = subscriptionStream.Subscribe(response =>
 subscription.Dispose();
 ```
 
+## Syntax Highlighting for GraphQL strings in IDEs
+
+.NET 7.0 introduced the [StringSyntaxAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.codeanalysis.stringsyntaxattribute?view=net-8.0) to have a unified way of telling what data is expected in a given `string` or `ReadOnlySpan<char>`. IDEs like Visual Studio and Rider can then use this to provide syntax highlighting and checking.
+
+From v6.0.4 on all GraphQL string parameters in this library are decorated with the `[StringSyntax("GraphQL")]` attribute.
+
+Currently, there is no native support for GraphQL formatting and syntax highlighting in Visual Studio, but the [GraphQLTools Extension](https://marketplace.visualstudio.com/items?itemName=codearchitects-research.GraphQLTools) provides that for you.
+
+For Rider, JetBrains provides a [Plugin](https://plugins.jetbrains.com/plugin/8097-graphql), too.
+
 ## Useful Links:
 
 * [StarWars Example Server (GitHub)](https://github.com/graphql/swapi-graphql)
