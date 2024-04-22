@@ -29,6 +29,9 @@ The Library will try to follow the following standards and documents:
 var graphQLClient = new GraphQLHttpClient("https://api.example.com/graphql", new NewtonsoftJsonSerializer());
 ```
 
+> [!NOTE]
+> *GraphQLHttpClient* is meant to be used as a single longlived instance per endpoint (i.e. register as singleton in a DI system), which should be reused for multiple requests.
+
 ### Create a GraphQLRequest:
 #### Simple Request:
 ```csharp
@@ -64,7 +67,10 @@ var personAndFilmsRequest = new GraphQLRequest {
 };
 ```
 
-Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data! If you really need to send a *list of bytes* with a `byte[]` as a source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
+> [!WARNING]
+> Be careful when using `byte[]` in your variables object, as most JSON serializers will treat that as binary data.
+> 
+> If you really need to send a *list of bytes* with a `byte[]` as a  source, then convert it to a `List<byte>` first, which will tell the serializer to output a list of numbers instead of a base64-encoded string.
 
 ### Execute Query/Mutation:
 
@@ -99,6 +105,11 @@ Using the extension method for anonymously typed responses (namespace `GraphQL.C
 var graphQLResponse = await graphQLClient.SendQueryAsync(personAndFilmsRequest, () => new { person = new PersonType()} );
 var personName = graphQLResponse.Data.person.Name;
 ```
+
+> [!IMPORTANT]
+> Note that the field in the GraphQL response which gets deserialized into the response object is the `data` field.
+>
+> A common mistake is to try to directly use the `PersonType` class as response type (because thats the *thing* you actually want to query), but the returned response object contains a property `person` containing a `PersonType` object (like the `ResponseType` modelled above).
 
 ### Use Subscriptions
 
@@ -140,6 +151,16 @@ var subscription = subscriptionStream.Subscribe(response =>
 ```csharp
 subscription.Dispose();
 ```
+
+## Syntax Highlighting for GraphQL strings in IDEs
+
+.NET 7.0 introduced the [StringSyntaxAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.codeanalysis.stringsyntaxattribute?view=net-8.0) to have a unified way of telling what data is expected in a given `string` or `ReadOnlySpan<char>`. IDEs like Visual Studio and Rider can then use this to provide syntax highlighting and checking.
+
+From v6.0.4 on all GraphQL string parameters in this library are decorated with the `[StringSyntax("GraphQL")]` attribute.
+
+Currently, there is no native support for GraphQL formatting and syntax highlighting in Visual Studio, but the [GraphQLTools Extension](https://marketplace.visualstudio.com/items?itemName=codearchitects-research.GraphQLTools) provides that for you.
+
+For Rider, JetBrains provides a [Plugin](https://plugins.jetbrains.com/plugin/8097-graphql), too.
 
 ## Useful Links:
 
