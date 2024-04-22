@@ -38,6 +38,7 @@ public class Startup
             })
             .AddErrorInfoProvider(opt => opt.ExposeExceptionDetails = Environment.IsDevelopment())
             .AddSystemTextJson()
+            .UseAutomaticPersistedQueries()
             .AddGraphTypes(typeof(ChatSchema).Assembly));
     }
 

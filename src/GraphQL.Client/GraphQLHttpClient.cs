@@ -17,12 +17,6 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     private readonly bool _disposeHttpClient = false;
-
-    /// <summary>
-    /// This flag is used to completely disable APQ when GraphQL server does not support it.
-    /// </summary>
-    private bool _apqDisabledPerSession;
-
     /// <summary>
     /// the json serializer
     /// </summary>
@@ -37,6 +31,12 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// The Options	to be used
     /// </summary>
     public GraphQLHttpClientOptions Options { get; }
+
+    /// <summary>
+    /// This flag is set to <see langword="true"/> when an error has occurred on an APQ and <see cref="GraphQLHttpClientOptions.DisableAPQ"/>
+    /// has returned <see langword="true"/>. To reset this, the instance of <see cref="GraphQLHttpClient"/> has to be disposed and a new one must be created.
+    /// </summary>
+    public bool APQDisabledForSession { get; private set; }
 
     /// <inheritdoc />
     public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
@@ -99,7 +99,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         string? savedQuery = request.Query;
         bool useAPQ = false;
 
-        if (request.Query != null && !_apqDisabledPerSession && Options.EnableAutomaticPersistedQueries(request))
+        if (request.Query != null && !APQDisabledForSession && Options.EnableAutomaticPersistedQueries(request))
         {
             // https://www.apollographql.com/docs/react/api/link/persisted-queries/
             useAPQ = true;
@@ -129,7 +129,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
             {
                 // GraphQL server either supports APQ of some other version, or does not support it at all.
                 // Send a request for the second time. This is better than returning an error. Let the client work with APQ disabled.
-                _apqDisabledPerSession = Options.DisableAPQ(response);
+                APQDisabledForSession = Options.DisableAPQ(response);
                 request.Query = savedQuery;
                 return await SendQueryInternalAsync<TResponse>(request, cancellationToken);
             }
