@@ -9,13 +9,13 @@ using Xunit;
 namespace GraphQL.Integration.Tests.APQ;
 
 [SuppressMessage("ReSharper", "UseConfigureAwaitFalse")]
-public class AdvancedPersistentQueriesTest : IAsyncLifetime, IClassFixture<SystemTextJsonAutoNegotiateServerTestFixture>
+public class AutomaticPersistentQueriesTest : IAsyncLifetime, IClassFixture<SystemTextJsonAutoNegotiateServerTestFixture>
 {
     public SystemTextJsonAutoNegotiateServerTestFixture Fixture { get; }
     protected GraphQLHttpClient StarWarsClient;
     protected GraphQLHttpClient StarWarsWebsocketClient;
 
-    public AdvancedPersistentQueriesTest(SystemTextJsonAutoNegotiateServerTestFixture fixture)
+    public AutomaticPersistentQueriesTest(SystemTextJsonAutoNegotiateServerTestFixture fixture)
     {
         Fixture = fixture;
     }

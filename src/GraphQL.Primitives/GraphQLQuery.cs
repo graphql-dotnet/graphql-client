@@ -13,7 +13,7 @@ public class GraphQLQuery : IEquatable<GraphQLQuery>
     public string Text { get; }
 
     /// <summary>
-    /// The SHA256 hash used for the advanced persisted queries feature (APQ)
+    /// The SHA256 hash used for the automatic persisted queries feature (APQ)
     /// </summary>
     public string Sha256Hash { get; }
 
