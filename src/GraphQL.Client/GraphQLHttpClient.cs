@@ -96,19 +96,15 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        string? savedQuery = request.Query;
+        string? savedQuery = null;
         bool useAPQ = false;
 
         if (request.Query != null && !APQDisabledForSession && Options.EnableAutomaticPersistedQueries(request))
         {
             // https://www.apollographql.com/docs/react/api/link/persisted-queries/
             useAPQ = true;
-            request.Extensions ??= new();
-            request.Extensions["persistedQuery"] = new Dictionary<string, object>
-            {
-                ["version"] = APQ_SUPPORTED_VERSION,
-                ["sha256Hash"] = Hash.Compute(request.Query),
-            };
+            request.GeneratePersistedQueryExtension();
+            savedQuery = request.Query;
             request.Query = null;
         }
 

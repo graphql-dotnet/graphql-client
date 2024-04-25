@@ -11,19 +11,29 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
     public const string QUERY_KEY = "query";
     public const string VARIABLES_KEY = "variables";
     public const string EXTENSIONS_KEY = "extensions";
+    public const string EXTENSIONS_PERSISTED_QUERY_KEY = "persistedQuery";
+    public const int APQ_SUPPORTED_VERSION = 1;
+
+    private string? _sha265Hash;
 
     /// <summary>
-    /// The Query
+    /// The query string
     /// </summary>
     [StringSyntax("GraphQL")]
     public string? Query
     {
         get => TryGetValue(QUERY_KEY, out object value) ? (string)value : null;
-        set => this[QUERY_KEY] = value;
+        set
+        {
+            this[QUERY_KEY] = value;
+            // if the query string gets overwritten, reset the hash value
+            if (_sha265Hash is not null)
+                _sha265Hash = null;
+        }
     }
 
     /// <summary>
-    /// The name of the Operation
+    /// The operation to execute
     /// </summary>
     public string? OperationName
     {
@@ -59,15 +69,27 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
         Extensions = extensions;
     }
 
-#if NET6_0_OR_GREATER
     public GraphQLRequest(GraphQLQuery query, object? variables = null, string? operationName = null,
         Dictionary<string, object?>? extensions = null)
         : this(query.Text, variables, operationName, extensions)
     {
+        _sha265Hash = query.Sha256Hash;
     }
-#endif
 
     public GraphQLRequest(GraphQLRequest other) : base(other) { }
+
+    public void GeneratePersistedQueryExtension()
+    {
+        if (Query is null)
+            throw new InvalidOperationException($"{nameof(Query)} is null");
+
+        Extensions ??= new();
+        Extensions[EXTENSIONS_PERSISTED_QUERY_KEY] = new Dictionary<string, object>
+        {
+            ["version"] = APQ_SUPPORTED_VERSION,
+            ["sha256Hash"] = _sha265Hash ?? Hash.Compute(Query),
+        };
+    }
 
     /// <summary>
     /// Returns a value that indicates whether this instance is equal to a specified object

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace GraphQL.Client.Http;
+namespace GraphQL;
 
 internal static class Hash
 {
@@ -11,10 +11,10 @@ internal static class Hash
 
     internal static string Compute(string query)
     {
-        var expected = Encoding.UTF8.GetByteCount(query);
-        var inputBytes = ArrayPool<byte>.Shared.Rent(expected);
-        var written = Encoding.UTF8.GetBytes(query, 0, query.Length, inputBytes, 0);
-        Debug.Assert(written == expected, $"Encoding.UTF8.GetBytes returned unexpected bytes: {written} instead of {expected}");
+        int expected = Encoding.UTF8.GetByteCount(query);
+        byte[]? inputBytes = ArrayPool<byte>.Shared.Rent(expected);
+        int written = Encoding.UTF8.GetBytes(query, 0, query.Length, inputBytes, 0);
+        Debug.Assert(written == expected, (string)$"Encoding.UTF8.GetBytes returned unexpected bytes: {written} instead of {expected}");
 
         var shaShared = Interlocked.Exchange(ref _sha256, null) ?? SHA256.Create();
 
@@ -33,7 +33,7 @@ internal static class Hash
         return Convert.ToHexString(bytes);
 #else
         var builder = new StringBuilder(bytes.Length * 2);
-        foreach (var item in bytes)
+        foreach (byte item in bytes)
         {
             builder.Append(item.ToString("x2"));
         }

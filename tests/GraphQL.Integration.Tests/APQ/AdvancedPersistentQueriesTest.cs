@@ -78,4 +78,33 @@ public class AdvancedPersistentQueriesTest : IAsyncLifetime, IClassFixture<Syste
         Assert.Equal(name, response.Data.Human.Name);
         StarWarsWebsocketClient.APQDisabledForSession.Should().BeFalse("if APQ has worked it won't get disabled");
     }
+
+    [Fact]
+    public void Verify_the_persisted_query_extension_object()
+    {
+        var query = new GraphQLQuery("""
+                                     query Human($id: String!){
+                                     human(id: $id) {
+                                             name
+                                         }
+                                     }
+                                     """);
+        query.Sha256Hash.Should().NotBeNullOrEmpty();
+
+        var request = new GraphQLRequest(query);
+        request.Extensions.Should().BeNull();
+        request.GeneratePersistedQueryExtension();
+        request.Extensions.Should().NotBeNull();
+
+        string expectedKey = "persistedQuery";
+        var expectedExtensionValue = new Dictionary<string, object>
+        {
+            ["version"] = 1,
+            ["sha256Hash"] = query.Sha256Hash,
+        };
+
+        request.Extensions.Should().ContainKey(expectedKey);
+        request.Extensions![expectedKey].As<Dictionary<string, object>>()
+            .Should().NotBeNull().And.BeEquivalentTo(expectedExtensionValue);
+    }
 }
