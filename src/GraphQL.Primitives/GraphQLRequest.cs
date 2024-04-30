@@ -27,8 +27,7 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
         {
             this[QUERY_KEY] = value;
             // if the query string gets overwritten, reset the hash value
-            if (_sha265Hash is not null)
-                _sha265Hash = null;
+            _sha265Hash = null;
         }
     }
 
