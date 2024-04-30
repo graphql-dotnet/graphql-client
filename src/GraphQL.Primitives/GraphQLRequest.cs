@@ -87,7 +87,7 @@ public class GraphQLRequest : Dictionary<string, object>, IEquatable<GraphQLRequ
         Extensions[EXTENSIONS_PERSISTED_QUERY_KEY] = new Dictionary<string, object>
         {
             ["version"] = APQ_SUPPORTED_VERSION,
-            ["sha256Hash"] = _sha265Hash ?? Hash.Compute(Query),
+            ["sha256Hash"] = _sha265Hash ??= Hash.Compute(Query),
         };
     }
 
