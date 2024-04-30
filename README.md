@@ -168,7 +168,7 @@ subscription.Dispose();
 
 APQ can be enabled by configuring `GraphQLHttpClientOptions.EnableAutomaticPersistedQueries` to resolve to `true`.
 
-The client will automatically disable APQ if the server responds with a `PersistedQueryNotSupported` error or if a HTTP status code between 400 and 600 is returned.
+By default, the client will automatically disable APQ for the current session if the server responds with a `PersistedQueryNotSupported` error or a 400 or 600 HTTP status code.
 This can be customized by configuring `GraphQLHttpClientOptions.DisableAPQ`.
 
 To re-enable APQ after it has been automatically disabled, `GraphQLHttpClient` needs to be disposed an recreated.
