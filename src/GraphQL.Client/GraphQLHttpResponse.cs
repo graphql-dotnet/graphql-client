@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace GraphQL.Client.Http;
 
-public class GraphQLHttpResponse<T> : GraphQLResponse<T>
+public class GraphQLHttpResponse<T> : GraphQLResponse<T>, IGraphQLHttpResponse
 {
     public GraphQLHttpResponse(GraphQLResponse<T> response, HttpResponseHeaders responseHeaders, HttpStatusCode statusCode)
     {
@@ -17,6 +17,13 @@ public class GraphQLHttpResponse<T> : GraphQLResponse<T>
     public HttpResponseHeaders ResponseHeaders { get; set; }
 
     public HttpStatusCode StatusCode { get; set; }
+}
+
+public interface IGraphQLHttpResponse : IGraphQLResponse
+{
+    HttpResponseHeaders ResponseHeaders { get; set; }
+
+    HttpStatusCode StatusCode { get; set; }
 }
 
 public static class GraphQLResponseExtensions

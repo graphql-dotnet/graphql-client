@@ -22,6 +22,9 @@ The Library will try to follow the following standards and documents:
 
 ## Usage
 
+The intended use of `GraphQLHttpClient` is to keep one instance alive per endpoint (obvious in case you're
+operating full websocket, but also true for regular requests) and is built with thread-safety in mind.
+
 ### Create a GraphQLHttpClient
 
 ```csharp
@@ -159,17 +162,22 @@ var subscription = subscriptionStream.Subscribe(response =>
 subscription.Dispose();
 ```
 
-## Syntax Highlighting for GraphQL strings in IDEs
+### Automatic persisted queries (APQ)
 
-.NET 7.0 introduced the [StringSyntaxAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.codeanalysis.stringsyntaxattribute?view=net-8.0) to have a unified way of telling what data is expected in a given `string` or `ReadOnlySpan<char>`. IDEs like Visual Studio and Rider can then use this to provide syntax highlighting and checking.
+[Automatic persisted queries (APQ)](https://www.apollographql.com/docs/apollo-server/performance/apq/) are supported since client version 6.1.0.
 
-From v6.0.4 on all GraphQL string parameters in this library are decorated with the `[StringSyntax("GraphQL")]` attribute.
+APQ can be enabled by configuring `GraphQLHttpClientOptions.EnableAutomaticPersistedQueries` to resolve to `true`.
 
-Currently, there is no native support for GraphQL formatting and syntax highlighting in Visual Studio, but the [GraphQLTools Extension](https://marketplace.visualstudio.com/items?itemName=codearchitects-research.GraphQLTools) provides that for you.
+By default, the client will automatically disable APQ for the current session if the server responds with a `PersistedQueryNotSupported` error or a 400 or 600 HTTP status code.
+This can be customized by configuring `GraphQLHttpClientOptions.DisableAPQ`.
 
-For Rider, JetBrains provides a [Plugin](https://plugins.jetbrains.com/plugin/8097-graphql), too.
+To re-enable APQ after it has been automatically disabled, `GraphQLHttpClient` needs to be disposed an recreated.
 
-To leverage syntax highlighting in variable declarations, the `GraphQLQuery` value record type is provided:
+APQ works by first sending a hash of the query string to the server, and only sending the full query string if the server has not yet cached a query with a matching hash.
+With queries supplied as a string parameter to `GraphQLRequest`, the hash gets computed each time the request is sent.
+
+When you want to reuse a query string (propably to leverage APQ :wink:), declare the query using the `GraphQLQuery` class. This way, the hash gets computed once on construction
+of the `GraphQLQuery` object and handed down to each `GraphQLRequest` using the query.
 
 ```csharp
 GraphQLQuery query = new("""
@@ -190,6 +198,19 @@ var graphQLResponse = await graphQLClient.SendQueryAsync<ResponseType>(
     "PersonAndFilms",
     new { id = "cGVvcGxlOjE=" });
 ```
+
+### Syntax Highlighting for GraphQL strings in IDEs
+
+.NET 7.0 introduced the [StringSyntaxAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.codeanalysis.stringsyntaxattribute?view=net-8.0) to have a unified way of telling what data is expected in a given `string` or `ReadOnlySpan<char>`. IDEs like Visual Studio and Rider can then use this to provide syntax highlighting and checking.
+
+From v6.0.4 on all GraphQL string parameters in this library are decorated with the `[StringSyntax("GraphQL")]` attribute.
+
+Currently, there is no native support for GraphQL formatting and syntax highlighting in Visual Studio, but the [GraphQLTools Extension](https://marketplace.visualstudio.com/items?itemName=codearchitects-research.GraphQLTools) provides that for you.
+
+For Rider, JetBrains provides a [Plugin](https://plugins.jetbrains.com/plugin/8097-graphql), too.
+
+To leverage syntax highlighting in variable declarations, use the `GraphQLQuery` class.
+
 
 ## Useful Links
 

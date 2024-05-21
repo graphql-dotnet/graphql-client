@@ -17,7 +17,6 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     private readonly bool _disposeHttpClient = false;
-
     /// <summary>
     /// the json serializer
     /// </summary>
@@ -32,6 +31,12 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     /// The Options	to be used
     /// </summary>
     public GraphQLHttpClientOptions Options { get; }
+
+    /// <summary>
+    /// This flag is set to <see langword="true"/> when an error has occurred on an APQ and <see cref="GraphQLHttpClientOptions.DisableAPQ"/>
+    /// has returned <see langword="true"/>. To reset this, the instance of <see cref="GraphQLHttpClient"/> has to be disposed and a new one must be created.
+    /// </summary>
+    public bool APQDisabledForSession { get; private set; }
 
     /// <inheritdoc />
     public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
@@ -84,12 +89,49 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
 
     #region IGraphQLClient
 
+    private const int APQ_SUPPORTED_VERSION = 1;
+
     /// <inheritdoc />
     public async Task<GraphQLResponse<TResponse>> SendQueryAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
     {
-        return Options.UseWebSocketForQueriesAndMutations || Options.WebSocketEndPoint is not null && Options.EndPoint is null || Options.EndPoint.HasWebSocketScheme()
-            ? await GraphQlHttpWebSocket.SendRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false)
-            : await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string? savedQuery = null;
+        bool useAPQ = false;
+
+        if (request.Query != null && !APQDisabledForSession && Options.EnableAutomaticPersistedQueries(request))
+        {
+            // https://www.apollographql.com/docs/react/api/link/persisted-queries/
+            useAPQ = true;
+            request.GeneratePersistedQueryExtension();
+            savedQuery = request.Query;
+            request.Query = null;
+        }
+
+        var response = await SendQueryInternalAsync<TResponse>(request, cancellationToken);
+
+        if (useAPQ)
+        {
+            if (response.Errors?.Any(error => string.Equals(error.Message, "PersistedQueryNotFound", StringComparison.CurrentCultureIgnoreCase)) == true)
+            {
+                // GraphQL server supports APQ!
+
+                // Alas, for the first time we did not guess and in vain removed Query, so we return Query and
+                // send request again. This is one-time "cache miss", not so scary.
+                request.Query = savedQuery;
+                return await SendQueryInternalAsync<TResponse>(request, cancellationToken);
+            }
+            else
+            {
+                // GraphQL server either supports APQ of some other version, or does not support it at all.
+                // Send a request for the second time. This is better than returning an error. Let the client work with APQ disabled.
+                APQDisabledForSession = Options.DisableAPQ(response);
+                request.Query = savedQuery;
+                return await SendQueryInternalAsync<TResponse>(request, cancellationToken);
+            }
+        }
+
+        return response;
     }
 
     /// <inheritdoc />
@@ -123,6 +165,10 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     public Task SendPongAsync(object? payload) => GraphQlHttpWebSocket.SendPongAsync(payload);
 
     #region Private Methods
+    private async Task<GraphQLResponse<TResponse>> SendQueryInternalAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default) =>
+        Options.UseWebSocketForQueriesAndMutations || Options.WebSocketEndPoint is not null && Options.EndPoint is null || Options.EndPoint.HasWebSocketScheme()
+            ? await GraphQlHttpWebSocket.SendRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false)
+            : await SendHttpRequestAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
 
     private async Task<GraphQLHttpResponse<TResponse>> SendHttpRequestAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
     {

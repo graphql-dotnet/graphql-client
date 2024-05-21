@@ -25,7 +25,7 @@ public class GraphQLHttpClientOptions
     public Uri? WebSocketEndPoint { get; set; }
 
     /// <summary>
-    /// The GraphQL websocket protocol to be used. Defaults to the older "graphql-ws" protocol to not break old code. 
+    /// The GraphQL websocket protocol to be used. Defaults to the older "graphql-ws" protocol to not break old code.
     /// </summary>
     public string? WebSocketProtocol { get; set; } = WebSocketProtocols.AUTO_NEGOTIATE;
 
@@ -99,4 +99,21 @@ public class GraphQLHttpClientOptions
     /// </summary>
     public ProductInfoHeaderValue? DefaultUserAgentRequestHeader { get; set; }
         = new ProductInfoHeaderValue(typeof(GraphQLHttpClient).Assembly.GetName().Name, typeof(GraphQLHttpClient).Assembly.GetName().Version.ToString());
+
+    /// <summary>
+    /// Delegate permitting use of <see href="https://www.apollographql.com/docs/react/api/link/persisted-queries/">Automatic Persisted Queries (APQ)</see>.
+    /// By default, returns <see langword="false" /> for all requests. Note that GraphQL server should support APQ. Otherwise, the client disables APQ completely
+    /// after an unsuccessful attempt to send an APQ request and then send only regular requests.
+    /// </summary>
+    public Func<GraphQLRequest, bool> EnableAutomaticPersistedQueries { get; set; } = _ => false;
+
+    /// <summary>
+    /// A delegate which takes an <see cref="IGraphQLResponse"/> and returns a boolean to disable any future persisted queries for that session.
+    /// This defaults to disabling on PersistedQueryNotSupported or a 400 or 500 HTTP error.
+    /// </summary>
+    public Func<IGraphQLResponse, bool> DisableAPQ { get; set; } = response =>
+    {
+        return response.Errors?.Any(error => string.Equals(error.Message, "PersistedQueryNotSupported", StringComparison.CurrentCultureIgnoreCase)) == true
+            || response is IGraphQLHttpResponse httpResponse && (int)httpResponse.StatusCode >= 400 && (int)httpResponse.StatusCode < 600;
+    };
 }
