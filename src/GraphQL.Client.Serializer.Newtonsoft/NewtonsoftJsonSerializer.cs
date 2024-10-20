@@ -38,19 +38,19 @@ public class NewtonsoftJsonSerializer : IGraphQLWebsocketJsonSerializer
         return Encoding.UTF8.GetBytes(json);
     }
 
-    public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) => DeserializeFromUtf8Stream<WebsocketMessageWrapper>(stream);
+    public Task<WebsocketMessageWrapper> DeserializeToWebsocketResponseWrapperAsync(Stream stream) => DeserializeFromUtf8Stream<WebsocketMessageWrapper>(stream, DefaultJsonSerializerSettings);
 
     public GraphQLWebSocketResponse<TResponse> DeserializeToWebsocketResponse<TResponse>(byte[] bytes) =>
         JsonConvert.DeserializeObject<GraphQLWebSocketResponse<TResponse>>(Encoding.UTF8.GetString(bytes),
             JsonSerializerSettings);
 
-    public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) => DeserializeFromUtf8Stream<GraphQLResponse<TResponse>>(stream);
+    public Task<GraphQLResponse<TResponse>> DeserializeFromUtf8StreamAsync<TResponse>(Stream stream, CancellationToken cancellationToken) => DeserializeFromUtf8Stream<GraphQLResponse<TResponse>>(stream, JsonSerializerSettings);
 
-    private Task<T> DeserializeFromUtf8Stream<T>(Stream stream)
+    private static Task<T> DeserializeFromUtf8Stream<T>(Stream stream, JsonSerializerSettings jsonSerializerSettings)
     {
         using var sr = new StreamReader(stream);
         using JsonReader reader = new JsonTextReader(sr);
-        var serializer = JsonSerializer.Create(JsonSerializerSettings);
+        var serializer = JsonSerializer.Create(jsonSerializerSettings);
         return Task.FromResult(serializer.Deserialize<T>(reader));
     }
 }
