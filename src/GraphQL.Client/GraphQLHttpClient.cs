@@ -177,7 +177,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         using var httpRequestMessage = preprocessedRequest.ToHttpRequestMessage(Options, JsonSerializer);
         using var httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
-        var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        var contentStream = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
         if (Options.IsValidResponseToDeserialize(httpResponseMessage))
         {
@@ -190,7 +190,7 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         if (contentStream != null)
         {
             using var sr = new StreamReader(contentStream);
-            content = await sr.ReadToEndAsync().ConfigureAwait(false);
+            content = await sr.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
         }
 
         throw new GraphQLHttpRequestException(httpResponseMessage.StatusCode, httpResponseMessage.Headers, content);
