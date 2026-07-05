@@ -16,6 +16,7 @@ internal class GraphQLWSProtocolHandler : IWebsocketProtocolHandler
     private readonly GraphQLHttpClient _client;
     private readonly Func<GraphQLWebSocketRequest, Task> _queueWebSocketRequest;
     private readonly Func<GraphQLWebSocketRequest, CancellationToken, Task> _sendWebsocketMessage;
+    private readonly IncomingMessageDispatcher _incomingMessageDispatcher;
 
     public GraphQLWSProtocolHandler(
         GraphQLHttpWebSocket webSocketHandler,
@@ -27,6 +28,7 @@ internal class GraphQLWSProtocolHandler : IWebsocketProtocolHandler
         _client = client;
         _queueWebSocketRequest = queueWebSocketRequest;
         _sendWebsocketMessage = sendWebsocketMessage;
+        _incomingMessageDispatcher = new IncomingMessageDispatcher(webSocketHandler.IncomingMessageStream);
     }
 
     public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionObservable<TResponse>(GraphQLRequest request)
@@ -47,11 +49,13 @@ internal class GraphQLWSProtocolHandler : IWebsocketProtocolHandler
                 Type = GraphQLWebSocketMessageType.GQL_STOP
             };
 
+            // Route messages for this subscription id directly via the shared dispatcher instead of
+            // independently subscribing to (and Where-filtering) the shared incoming message stream:
+            // with many concurrent subscriptions on the same websocket, every message would otherwise
+            // be broadcast to, and filtered by, all of them instead of only its intended recipient.
             var observable = Observable.Create<GraphQLResponse<TResponse>>(o =>
-                _webSocketHandler.IncomingMessageStream
-                    // ignore null values and messages for other requests
-                    .Where(response => response != null && response.Id == startRequest.Id)
-                    .Subscribe(response =>
+                _incomingMessageDispatcher.Register(startRequest.Id,
+                    response =>
                     {
                         // terminate the sequence when a 'complete' message is received
                         if (response.Type == GraphQLWebSocketMessageType.GQL_COMPLETE)
@@ -76,16 +80,16 @@ internal class GraphQLWSProtocolHandler : IWebsocketProtocolHandler
                             o.OnCompleted();
                         }
                     },
-                        e =>
-                        {
-                            Debug.WriteLine($"response stream for subscription {startRequest.Id} failed: {e}");
-                            o.OnError(e);
-                        },
-                        () =>
-                        {
-                            Debug.WriteLine($"response stream for subscription {startRequest.Id} completed");
-                            o.OnCompleted();
-                        })
+                    e =>
+                    {
+                        Debug.WriteLine($"response stream for subscription {startRequest.Id} failed: {e}");
+                        o.OnError(e);
+                    },
+                    () =>
+                    {
+                        Debug.WriteLine($"response stream for subscription {startRequest.Id} completed");
+                        o.OnCompleted();
+                    })
             );
 
             try
