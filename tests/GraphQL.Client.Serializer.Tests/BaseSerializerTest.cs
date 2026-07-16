@@ -59,6 +59,38 @@ public abstract class BaseSerializerTest
 
         //var response = await Serializer.DeserializeFromUtf8StreamAsync<object>(ms, CancellationToken.None);
 
+        AssertResponse(response, expectedResponse);
+    }
+
+    // regression test for https://github.com/graphql-dotnet/graphql-client/ - DeserializeToWebsocketResponse
+    // used to eagerly materialize the whole payload as a string (Encoding.UTF8.GetString(bytes)) before
+    // handing it to Newtonsoft, causing an extra large allocation on every websocket message.
+    [Theory]
+    [ClassData(typeof(DeserializeResponseTestData))]
+    public void DeserializeToWebsocketResponseTest(string json, IGraphQLResponse expectedResponse)
+    {
+        var wrapperJson = $"{{\"id\":\"1\",\"type\":\"next\",\"payload\":{json}}}";
+        var bytes = Encoding.UTF8.GetBytes(wrapperJson);
+
+        var dataType = expectedResponse.Data?.GetType() ?? typeof(object);
+        var payloadType = typeof(GraphQLResponse<>).MakeGenericType(dataType);
+
+        MethodInfo mi = ClientSerializer.GetType().GetMethod(nameof(IGraphQLWebsocketJsonSerializer.DeserializeToWebsocketResponse), BindingFlags.Instance | BindingFlags.Public);
+        MethodInfo mi2 = mi.MakeGenericMethod(payloadType);
+        var websocketResponse = mi2.Invoke(ClientSerializer, new object[] { bytes });
+
+        websocketResponse.Should().NotBeNull();
+
+        var responseType = websocketResponse.GetType();
+        responseType.GetProperty(nameof(GraphQLWebSocketResponse.Id)).GetValue(websocketResponse).Should().Be("1");
+        responseType.GetProperty(nameof(GraphQLWebSocketResponse.Type)).GetValue(websocketResponse).Should().Be("next");
+
+        var payload = (IGraphQLResponse)responseType.GetProperty(nameof(GraphQLWebSocketResponse<object>.Payload)).GetValue(websocketResponse);
+        AssertResponse(payload, expectedResponse);
+    }
+
+    private static void AssertResponse(IGraphQLResponse response, IGraphQLResponse expectedResponse)
+    {
         response.Data.Should().BeEquivalentTo(expectedResponse.Data, options => options.WithAutoConversion());
 
         if (expectedResponse.Errors is null)
