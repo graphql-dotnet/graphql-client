@@ -113,6 +113,24 @@ public class DeserializeResponseTestData : IEnumerable<object[]>
                 },
             }
         };
+
+        // Sample response from GitHub which contains an unmapped JSON node ('type' in this instance)
+        // Discussed in issue #384 : https://github.com/graphql-dotnet/graphql-client/issues/384
+        yield return new object[] {
+            "{\"errors\": [{\"type\": \"INSUFFICIENT_SCOPES\",\"locations\": [{\"line\": 4,\"column\": 28}],\"message\": \"<some_message>\"}]}",
+            new GraphQLResponse<object> {
+                Data = null,
+                Errors = new[] {
+                    new GraphQLError {
+                        Message = "<some_message>",
+                        Locations = new [] { new GraphQLLocation{Line = 4, Column = 28 }},
+                        Extensions = new Map {
+                            {"type", "INSUFFICIENT_SCOPES" },
+                        }
+                    }
+                },
+            }
+        };
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

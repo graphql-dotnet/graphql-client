@@ -28,7 +28,11 @@ public class NewtonsoftJsonSerializer : IGraphQLWebsocketJsonSerializer
     }
 
     // deserialize extensions to Dictionary<string, object>
-    private void ConfigureMandatorySerializerOptions() => JsonSerializerSettings.Converters.Insert(0, new MapConverter());
+    private void ConfigureMandatorySerializerOptions()
+    {
+        JsonSerializerSettings.Converters.Insert(0, new MapConverter());
+        JsonSerializerSettings.Converters.Insert(0, new GraphQLErrorConverter());
+    }
 
     public string SerializeToString(GraphQLRequest request) => JsonConvert.SerializeObject(request, JsonSerializerSettings);
 
